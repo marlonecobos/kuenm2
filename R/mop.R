@@ -27,84 +27,76 @@
 #' distance calculations at a time (default = 2000). Increasing this number
 #' requires more RAM.
 #' @param rescale_mop (logical) whether or not to re-scale distances 0-1.
-#' Default = TRUE. Re-scaling complicates comparisons of dissimilarity values
+#' Default = FALSE. Re-scaling complicates comparisons of dissimilarity values
 #' obtained from exercises in which the percentage is changed.
 #' @param parallel (logical) if TRUE, calculations will be performed in parallel
 #' using \code{n_cores} of the computer. Using this option will speed up the
 #' analysis  but will demand more RAM. Default = FALSE.
 #' @param n_cores (numeric) number of cores to be used in parallel processing.
 #' Default = NULL, in which case all CPU cores on current host - 1 will be used.
+#' @param progress_bar (logical) whether to show a progress bar for calculations,
+#' default = TRUE. Valid when calculation are not run in parallel.
 #'
-#' @return **change to include matrix results**
+#' @return
 #' A list of results containing:
 #' - summary.- a list with details on the data used in the analysis.
-#' - mop_basic.- a SpatRaster for the projection area (\code{g}) with
-#' dissimilarity values (0-1), where 1 means that values of at least one of the
-#' variables in the projection area are non-analogous to those in the
-#' calibration area.
-#' - mop_simple.- a SpatRaster for the projection area (\code{g}) with values
-#' representing how many variables in the projection area are non-analogous to
+#' - mop_basic.- a SpatRaster or matrix for the projection area (\code{g}) with
+#' dissimilarity values, where the highest value represent conditions in which
+#' at least one of the variables in the projection area are non-analogous to
 #' those in the calibration area.
+#' - mop_simple.- a SpatRaster or matrix for the projection area (\code{g}) with
+#' values representing how many variables in the projection area are
+#' non-analogous to those in the calibration area.
 #' - mop_detailed.- a list containing:
 #'     - interpretation_combined.- a data.frame to help identify the variables
 #'     that are non-analogous to \code{m} in the layers towards_low_combined and
 #'     towards_high_combined.
-#'     - towards_low_end.- a SpatRaster or matrix with layers for all variables
-#'     representing where non-analogous conditions were found towards low values
-#'     of the variable.
-#'     - towards_high_end.- a SpatRaster or matrix with layers for all variables
-#'     representing where non-analogous conditions were found towards high values
-#'     of the variable.
+#'     - towards_low_end.- a SpatRaster or matrix for all variables representing
+#'     where non-analogous conditions were found towards low values of the
+#'     variable.
+#'     - towards_high_end.- a SpatRaster or matrix for all variables representing
+#'     where non-analogous conditions were found towards high values of the
+#'     variable.
 #'     - towards_low_combined.- a SpatRaster or vector with values representing
 #'     the identity of the variables found to have non-analogous conditions
-#'     towards low values. Interpretation requires the use of the table in
+#'     towards low values. Interpretation requires the use of the table
 #'     interpretation_combined.
 #'     - towards_high_combined.- a SpatRaster or vector with values representing
 #'     the identity of the variables found to have non-analogous conditions
-#'     towards high values. Interpretation requires the use of the table in
+#'     towards high values. Interpretation requires the use of the table
 #'     interpretation_combined.
 #'
 #' @details
 #' The options for the argument \code{mop_type} return results that differ in
 #' the detail of how non-analogous conditions are identified. The option "basic"
 #' makes calculation as proposed by Owens et al. (2013;
-#' \url{https://doi.org/10.1016/j.ecolmodel.2013.04.011}). Other options perform
+#' \url{https://doi.org/10.1016/j.ecolmodel.2013.04.011}). Other options involve
 #' further analyses that help to identify non-analogous conditions in more
 #' detail (see description of results returned).
 #'
 #' When the variables used to represent environmental conditions in the areas of
-#' interest differ considerably in the way they were measured, using the
-#' arguments \code{scale} and \code{center} is recommended.
+#' interest differ considerably in their units, scaling and centering is
+#' recommended. This is only valid when Euclidean distances are used.
+#'
+#' @importFrom terra rast
+#' @importFrom fields rdist
+#' @importFrom stats mahalanobis
+#' @importFrom parallel detectCores
+#' @importFrom snow makeSOCKcluster stopCluster
+#' @importFrom doSNOW registerDoSNOW
+#' @importFrom foreach `%dopar%` foreach
+#' @import Kendall
 #'
 #' @usage
 #' mop(m, g, mop_type = "basic", distance = "euclidean", scale = FALSE,
 #'     center = FALSE, fix_NA = FALSE, percent = 5, comp_each = 2000,
-#'     parallel = FALSE, n_cores = NULL)
+#'     parallel = FALSE, n_cores = NULL, progress_bar = TRUE)
 
-#if (!require(raster)) {
-#  install.packages("raster")
-#}
-#
-#if (!require(foreach)) {
-#  install.packages("foreach")
-#}
-#
-#if (!require(Kendall)) {
-#  install.packages("Kendall")
-#}
-#
-#if (!require(snow)) {
-#  install.packages("snow")
-#}
-#
-#if (!require(doSNOW)) {
-#  install.packages("doSNOW")
-#}
-
-mop <- function(m, g, mop_type = "basic", distance = "euclidean",
-                scale = FALSE, center = FALSE, fix_NA = FALSE, percent = 5,
-                comp_each = 2000, rescale_mop = TRUE, parallel = FALSE,
-                n_cores = NULL) {
+mop <- function(m, g, mop_type = c("basic", "simple", "detailed"),
+                distance = "euclidean", scale = FALSE, center = FALSE,
+                fix_NA = FALSE, percent = 5, comp_each = 2000,
+                rescale_mop = FALSE, parallel = FALSE, n_cores = NULL,
+                progress_bar = TRUE) {
 
   # initial tests
   if (missing(m) | missing(g)) {
@@ -118,7 +110,7 @@ mop <- function(m, g, mop_type = "basic", distance = "euclidean",
     stop("'m' must be a 'SpatRaster', 'matrix', or 'data.frame'.")
   } else {
     if (clasm == "SpatRaster") {
-      var_names <- terra::varnames(m)
+      var_names <- names(m)
     } else {
       var_names <- colnames(m)
     }
@@ -127,7 +119,7 @@ mop <- function(m, g, mop_type = "basic", distance = "euclidean",
     stop("'g' must be a 'SpatRaster', 'matrix', or 'data.frame'.")
   } else {
     if (clasg == "SpatRaster") {
-      gnames <- terra::varnames(g)
+      gnames <- names(g)
     } else {
       gnames <- colnames(g)
     }
@@ -168,7 +160,7 @@ mop <- function(m, g, mop_type = "basic", distance = "euclidean",
   ng <- nrow(g)
 
   if (clasg == "matrix") {
-    mop <- rep(NA, 1:nrow(g))
+    mop <- rep(NA, nrow(g))
   }
 
   ## scaling options
@@ -196,7 +188,7 @@ mop <- function(m, g, mop_type = "basic", distance = "euclidean",
 
   ## analysis
   mop1 <- mop_distance(m, g_red, distance, percent, comp_each,
-                       parallel, n_cores)
+                       parallel, n_cores, progress_bar)
 
 
   # re-assigning values to rasters
@@ -232,7 +224,7 @@ mop <- function(m, g, mop_type = "basic", distance = "euclidean",
         mop0[nona] <- out_ranges$low_all[, x]
         mop0
       }))
-      terra::varnames(mop5) <- var_names
+      names(mop5) <- var_names
     } else {
       mop5 <- out_ranges$low_all
     }
@@ -243,7 +235,7 @@ mop <- function(m, g, mop_type = "basic", distance = "euclidean",
         mop0[nona] <- out_ranges$high_all[, x]
         mop0
       }))
-      terra::varnames(mop6) <- var_names
+      names(mop6) <- var_names
     } else {
       mop6 <- out_ranges$high_all
     }
@@ -378,7 +370,8 @@ ext_interpret <- function (var_names, var_codes) {
 
 # helper to calculate mop distances
 mop_distance <- function(m_matrix, g_matrix, distance = "euclidean", percent = 5,
-                         comp_each = 2000, parallel = FALSE, n_cores = NULL) {
+                         comp_each = 2000, parallel = FALSE, n_cores = NULL,
+                         progress_bar = TRUE) {
   ### preparing groups of points
   nred <- nrow(g_matrix)
   per_out <- round(nrow(m_matrix) * (percent / 100))
@@ -392,11 +385,15 @@ mop_distance <- function(m_matrix, g_matrix, distance = "euclidean", percent = 5
 
   ### running analysis
   if (parallel == FALSE) {
-    pb <- txtProgressBar(min = 1, max = nprocess, style = 3)
+    if (progress_bar == TRUE) {
+      pb <- txtProgressBar(min = 1, max = nprocess, style = 3)
+    }
 
     mop1 <- lapply(1:nprocess, function(x) {
-      Sys.sleep(0.1)
-      setTxtProgressBar(pb, x)
+      if (progress_bar == TRUE) {
+        Sys.sleep(0.1)
+        setTxtProgressBar(pb, x)
+      }
 
       #### defining sets and all distances
       seq_rdist <- groups[x]:(groups[x + 1] - 1)
@@ -415,14 +412,12 @@ mop_distance <- function(m_matrix, g_matrix, distance = "euclidean", percent = 5
       apply(cdist, 1, function(y) {mean(sort(y)[1:per_out])})
     })
 
-    close(pb)
+    if (progress_bar == TRUE) {
+      close(pb)
+    }
     mop1 <- unlist(mop1)
 
   } else {
-    # packages used internally
-    suppressPackageStartupMessages(library(Kendall))
-    suppressPackageStartupMessages(library(foreach))
-
     ### parallel processing preparation
     if (is.null(n_cores)) {
       n_cores <- parallel::detectCores() - 1
@@ -439,27 +434,32 @@ mop_distance <- function(m_matrix, g_matrix, distance = "euclidean", percent = 5
     opts <- list(progress = progress)
 
     ### parallel running
-    mop1 <- foreach(i = 1:nprocess, .packages = "Kendall", .inorder = TRUE,
-                    .options.snow = opts, .combine = "c") %dopar% {
+    mop1 <- foreach::foreach(i = 1:nprocess, .packages = "Kendall",
+                             .inorder = TRUE, .options.snow = opts,
+                             .combine = "c") %dopar% {
 
-                      #### defining sets and all distances
-                      seq_rdist <- groups[i]:(groups[i + 1] - 1)
+                               #### defining sets and all distances
+                               seq_rdist <- groups[i]:(groups[i + 1] - 1)
 
-                      if (distance == "euclidean") {
-                        cdist <- fields::rdist(g_matrix[seq_rdist, ], m_matrix)
-                      } else {
-                        cv <- cov(g_matrix)
-                        cdist <- lapply(seq_rdist, function(y) {
-                          stats::mahalanobis(x = m_matrix, center = g_matrix[y, ],
-                                             cov = cv)
-                        })
-                        cdist <- do.call(rbind, cdist)
-                      }
+                               if (distance == "euclidean") {
+                                 cdist <- fields::rdist(g_matrix[seq_rdist, ],
+                                                        m_matrix)
+                               } else {
+                                 cv <- cov(g_matrix)
+                                 cdist <- lapply(seq_rdist, function(y) {
+                                   stats::mahalanobis(x = m_matrix,
+                                                      center = g_matrix[y, ],
+                                                      cov = cv)
+                                 })
+                                 cdist <- do.call(rbind, cdist)
+                               }
 
-                      #### getting mean of closer distances
-                      return(
-                        apply(cdist, 1, function(y) {mean(sort(y)[1:per_out])})
-                      )
+                               #### getting mean of closer distances
+                               return(
+                                 apply(cdist, 1, function(y) {
+                                   mean(sort(y)[1:per_out])
+                                 })
+                               )
                     }
 
     close(pb)
@@ -470,52 +470,3 @@ mop_distance <- function(m_matrix, g_matrix, distance = "euclidean", percent = 5
 }
 
 
-
-
-# helper to get information to plot raster files and their legends properly
-plot_raster_inf <- function(mop_result, result = "basic",
-                            col_nonanalogous = "#000000",
-                            color_palette = heat.colors, reverse = FALSE) {
-  if (result %in% c("basic", "simple")) {
-    result1 <- paste0("mop_", result)
-    raster_layer <- mop_result[[result1]]
-  } else {
-    raster_layer <- mop_result$mop_detailed[[result]]
-    mop_detail <- mop_result$mop_detailed$interpretation_combined
-  }
-
-  vals <- na.omit(raster_layer[])
-  fvals <- as.factor(vals)
-  fac <- levels(fvals)
-  colsa <- color_palette(length(fac))
-
-  if (result == "basic") {
-    colsa[1] <- col_nonanalogous
-    colsa <- rev(colsa)
-  }
-
-  if (reverse == TRUE) {
-    colsa <- rev(colsa)
-  }
-
-  facn <- as.numeric(fac)
-  breaksa <- c(0, facn)
-
-  if (result %in% c("basic", "simple")) {
-    leg_col <- colsa
-    if (result == "basic") {
-      leg_text <- c("Low", "High")
-    } else {
-      leg_text <- fac
-    }
-  } else {
-    leg_col <- colsa
-    leg_text <- mop_detail[mop_detail$values %in% facn, ]
-    ovals <- leg_text$values
-    colsa <- colsa[order(ovals)]
-    leg_text <- leg_text[, 2]
-  }
-
-  return(list(col = colsa, breaks = breaksa, legend_col = leg_col,
-              legend_text = leg_text, val_factor = fvals))
-}
