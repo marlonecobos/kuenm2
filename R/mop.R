@@ -1,7 +1,7 @@
 #' Analysis of extrapolation risks using the MOP metric
 #'
-#' @description mop calculates a the mobility-oriented parity metric and other
-#' sub-products to represent conditions in a projection area that are
+#' @description Analysis to calculate the mobility-oriented parity metric and
+#' other sub-products to represent conditions in a projection area that are
 #' non-analogous to those in a calibration area.
 #'
 #' @param m SpatRaster or matrix of variables representing the original area
@@ -86,6 +86,10 @@
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom foreach `%dopar%` foreach
 #' @import Kendall
+#'
+#' @export
+#'
+#' @rdname mop
 #'
 #' @usage
 #' mop(m, g, mop_type = "basic", distance = "euclidean", scale = FALSE,
@@ -283,8 +287,20 @@ mop <- function(m, g, mop_type = c("basic", "simple", "detailed"),
 
 
 
+#' @rdname mop
+#'
+#' @param m_matrix matrix of variables representing the original area of
+#' interest. Each column represents a variable.
+#' @param g_matrix matrix of variables representing the area of model projection
+#' (where dissimilarities and/or non-analogous conditions are to be detected).
+#' Each column represents a variable. Variable names must match with those in
+#' \code{m_matrix}
+#'
+#' @export
+#'
+#' @usage
+#' out_m(m_matrix, g_matrix, type = c("basic", "simple", "detailed"))
 
-# helper to detect values outside range of m conditions
 out_m <- function(m_matrix, g_matrix, type = c("basic", "simple", "detailed")) {
 
   type <- type[1]
@@ -351,24 +367,16 @@ out_m <- function(m_matrix, g_matrix, type = c("basic", "simple", "detailed")) {
 
 
 
-# helper function to create table for mop detailed interpretation
-ext_interpret <- function (var_names, var_codes) {
-  var_comb <- lapply(1:length(var_names), function(x) {
-    apply(combn(var_names, m = x), 2, paste, collapse = ", ")
-  })
-  var_comb <- unlist(var_comb)
 
-  var_cod <- lapply(1:length(var_codes), function(x) {
-    apply(combn(var_codes, m = x), 2, sum)
-  })
-  var_cod <- unlist(var_cod)
+#' @rdname mop
+#'
+#' @export
+#'
+#' @usage
+#' mop_distance(m_matrix, g_matrix, distance = "euclidean", percent = 5,
+#'              comp_each = 2000, parallel = FALSE, n_cores = NULL,
+#'              progress_bar = TRUE)
 
-  return(data.frame(values = var_cod, extrapolation_variables = var_comb))
-}
-
-
-
-# helper to calculate mop distances
 mop_distance <- function(m_matrix, g_matrix, distance = "euclidean", percent = 5,
                          comp_each = 2000, parallel = FALSE, n_cores = NULL,
                          progress_bar = TRUE) {
@@ -470,3 +478,21 @@ mop_distance <- function(m_matrix, g_matrix, distance = "euclidean", percent = 5
 }
 
 
+
+
+
+
+# helper function to create table for mop detailed interpretation
+ext_interpret <- function (var_names, var_codes) {
+  var_comb <- lapply(1:length(var_names), function(x) {
+    apply(combn(var_names, m = x), 2, paste, collapse = ", ")
+  })
+  var_comb <- unlist(var_comb)
+
+  var_cod <- lapply(1:length(var_codes), function(x) {
+    apply(combn(var_codes, m = x), 2, sum)
+  })
+  var_cod <- unlist(var_cod)
+
+  return(data.frame(values = var_cod, extrapolation_variables = var_comb))
+}
