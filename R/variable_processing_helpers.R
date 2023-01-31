@@ -3,7 +3,7 @@ fix_na_rast <- function(raster_layers, return_mask = FALSE) {
   if (missing(raster_layers)) {
     stop("Argument 'raster_layers' must be defined.")
   }
-  if (class(raster_layer)[1] != "SpatRaster") {
+  if (class(raster_layers)[1] != "SpatRaster") {
     stop("Argument 'raster_layers' must of class 'SpatRaster'.")
   }
 
