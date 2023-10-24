@@ -45,3 +45,55 @@ new_back_cal <- function(summary, background, background_bias = NULL,
   class(val) <- "back_cal"
   return(val)
 }
+
+new_lambdas <- function(lambdas_path){
+  lambdas <- readLines(lambdas_path)
+  maxcalcsV <- c("linearPredictorNormalizer",
+                 "densityNormalizer",
+                 "numBackgroundPoints",
+                 "entropy")
+  maxids <-  sapply(seq_along(maxcalcsV), function(x){
+    ids <- stringr::str_detect(string = lambdas,maxcalcsV[x])
+    return(which(ids))
+  })
+  if(length(maxids)==0L){
+    stop("Please provide a valid lambdas file")
+  }
+  maxcalcs <- lapply(maxids, function(x){
+    val <- stringr::str_split(lambdas[x],", ")[[1]]
+    v <- as.numeric(val[2])
+    return(v)
+  })
+
+  names(maxcalcs) <- maxcalcsV
+  lambvals <- data.frame(stringr::str_split(string = lambdas[-maxids],
+                                            pattern = "[,]",simplify = T))
+  lambvals[,-1] <- as.numeric(as.matrix(lambvals[,-1]))
+  names(lambvals) <- c("variable","lambda","min","max")
+  feature <- sapply(lambvals$variable, function(x){
+    qq <- which(stringr::str_detect(string =x ,"\\^"))
+    pd <- which(stringr::str_detect(string =x ,"\\*"))
+    fh <- which(stringr::str_detect(string =x ,"\\'"))
+    rh <- which(stringr::str_detect(string =x ,"\\`"))
+    th <- which(stringr::str_detect(string =x ,"\\<"))
+    if(length(qq)){
+      return("quadratic")
+    } else if(length(pd)){
+      return("product")
+    } else if(length(fh)){
+      return("forward_hinge")
+    } else if(length(rh)){
+      return("reverse_hinge")
+    } else if(length(rh)){
+      return("reverse_hinge")
+    } else if(length(th)){
+      return("threshold")
+    } else{
+      return("linear")
+    }
+  })
+  lambvals$feature <- feature
+  res <- list(lambdas_df=lambvals,maxmeta=maxcalcs)
+  class(res) <- c("lambdas")
+  return(res)
+}
