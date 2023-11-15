@@ -59,6 +59,8 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   model$alpha <- 0
   rr <- predict.glmnet_mx(model, data[p == 0, , drop = FALSE],
                           type = "exponent", clamp = FALSE)
+  #.Machine$double.eps added to deal with rr = 0
+  rr <- rr + .Machine$double.eps
   raw <- rr / sum(rr)
   model$entropy <- -sum(raw * log(raw))
   model$alpha <- -log(sum(rr))

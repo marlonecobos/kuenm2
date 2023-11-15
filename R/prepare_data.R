@@ -1,15 +1,15 @@
 #### Prepare SWD ####
-library(terra)
-occ <- read.csv("Models/Myrcia_hatschbachii/Occurrences.csv")
-species <- "Myrcia_hatschbachii"
-x = "x"
-y = "y"
-spat_variables <- rast("Models/Myrcia_hatschbachii/PCA_var.tiff")
-nbg = 10000
-kfolds = 4
-include_xy = TRUE
-writeFiles = F
-out_dir = NULL
+# library(terra)
+# occ <- read.csv("Models/Myrcia_hatschbachii/Occurrences.csv")
+# species <- "Myrcia_hatschbachii"
+# x = "x"
+# y = "y"
+# spat_variables <- rast("Models/Myrcia_hatschbachii/PCA_var.tiff")
+# nbg = 10000
+# kfolds = 4
+# include_xy = TRUE
+# writeFiles = F
+# out_dir = NULL
 
 #library(terra)
 prepare_data <- function(occ,
@@ -93,20 +93,20 @@ prepare_data <- function(occ,
   return(data)
 }
 
-# #Test
-tt <- prepare_data(occ = occ,
-                   species = "species",
-                   x = "x",
-                   y = "y",
-                   spat_variables = rast("Models/Myrcia_hatschbachii/PCA_var.tiff"),
-                   categorical_variables = "SoilType",
-                   nbg = 10000,
-                   kfolds = 4,
-                   include_xy = TRUE,
-                   write_files = T,
-                   file_name =  "Models/Myrcia_hatschbachii/Data")
-
-tt2 <- readRDS("Models/Myrcia_hatschbachii/Data.RDS")
-tt2$calibration_data %>% str()
-
-any(is.na(tt2$calibration_data))
+# # #Test
+# tt <- prepare_data(occ = occ,
+#                    species = "species",
+#                    x = "x",
+#                    y = "y",
+#                    spat_variables = rast("Models/Myrcia_hatschbachii/PCA_var.tiff"),
+#                    categorical_variables = "SoilType",
+#                    nbg = 10000,
+#                    kfolds = 4,
+#                    include_xy = TRUE,
+#                    write_files = T,
+#                    file_name =  "Models/Myrcia_hatschbachii/Data")
+#
+# tt2 <- readRDS("Models/Myrcia_hatschbachii/Data.RDS")
+# tt2$calibration_data %>% str()
+#
+# any(is.na(tt2$calibration_data))

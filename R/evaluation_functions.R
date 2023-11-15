@@ -39,6 +39,8 @@ aic_nk <- function(x, y, beta) {
 
   pr0 <- 1 - 1 / (1 + exp(predict_glm))
   pr <- 1 - 1 / (1 + exp(cbind(1, x) %*% beta))
+  #.Machine$double.eps added to deal with pr = 0
+  pr <- pr + .Machine$double.eps
   cc <- as.vector(beta)
   jc <- abs(cc) > 1e-05
   xj <- cbind(1, x)[, jc]
