@@ -49,10 +49,8 @@ part_data <- function(data,
 return(rep_data)
 } #End of function
 
-
-
-# #Test function
-data <- read.csv("Models/Piper_fuligineum/occ_bg.csv")
-a <- part_data(data = data, train_portion = 0.75,
-               n_replicates = 5,
-               method = "subsample")
+# # #Test function
+# data <- read.csv("Models/Piper_fuligineum/occ_bg.csv")
+# a <- part_data(data = data, train_portion = 0.75,
+#                n_replicates = 5,
+#                method = "subsample")
