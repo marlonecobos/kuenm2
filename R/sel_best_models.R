@@ -7,7 +7,7 @@
 
 ####Function to select best models####
 sel_best_models <- function(cand_models,
-                     test_convex = TRUE,
+                     test_concave = TRUE,
                      # omrat = 5,
                      omrat_threshold = 5,
                      allow_tolerance = T,
@@ -34,13 +34,13 @@ sel_best_models <- function(cand_models,
     message("\nFiltering ", nrow(cand_models), " models")
   }
 
-  #If test convex = TRUE, remove convex curves
-  if(test_convex) {
+  #If test concave = TRUE, remove concave curves
+  if(test_concave) {
     if(verbose){
-      message("Removing ", nrow(subset(cand_models, is_convex == TRUE)),
-              " models with convex curves")
+      message("Removing ", nrow(subset(cand_models, is_concave == TRUE)),
+              " models with concave curves")
     }
-    cand_models <- subset(cand_models, is_convex == FALSE)
+    cand_models <- subset(cand_models, is_concave == FALSE)
   }
 
   #Remove NAs from results
@@ -103,7 +103,7 @@ sel_best_models <- function(cand_models,
 # # #Test function
 # #With minimum omission rate below the selected threshold
 # bm <- sel_best_models(cand_models = cr,
-#                        test_convex = TRUE,
+#                        test_concave = TRUE,
 #                        omrat = 5,
 #                        omrat_threshold = 5, #5%
 #                        allow_tolerance = T,
@@ -119,7 +119,7 @@ sel_best_models <- function(cand_models,
 #
 # #With minimum omission rate above the selected threshold, allowing tolerance
 # bm2 <- sel_best_models(cand_models = cr,
-#                       test_convex = TRUE,
+#                       test_concave = TRUE,
 #                       omrat = 5,
 #                       omrat_threshold = 1, #1%
 #                       allow_tolerance = T,
@@ -133,7 +133,7 @@ sel_best_models <- function(cand_models,
 #
 # #With minimum omission rate above the selected threshold, allowing tolerance
 # bm3 <- sel_best_models(cand_models = cr,
-#                       test_convex = TRUE,
+#                       test_concave = TRUE,
 #                       omrat = 5,
 #                       omrat_threshold = 1, #1%
 #                       allow_tolerance = F,

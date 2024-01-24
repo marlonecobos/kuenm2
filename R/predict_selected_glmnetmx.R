@@ -21,18 +21,80 @@ predict_selected_glmnetmx <- function(models,
                            consensus_per_model = TRUE,
                            consensus_general = TRUE,
                            consensus = c("median", "range", "mean", "stdev"), #weighted mean
+                           clamping = FALSE,
+                           var_to_clamp = NULL,
                            type = "cloglog",
-                           overwrite = FALSE) {
+                           overwrite = FALSE,
+                           progress_bar = TRUE) {
   #Get models names
   nm <- names(models)
 
-  #Get predictions for each replicate
-  p_models <- lapply(models, function(i){
-    terra::rast(lapply(i, function(x) {
-      terra::predict(spat_var, x, na.rm = TRUE,
-                                 type = type)
+  #Clamp
+  if (clamping) {
+    #Get minimum e maximum values from the models
+    varmin <- models[[1]][[1]]$varmin[-1] #Get var min
+    varmax <- models[[1]][[1]]$varmax[-1] #Get var min
+    #Variables to clamp (all variables if var_to_clamp = NULL)
+    if(is.null(var_to_clamp)) {
+      var_to_clamp <- names(varmin)
+    }
+
+    #Clamp variables
+    clamped_variables <- terra::rast(lapply(var_to_clamp, function(i){
+      terra::clamp(spat_var[[i]], lower = varmin[i], upper = varmax[i],
+                          values = TRUE)
     }))
-  })
+    #Replace clamped variables in spat_var object
+    spat_var[[names(clamped_variables)]] <- clamped_variables
+
+  }
+
+  #Get predictions for each replicate
+  n_models <- length(models) #Number of models
+
+  #Show progress bar?
+  if(progress_bar) {
+    pb <- txtProgressBar(0, n_models, style = 3)}
+
+  #Create empty list
+  p_models <- list()
+
+  #Fill list with predictions
+  for (i in seq_along(models)) {
+    inner_list <- list()
+
+    for (x in models[[i]]) {
+      prediction <- terra::predict(spat_var, x, na.rm = TRUE, type = type)
+      inner_list[[length(inner_list) + 1]] <- prediction
+    }
+
+    p_models[[length(p_models) + 1]] <- terra::rast(inner_list)
+    #Set progress bar
+    if(progress_bar){
+      setTxtProgressBar(pb, i) }
+  }
+
+  # #Create empy list
+  # p_models <- vector("list", length = n_models)
+  # # Loop for com barra de progresso manual
+  # for (x in 1: n_models) {
+  #   # Execute a função fit_eval_models
+  #   p_models[[x]] <- terra::rast(lapply(i, function(x) {
+  #     terra::predict(spat_var, x, na.rm = TRUE,
+  #                    type = type)
+  #   }))
+  #
+  #   # Sets the progress bar to the current state
+  #   if(progress_bar){
+  #     setTxtProgressBar(pb, x) }
+  # }
+
+  # p_models <- lapply_progress(models, function(i){
+  #   terra::rast(lapply(i, function(x) {
+  #     terra::predict(spat_var, x, na.rm = TRUE,
+  #                                type = type)
+  #   }))
+  # })
   names(p_models) <- nm
 
   #Start to store results
