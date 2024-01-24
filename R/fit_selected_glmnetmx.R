@@ -51,13 +51,13 @@
 
 ####Function to fit best models####
 fit_selected_glmnetmx <- function(calibration_results,
-                                  n_replicates = 1,
+                                  n_replicates = 5,
                                   rep_type = "kfold",
                                   train_portion = 0.7,
                                   write_models = FALSE, #Write files?
                                   file_name = NULL, #Name of the folder to write final models
                                   parallel = TRUE,
-                                  ncores = 1,
+                                  ncores = 4,
                                   parallelType = "doSNOW",
                                   progress_bar = TRUE,
                                   verbose = TRUE) {
@@ -71,14 +71,14 @@ fit_selected_glmnetmx <- function(calibration_results,
                 "hingeval",
                 "thresholds", "thresholdval",
                 "categorical",
-                "categoricalval")
+                "categoricalval", "fit_best_model", "n_replicates")
 
   #Extracts IDs from models
   m_ids <- calibration_results$selected_models$ID
 
   #Create grid of fitted models
   dfgrid <- expand.grid(models = m_ids, replicates = 1:n_replicates)
-  n <-  nrow(dfgrid)
+  n_tot <-  nrow(dfgrid)
 
   #Prepare data (index) to replicates
   if(n_replicates > 1) {
@@ -88,17 +88,20 @@ fit_selected_glmnetmx <- function(calibration_results,
                           train_portion = train_portion,
                           n_replicates = n_replicates,
                           method = rep_type)
+  } else {
+      rep_data <- NULL
     }
 
+
+  #Show progress bar?
+  if (isTRUE(progress_bar)) {
+    pb <- txtProgressBar(0, n_tot, style = 3)
+    progress <- function(n) setTxtProgressBar(pb, n) }
 
   #Set parallelization
   if(parallel) {
     #Make cluster
     cl <- parallel::makeCluster(ncores)
-    #Show progress bar?
-    if (isTRUE(progress_bar)) {
-      pb <- txtProgressBar(0, n, style = 3)
-      progress <- function(n) setTxtProgressBar(pb, n) }
 
     if (parallelType == "doParallel") {
       doParallel::registerDoParallel(cl)
@@ -107,49 +110,39 @@ fit_selected_glmnetmx <- function(calibration_results,
 
     if (parallelType == "doSNOW") {
       doSNOW::registerDoSNOW(cl)
-      if (isTRUE(progress_bar))
+      if (progress_bar)
         opts <- list(progress = progress)
       else opts <- NULL
     }
   } else {
     opts <- NULL}
 
-  #Fit models with replicates
-  best_models <- foreach::foreach(x = 1:n, .options.snow = opts,
-                                  .export = to_export) %dopar% {
-                                    #Get grid
-                                    grid_x <- dfgrid[x,]
-                                    m_id <- grid_x$models
-                                    rep_x <- grid_x$replicates
+  #In parallel (using %dopar%)
+  if(parallel){
+    best_models <- foreach(x = 1:n_tot,
+                               .options.snow = opts,
+                               .export = c(to_export)
+    ) %dopar% {
+      fit_best_model(x = x, dfgrid, calibration_results, data_x, n_replicates,
+                     rep_data)
+    }
+  } else { #Not in parallel (using %do%)
+    best_models <- vector("list", length = n_tot)
+    # Loop for com barra de progresso manual
+    for (x in 1:n_tot) {
+      # Execute a função fit_eval_models
+      best_models[[x]] <- fit_best_model(x = x, dfgrid, calibration_results,
+                                         data_x, n_replicates,
+                                         rep_data)
 
-                                    #Get best model
-                                    best_models_i <- calibration_results$selected_models[which(calibration_results$selected_models$ID == m_id),]
-                                    #best_models_i <- selected_models[i,]
-                                    best_formula <- best_models_i$Formulas
-                                    best_regm <- best_models_i$regm
-
-                                    #Get replicate, if necessary
-                                    if(n_replicates > 1){
-                                      rep_i <- rep_data[[rep_x]]
-                                      data_x <- calibration_results$calibration_data[rep_i, ]
-                                      } else { #Select i k-fold
-                                        data_x <- data }
-                                    #Run model
-                                    mod_x <- glmnet_mx(p = data_x[,"pr_bg"], data = data_x,
-                                                       f = as.formula(best_formula),
-                                                       regmult = best_regm,
-                                                       calculate_AIC = FALSE)
-
-                                    #Only to make sure the IDs in list are correct
-                                    mod_x$checkModel <- m_id
-                                    mod_x$checkreplicate <- rep_x
-                                    # #Predict
-                                    # pred_x <- terra::predict(spat_var, mod_x, type = "cloglog",
-                                    #                          na.rm = TRUE)
-                                    return(mod_x) } #End of foreach
+      # Sets the progress bar to the current state
+      if(progress_bar){
+        setTxtProgressBar(pb, x) }
+    }  }
 
   #End cluster
-  parallel::stopCluster(cl)
+  if(parallel){
+  parallel::stopCluster(cl) }
 
   #Split list
   # Crie um vetor com o número de réplicas para cada modelo

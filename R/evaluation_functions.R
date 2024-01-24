@@ -18,9 +18,8 @@ omrat <- function(threshold = 5, pred_train, pred_test) {
 ####AIC - Warren and Seifert ####
 aic_ws <- function(pred_occs, ncoefs) {
   LL <- sum(log(pred_occs + .Machine$double.eps))
-  #npar <- length(m_aic$betas)
-  AICc <- ((2 * npar) - (2 * LL)) + (2 * npar * (npar +
-                                                   1)/(length(pred_occs) - npar - 1))
+  AICc <- ((2 * ncoefs) - (2 * LL)) + (2 * ncoefs * (ncoefs +
+                                                   1)/(length(pred_occs) - ncoefs - 1))
 
   return(AICc)
 }
