@@ -29,6 +29,11 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                  "fit_eval_concave", "fit_eval_models", "omrat_thr",
                  "omrat_threshold", "sel_best_models")
 
+  #Check calibration data class and convert to dataframe if necessay
+  if(is.matrix(data$calibration_data) | is.array(data$calibration_data)) {
+    data$calibration_data <- as.data.frame(data$calibration_data)
+  }
+
   #If write_summary = TRUE, create directory
   if(write_summary){
     if(!file.exists(out_dir))
@@ -107,8 +112,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
         for (x in 1:n_tot) {
           # Execute a função fit_eval_models
           results_concave[[x]] <- fit_eval_models(x, formula_grid2 = g, data = data, formula_grid = g,
-                                           omrat_thr = 10,
-                                           write_summary = FALSE, return_replicate = TRUE)
+                                           omrat_thr, write_summary, return_replicate)
 
           # Sets the progress bar to the current state
           if(progress_bar){
@@ -195,9 +199,9 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
       # Loop for com barra de progresso manual
       for (x in 1:n_tot) {
         # Execute a função fit_eval_models
-        results[[x]] <- fit_eval_models(x, formula_grid2 = g, data = data, formula_grid = g,
-                                         omrat_thr = 10,
-                                         write_summary = FALSE, return_replicate = TRUE)
+        results[[x]] <- fit_eval_models(x, formula_grid2 = g, data = data,
+                                        formula_grid = g, omrat_thr,
+                                        write_summary, return_replicate)
 
         # Sets the progress bar to the current state
         if(progress_bar){

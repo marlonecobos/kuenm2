@@ -98,6 +98,14 @@ fit_selected_glmnetmx <- function(calibration_results,
     pb <- txtProgressBar(0, n_tot, style = 3)
     progress <- function(n) setTxtProgressBar(pb, n) }
 
+  #Adjust parallelization according to the number of models and replicates
+  if(n_tot == 1 & isTRUE(parallel)){
+    parallel <- FALSE
+  }
+  if(n_tot < ncores & isTRUE(parallel)){
+    ncores <- n_tot
+  }
+
   #Set parallelization
   if(parallel) {
     #Make cluster
