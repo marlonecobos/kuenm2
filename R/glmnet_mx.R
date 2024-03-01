@@ -2,7 +2,7 @@
 #Modified from maxnet ‘0.1.4’
 glmnet_mx <- function(p, data, f, regmult = 1.0,
                       regfun = maxnet.default.regularization,
-                      addsamplestobackground = TRUE, weights_1_0 = c(1, 100),
+                      addsamplestobackground = TRUE, weights = NULL,
                       calculate_AIC = FALSE, ...) {
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")
@@ -11,20 +11,32 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
     stop("p must be a vector.")
   }
 
+  if (is.null(weights)) {
+    weights <- ifelse(p == 1, 1, 100)
+  }
+
   if (addsamplestobackground) {
     pdata <- data[p == 1, ]
     ndata <- data[p == 0, ]
 
     # add to background any presence data that isn't there already
     wadd <- !do.call(paste, pdata) %in% do.call(paste, ndata)
-    p <- c(p, rep(0, sum(wadd)))
-    toadd <- pdata[wadd, ]
-    data <- rbind(data, toadd)
+    if (sum(wadd) > 0) {
+      p <- c(p, rep(0, sum(wadd)))
+      data <- rbind(data, pdata[wadd, ])
+
+      if (!is.null(weights)) {
+        message("Weights for samples added to background are the same as in presence records.")
+        pweights <- weights[p == 1]
+        weights <- c(weights, pweights[wadd, ])
+      } else {
+        weights <- c(weights, rep(100, sum(wadd)))
+      }
+    }
   }
 
   mm <- model.matrix(f, data)
   reg <- regfun(p, mm) * regmult
-  weights <- ifelse(p == 1, weights_1_0[1], weights_1_0[2])
   lambdas <- 10^(seq(4, 0, length.out = 200)) * sum(reg) / length(reg) *
     sum(p) / sum(weights)
 
