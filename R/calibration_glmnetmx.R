@@ -3,6 +3,8 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                                  #pr_bg, #Column name with presence (1) or background (0)
                                  formula_grid, #Grid with formulas
                                  test_concave = TRUE, #Test concave curves in quadratic models?
+                                 addsamplestobackground = TRUE,
+                                 weights = NULL,
                                  #folds = 4, #Columns name with k_folds or vector indicating k_folds
                                  parallel = TRUE,
                                  ncores = 1,
@@ -55,6 +57,11 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
     }
   }
 
+  #Warning about samples added to background
+  if(verbose & addsamplestobackground & is.null(weights)){
+  message("Weights for samples added to background are the same as in presence records.")}
+
+
   if(parallel) {
   #Make cluster
   cl <- parallel::makeCluster(ncores) }
@@ -93,7 +100,6 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
       }
 
       #Test concave curves
-
       #In parallel (using %dopar%)
       if(parallel){
       results_concave <- foreach(x = 1:n_tot, .packages = c("glmnet", "enmpa"),
@@ -104,6 +110,8 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                          ) %dopar% {
                           fit_eval_concave(x = x, q_grids, data, formula_grid,
                                            omrat_thr,write_summary,
+                                           addsamplestobackground,
+                                           weights = weights,
                                            return_replicate)
                          }
       } else { #Not in parallel (using %do%)
@@ -111,8 +119,12 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
         # Loop for com barra de progresso manual
         for (x in 1:n_tot) {
           # Execute a função fit_eval_models
-          results_concave[[x]] <- fit_eval_models(x, formula_grid2 = g, data = data, formula_grid = g,
-                                           omrat_thr, write_summary, return_replicate)
+          results_concave[[x]] <- fit_eval_concave(x = x, q_grids, data, formula_grid,
+                                                  omrat_thr = omrat_thr,
+                                                  write_summary = write_summary,
+                                                  addsamplestobackground = addsamplestobackground,
+                                                  weights = weights,
+                                                  return_replicate = return_replicate)
 
           # Sets the progress bar to the current state
           if(progress_bar){
@@ -122,6 +134,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
 
   } #End of if(n > 0)
   }  #End of If test_concave = TRUE
+
 
   #Update grid
   if(!test_concave) {n_tot = 0}
@@ -192,6 +205,8 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                                  fit_eval_models(x, formula_grid2, data,
                                                  formula_grid, omrat_thr,
                                                  write_summary,
+                                                 addsamplestobackground = addsamplestobackground,
+                                                 weights = weights,
                                                  return_replicate)
                        }
     } else { #Not in parallel (using %do%)
@@ -201,6 +216,8 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
         # Execute a função fit_eval_models
         results[[x]] <- fit_eval_models(x, formula_grid2 = g, data = data,
                                         formula_grid = g, omrat_thr,
+                                        addsamplestobackground =  addsamplestobackground,
+                                        weights = weights,
                                         write_summary, return_replicate)
 
         # Sets the progress bar to the current state

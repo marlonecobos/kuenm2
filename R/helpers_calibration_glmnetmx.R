@@ -54,7 +54,8 @@ empty_summary <- function(omrat_thr, is_c){
 
 #Function to teste concave curves
 fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
-                             write_summary, return_replicate) {
+                             write_summary, addsamplestobackground, weights,
+                             return_replicate) {
   grid_x <- q_grids[x, ]
   formula_x <- as.formula(grid_x$Formulas)
   reg_x <- grid_x$regm
@@ -62,7 +63,10 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
   #Complete model with AIC
   m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                          data = data$calibration_data,
-                         f = formula_x, regmult = reg_x, calculate_AIC = T),
+                         f = formula_x, regmult = reg_x,
+                         addsamplestobackground = addsamplestobackground,
+                         weights = weights,
+                         calculate_AIC = T),
                silent = TRUE)
   if(any(class(m_aic) == "try-error")) {
     npar <- NA
@@ -129,6 +133,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
       #Run model
       mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                          f = formula_x, regmult = reg_x,
+                         addsamplestobackground = addsamplestobackground,
+                         weights = weights,
                          calculate_AIC = FALSE)
 
       #Predict model only to background
@@ -188,7 +194,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
 
 #Function to teste all models curves (except quadratic models when test_concave = TRUE)
 fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
-                            write_summary, return_replicate) {
+                            write_summary, addsamplestobackground, weights,
+                            return_replicate) {
   #Get grid x
   grid_x <- formula_grid2[x,] #Get i candidate model
   formula_x <- as.formula(grid_x$Formulas) #Get formula from grid x
@@ -198,7 +205,10 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
   #Complete model with AIC
   m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                          data = data$calibration_data,
-                         f = formula_x, regmult = reg_x, calculate_AIC = T),
+                         f = formula_x, regmult = reg_x,
+                         addsamplestobackground = addsamplestobackground,
+                         weights = weights,
+                         calculate_AIC = T),
                silent = TRUE)
 
   if(any(class(m_aic) == "try-error")) {
@@ -236,6 +246,8 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
       #Run model
       mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                          f = formula_x, regmult = reg_x,
+                         addsamplestobackground = addsamplestobackground,
+                         weights = weights,
                          calculate_AIC = FALSE)
 
       #Predict model only to background
