@@ -2,8 +2,8 @@
 #Modified from maxnet ‘0.1.4’
 glmnet_mx <- function(p, data, f, regmult = 1.0,
                       regfun = maxnet.default.regularization,
-                      addsamplestobackground = addsamplestobackground,
-                      weights,
+                      addsamplestobackground = TRUE,
+                      weights = NULL,
                       calculate_AIC = FALSE, ...) {
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")

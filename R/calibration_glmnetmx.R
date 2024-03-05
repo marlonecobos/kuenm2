@@ -263,7 +263,10 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                         save_file = F, #Save file with best models?
                         file_name = NULL)
   #Concatenate final results
+
   return(c(data, calibration_results = list(res_final),
+           addsamplestobackground = addsamplestobackground,
+           weights = list(weights),
            selected_models = list(bm)))
 
 } #End of function
