@@ -57,7 +57,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
     }
   }
 
-  #Warning about samples added to background
+  #Warning about samples added to background when weights is null
   if(verbose & addsamplestobackground & is.null(weights)){
   message("Weights for samples added to background are the same as in presence records.")}
 

@@ -202,7 +202,6 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
   reg_x <- grid_x$regm #Get regularization multiplier from grid x
 
   #Complete model with AIC
-  #Complete model with AIC
   m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                          data = data$calibration_data,
                          f = formula_x, regmult = reg_x,
