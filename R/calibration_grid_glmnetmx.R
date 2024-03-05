@@ -1,7 +1,7 @@
 ####Get grid of formulas####
 calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y = NULL,
                                       fold_column = "folds",
-                                      min.number = 2,
+                                      min_number = 2,
                                       categorical_var = NULL,
                                       features = c("l", "q", "lq", "lqp", "p"),
                                       min_continuous = NULL,
@@ -13,7 +13,7 @@ calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y 
 
   #Get var combinations
   var_comb <- enmpa:::aux_var_comb(var_names = var_names,
-                                   minvar = min.number)
+                                   minvar = min_number)
 
   #Split features
   formula_x <- unlist(lapply(seq_along(features), function(x){
@@ -51,7 +51,7 @@ calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y 
 # #Test
 # my_grid <- calibration_grid_glmnetmx(var_names = c("bio_1", "bio_7", "bio_12",
 #                                                   "bio_15", "soil"),
-#                       min.number = 2, categorical_var = "soil",
+#                       min_number = 2, categorical_var = "soil",
 #                       features =  c("l", "q", "lq", "lqp", "p"),
 #                       regm = c(0.1, 1, 2, 3, 5))
 

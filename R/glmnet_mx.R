@@ -2,7 +2,8 @@
 #Modified from maxnet ‘0.1.4’
 glmnet_mx <- function(p, data, f, regmult = 1.0,
                       regfun = maxnet.default.regularization,
-                      addsamplestobackground = TRUE, weights = NULL,
+                      addsamplestobackground = addsamplestobackground,
+                      weights,
                       calculate_AIC = FALSE, ...) {
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")
@@ -26,14 +27,13 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
       data <- rbind(data, pdata[wadd, ])
 
       if (!is.null(weights)) {
-        message("Weights for samples added to background are the same as in presence records.")
         pweights <- weights[p == 1]
-        weights <- c(weights, pweights[wadd, ])
+        weights <- c(weights, pweights[wadd])
       } else {
         weights <- c(weights, rep(100, sum(wadd)))
       }
     }
-  }
+    }
 
   mm <- model.matrix(f, data)
   reg <- regfun(p, mm) * regmult
