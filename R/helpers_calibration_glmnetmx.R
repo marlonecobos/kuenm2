@@ -321,6 +321,7 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
 #Fit best models
 fit_best_model <- function(x, dfgrid, calibration_results, data_x, n_replicates,
                            rep_data){
+
   #Get grid
   grid_x <- dfgrid[x,]
   m_id <- grid_x$models
@@ -342,6 +343,8 @@ fit_best_model <- function(x, dfgrid, calibration_results, data_x, n_replicates,
   mod_x <- glmnet_mx(p = data_x[,"pr_bg"], data = data_x,
                      f = as.formula(best_formula),
                      regmult = best_regm,
+                     addsamplestobackground = calibration_results[["addsamplestobackground"]],
+                     weights = calibration_results[["weights"]],
                      calculate_AIC = FALSE)
 
   #Only to make sure the IDs in list are correct
