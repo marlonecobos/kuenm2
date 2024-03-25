@@ -11,7 +11,7 @@ source("R/prepare_data.R")
 
 #Import data
   #PCA variables
-var <- rast("data/PCA_Variables.tiff")
+var <- rast("data/WorldClim_Variables.tiff")
   #Occurrences
 occ <- readRDS("data/Occurrences.RDS")
 
@@ -27,7 +27,7 @@ sp_swd <- prepare_data(occ = occ,
                        y = "y",
                        spat_variables = var,
                        categorical_variables = NULL,
-                       nbg = 10000,
+                       nbg = 5000,
                        kfolds = 4,
                        include_xy = TRUE,
                        write_files = T,
@@ -45,7 +45,7 @@ data <- readRDS("../test_kuenm2/Myrcia.RDS")
 #Creta grid
 g <- calibration_grid_glmnetmx(swd = data$calibration_data, x = NULL, y = NULL,
       fold_column = "folds",
-      min.number = 3,
+      min_number = 3,
       categorical_var = NULL,
       features = c("l", "q", "lq", "lqp", "p"),
       min_continuous = NULL,
@@ -119,7 +119,7 @@ m2 <- calibration_glmnetmx(data = data, #Data in **CLASS??** format
 
 
 #Save candidate models
-saveRDS(m2, "../test_kuenm2/Candidate_and_Best_models.RDS")
+saveRDS(m, "../test_kuenm2/Candidate_and_Best_models.RDS")
 
 
 #### Fit best models ####
@@ -163,7 +163,7 @@ fm2 <- fit_selected_glmnetmx(calibration_results = m,
 
 
 
-####Predict best models####
+####Predict best models to single scenario####
 #Load functions
 source("R/predict_selected_glmnetmx.R")
 source("R/helpers_glmnetmx.R")
@@ -172,7 +172,7 @@ source("R/helpers_calibration_glmnetmx.R")
 #Load fitted best models
 bm <- readRDS("../test_kuenm2/Best_Models.RDS")
 #Load spatrasters
-r <- rast("data/PCA_Variables.tiff")
+r <- rast("data/WorldClim_Variables.tiff")
 
 #Predict without clamp
 p <- predict_selected_glmnetmx(models = bm,
@@ -210,7 +210,7 @@ p_clamp_pc1 <- predict_selected_glmnetmx(models = bm,
                                      consensus_general = TRUE,
                                      consensus = c("median", "range", "mean", "stdev"), #weighted mean
                                      clamping = TRUE,
-                                     var_to_clamp = "PC1",
+                                     var_to_clamp = "bio_1",
                                      type = "cloglog",
                                      overwrite = FALSE)
 #Compare
@@ -219,6 +219,57 @@ plot(p_clamp$General_consensus$median)
 plot(p$General_consensus$median - p_clamp$General_consensus$median)
 plot(p$General_consensus$median - p_clamp_pc1$General_consensus$median)
 plot(p_clamp$General_consensus$median - p_clamp_pc1$General_consensus$median)
+
+
+####Prepare variables to project####
+#Extract the Projections.rar in the folder test_kuenm2
+
+#Load functions
+source("R/prepare_proj.R")
+#Import best models
+bm <- readRDS("../test_kuenm2/Best_Models.RDS")
+
+pr <- prepare_proj(models = bm,
+             present_dir = "../test_kuenm2/Projections/Present/",
+             past_dir = "../test_kuenm2/Projections/Past/",
+             past_time = c("LGM", "MID"),
+             past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P"),
+             future_dir = "../test_kuenm2/Projections/Future/",
+             future_time = c("2041-2060", "2081-2100"),
+             future_ssp = c("ssp245", "ssp585"),
+             future_gcm = c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2"),
+             filename = "../test_kuenm2/Projection_file",
+             raster_pattern = ".tif*")
+
+
+####Project models to several scenarios (present, past, future)####
+#Load functions
+source("R/predict_selected_glmnetmx.R")
+source("R/helpers_glmnetmx.R")
+source("R/helpers_calibration_glmnetmx.R")
+source("R/project_selected_glmnetx.R")
+
+#Test function
+pf = readRDS("../test_kuenm2/Projection_file.RDS")
+models <- readRDS("../test_kuenm2/Best_Models.RDS")
+out_dir = "../test_kuenm2/Projection_results"
+
+project_selected_glmnetx(projection_file = pf,
+                         models = models,
+                         out_dir = out_dir,
+                         consensus_per_model = TRUE,
+                         consensus_general = TRUE,
+                         consensus = c("median", "range", "mean", "stdev"), #weighted mean
+                         clamping = FALSE,
+                         var_to_clamp = NULL,
+                         type = "cloglog",
+                         overwrite = TRUE,
+                         progress_bar = TRUE,
+                         verbose = TRUE)
+
+#Check the folder /Projection_results
+
+
 
 
 # ####Compare time between lapply, pblapply and for with progress bar####
