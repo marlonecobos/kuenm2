@@ -210,20 +210,20 @@ prepare_proj <- function(models, present_dir = NULL,
 } #End of function
 
 
-#Check function
-bm <- readRDS("../test_kuenm2/Best_Models.RDS")
-
-pr <- prepare_proj(models = bm,
-             present_dir = "../test_kuenm2/Projections/Present/",
-             past_dir = "../test_kuenm2/Projections/Past/",
-             past_time = c("LGM", "MID"),
-             past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P"),
-             future_dir = "../test_kuenm2/Projections/Future/",
-             future_time = c("2041-2060", "2081-2100"),
-             future_ssp = c("ssp245", "ssp585"),
-             future_gcm = c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2"),
-             filename = "../test_kuenm2/Projection_file",
-             raster_pattern = ".tif*")
+# #Check function
+# bm <- readRDS("../test_kuenm2/Best_Models.RDS")
+#
+# pr <- prepare_proj(models = bm,
+#              present_dir = "../test_kuenm2/Projections/Present/",
+#              past_dir = "../test_kuenm2/Projections/Past/",
+#              past_time = c("LGM", "MID"),
+#              past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P"),
+#              future_dir = "../test_kuenm2/Projections/Future/",
+#              future_time = c("2041-2060", "2081-2100"),
+#              future_ssp = c("ssp245", "ssp585"),
+#              future_gcm = c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2"),
+#              filename = "../test_kuenm2/Projection_file",
+#              raster_pattern = ".tif*")
 #
 #
 #
