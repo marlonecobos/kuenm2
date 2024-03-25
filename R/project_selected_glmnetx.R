@@ -180,23 +180,23 @@ overwrite = TRUE
 verbose = TRUE
 progress_bar = TRUE
 
-#Test function
-source("R/predict_selected_glmnetmx.R")
-source("R/helpers_glmnetmx.R")
-source("R/helpers_calibration_glmnetmx.R")
-pf = readRDS("../test_kuenm2/Projection_file.RDS")
-models <- readRDS("../test_kuenm2/Best_Models.RDS")
-out_dir = "../test_kuenm2/Projection_results"
-
-project_selected_glmnetx(projection_file = pf,
-                         models = models,
-                         out_dir = out_dir,
-                         consensus_per_model = TRUE,
-                         consensus_general = TRUE,
-                         consensus = c("median", "range", "mean", "stdev"), #weighted mean
-                         clamping = FALSE,
-                         var_to_clamp = NULL,
-                         type = "cloglog",
-                         overwrite = TRUE,
-                         progress_bar = TRUE,
-                         verbose = TRUE)
+# #Test function
+# source("R/predict_selected_glmnetmx.R")
+# source("R/helpers_glmnetmx.R")
+# source("R/helpers_calibration_glmnetmx.R")
+# pf = readRDS("../test_kuenm2/Projection_file.RDS")
+# models <- readRDS("../test_kuenm2/Best_Models.RDS")
+# out_dir = "../test_kuenm2/Projection_results"
+#
+# project_selected_glmnetx(projection_file = pf,
+#                          models = models,
+#                          out_dir = out_dir,
+#                          consensus_per_model = TRUE,
+#                          consensus_general = TRUE,
+#                          consensus = c("median", "range", "mean", "stdev"), #weighted mean
+#                          clamping = FALSE,
+#                          var_to_clamp = NULL,
+#                          type = "cloglog",
+#                          overwrite = TRUE,
+#                          progress_bar = TRUE,
+#                          verbose = TRUE)
