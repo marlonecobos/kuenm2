@@ -54,7 +54,7 @@ empty_summary <- function(omrat_thr, is_c){
 
 #Function to teste concave curves
 fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
-                             write_summary, addsamplestobackground, weights,
+                             write_summary, addsamplestobackground, weight,
                              return_replicate) {
   grid_x <- q_grids[x, ]
   formula_x <- as.formula(grid_x$Formulas)
@@ -65,7 +65,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
                          data = data$calibration_data,
                          f = formula_x, regmult = reg_x,
                          addsamplestobackground = addsamplestobackground,
-                         weights = weights,
+                         weight = weight,
                          calculate_AIC = T),
                silent = TRUE)
   if(any(class(m_aic) == "try-error")) {
@@ -130,11 +130,17 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
     mods <- lapply(1:length(data$kfolds), function(i) {
       notrain <- -data$kfolds[[i]]
       data_i <- data$calibration_data[notrain,]
+      #Set weight per k-fold
+      if(!is.null(weight)) {
+        weight_i <- weight[notrain]
+      } else {
+        weight_i <- weight
+      }
       #Run model
       mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                          f = formula_x, regmult = reg_x,
                          addsamplestobackground = addsamplestobackground,
-                         weights = weights,
+                         weight = weight_i,
                          calculate_AIC = FALSE)
 
       #Predict model only to background
@@ -194,7 +200,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
 
 #Function to teste all models curves (except quadratic models when test_concave = TRUE)
 fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
-                            write_summary, addsamplestobackground, weights,
+                            write_summary, addsamplestobackground, weight,
                             return_replicate) {
   #Get grid x
   grid_x <- formula_grid2[x,] #Get i candidate model
@@ -206,7 +212,7 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
                          data = data$calibration_data,
                          f = formula_x, regmult = reg_x,
                          addsamplestobackground = addsamplestobackground,
-                         weights = weights,
+                         weight = weight,
                          calculate_AIC = T),
                silent = TRUE)
 
@@ -242,11 +248,17 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
     mods <- try(lapply(1:length(data$kfolds), function(i) {
       notrain <- -data$kfolds[[i]]
       data_i <- data$calibration_data[notrain,]
+      #Set weight per k-fold
+      if(!is.null(weight)) {
+        weight_i <- weight[notrain]
+      } else {
+        weight_i <- weight
+      }
       #Run model
       mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                          f = formula_x, regmult = reg_x,
                          addsamplestobackground = addsamplestobackground,
-                         weights = weights,
+                         weight = weight_i,
                          calculate_AIC = FALSE)
 
       #Predict model only to background
@@ -344,7 +356,7 @@ fit_best_model <- function(x, dfgrid, calibration_results, data_x, n_replicates,
                      f = as.formula(best_formula),
                      regmult = best_regm,
                      addsamplestobackground = calibration_results[["addsamplestobackground"]],
-                     weights = calibration_results[["weights"]],
+                     weight = calibration_results[["weight"]],
                      calculate_AIC = FALSE)
 
   #Only to make sure the IDs in list are correct

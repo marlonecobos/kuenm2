@@ -4,7 +4,8 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                                  formula_grid, #Grid with formulas
                                  test_concave = TRUE, #Test concave curves in quadratic models?
                                  addsamplestobackground = TRUE,
-                                 weights = NULL,
+                                 use_weight = FALSE,
+                                 weight = NULL,
                                  #folds = 4, #Columns name with k_folds or vector indicating k_folds
                                  parallel = TRUE,
                                  ncores = 1,
@@ -57,9 +58,31 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
     }
   }
 
-  #Warning about samples added to background when weights is null
-  if(verbose & addsamplestobackground & is.null(weights)){
-  message("Weights for samples added to background are the same as in presence records.")}
+  #Warning about samples added to background when weight is null
+  if(verbose & addsamplestobackground & is.null(weight)){
+  message("weight for samples added to background are the same as in presence records.")}
+
+  #Check weight
+  if(isFALSE(use_weight)){
+    weight = NULL
+  }
+
+  #Check weight
+  if(isTRUE(use_weight) & is.null(weight) & !("weight" %in% names(data))){
+    warning("'use_weight' is set to TRUE, but the weight was either not specified
+            or is not present in the data. The function will run assuming
+            'use_weight' is set to FALSE.")
+  }
+
+  #If weight = NULL, get weight from data
+  if(isTRUE(use_weight) & is.null(weight) & "weight" %in% names(data)){
+    weight = data$weight
+  }
+
+  #If weight is numeric, check if it has the same size of calibration data
+    if(isTRUE(use_weight) & !is.null(weight) & length(weight) != nrow(data[["calibration_data"]])){
+      stop('weight must have the same lenght of data[["calibration_data"]]')
+    }
 
 
   if(parallel) {
@@ -111,7 +134,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                           fit_eval_concave(x = x, q_grids, data, formula_grid,
                                            omrat_thr,write_summary,
                                            addsamplestobackground,
-                                           weights = weights,
+                                           weight = weight,
                                            return_replicate)
                          }
       } else { #Not in parallel (using %do%)
@@ -123,7 +146,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                                                   omrat_thr = omrat_thr,
                                                   write_summary = write_summary,
                                                   addsamplestobackground = addsamplestobackground,
-                                                  weights = weights,
+                                                  weight = weight,
                                                   return_replicate = return_replicate)
 
           # Sets the progress bar to the current state
@@ -206,7 +229,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                                                  formula_grid, omrat_thr,
                                                  write_summary,
                                                  addsamplestobackground = addsamplestobackground,
-                                                 weights = weights,
+                                                 weight = weight,
                                                  return_replicate)
                        }
     } else { #Not in parallel (using %do%)
@@ -217,7 +240,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
         results[[x]] <- fit_eval_models(x, formula_grid2 = g, data = data,
                                         formula_grid = g, omrat_thr,
                                         addsamplestobackground =  addsamplestobackground,
-                                        weights = weights,
+                                        weight = weight,
                                         write_summary, return_replicate)
 
         # Sets the progress bar to the current state
@@ -266,7 +289,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
 
   return(c(data, calibration_results = list(res_final),
            addsamplestobackground = addsamplestobackground,
-           weights = list(weights),
+           weight = list(weight),
            selected_models = list(bm)))
 
 } #End of function
