@@ -11,8 +11,9 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   if (!is.vector(p)) {
     stop("p must be a vector.")
   }
+  iniweigth <- is.null(weight)
 
-  if (is.null(weight)) {
+  if (iniweigth) {
     weight <- ifelse(p == 1, 1, 100)
   }
 
@@ -26,14 +27,15 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
       p <- c(p, rep(0, sum(wadd)))
       data <- rbind(data, pdata[wadd, ])
 
-      if (!is.null(weight)) {
+      ## adding extra weights if required
+      if (iniweigth) {
+        weight <- c(weight, rep(100, sum(wadd)))
+      } else {
         pweight <- weight[p == 1]
         weight <- c(weight, pweight[wadd])
-      } else {
-        weight <- c(weight, rep(100, sum(wadd)))
       }
     }
-    }
+  }
 
   mm <- model.matrix(f, data)
   reg <- regfun(p, mm) * regmult
@@ -51,7 +53,7 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   if (length(model$lambda) < 200) {
     msg <- "glmnet failed to complete regularization path. Model may be infeasible."
     if (!addsamplestobackground) {
-      msg <- paste(msg, "\n\tTry re-running with addsamplestobackground = TRUE.")
+      msg <- paste(msg, "\n\tTry re-running with 'addsamplestobackground' = TRUE.")
     }
     stop(msg)
   }
