@@ -1,11 +1,11 @@
 #Looping through candidate models using cores
-calibration_glmnetmx <- function(data, #Data in **CLASS??** format
+calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes weights)
                                  #pr_bg, #Column name with presence (1) or background (0)
                                  formula_grid, #Grid with formulas
                                  test_concave = TRUE, #Test concave curves in quadratic models?
                                  addsamplestobackground = TRUE,
-                                 use_weight = FALSE,
-                                 weight = NULL,
+                                 use_weights = FALSE,
+                                 #weights = NULL,
                                  #folds = 4, #Columns name with k_folds or vector indicating k_folds
                                  parallel = TRUE,
                                  ncores = 1,
@@ -58,39 +58,29 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
     }
   }
 
-  #Warning about samples added to background when weight is null
-  if(verbose & addsamplestobackground & is.null(weight)){
-  message("weight for samples added to background are the same as in presence records.")}
-
-  #Check weight
-  if(isFALSE(use_weight)){
-    weight = NULL
+  #Warning about samples added to background when weights is null
+  if (verbose & addsamplestobackground & use_weights & is.null(data$weights)) {
+  message("weights for samples added to background are the same as in samples.")
   }
 
-  #Check weight
-  if(isTRUE(use_weight) & is.null(weight) & !("weight" %in% names(data))){
-    warning("'use_weight' is set to TRUE, but the weight was either not specified
-            or is not present in the data. The function will run assuming
-            'use_weight' is set to FALSE.")
+  # Check weights
+  if (use_weights & is.null(data$weights)) {
+    message("'use_weights' = TRUE, but weights are not present in 'data'.\nSetting 'use_weights' = FALSE.")
+    use_weights <- FALSE
   }
 
-  #If weight = NULL, get weight from data
-  if(isTRUE(use_weight) & is.null(weight) & "weight" %in% names(data)){
-    weight = data$weight
-  }
-
-  #If weight is numeric, check if it has the same size of calibration data
-    if(isTRUE(use_weight) & !is.null(weight) & length(weight) != nrow(data[["calibration_data"]])){
-      stop('weight must have the same lenght of data[["calibration_data"]]')
+  # If weights is numeric, check if it has the same size of calibration data
+    if(use_weights & length(data$weights) != nrow(data$calibration_data)) {
+      stop("length of weights does not match number of rows in calibration_data")
     }
 
 
-  if(parallel) {
+  if (parallel) {
   #Make cluster
   cl <- parallel::makeCluster(ncores) }
 
   #If test_concave = TRUE
-  if(test_concave){
+  if (test_concave) {
     if(verbose){
       cat("\n
         Task 1 of 2: checking concave curves in quadratic models\n")
@@ -125,29 +115,28 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
       #Test concave curves
       #In parallel (using %dopar%)
       if(parallel){
-      results_concave <- foreach(x = 1:n_tot, .packages = c("glmnet", "enmpa"),
-                         .options.snow = opts,
-                         .export = c(to_export, "formula_grid", "q_grids",
-                                     "data", "write_summary",
-                                     "return_replicate")
-                         ) %dopar% {
-                          fit_eval_concave(x = x, q_grids, data, formula_grid,
-                                           omrat_thr,write_summary,
-                                           addsamplestobackground,
-                                           weight = weight,
-                                           return_replicate)
-                         }
+      results_concave <- foreach(
+        x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts,
+        .export = c(to_export, "formula_grid", "q_grids","data",
+                    "write_summary", "return_replicate")
+      ) %dopar% {
+        fit_eval_concave(x = x, q_grids, data, formula_grid,
+                         omrat_thr,write_summary,
+                         addsamplestobackground,
+                         weights = data$weights,
+                         return_replicate)
+        }
       } else { #Not in parallel (using %do%)
         results_concave <- vector("list", length = n_tot)
         # Loop for com barra de progresso manual
         for (x in 1:n_tot) {
           # Execute a função fit_eval_models
-          results_concave[[x]] <- fit_eval_concave(x = x, q_grids, data, formula_grid,
-                                                  omrat_thr = omrat_thr,
-                                                  write_summary = write_summary,
-                                                  addsamplestobackground = addsamplestobackground,
-                                                  weight = weight,
-                                                  return_replicate = return_replicate)
+          results_concave[[x]] <- fit_eval_concave(
+            x = x, q_grids, data, formula_grid, omrat_thr = omrat_thr,
+            write_summary = write_summary,
+            addsamplestobackground = addsamplestobackground,
+            weights = data$weights, return_replicate = return_replicate
+          )
 
           # Sets the progress bar to the current state
           if(progress_bar){
@@ -169,7 +158,8 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
                                             function(x) x$Replicates))
     row.names(d_concave_rep) <- NULL
     #Summary
-    d_concave_sum <- do.call("rbind", lapply(results_concave, function(x) x$Summary))
+    d_concave_sum <- do.call("rbind", lapply(results_concave,
+                                             function(x) x$Summary))
 
 
     # d_concave <- do.call("rbind", results_concave)
@@ -219,29 +209,28 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
     #Test concave curves
     #In parallel (using %dopar%)
     if(parallel){
-    results <- foreach(x = 1:n_tot, .packages = c("glmnet", "enmpa"),
-                       .options.snow = opts,
-                       .export = c(to_export, "formula_grid2", "q_grids",
-                                   "data", "write_summary",
-                                   "return_replicate")
-                       ) %dopar% {
-                                 fit_eval_models(x, formula_grid2, data,
-                                                 formula_grid, omrat_thr,
-                                                 write_summary,
-                                                 addsamplestobackground = addsamplestobackground,
-                                                 weight = weight,
-                                                 return_replicate)
-                       }
+    results <- foreach(
+      x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts,
+      .export = c(to_export, "formula_grid2", "q_grids", "data",
+                  "write_summary", "return_replicate")
+    ) %dopar% {
+      fit_eval_models(x, formula_grid2, data,
+                      formula_grid, omrat_thr,
+                      write_summary,
+                      addsamplestobackground = addsamplestobackground,
+                      weights = data$weights,
+                      return_replicate)
+      }
     } else { #Not in parallel (using %do%)
       results <- vector("list", length = n_tot)
       # Loop for com barra de progresso manual
       for (x in 1:n_tot) {
         # Execute a função fit_eval_models
-        results[[x]] <- fit_eval_models(x, formula_grid2 = g, data = data,
-                                        formula_grid = g, omrat_thr,
-                                        addsamplestobackground =  addsamplestobackground,
-                                        weight = weight,
-                                        write_summary, return_replicate)
+        results[[x]] <- fit_eval_models(
+          x, formula_grid2 = g, data = data, formula_grid = g, omrat_thr,
+          addsamplestobackground =  addsamplestobackground,
+          weights = data$weights, write_summary, return_replicate
+        )
 
         # Sets the progress bar to the current state
         if(progress_bar){
@@ -289,8 +278,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format
 
   return(c(data, calibration_results = list(res_final),
            addsamplestobackground = addsamplestobackground,
-           weight = list(weight),
-           selected_models = list(bm)))
+           weights = list(data$weights), selected_models = list(bm)))
 
 } #End of function
 

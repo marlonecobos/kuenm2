@@ -3,7 +3,7 @@
 glmnet_mx <- function(p, data, f, regmult = 1.0,
                       regfun = maxnet.default.regularization,
                       addsamplestobackground = TRUE,
-                      weight = NULL,
+                      weights = NULL,
                       calculate_AIC = FALSE, ...) {
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")
@@ -11,10 +11,10 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   if (!is.vector(p)) {
     stop("p must be a vector.")
   }
-  iniweigth <- is.null(weight)
+  iniweigth <- is.null(weights)
 
   if (iniweigth) {
-    weight <- ifelse(p == 1, 1, 100)
+    weights <- ifelse(p == 1, 1, 100)
   }
 
   if (addsamplestobackground) {
@@ -29,10 +29,10 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
 
       ## adding extra weights if required
       if (iniweigth) {
-        weight <- c(weight, rep(100, sum(wadd)))
+        weights <- c(weights, rep(100, sum(wadd)))
       } else {
-        pweight <- weight[p == 1]
-        weight <- c(weight, pweight[wadd])
+        pweight <- weights[p == 1]
+        weights <- c(weights, pweight[wadd])
       }
     }
   }
@@ -40,12 +40,12 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   mm <- model.matrix(f, data)
   reg <- regfun(p, mm) * regmult
   lambdas <- 10^(seq(4, 0, length.out = 200)) * sum(reg) / length(reg) *
-    sum(p) / sum(weight)
+    sum(p) / sum(weights)
 
   glmnet::glmnet.control(pmin = 1.0e-8, fdev = 0)
   model <- glmnet::glmnet(x = mm, y = as.factor(p), family = "binomial",
                           standardize = FALSE, penalty.factor = reg,
-                          lambda = lambdas, weights = weight, ...)
+                          lambda = lambdas, weights = weights, ...)
 
   bb <- coef(model)[, 200]
 

@@ -12,8 +12,7 @@ hinge <- function(x, nknots=50) {
   cbind(lh, rh)
 }
 
-hingeval <- function (x, min, max)
-{
+hingeval <- function (x, min, max) {
   pmin(1, pmax(0, (x - min)/(max - min)))
 }
 
