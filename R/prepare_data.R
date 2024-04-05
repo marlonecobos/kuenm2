@@ -1,16 +1,4 @@
 #### Prepare SWD ####
-# library(terra)
-# occ <- read.csv("Models/Myrcia_hatschbachii/Occurrences.csv")
-# species <- "Myrcia_hatschbachii"
-# x = "x"
-# y = "y"
-# spat_variables <- rast("Models/Myrcia_hatschbachii/PCA_var.tiff")
-# nbg = 10000
-# kfolds = 4
-# include_xy = TRUE
-# writeFiles = F
-# out_dir = NULL
-
 #library(terra)
 prepare_data <- function(occ,
                         species = NULL,
@@ -20,11 +8,19 @@ prepare_data <- function(occ,
                         categorical_variables = NULL,
                         nbg = 10000,
                         kfolds = 4,
+                        weights = NULL,
                         include_xy = TRUE,
                         write_files = F,
                         file_name = NULL,
                         seed = 1,
                         verbose = TRUE){
+  #Check if weights has the same lenght of occ
+  if(!is.null(weights)){
+    if(nrow(occ) != length(weights)){
+  stop("length of weights does not match the number of occurrences in occ")
+    }}
+
+
   #Extract name of the specie
   if(!is.null(species)) {
     sp_name <- as.character(occ[1, "species"])
@@ -38,6 +34,7 @@ prepare_data <- function(occ,
   colnames(xy) <- c("x", "y")
   occ_var <- cbind(xy, terra::extract(x = spat_variables, y = xy))
   occ_var$pr_bg <- 1
+
   #Get background points
   cell_samp <- terra::as.data.frame(spat_variables[[1]], na.rm = TRUE,
                                     cells = TRUE)[, "cell"]
@@ -53,12 +50,24 @@ prepare_data <- function(occ,
                       [-which(names(occ_bg) == "pr_bg")])]
 
   #Remove NA from data
-  n_before <- nrow(occ_bg)
-  occ_bg <- na.omit(occ_bg )
-  n_after <- n_before - nrow(occ_bg)
-  if(verbose & n_after > 0){
-    message(n_after, " rows were excluded from database because NAs were found")
+  #Identify rows with NA
+  na_rows <- which(!complete.cases(occ_bg))
+  if(length(na_rows) > 0){
+    occ_bg <- occ_bg[-na_rows,] #Remove NAs from calibration data
+    #Remove NAs from weights
+    if(!is.null(weights)){
+      weights <- weights[-na_rows]
+    }
+    if(verbose){
+      message(length(na_rows), " rows were excluded from database because NAs were found")
+    }
   }
+
+  #Check if weights and calibration data have the same lenght
+  if(!is.null(weights)) {
+    if(nrow(occ_bg) != length(weights)) {
+    stop("length of weights does not match number of rows in calibration_data")
+  }}
 
 
   if(include_xy) {
@@ -78,13 +87,14 @@ prepare_data <- function(occ,
   #Split in kfolds?
   k_f <- enmpa::kfold_partition(data = occ_bg,
                                   dependent = "pr_bg",
-                                  k = 4, seed = seed)
+                                  k = kfolds, seed = seed)
 
   data <- list(species = sp_name,
                calibration_data = occ_bg,
                kfolds = k_f,
                data_xy = occ_bg_xy,
-               categorical_variables = categorical_variables)
+               categorical_variables = categorical_variables,
+               weights = weights)
 
   #Save results?
   if(write_files) {
@@ -92,21 +102,3 @@ prepare_data <- function(occ,
   }
   return(data)
 }
-
-# # #Test
-# tt <- prepare_data(occ = occ,
-#                    species = "species",
-#                    x = "x",
-#                    y = "y",
-#                    spat_variables = rast("Models/Myrcia_hatschbachii/PCA_var.tiff"),
-#                    categorical_variables = "SoilType",
-#                    nbg = 10000,
-#                    kfolds = 4,
-#                    include_xy = TRUE,
-#                    write_files = T,
-#                    file_name =  "Models/Myrcia_hatschbachii/Data")
-#
-# tt2 <- readRDS("Models/Myrcia_hatschbachii/Data.RDS")
-# tt2$calibration_data %>% str()
-#
-# any(is.na(tt2$calibration_data))
