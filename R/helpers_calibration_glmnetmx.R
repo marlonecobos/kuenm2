@@ -379,5 +379,24 @@ fit_best_model <- function(x, dfgrid, calibration_results, data_x, n_replicates,
   return(mod_x)
 }
 
+#Bind rows to get path for each projection in project_selected_glmnetx
+bind_rows_projection <- function(data_frames) {
+  all_columns <- c("Time", "Scenario", "ssp", "GCM", "path")
+  result <- NULL
 
+  for (df in data_frames) {
+    if (exists("df") && !is.null(df)) {  # Check if df exists and is not NULL
+      missing_columns <- setdiff(all_columns, colnames(df))
+      for (col in missing_columns) {
+        df[[col]] <- NA
+      }
+      result <- rbind(result, df[, all_columns]) # Reorder columns as specified
+    }
+  }
+
+  # Remove columns with only NA values
+  result <- result[, colSums(is.na(result)) < nrow(result)]
+
+  return(result)
+}
 

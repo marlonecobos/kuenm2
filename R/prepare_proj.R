@@ -1,12 +1,31 @@
-prepare_proj <- function(models, present_dir = NULL,
+#Prepare paths for projections
+prepare_proj <- function(models = NULL,
+                         variable_names = NULL,
+                         present_dir = NULL,
                          past_dir = NULL, past_time = NULL, past_gcm = NULL,
                          future_dir = NULL, future_time = NULL,
-                         future_ssp = NULL, future_gcm = NULL,
-                         filename,
+                         future_pscen = NULL, future_gcm = NULL,
+                         write_file = FALSE,
+                         filename = NULL,
                          raster_pattern = ".tif*") {
 
   #Extract variables from best models
+  if(!is.null(models)){
+  models <- models[["Models"]]
   vars <- names(models[[1]][[1]]$samplemeans)[-1]
+  }
+
+  if(is.null(models) & !is.null(variable_names)){
+    vars <- variable_names
+  }
+
+  if(is.null(models) & is.null(variable_names)) {
+    stop("You must specify models or variable_names")
+  }
+
+  if(!is.null(models) & !is.null(variable_names)) {
+    warning("You specified models and variable names. Using variables names from models")
+  }
 
   ####Check directories with present projections####
   if(!is.null(present_dir)) {
@@ -61,10 +80,11 @@ prepare_proj <- function(models, present_dir = NULL,
 
       #If everything is OK, create list with the path
       #Get scenarios
-      sc <- gsub(present_dir, "", pdir)
+      sc <- gsub(present_dir, "", pdir, fixed = TRUE)
       res_present <- list()
       for (scenario in sc) {
-        res_present[[scenario]] <- file.path(present_dir, scenario)}
+        res_present[[scenario]] <- normalizePath(file.path(present_dir,
+                                                           scenario))}
     }
 
   } #End of check present
@@ -85,14 +105,14 @@ prepare_proj <- function(models, present_dir = NULL,
     }
 
   if(sum(!is.null(future_time),
-         !is.null(future_ssp),
+         !is.null(future_pscen),
          !is.null(future_gcm)) != 3) {
-    stop("To prepare projections for future time, you must set future_time, future_ssp and future_gcm arguments")
+    stop("To prepare projections for future time, you must set future_time, future_pscen and future_gcm arguments")
   }
 
   #Check folders
   expected_folders_future <- unlist(sapply(future_time, function(i){
-    lapply(future_ssp, function(x){
+    lapply(future_pscen, function(x){
       file.path(future_dir, i, x, future_gcm)
     })
   }, simplify = F, USE.NAMES = FALSE))
@@ -120,13 +140,15 @@ prepare_proj <- function(models, present_dir = NULL,
   }))
 
   #If everything is OK, create list with the path
+
   res_future <- list()
   for (year in future_time) {
     res_future[[year]] <- list()
-  for (ssp in future_ssp) {
+  for (ssp in future_pscen) {
     res_future[[year]][[ssp]] <- list()
     for (gcm in future_gcm) {
-      res_future[[year]][[ssp]][[gcm]] <- file.path(future_dir, year, ssp, gcm)
+      res_future[[year]][[ssp]][[gcm]] <- normalizePath(file.path(future_dir, year,
+                                                                  ssp, gcm))
     }}}
 
   } #End of check future
@@ -161,7 +183,8 @@ prepare_proj <- function(models, present_dir = NULL,
 
   if(any(past_exists == FALSE)){
     eff <- expected_folders_past[past_exists == FALSE]
-    stop("The following folders do not exist: ", "\n", paste(eff, collapse = "\n"))
+    stop("The following folders do not exist: ", "\n", paste(eff,
+                                                             collapse = "\n"))
   }
 
   #Check if variables are in the folders
@@ -184,7 +207,7 @@ prepare_proj <- function(models, present_dir = NULL,
   for (year in past_time) {
     res_past[[year]] <- list()
       for (gcm in past_gcm) {
-        res_past[[year]][[gcm]] <- file.path(past_dir, year, gcm)
+        res_past[[year]][[gcm]] <- normalizePath(file.path(past_dir, year, gcm))
       }}
   }#End of check past
 
@@ -204,7 +227,8 @@ prepare_proj <- function(models, present_dir = NULL,
   res[["Raster_pattern"]] <- raster_pattern
 
   #Save results as RDS
-  saveRDS(res, paste0(filename, ".RDS"))
+  if(write_file){
+  saveRDS(res, paste0(filename, ".RDS"))}
 
   return(res)
 } #End of function
@@ -220,7 +244,7 @@ prepare_proj <- function(models, present_dir = NULL,
 #              past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P"),
 #              future_dir = "../test_kuenm2/Projections/Future/",
 #              future_time = c("2041-2060", "2081-2100"),
-#              future_ssp = c("ssp245", "ssp585"),
+#              future_pscen = c("ssp245", "ssp585"),
 #              future_gcm = c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2"),
 #              filename = "../test_kuenm2/Projection_file",
 #              raster_pattern = ".tif*")
@@ -231,7 +255,7 @@ prepare_proj <- function(models, present_dir = NULL,
 # models <- bm
 # future_dir <- "../test_kuenm2/Projections/Future/"
 # future_time <- "2041-2060"
-# future_ssp <- c("ssp245", "ssp585")
+# future_pscen <- c("ssp245", "ssp585")
 # future_gcm <- c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2")
 # raster_pattern = ".tif*"
 # past_dir <- "../test_kuenm2/Projections/Past/"

@@ -29,6 +29,7 @@ sp_swd <- prepare_data(occ = occ,
                        categorical_variables = NULL,
                        nbg = 5000,
                        kfolds = 4,
+                       weights = NULL,
                        include_xy = TRUE,
                        write_files = T,
                        file_name = "../test_kuenm2/Myrcia",
@@ -75,10 +76,10 @@ ncores <- round(parallel::detectCores()* 0.7, 0)
 #Fit models
   #In parallel
 m <- calibration_glmnetmx(data = data, #Data in **CLASS??** format
-                          #pr_bg, #Column name with presence (1) or background (0)
                           formula_grid = g, #Grid with formulas
                           test_concave = TRUE, #Test concave curves in quadratic models?
-                          #folds = 4, #Columns name with k_folds or vector indicating k_folds
+                          addsamplestobackground = TRUE,
+                          use_weights = FALSE,
                           parallel = TRUE,
                           ncores = 8,
                           progress_bar = TRUE, #Show progress bar? Only works if parallel_type = "doSNOW"
@@ -122,7 +123,7 @@ m2 <- calibration_glmnetmx(data = data, #Data in **CLASS??** format
 saveRDS(m, "../test_kuenm2/Candidate_and_Best_models.RDS")
 
 
-#### Fit best models ####
+#### 4. Fit best models ####
 source("R/fit_selected_glmnetmx.R")
 source("R/helpers_calibration_glmnetmx.R")
 source("R/helpers_glmnetmx.R")
@@ -163,7 +164,7 @@ fm2 <- fit_selected_glmnetmx(calibration_results = m,
 
 
 
-####Predict best models to single scenario####
+####5. Predict best models to single scenario####
 #Load functions
 source("R/predict_selected_glmnetmx.R")
 source("R/helpers_glmnetmx.R")
@@ -177,9 +178,9 @@ r <- rast("data/WorldClim_Variables.tiff")
 #Predict without clamp
 p <- predict_selected_glmnetmx(models = bm,
                                spat_var = r,
-                               write_files = FALSE,
-                               write_replicates = FALSE,
-                               out_dir = NULL,
+                               write_files = TRUE,
+                               write_replicates = TRUE,
+                               out_dir = "../test_kuenm2/Single_Projections",
                                consensus_per_model = TRUE,
                                consensus_general = TRUE,
                                consensus = c("median", "range", "mean", "stdev"), #weighted mean
@@ -221,7 +222,7 @@ plot(p$General_consensus$median - p_clamp_pc1$General_consensus$median)
 plot(p_clamp$General_consensus$median - p_clamp_pc1$General_consensus$median)
 
 
-####Prepare variables to project####
+####6. Prepare variables to project####
 #Extract the Projections.rar in the folder test_kuenm2
 
 #Load functions
@@ -229,6 +230,7 @@ source("R/prepare_proj.R")
 #Import best models
 bm <- readRDS("../test_kuenm2/Best_Models.RDS")
 
+#Using models - Writing file
 pr <- prepare_proj(models = bm,
              present_dir = "../test_kuenm2/Projections/Present/",
              past_dir = "../test_kuenm2/Projections/Past/",
@@ -236,13 +238,27 @@ pr <- prepare_proj(models = bm,
              past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P"),
              future_dir = "../test_kuenm2/Projections/Future/",
              future_time = c("2041-2060", "2081-2100"),
-             future_ssp = c("ssp245", "ssp585"),
+             future_pscen = c("ssp245", "ssp585"),
              future_gcm = c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2"),
+             write_file = TRUE,
              filename = "../test_kuenm2/Projection_file",
              raster_pattern = ".tif*")
+#Using variables names - Do not write, only to test
+pr2 <- prepare_proj(variable_names = c("bio_1", "bio_7", "bio_12", "bio_15"),
+                   present_dir = "../test_kuenm2/Projections/Present/",
+                   past_dir = "../test_kuenm2/Projections/Past/",
+                   past_time = c("LGM", "MID"),
+                   past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P"),
+                   future_dir = "../test_kuenm2/Projections/Future/",
+                   future_time = c("2041-2060", "2081-2100"),
+                   future_pscen = c("ssp245", "ssp585"),
+                   future_gcm = c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2"),
+                   write_file = FALSE,
+                   filename = NULL,
+                   raster_pattern = ".tif*")
 
 
-####Project models to several scenarios (present, past, future)####
+####7. Project models to several scenarios (present, past, future)####
 #Load functions
 source("R/predict_selected_glmnetmx.R")
 source("R/helpers_glmnetmx.R")
@@ -257,6 +273,7 @@ out_dir = "../test_kuenm2/Projection_results"
 project_selected_glmnetx(projection_file = pf,
                          models = models,
                          out_dir = out_dir,
+                         write_path = TRUE, #Write dataframe (RDS) with the paths to projections
                          consensus_per_model = TRUE,
                          consensus_general = TRUE,
                          consensus = c("median", "range", "mean", "stdev"), #weighted mean

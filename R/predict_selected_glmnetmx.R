@@ -11,7 +11,6 @@
 # out_dir = "Models/Myrcia_hatschbachii/Predictions"
 # overwrite = TRUE
 
-#If predict to other scenarios, keep replicates?
 
 predict_selected_glmnetmx <- function(models,
                            spat_var,
@@ -27,6 +26,7 @@ predict_selected_glmnetmx <- function(models,
                            overwrite = FALSE,
                            progress_bar = TRUE) {
   #Get models names
+  models <- models[["Models"]]
   nm <- names(models)
 
   #Clamp
@@ -74,28 +74,11 @@ predict_selected_glmnetmx <- function(models,
       setTxtProgressBar(pb, i) }
   }
 
-  # #Create empy list
-  # p_models <- vector("list", length = n_models)
-  # # Loop for com barra de progresso manual
-  # for (x in 1: n_models) {
-  #   # Execute a função fit_eval_models
-  #   p_models[[x]] <- terra::rast(lapply(i, function(x) {
-  #     terra::predict(spat_var, x, na.rm = TRUE,
-  #                    type = type)
-  #   }))
-  #
-  #   # Sets the progress bar to the current state
-  #   if(progress_bar){
-  #     setTxtProgressBar(pb, x) }
-  # }
-
-  # p_models <- lapply_progress(models, function(i){
-  #   terra::rast(lapply(i, function(x) {
-  #     terra::predict(spat_var, x, na.rm = TRUE,
-  #                                type = type)
-  #   }))
-  # })
+  #Rename models and replicates
   names(p_models) <- nm
+  for (i in nm) {
+    names(p_models[[i]]) <- names(models[[i]])
+  }
 
   #Start to store results
   rep <- unlist(p_models)
