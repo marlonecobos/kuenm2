@@ -167,12 +167,20 @@ fit_selected_glmnetmx <- function(calibration_results,
   #Rename models
   names(best_models) <- paste0("Model_", names(best_models))
 
+  #Final results
+  res <- list(species = calibration_results$species,
+              Models = best_models,
+              calibration_data = calibration_results$calibration_data,
+              selected_models = calibration_results$selected_models,
+              weights = calibration_results$weights,
+              addsamplestobackground = calibration_results$addsamplestobackground)
+
   #Write models?
   if(write_models){
-    saveRDS(best_models, file = paste0(file_name, ".RDS"))
+    saveRDS(res, file = paste0(file_name, ".RDS"))
   }
 
-  return(best_models)
+  return(res)
 } #End of function
 
 
