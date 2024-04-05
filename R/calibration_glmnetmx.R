@@ -1,12 +1,9 @@
 #Looping through candidate models using cores
 calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes weights)
-                                 #pr_bg, #Column name with presence (1) or background (0)
                                  formula_grid, #Grid with formulas
                                  test_concave = TRUE, #Test concave curves in quadratic models?
                                  addsamplestobackground = TRUE,
                                  use_weights = FALSE,
-                                 #weights = NULL,
-                                 #folds = 4, #Columns name with k_folds or vector indicating k_folds
                                  parallel = TRUE,
                                  ncores = 1,
                                  progress_bar = TRUE, #Show progress bar? Only works if parallel_type = "doSNOW"
