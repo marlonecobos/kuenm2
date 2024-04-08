@@ -15,7 +15,7 @@ calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y 
     var_names <- colnames(swd[, !names(swd) %in% ignore_columns])}
 
   #Get var combinations
-  var_comb <- enmpa:::aux_var_comb(var_names = var_names,
+  var_comb <- enmpa:::aux_var_comb(var_names = var_names, ################
                                    minvar = min_number)
 
   #Split features
@@ -141,4 +141,3 @@ prepare_formulas_glmnetmx <- function(independent, type = "lqpht",
   return(out)
 }
 
-#my_formula <- prepare_formulas_glmnetmx(independent = c("PC1", "PC2"), type = "lq")

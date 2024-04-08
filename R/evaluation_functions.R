@@ -2,24 +2,23 @@
 omrat <- function(threshold = 5, pred_train, pred_test) {
   om_rate <- vector("numeric", length = length(threshold))
   for (i in 1:length(threshold)) {
-    val <- ceiling(length(pred_train) * threshold[i]/100) + 1
+    val <- ceiling(length(pred_train) * threshold[i] / 100) + 1
     omi_val_suit <- sort(pred_train)[val]
-    om_rate[i] <- as.numeric(length(pred_test[pred_test <
-                                                omi_val_suit])/length(pred_test))
+    om_rate[i] <- as.numeric(
+      length(pred_test[pred_test < omi_val_suit]) / length(pred_test)
+    )
   }
-  names(om_rate) <- paste("Omission_rate_at_", threshold, sep = "")
+  names(om_rate) <- paste0("Omission_rate_at_", threshold)
   return(om_rate)
 }
-# t2 <- omrat_maxnet(threshold = 5,
-#                    pred_train =  suit_val_cal,
-#                    pred_test = suit_val_eval)
+
 
 
 ####AIC - Warren and Seifert ####
 aic_ws <- function(pred_occs, ncoefs) {
   LL <- sum(log(pred_occs + .Machine$double.eps))
-  AICc <- ((2 * ncoefs) - (2 * LL)) + (2 * ncoefs * (ncoefs +
-                                                   1)/(length(pred_occs) - ncoefs - 1))
+  AICc <- ((2 * ncoefs) - (2 * LL)) + (2 * ncoefs * (ncoefs + 1) /
+                                         (length(pred_occs) - ncoefs - 1))
 
   return(AICc)
 }

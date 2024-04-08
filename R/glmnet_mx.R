@@ -3,6 +3,7 @@
 
 #' Maxent-like glmnet models
 #'
+#' @importFrom glmnet glmnet.control glmnet
 #' @export
 
 glmnet_mx <- function(p, data, f, regmult = 1.0,

@@ -1,5 +1,6 @@
 #' Predict selected Maxent-like glmnet models
 #'
+#' @importFrom terra rast clamp predict
 #' @export
 
 predict_selected_glmnetmx <- function(models,

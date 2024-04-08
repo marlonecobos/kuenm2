@@ -1,5 +1,7 @@
 #' Summarize evaluation results
 #'
+#' @importFrom stats aggregate
+#' @importFrom enmpa proc_enm
 #' @export
 
 eval_stats <- function(calib_results, omrat_thr){

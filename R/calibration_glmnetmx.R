@@ -1,5 +1,11 @@
 #' Calibration routines using Maxent-like glmnet models
 #'
+#' @importFrom parallel makeCluster stopCluster
+#' @importFrom doParallel registerDoParallel
+#' @importFrom doSNOW registerDoSNOW
+#' @importFrom foreach foreach `%dopar%`
+#' @importFrom utils setTxtProgressBar
+#'
 #' @export
 
 calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes weights)
@@ -24,13 +30,13 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
                                  verbose = TRUE){
 
   #Args to parallel
-  to_export <- c("aic_nk", "aic_ws", "eval_stats","glmnet_mx",
-                 "maxnet.default.regularization", "omrat",
-                 "predict.glmnet_mx", "empty_replicates",
-                 "empty_summary", "hinge", "hingeval", "thresholds",
-                 "thresholdval", "categorical", "categoricalval",
-                 "fit_eval_concave", "fit_eval_models", "omrat_thr",
-                 "omrat_threshold", "sel_best_models")
+  #to_export <- c("aic_nk", "aic_ws", "eval_stats","glmnet_mx",
+  #               "maxnet.default.regularization", "omrat",
+  #               "predict.glmnet_mx", "empty_replicates",
+  #               "empty_summary", "hinge", "hingeval", "thresholds",
+  #               "thresholdval", "categorical", "categoricalval",
+  #               "fit_eval_concave", "fit_eval_models", "omrat_thr",
+  #               "omrat_threshold", "sel_best_models")
 
   #Check calibration data class and convert to dataframe if necessay
   if(is.matrix(data$calibration_data) | is.array(data$calibration_data)) {
@@ -115,7 +121,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
       #Test concave curves
       #In parallel (using %dopar%)
       if(parallel){
-      results_concave <- foreach(
+      results_concave <- foreach::foreach(
         x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts,
         .export = c(to_export, "formula_grid", "q_grids","data",
                     "write_summary", "return_replicate")
