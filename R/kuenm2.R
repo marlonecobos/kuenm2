@@ -8,6 +8,4 @@
 #' Tools for post-modeling analyses are implemented to allow further
 #' exploration of results.
 #'
-#' @docType package
-#' @name kuenm2
-NULL
+"_PACKAGE"
