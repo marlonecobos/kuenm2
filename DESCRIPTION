@@ -33,6 +33,7 @@ Imports:
     doParallel,
     doSNOW, 
     enmpa (>= 0.1.5),
+    foreach (>= 1.5),
     glmnet (>= 4.1),
     mop (>= 0.1),
     parallel,
