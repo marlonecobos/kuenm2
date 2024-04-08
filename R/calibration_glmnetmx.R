@@ -30,13 +30,13 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
                                  verbose = TRUE){
 
   #Args to parallel
-  #to_export <- c("aic_nk", "aic_ws", "eval_stats","glmnet_mx",
-  #               "maxnet.default.regularization", "omrat",
-  #               "predict.glmnet_mx", "empty_replicates",
-  #               "empty_summary", "hinge", "hingeval", "thresholds",
-  #               "thresholdval", "categorical", "categoricalval",
-  #               "fit_eval_concave", "fit_eval_models", "omrat_thr",
-  #               "omrat_threshold", "sel_best_models")
+  to_export <- c("aic_nk", "aic_ws", "eval_stats","glmnet_mx",
+                 "maxnet.default.regularization", "omrat",
+                 "predict.glmnet_mx", "empty_replicates",
+                 "empty_summary", "hinge", "hingeval", "thresholds",
+                 "thresholdval", "categorical", "categoricalval",
+                 "fit_eval_concave", "fit_eval_models", "omrat_thr",
+                 "omrat_threshold", "sel_best_models")
 
   #Check calibration data class and convert to dataframe if necessay
   if(is.matrix(data$calibration_data) | is.array(data$calibration_data)) {
