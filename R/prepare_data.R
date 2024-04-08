@@ -1,5 +1,8 @@
-#### Prepare SWD ####
-#library(terra)
+#' Prepare data for model calibration using basic inputs
+#'
+#' @importFrom terra as.data.frame extract
+#' @export
+
 prepare_data <- function(occ,
                         species = NULL,
                         x,

@@ -1,16 +1,6 @@
-# source("Functions/Metrics_Functions.R")
-#
-# models <- readRDS("Models/Myrcia_hatschbachii/Best_models.RDS")
-# spat_var <- rast("Models/Myrcia_hatschbachii/PCA_var.tiff")
-# consensus_per_model = TRUE
-# consensus_general = TRUE
-# consensus = c("median", "range", "mean", "stdev") #mean, weighted mean, variance
-# write_files = TRUE
-# write_replicates = FALSE
-# type = "cloglog"
-# out_dir = "Models/Myrcia_hatschbachii/Predictions"
-# overwrite = TRUE
-
+#' Predict selected Maxent-like glmnet models
+#'
+#' @export
 
 predict_selected_glmnetmx <- function(models,
                            spat_var,

@@ -1,4 +1,7 @@
-#Looping through candidate models using cores
+#' Calibration routines using Maxent-like glmnet models
+#'
+#' @export
+
 calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes weights)
                                  formula_grid, #Grid with formulas
                                  test_concave = TRUE, #Test concave curves in quadratic models?

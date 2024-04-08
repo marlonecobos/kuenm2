@@ -1,11 +1,7 @@
-# # # ####Import calibration results####
-# # cr <- read.csv("Models/Piper_fuligineum/calibration_results_v2.csv")
-# # dir <- "Models/Piper_fuligineum/"
-#
-# #Test function
-# cand_models <- cr
+#' Select best among candidate models
+#'
+#' @export
 
-####Function to select best models####
 sel_best_models <- function(cand_models,
                      test_concave = TRUE,
                      # omrat = 5,

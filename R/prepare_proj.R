@@ -1,4 +1,7 @@
-#Prepare paths for projections
+#' Preparation of data for model projections
+#'
+#' @export
+
 prepare_proj <- function(models = NULL,
                          variable_names = NULL,
                          present_dir = NULL,

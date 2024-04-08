@@ -1,4 +1,7 @@
-####Get grid of formulas####
+#' Grid of parameters for calibration of Maxent-like glmnet models
+#'
+#' @export
+
 calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y = NULL,
                                       fold_column = "folds",
                                       min_number = 2,

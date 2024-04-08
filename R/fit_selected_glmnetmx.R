@@ -1,55 +1,7 @@
-# #Load packages
-# library(terra)
-# library(dplyr)
-# library(pbapply)
-# library(pbapply)
-# library(foreach)
-# library(parallel)
-#
-# #Load functions
-# source("Functions/Metrics_Functions.R")
-# source("Functions/eval_m.R")
-# source("Functions/part_data.R")
+#' Fit selected Maxent-like glmnet models
+#'
+#' @export
 
-#Prediction to dataframe or raster
-#In df, each replicate in a column
-
-# #Select 3 best models from candidate results
-# cand_res <- read.csv("Models/Piper_fuligineum/candidate_results.csv")
-# selected_models <- cand_res %>%
-#   filter(is_concave == F, proc_pval.mean < 0.05,
-#          Omission_rate_at_5.mean <= 0.05) %>% slice_min(AIC, n =3)
-#
-# #Import data to create the functions
-# data <- read.csv("Models/Piper_fuligineum/occ_bg.csv")
-# pr_bg <- "pr_bg"
-# var_categorical = NULL
-# replicates = TRUE
-# n_replicates <- 5
-# rep_type = "subsample"
-# train_portion = 0.7
-# write_models = TRUE
-# out_dir = "Models/Piper_fuligineum/Best_models/" #Name of the folder to write final models
-# parallel = TRUE
-# ncores = 1
-# progress_bar = TRUE
-# parallelType = "doSNOW"
-# verbose = TRUE
-# to_export = c("aic_glmnetmx", "aic_maxnet", "eval_stats",
-#               "get_formulas_maxnet",
-#               "glmnet_mx", "kfold_part",
-#               "maxnet.default.regularization",
-#               "omrat_maxnet",
-#               "predict.glmnet_mx", "empty_replicates",
-#               "empty_summary",
-#               "hinge", "hingeval", "thresholds",
-#               "thresholdval", "categorical",
-#               "categoricalval")
-
-
-
-
-####Function to fit best models####
 fit_selected_glmnetmx <- function(calibration_results,
                                   n_replicates = 5,
                                   rep_type = "kfold",

@@ -1,6 +1,7 @@
-####Helpers from eval_m ####
+#' Summarize evaluation results
+#'
+#' @export
 
-#Function to summarize data
 eval_stats <- function(calib_results, omrat_thr){
   omission_rates <- paste0("Omission_rate_at_", omrat_thr)
   toagg <- c(omission_rates,
@@ -204,7 +205,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
               Summary = eval_final_q_summary))
 }
 
-#Function to teste all models curves (except quadratic models when test_concave = TRUE)
+#Function to test all models curves (except quadratic models when test_concave = TRUE)
 fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
                             write_summary, addsamplestobackground, weights,
                             return_replicate) {

@@ -1,5 +1,10 @@
-#### New functions for maxnet ####
+#### Functions for Maxent-like glmnet models ####
 #Modified from maxnet ‘0.1.4’
+
+#' Maxent-like glmnet models
+#'
+#' @export
+
 glmnet_mx <- function(p, data, f, regmult = 1.0,
                       regfun = maxnet.default.regularization,
                       addsamplestobackground = TRUE,

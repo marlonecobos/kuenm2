@@ -1,4 +1,6 @@
-#Return data.frame with path for each projection
+#' Projection of Maxent-like glmnet models to single or multiple scenarios
+#'
+#' @export
 
 project_selected_glmnetx <- function(models,
                                      projection_file,
@@ -218,20 +220,20 @@ project_selected_glmnetx <- function(models,
 
 } #End of function
 
-projection_file = readRDS("../test_kuenm2/Projection_file.RDS")
-models <- readRDS("../test_kuenm2/Best_Models.RDS")
-write_files = FALSE
-write_replicates = FALSE
-out_dir = "../test_kuenm2/Projection_results"
-consensus_per_model = TRUE
-consensus_general = TRUE
-consensus = c("median", "range", "mean", "stdev") #weighted mean
-clamping = FALSE
-var_to_clamp = NULL
-type = "cloglog"
-overwrite = TRUE
-verbose = TRUE
-progress_bar = TRUE
+# projection_file = readRDS("../test_kuenm2/Projection_file.RDS")
+# models <- readRDS("../test_kuenm2/Best_Models.RDS")
+# write_files = FALSE
+# write_replicates = FALSE
+# out_dir = "../test_kuenm2/Projection_results"
+# consensus_per_model = TRUE
+# consensus_general = TRUE
+# consensus = c("median", "range", "mean", "stdev") #weighted mean
+# clamping = FALSE
+# var_to_clamp = NULL
+# type = "cloglog"
+# overwrite = TRUE
+# verbose = TRUE
+# progress_bar = TRUE
 
 # #Test function
 # source("R/predict_selected_glmnetmx.R")
