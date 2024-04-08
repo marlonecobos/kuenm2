@@ -1,6 +1,6 @@
 #' Predict selected Maxent-like glmnet models
 #'
-#' @importFrom terra rast clamp predict
+#' @importFrom terra rast clamp predict median mean stdev diff writeRaster
 #' @export
 
 predict_selected_glmnetmx <- function(models,
@@ -79,17 +79,17 @@ predict_selected_glmnetmx <- function(models,
   #Get consensus by model
   if(consensus_per_model) {
   if("median" %in% consensus) {
-    res$Consensus_per_model$median <- rast(lapply(p_models, median))
+    res$Consensus_per_model$median <- terra::rast(lapply(p_models, terra::median))
   }
   if("mean" %in% consensus) {
-    res$Consensus_per_model$mean <- rast(lapply(p_models, mean))
+    res$Consensus_per_model$mean <- terra::rast(lapply(p_models, terra::mean))
   }
   if("stdev" %in% consensus) {
-    res$Consensus_per_model$stdev <- rast(lapply(p_models, stdev))
+    res$Consensus_per_model$stdev <- terra::rast(lapply(p_models, terra::stdev))
   }
   if("range" %in% consensus) {
-    res$Consensus_per_model$range <- rast(lapply(p_models, function(r) {
-      diff(range(r))
+    res$Consensus_per_model$range <- terra::rast(lapply(p_models, function(r) {
+      terra::diff(range(r))
     }))
     }
       }
@@ -113,36 +113,36 @@ predict_selected_glmnetmx <- function(models,
     }
   } else {
     if(consensus_general & length(p_models) == 1 & !consensus_per_model) {
-      all_rep <- rast(p_models)
+      all_rep <- terra::rast(p_models)
 
       if("median" %in% consensus) {
-        gen_res$median <- median(all_rep)
+        gen_res$median <- terra::median(all_rep)
       }
       if("mean" %in% consensus) {
-        gen_res$mean <- mean(all_rep)
+        gen_res$mean <- terra::mean(all_rep)
       }
       if("stdev" %in% consensus) {
-        gen_res$stdev <- stdev(all_rep)
+        gen_res$stdev <- terra::stdev(all_rep)
       }
       if("range" %in% consensus) {
-        gen_res$range <- diff(range(all_rep))
+        gen_res$range <- terra::diff(terra::range(all_rep))
       }
     }
 
     if(consensus_general  & length(p_models) > 1){
-      all_rep <- rast(p_models)
+      all_rep <- terra::rast(p_models)
 
       if("median" %in% consensus) {
-        gen_res$median <- median(all_rep)
+        gen_res$median <- terra::median(all_rep)
       }
       if("mean" %in% consensus) {
-        gen_res$mean <- mean(all_rep)
+        gen_res$mean <- terra::mean(all_rep)
       }
       if("stdev" %in% consensus) {
-        gen_res$stdev <- stdev(all_rep)
+        gen_res$stdev <- terra::stdev(all_rep)
       }
       if("range" %in% consensus) {
-        gen_res$range <- diff(range(all_rep))
+        gen_res$range <- terra::diff(terra::range(all_rep))
       }
     }
   }
@@ -152,7 +152,7 @@ predict_selected_glmnetmx <- function(models,
     mcs <- lapply(consensus, function(y) {
       res$Consensus_per_model[[y]][[x]]
     })
-    mcs <- rast(mcs)
+    mcs <- terra::rast(mcs)
     names(mcs) <- consensus
 
     list(Replicates = rep[[x]], Model_consensus = mcs)
@@ -160,7 +160,7 @@ predict_selected_glmnetmx <- function(models,
 
   names(res) <- nm
 
-  res <- c(res, General_consensus = rast(gen_res))
+  res <- c(res, General_consensus = terra::rast(gen_res))
 
   #Write files?
   if(write_files) {
@@ -172,18 +172,18 @@ predict_selected_glmnetmx <- function(models,
   sapply(nm, function(i){
     #Write Replicates
     if(write_replicates) {
-    writeRaster(res[[i]]$Replicates,
+      terra::writeRaster(res[[i]]$Replicates,
                        file.path(out_dir,
                                  paste0(i, "_replicates.tiff")),
                 overwrite = overwrite) }
     #Write consensus by model
-    writeRaster(res[[i]]$Model_consensus,
+    terra::writeRaster(res[[i]]$Model_consensus,
                 file.path(out_dir,
                           paste0(i, "_consensus.tiff")),
                 overwrite = overwrite)
     })
   #Write general consensus
-   writeRaster(res$General_consensus,
+  terra::writeRaster(res$General_consensus,
               file.path(out_dir, "General_consensus.tiff"),
               overwrite = overwrite)
 
