@@ -55,11 +55,23 @@ predict_selected_glmnetmx <- function(models,
     inner_list <- list()
 
     for (x in models[[i]]) {
-      prediction <- terra::predict(spat_var, x, na.rm = TRUE, type = type)
+
+      if(inherits(spat_var, "SpatRaster")) {
+      prediction <- terra::predict(spat_var, x, na.rm = TRUE, type = type,
+                                   fun = predict.glmnet_mx) }
+
+      if(inherits(spat_var, "data.frame")) {
+        prediction <- as.numeric(predict.glmnet_mx(object = x,
+                                                   newdata = spat_var, type = type)) }
       inner_list[[length(inner_list) + 1]] <- prediction
     }
 
-    p_models[[length(p_models) + 1]] <- terra::rast(inner_list)
+    if(inherits(spat_var, "SpatRaster")) {
+    p_models[[length(p_models) + 1]] <- terra::rast(inner_list) }
+
+    if(inherits(spat_var, "data.frame")) {
+      p_models[[length(p_models) + 1]] <- inner_list}
+
     #Set progress bar
     if(progress_bar){
       setTxtProgressBar(pb, i) }
@@ -71,12 +83,16 @@ predict_selected_glmnetmx <- function(models,
     names(p_models[[i]]) <- names(models[[i]])
   }
 
+  #Create empty list to save results
+  res <- list()
+
+  ####HOW TO PREDICT TO LIST???####
+
+  #Get consensus by model when it's a raster
+  if(inherits(spat_var, "SpatRaster")) {
   #Start to store results
   rep <- unlist(p_models)
 
-  #Create empty list
-  res <- list()
-  #Get consensus by model
   if(consensus_per_model) {
   if("median" %in% consensus) {
     res$Consensus_per_model$median <- terra::rast(lapply(p_models, terra::median))
@@ -125,7 +141,7 @@ predict_selected_glmnetmx <- function(models,
         gen_res$stdev <- terra::stdev(all_rep)
       }
       if("range" %in% consensus) {
-        gen_res$range <- terra::diff(terra::range(all_rep))
+        gen_res$range <- terra::diff(range(all_rep))
       }
     }
 
@@ -142,12 +158,12 @@ predict_selected_glmnetmx <- function(models,
         gen_res$stdev <- terra::stdev(all_rep)
       }
       if("range" %in% consensus) {
-        gen_res$range <- terra::diff(terra::range(all_rep))
+        gen_res$range <- terra::diff(range(all_rep))
       }
     }
   }
 
-  #Final list
+    #Final list
   res <- lapply(1:length(nm), function(x) {
     mcs <- lapply(consensus, function(y) {
       res$Consensus_per_model[[y]][[x]]
@@ -158,6 +174,9 @@ predict_selected_glmnetmx <- function(models,
     list(Replicates = rep[[x]], Model_consensus = mcs)
   })
 
+  } #End when it is a raster
+
+  #Rename objects inside the list
   names(res) <- nm
 
   res <- c(res, General_consensus = terra::rast(gen_res))
