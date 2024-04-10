@@ -13,10 +13,14 @@ prepare_data <- function(occ,
                         kfolds = 4,
                         weights = NULL,
                         include_xy = TRUE,
-                        write_files = F,
+                        write_files = FALSE,
                         file_name = NULL,
-                        seed = 1,
-                        verbose = TRUE){
+                        seed = 1){
+
+  if(write_files & is.null(file_name)){
+    stop("If write_files = TRUE, you must specify a file_name")
+  }
+
   #Check if weights has the same lenght of occ
   if(!is.null(weights)){
     if(nrow(occ) != length(weights)){
@@ -61,9 +65,7 @@ prepare_data <- function(occ,
     if(!is.null(weights)){
       weights <- weights[-na_rows]
     }
-    if(verbose){
-      message(length(na_rows), " rows were excluded from database because NAs were found")
-    }
+    warning(length(na_rows), " rows were excluded from database because NAs were found")
   }
 
   #Check if weights and calibration data have the same lenght
