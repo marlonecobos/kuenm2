@@ -14,16 +14,16 @@ fit_selected_glmnetmx <- function(calibration_results,
                                   progress_bar = TRUE,
                                   verbose = TRUE) {
   #Args
-  to_export <- c("aic_nk", "aic_ws",
-                "eval_stats","glmnet_mx",
-                "maxnet.default.regularization",
-                "omrat","predict.glmnet_mx",
-                "empty_replicates",
-                "empty_summary", "hinge",
-                "hingeval",
-                "thresholds", "thresholdval",
-                "categorical",
-                "categoricalval", "fit_best_model", "n_replicates")
+  # to_export <- c("aic_nk", "aic_ws",
+  #               "eval_stats","glmnet_mx",
+  #               "maxnet.default.regularization",
+  #               "omrat","predict.glmnet_mx",
+  #               "empty_replicates",
+  #               "empty_summary", "hinge",
+  #               "hingeval",
+  #               "thresholds", "thresholdval",
+  #               "categorical",
+  #               "categoricalval", "fit_best_model", "n_replicates")
 
   #Extracts IDs from models
   m_ids <- calibration_results$selected_models$ID
@@ -80,8 +80,9 @@ fit_selected_glmnetmx <- function(calibration_results,
   #In parallel (using %dopar%)
   if(parallel){
     best_models <- foreach(x = 1:n_tot,
-                               .options.snow = opts,
-                               .export = c(to_export)
+                               .options.snow = opts
+                           # ,
+                           #     .export = c(to_export)
     ) %dopar% {
       fit_best_model(x = x, dfgrid, calibration_results, data_x, n_replicates,
                      rep_data)

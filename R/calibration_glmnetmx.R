@@ -29,14 +29,14 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
                                  skip_existing_models = FALSE, #Only works if write_summary = TRUE
                                  verbose = TRUE){
 
-  #Args to parallel
-  to_export <- c("aic_nk", "aic_ws", "eval_stats","glmnet_mx",
-                 "maxnet.default.regularization", "omrat",
-                 "predict.glmnet_mx", "empty_replicates",
-                 "empty_summary", "hinge", "hingeval", "thresholds",
-                 "thresholdval", "categorical", "categoricalval",
-                 "fit_eval_concave", "fit_eval_models", "omrat_thr",
-                 "omrat_threshold", "sel_best_models")
+  # #Args to parallel
+  # to_export <- c("aic_nk", "aic_ws", "eval_stats","glmnet_mx",
+  #                "maxnet.default.regularization", "omrat",
+  #                "predict.glmnet_mx", "empty_replicates",
+  #                "empty_summary", "hinge", "hingeval", "thresholds",
+  #                "thresholdval", "categorical", "categoricalval",
+  #                "fit_eval_concave", "fit_eval_models", "omrat_thr",
+  #                "omrat_threshold", "sel_best_models")
 
   #Check calibration data class and convert to dataframe if necessay
   if(is.matrix(data$calibration_data) | is.array(data$calibration_data)) {
@@ -122,9 +122,11 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
       #In parallel (using %dopar%)
       if(parallel){
       results_concave <- foreach::foreach(
-        x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts,
-        .export = c(to_export, "formula_grid", "q_grids","data",
-                    "write_summary", "return_replicate")
+        x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts
+        # ,
+        #
+        # .export = c(to_export, "formula_grid", "q_grids","data",
+        #             "write_summary", "return_replicate")
       ) %dopar% {
         fit_eval_concave(x = x, q_grids, data, formula_grid,
                          omrat_thr,write_summary,
@@ -216,9 +218,10 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
     #In parallel (using %dopar%)
     if(parallel){
     results <- foreach(
-      x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts,
-      .export = c(to_export, "formula_grid2", "q_grids", "data",
-                  "write_summary", "return_replicate")
+      x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts
+      # ,
+      # .export = c(to_export, "formula_grid2", "q_grids", "data",
+      #             "write_summary", "return_replicate")
     ) %dopar% {
       fit_eval_models(x, formula_grid2, data,
                       formula_grid, omrat_thr,
