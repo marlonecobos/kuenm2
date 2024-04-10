@@ -8,7 +8,14 @@ calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y 
                                       categorical_var = NULL,
                                       features = c("l", "q", "lq", "lqp", "p"),
                                       min_continuous = NULL,
-                                      regm = c(0.1, 1, 2, 3, 5)){
+                                      regm = c(0.1, 1, 2, 3, 5),
+                                      write_file = TRUE,
+                                      file_name = NULL){
+
+  if(write_file & is.null(file_name)){
+    stop("If write_file = TRUE, you must specify a file_name")
+  }
+
   if(is.null(var_names) & !is.null(swd)) {
     ignore_columns <- intersect(c(x, y, "pr_bg", "species", fold_column),
                                 colnames(swd))
@@ -48,6 +55,11 @@ calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y 
   f_grid <- f_grid[, c("ID", "Formulas", "regm", "Features")]
   #Class formulas
   f_grid$Formulas <- as.character(f_grid$Formulas)
+
+  if(write_file) {
+    saveRDS(f_grid, paste0(file_name, ".RDS"))
+  }
+
   return(f_grid)
 }
 
