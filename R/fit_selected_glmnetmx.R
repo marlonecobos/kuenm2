@@ -8,12 +8,12 @@ fit_selected_glmnetmx <- function(calibration_results,
                                   train_portion = 0.7,
                                   write_models = FALSE, #Write files?
                                   file_name = NULL, #Name of the folder to write final models
-                                  parallel = TRUE,
-                                  ncores = 4,
+                                  parallel = FALSE,
+                                  ncores = 2,
                                   parallelType = "doSNOW",
                                   progress_bar = TRUE,
                                   verbose = TRUE) {
-  #Args
+  # #Args
   # to_export <- c("aic_nk", "aic_ws",
   #               "eval_stats","glmnet_mx",
   #               "maxnet.default.regularization",
@@ -28,6 +28,12 @@ fit_selected_glmnetmx <- function(calibration_results,
   #Extracts IDs from models
   m_ids <- calibration_results$selected_models$ID
 
+  ####Fit replicates####
+
+  if(n_replicates > 1){
+    if(verbose){
+      message("Fitting replicates...")
+    }
   #Create grid of fitted models
   dfgrid <- expand.grid(models = m_ids, replicates = 1:n_replicates)
   n_tot <-  nrow(dfgrid)
@@ -106,9 +112,9 @@ fit_selected_glmnetmx <- function(calibration_results,
   parallel::stopCluster(cl) }
 
   #Split list
-  # Crie um vetor com o número de réplicas para cada modelo
-  num_repl <- tapply(dfgrid$replicates, dfgrid$models, FUN = length)
-  num_repl <- num_repl[match(dfgrid$models, names(num_repl))]
+  # # Crie um vetor com o número de réplicas para cada modelo
+  # num_repl <- tapply(dfgrid$replicates, dfgrid$models, FUN = length)
+  # num_repl <- num_repl[match(dfgrid$models, names(num_repl))]
 
   # Split list
   best_models <- split(best_models, dfgrid$models)
@@ -118,7 +124,86 @@ fit_selected_glmnetmx <- function(calibration_results,
   })
 
   #Rename models
-  names(best_models) <- paste0("Model_", names(best_models))
+  names(best_models) <- paste0("Model_", names(best_models))} else {
+    best_models = list()
+  }
+
+  ####Fit full models####
+  if(verbose){
+    message("\nFitting full models...")
+  }
+  n_models <- length(m_ids)
+  #Create grid of fitted models
+  dfgrid <- expand.grid(models = m_ids, replicates = 1)
+  #Adjust parallelization according to the number of models and replicates
+  if(n_models == 1 & isTRUE(parallel)){
+    parallel <- FALSE
+  }
+  if(n_models < ncores & isTRUE(parallel)){
+    ncores <- n_models
+  }
+
+  #Show progress bar?
+  if (isTRUE(progress_bar)) {
+    pb <- txtProgressBar(0, n_models, style = 3)
+    progress <- function(n) setTxtProgressBar(pb, n) }
+
+
+  #Set parallelization
+  if(parallel) {
+    #Make cluster
+    cl <- parallel::makeCluster(ncores)
+
+    if (parallelType == "doParallel") {
+      doParallel::registerDoParallel(cl)
+      opts <- NULL
+    }
+
+    if (parallelType == "doSNOW") {
+      doSNOW::registerDoSNOW(cl)
+      if (progress_bar)
+        opts <- list(progress = progress)
+      else opts <- NULL
+    }
+  } else {
+    opts <- NULL}
+
+
+  #In parallel (using %dopar%)
+  if(parallel){
+    full_models <- foreach(x = 1:n_models,
+                           .options.snow = opts
+                           # ,
+                           #    .export = c(to_export)
+    ) %dopar% {
+      fit_best_model(x = x, dfgrid, calibration_results, data_x,
+                     n_replicates = 1)
+    }
+  } else { #Not in parallel (using %do%)
+    full_models <- vector("list", length = n_models)
+    # Loop for com barra de progresso manual
+    for (x in 1:n_models) {
+      # Execute a função fit_eval_models
+      full_models[[x]] <- fit_best_model(x = x, dfgrid, calibration_results,
+                                         data_x, n_replicates = 1)
+
+      # Sets the progress bar to the current state
+      if(progress_bar){
+        setTxtProgressBar(pb, x) }
+    }  }
+
+  #Names models
+  names(full_models) <- paste0("Model_", m_ids)
+
+  #Append full models to replicates
+  for(i in names(full_models)) {
+    best_models[[i]]$Full_model <- full_models[[i]]
+  }
+
+
+  #End cluster
+  if(parallel){
+    parallel::stopCluster(cl) }
 
   #Final results
   res <- list(species = calibration_results$species,
