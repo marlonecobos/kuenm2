@@ -16,9 +16,27 @@ predict_selected_glmnetmx <- function(models,
                            type = "cloglog",
                            overwrite = FALSE,
                            progress_bar = TRUE) {
+
+
   #Get models names
   models <- models[["Models"]]
   nm <- names(models)
+
+
+  #Get names of the models (Replicates or full model)
+  names_models <- unlist(unique(sapply(nm, function(i) {
+    names(models[[i]]) }, USE.NAMES = FALSE, simplify = FALSE)))
+
+  #If has rep, remove Full model from dataset
+  if(any(grepl("Rep", names_models))){
+  models <- lapply(nm, function(i){
+    models[[i]][["Full_model"]] <- NULL
+    return(models[[i]])
+  })
+  names(models) <- nm
+  names_models <- unlist(unique(sapply(nm, function(i) {
+    names(models[[i]]) }, USE.NAMES = FALSE, simplify = FALSE)))
+  }
 
   #Clamp
   if (clamping) {
@@ -79,9 +97,10 @@ predict_selected_glmnetmx <- function(models,
 
   #Rename models and replicates
   names(p_models) <- nm
+
+  #Rename replicates
   for (i in nm) {
-    names(p_models[[i]]) <- names(models[[i]])
-  }
+    names(p_models[[i]]) <- names(models[[i]])}
 
   #Create empty list to save results
   res <- list()
@@ -173,6 +192,8 @@ predict_selected_glmnetmx <- function(models,
 
     list(Replicates = rep[[x]], Model_consensus = mcs)
   })
+
+  names(res)
 
   } #End when it is a raster
 
