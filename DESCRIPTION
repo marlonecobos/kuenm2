@@ -39,7 +39,8 @@ Imports:
     parallel,
     stats,
     terra (>= 1.6),
-    utils
+    utils,
+    mgcv
 Depends: 
     R (>= 3.5)
 VignetteBuilder: knitr
