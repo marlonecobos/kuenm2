@@ -1,3 +1,15 @@
+#' Two-Way interaction response plot
+#'
+#' @description
+#' A view of the species probability into a two-dimensional
+#' environmental space.
+#'
+#' @usage
+#' resp2var(fitted, modelID, variable1 , variable2, n = 100,
+#'          new_data = NULL, extrapolate = FALSE, add_bar = TRUE ,
+#'          add_limits = FALSE, color.palette	= NULL,
+#'          xlab = NULL, ylab = NULL, ...)
+#'
 #' @return
 #' A plot with the response interaction of two environmental dimensions for
 #' `variable1` and `variable2`, and don't return anything.
