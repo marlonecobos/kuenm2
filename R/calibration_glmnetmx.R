@@ -286,6 +286,7 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
   #Concatenate final results
 
   return(c(data, calibration_results = list(res_final),
+           omission_rate = omrat_threshold,
            addsamplestobackground = addsamplestobackground,
            weights = list(data$weights), selected_models = list(bm)))
 
