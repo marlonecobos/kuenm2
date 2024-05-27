@@ -5,7 +5,7 @@
 project_selected_glmnetx <- function(models,
                                      projection_file,
                                      out_dir = "Projection_results",
-                                     write_path = TRUE,
+                                     #write_path = TRUE,
                                      consensus_per_model = TRUE,
                                      consensus_general = TRUE,
                                      consensus = c("median", "range", "mean", "stdev"), #weighted mean
@@ -14,13 +14,34 @@ project_selected_glmnetx <- function(models,
                                      var_to_clamp = NULL,
                                      type = "cloglog",
                                      overwrite = FALSE,
+                                     parallel = FALSE,
+                                     ncores = 1,
+                                     parallelType = "doSNOW",
                                      progress_bar = TRUE,
                                      verbose = TRUE){
+
+  if(!any(c("median", "mean") %in% consensus)){
+    stop("Consensus must have at least one of the options: 'median' or 'mean'")
+  }
+
+  #Save parameters in a list to send to foreach nodes#
+  par_list <- list(models = models,
+                   projection_file = projection_file,
+                   consensus_per_model = consensus_per_model,
+                   consensus_general = consensus_general,
+                   consensus = consensus,
+                   write_replicates = write_replicates,
+                   clamping = clamping,
+                   var_to_clamp = var_to_clamp,
+                   type = type,
+                   overwrite = overwrite)
+
+  ####PREPARE DATAFRAME TO PREDICT####
   #Extract variables from best models
   vars <- names(models[["Models"]][[1]][[1]]$samplemeans)[-1]
 
   if(!file.exists(out_dir)){
-     dir.create(out_dir)
+    dir.create(out_dir, showWarnings = FALSE)
   }
   #Normalize path
   out_dir <- normalizePath(out_dir)
@@ -28,175 +49,76 @@ project_selected_glmnetx <- function(models,
   #Check scenarios to predict
   sc <- names(projection_file)
 
-  #Project to present scenarios
+  #Get raster pattern to read
+  raster_pattern <- projection_file$Raster_pattern
+
+  #Get dataframe with path to predictions
+  #Present
   if("Present" %in% sc){
-    if(verbose){
-      message("Predicting models to Present scenarios...")
-    }
     #Create folder
     present_dir <- file.path(out_dir, "Present/")
     present_sc <- names(projection_file[["Present"]])
-
-    #Show progress bar?
-    if(progress_bar) {
-      pb <- txtProgressBar(min = 0, max = length(present_sc), style = 3)}
-
-    #Create dataframe with path to results
+    suppressWarnings({
     d_present <- data.frame(Time = "Present",
+                            Period = "Present",
                             Scenario = present_sc,
-                            path = normalizePath(file.path(present_dir,
-                                                           present_sc)))
-
-    for(i in 1:length(present_sc)) {
-      p_i <- present_sc[i]
-      present_sc_i <- projection_file[["Present"]][[p_i]]
-      r <- rast(list.files(path = present_sc_i,
-                           pattern = projection_file$Raster_pattern,
-                           full.names = TRUE))
-      #Create folder to save
-      f_i <-  normalizePath(file.path(present_dir, p_i))
-      suppressWarnings(dir.create(f_i, recursive = TRUE))
-
-      #Predict
-      invisible(predict_selected_glmnetmx(models = models,
-                     spat_var = r,
-                     write_files = TRUE,
-                     write_replicates = write_replicates,
-                     out_dir = f_i,
-                     consensus_per_model = consensus_per_model,
-                     consensus_general =   consensus_general,
-                     consensus = consensus, #weighted mean
-                     clamping = clamping,
-                     var_to_clamp = var_to_clamp,
-                     type = type,
-                     overwrite = overwrite,
-                     progress_bar = FALSE))
-
-
-      #Set progress bar
-      if(progress_bar){
-        setTxtProgressBar(pb, i) }
-    }
-  } #End of present projections
-
-  #Project to Past scenarios
+                            input_path = unlist(projection_file[["Present"]]),
+                            output_path = normalizePath(file.path(present_dir,
+                                                                  present_sc)))})
+  }
+  #Past
   if("Past" %in% sc){
-    if(verbose){
-      message("\nPredicting models to Past scenarios...")
-    }
     #Create folder
     past_dir <- file.path(out_dir, "Past/")
-      #Get grid of projections
-    df <- do.call(rbind, lapply(names(projection_file$Past), function(time) {
+    #Get grid of projections
+    df_past <- do.call(rbind, lapply(names(projection_file$Past), function(time) {
       time_data <- projection_file$Past[[time]]
       do.call(rbind, lapply(names(time_data), function(gcm) {
-        data.frame(Time = time, GCM = gcm, Path = time_data[[gcm]], stringsAsFactors = FALSE)
+        data.frame(Time = "Past", Period = time, GCM = gcm, Path = time_data[[gcm]], stringsAsFactors = FALSE)
       }))
     }))
 
     #Looping in the grid
-    #Show progress bar?
-    if(progress_bar) {
-      pb <- txtProgressBar(0, nrow(df), style = 3)}
 
     #Create dataframe with path to results
-    d_past <- data.frame(Time = df$Time,
-                         GCM = df$GCM,
-                         path = normalizePath(file.path(past_dir, df$Time,
-                                                        df$GCM)))
-
-
-    for(i in 1:nrow(df)){
-      time_i <- df$Time[i]
-      gcm_i <- df$GCM[i]
-      path_i <- df$Path[i]
-      #Create folder
-      f_i <- normalizePath(file.path(out_dir, "Past", time_i, gcm_i))
-      suppressWarnings(dir.create(f_i, recursive = T))
-      r <- rast(list.files(path_i, full.names = T,
-                           pattern = projection_file$Raster_pattern))
-      #Predict
-      invisible(predict_selected_glmnetmx(models = models,
-                                          spat_var = r,
-                                          write_files = TRUE,
-                                          write_replicates = write_replicates,
-                                          out_dir = f_i,
-                                          consensus_per_model = consensus_per_model,
-                                          consensus_general =   consensus_general,
-                                          consensus = consensus, #weighted mean
-                                          clamping = clamping,
-                                          var_to_clamp = var_to_clamp,
-                                          type = type,
-                                          overwrite = overwrite,
-                                          progress_bar = FALSE))
-      #Set progress bar
-      if(progress_bar){
-        setTxtProgressBar(pb, i) }
-    }
-  } #End of past projections
-
-
-  #Project to Future scenarios
+    suppressWarnings({
+    d_past <- data.frame(Time = "Past",
+                         Period = df_past$Period,
+                         GCM = df_past$GCM,
+                         input_path = df_past$Path,
+                         output_path = normalizePath(file.path(past_dir, df_past$Period,
+                                                               df_past$GCM),
+                                                     mustWork = FALSE))})
+  }
+  #Future
+  ####Project to Future scenarios####
   if("Future" %in% sc){
-    if(verbose){
-      message("\nPredicting models to Future scenarios...")
-    }
-
     #Create folder
     future_dir <- file.path(out_dir, "Future/")
 
     #Create grid of time-ssp-gcm
-    df <- do.call(rbind, lapply(names(projection_file[["Future"]]), function(year_range) {
+    df_future <- do.call(rbind, lapply(names(projection_file[["Future"]]), function(year_range) {
       year_range_data <- projection_file[["Future"]][[year_range]]
       do.call(rbind, lapply(names(year_range_data), function(ssp) {
         ssp_data <- year_range_data[[ssp]]
         do.call(rbind, lapply(names(ssp_data), function(gcm) {
-          data.frame(Time = year_range, ssp = ssp, GCM = gcm, Path = ssp_data[[gcm]], stringsAsFactors = FALSE)
+          data.frame(Time = "Future", Period = year_range, ssp = ssp,
+                     GCM = gcm, Path = ssp_data[[gcm]],
+                     stringsAsFactors = FALSE)
         }))      }))    }))
 
-    #Looping in the grid
-    #Show progress bar?
-    if(progress_bar) {
-      pb <- txtProgressBar(0, nrow(df), style = 3)}
 
     #Create dataframe with path to results
-    d_future <- data.frame(Time = df$Time,
-                           ssp = df$ssp,
-                           GCM = df$GCM,
-                           path = normalizePath(file.path(future_dir, df$Time,
-                                                          df$ssp, df$GCM)))
-
-    for(i in 1:nrow(df)){
-      time_i <- df$Time[i]
-      ssp_i <- df$ssp[i]
-      gcm_i <- df$GCM[i]
-      path_i <- df$Path[i]
-      #Create folder
-      f_i <- normalizePath(file.path(out_dir, "Future", time_i, ssp_i, gcm_i))
-      suppressWarnings(dir.create(f_i, recursive = T))
-      r <- rast(list.files(path_i, full.names = T,
-                           pattern = projection_file$Raster_pattern))
-      #Subset variables
-      r <- r[[vars]]
-      #Predict
-      invisible(predict_selected_glmnetmx(models = models,
-                                          spat_var = r,
-                                          write_files = TRUE,
-                                          write_replicates = write_replicates,
-                                          out_dir = f_i,
-                                          consensus_per_model = consensus_per_model,
-                                          consensus_general =   consensus_general,
-                                          consensus = consensus, #weighted mean
-                                          clamping = clamping,
-                                          var_to_clamp = var_to_clamp,
-                                          type = type,
-                                          overwrite = overwrite,
-                                          progress_bar = FALSE))
-      #Set progress bar
-      if(progress_bar){
-        setTxtProgressBar(pb, i) }
-    }
-  }  #End of future projections
+    suppressWarnings({
+    d_future <- data.frame(Time = df_future$Time,
+                           Period = df_future$Period,
+                           ssp = df_future$ssp,
+                           GCM = df_future$GCM,
+                           input_path = df_future$Path,
+                           output_path = normalizePath(file.path(future_dir,
+                                                                 df_future$ssp, df_future$GCM),
+                                                       mustWork = FALSE))})
+  }
 
   #Get dataframe with path to each projection
   if(!("Present" %in% sc)){
@@ -210,48 +132,96 @@ project_selected_glmnetx <- function(models,
   }
 
   #Return and write files with path
-  res_path <- bind_rows_projection(list(d_present, d_past, d_future))
+  res_path <- kuenm2:::bind_rows_projection(list(d_present, d_past, d_future))
+  #Create ID
+  res_path$id <- 1:nrow(res_path)
 
-  if(write_path){
-    saveRDS(res_path, file.path(out_dir, "Projection_paths.RDS"))
+
+  ####Configure parallelization####
+  n_models <- nrow(res_path)
+  if(n_models == 1 & isTRUE(parallel)){
+    parallel <- FALSE
+  } else {parallel <- TRUE}
+
+  if(n_models < ncores & isTRUE(parallel)){
+    ncores <- n_models
+  } else {ncores = ncores}
+
+  #Show progress bar?
+  if (isTRUE(progress_bar)) {
+    pb <- txtProgressBar(0, n_models, style = 3)
+    progress <- function(n) setTxtProgressBar(pb, n) }
+
+
+  #Set parallelization
+  if(parallel) {
+    #Make cluster
+    cl <- parallel::makeCluster(ncores)
+
+    if (parallelType == "doParallel") {
+      doParallel::registerDoParallel(cl)
+      opts <- NULL
+    }
+
+    if (parallelType == "doSNOW") {
+      doSNOW::registerDoSNOW(cl)
+      if (progress_bar)
+        opts <- list(progress = progress)
+      else opts <- NULL
+    }
+  } else {
+    opts <- NULL}
+  ###################################
+
+  #Run predictions
+  if(parallel){
+    foreach(x = 1:n_models,
+            .options.snow = opts
+            ,
+            .export = c("predict_selected_glmnetmx")
+    ) %dopar% {
+      kuenm2:::multiple_projections(i = x, res_path, raster_pattern, par_list)
+    }
+  } else { #Not in parallel (using %do%)
+    # Loop for com barra de progresso manual
+    for (x in 1:n_models) {
+      # Execute a função fit_eval_models
+      kuenm2:::multiple_projections(i = x, res_path, raster_pattern, par_list)
+
+      # Sets the progress bar to the current state
+      if(progress_bar){
+        setTxtProgressBar(pb, x) }
+    }
   }
 
-  return(res_path)
+  #Stop cluster
+  if(parallel){parallel::stopCluster(cl)}
 
+  #Append threshold to final results
+  res_final <- list(paths = res_path,
+                    threshold = models$thresholds)
+
+  #Save
+  saveRDS(res_final, file.path(out_dir, "Projection_paths.RDS"))
+  return(res_final)
 } #End of function
 
+# #Test function internally
+# models = readRDS("../test_kuenm2/Best_Models.RDS")
 # projection_file = readRDS("../test_kuenm2/Projection_file.RDS")
-# models <- readRDS("../test_kuenm2/Best_Models.RDS")
-# write_files = FALSE
-# write_replicates = FALSE
 # out_dir = "../test_kuenm2/Projection_results"
+# #write_path = TRUE
 # consensus_per_model = TRUE
 # consensus_general = TRUE
 # consensus = c("median", "range", "mean", "stdev") #weighted mean
+# write_replicates = FALSE
 # clamping = FALSE
 # var_to_clamp = NULL
 # type = "cloglog"
 # overwrite = TRUE
-# verbose = TRUE
+# parallel = TRUE
+# ncores = 8
+# parallelType = "doSNOW"
 # progress_bar = TRUE
-
-# #Test function
-# source("R/predict_selected_glmnetmx.R")
-# source("R/helpers_glmnetmx.R")
-# source("R/helpers_calibration_glmnetmx.R")
-# pf = readRDS("../test_kuenm2/Projection_file.RDS")
-# models <- readRDS("../test_kuenm2/Best_Models.RDS")
-# out_dir = "../test_kuenm2/Projection_results"
+# verbose = TRUE
 #
-# project_selected_glmnetx(projection_file = pf,
-#                          models = models,
-#                          out_dir = out_dir,
-#                          consensus_per_model = TRUE,
-#                          consensus_general = TRUE,
-#                          consensus = c("median", "range", "mean", "stdev"), #weighted mean
-#                          clamping = FALSE,
-#                          var_to_clamp = NULL,
-#                          type = "cloglog",
-#                          overwrite = TRUE,
-#                          progress_bar = TRUE,
-#                          verbose = TRUE)
