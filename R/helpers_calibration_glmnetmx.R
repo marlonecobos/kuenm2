@@ -384,7 +384,8 @@ fit_best_model <- function(x, dfgrid, calibration_results, data_x, n_replicates,
 
 #Bind rows to get path for each projection in project_selected_glmnetx
 bind_rows_projection <- function(data_frames) {
-  all_columns <- c("Time", "Scenario", "ssp", "GCM", "path")
+  all_columns <- c("Time", "Period", "Scenario", "ssp", "GCM",
+                   "input_path", "output_path")
   result <- NULL
 
   for (df in data_frames) {

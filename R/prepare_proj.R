@@ -5,8 +5,8 @@
 prepare_proj <- function(models = NULL,
                          variable_names = NULL,
                          present_dir = NULL,
-                         past_dir = NULL, past_time = NULL, past_gcm = NULL,
-                         future_dir = NULL, future_time = NULL,
+                         past_dir = NULL, past_period = NULL, past_gcm = NULL,
+                         future_dir = NULL, future_period = NULL,
                          future_pscen = NULL, future_gcm = NULL,
                          write_file = FALSE,
                          filename = NULL,
@@ -107,14 +107,14 @@ prepare_proj <- function(models = NULL,
       stop(paste("future_dir", future_dir, "is empty"))
     }
 
-  if(sum(!is.null(future_time),
+  if(sum(!is.null(future_period),
          !is.null(future_pscen),
          !is.null(future_gcm)) != 3) {
-    stop("To prepare projections for future time, you must set future_time, future_pscen and future_gcm arguments")
+    stop("To prepare projections for future time, you must set future_period, future_pscen and future_gcm arguments")
   }
 
   #Check folders
-  expected_folders_future <- unlist(sapply(future_time, function(i){
+  expected_folders_future <- unlist(sapply(future_period, function(i){
     lapply(future_pscen, function(x){
       file.path(future_dir, i, x, future_gcm)
     })
@@ -145,7 +145,7 @@ prepare_proj <- function(models = NULL,
   #If everything is OK, create list with the path
 
   res_future <- list()
-  for (year in future_time) {
+  for (year in future_period) {
     res_future[[year]] <- list()
   for (ssp in future_pscen) {
     res_future[[year]][[ssp]] <- list()
@@ -171,14 +171,14 @@ prepare_proj <- function(models = NULL,
       stop(paste("past_dir", past_dir, "is empty"))
     }
 
-    if(sum(!is.null(past_time),
+    if(sum(!is.null(past_period),
            !is.null(past_gcm)) != 2) {
-      stop("To prepare projections for past time, you must set past_time and past_gcm arguments")
+      stop("To prepare projections for past time, you must set past_period and past_gcm arguments")
     }
 
 
   #Check folders
-  expected_folders_past <- unlist(sapply(past_time, function(i){
+  expected_folders_past <- unlist(sapply(past_period, function(i){
       file.path(past_dir, i, past_gcm)
   }, simplify = F, USE.NAMES = FALSE))
   past_exists <- unlist(sapply(expected_folders_past, file.exists,
@@ -207,7 +207,7 @@ prepare_proj <- function(models = NULL,
 
   #If everything is OK, create list with the path
   res_past <- list()
-  for (year in past_time) {
+  for (year in past_period) {
     res_past[[year]] <- list()
       for (gcm in past_gcm) {
         res_past[[year]][[gcm]] <- normalizePath(file.path(past_dir, year, gcm))
@@ -243,10 +243,10 @@ prepare_proj <- function(models = NULL,
 # pr <- prepare_proj(models = bm,
 #              present_dir = "../test_kuenm2/Projections/Present/",
 #              past_dir = "../test_kuenm2/Projections/Past/",
-#              past_time = c("LGM", "MID"),
+#              past_period = c("LGM", "MID"),
 #              past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P"),
 #              future_dir = "../test_kuenm2/Projections/Future/",
-#              future_time = c("2041-2060", "2081-2100"),
+#              future_period = c("2041-2060", "2081-2100"),
 #              future_pscen = c("ssp245", "ssp585"),
 #              future_gcm = c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2"),
 #              filename = "../test_kuenm2/Projection_file",
@@ -257,12 +257,12 @@ prepare_proj <- function(models = NULL,
 # bm <- readRDS("../test_kuenm2/Best_Models.RDS")
 # models <- bm
 # future_dir <- "../test_kuenm2/Projections/Future/"
-# future_time <- "2041-2060"
+# future_period <- "2041-2060"
 # future_pscen <- c("ssp245", "ssp585")
 # future_gcm <- c("BCC-CSM2-MR", "ACCESS-CM2", "CMCC-ESM2")
 # raster_pattern = ".tif*"
 # past_dir <- "../test_kuenm2/Projections/Past/"
-# past_time = c("LGM", "MID")
+# past_period = c("LGM", "MID")
 # past_gcm = c("CCSM4", "MIROC-ESM", "MPI-ESM-P")
 # present_dir <- "../test_kuenm2/Projections/Present/"
 # filename = "../test_kuenm2/Projection_file"

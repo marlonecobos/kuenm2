@@ -4,7 +4,8 @@ part_data <- function(data,
                       pr_bg = "pr_bg",
                       train_portion = 0.7,
                       n_replicates = 5,
-                      method = "subsample") {
+                      method = "subsample",
+                      seed = 42) {
   #Get data
   d <- data[pr_bg]
   #Split presence and absence
@@ -12,6 +13,7 @@ part_data <- function(data,
   aus <- which(d[, pr_bg] == 0)
 
   if(method == "kfold") {
+    set.seed(seed)
   foldp <- sample(cut(seq(1, length(pre)), breaks = n_replicates, labels = FALSE))
   folda <- sample(cut(seq(1, length(aus)), breaks = n_replicates, labels = FALSE))
   #Join data
