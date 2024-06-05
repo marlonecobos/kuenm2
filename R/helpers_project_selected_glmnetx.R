@@ -66,6 +66,19 @@ multiple_projections <- function(i, res_path, raster_pattern, par_list){
   #Import rasters
   r_i <- terra::rast(list.files(input_i, full.names = T,
                                 pattern = raster_pattern))
+  ####PCA ?##########
+  #If pca is not NULL, predict pca
+  if(!is.null(par_list$models$pca)){
+    vars_in_pca <- names(par_list$models$pca$center)
+    vars_out_pca <- setdiff(names(r_i), vars_in_pca)
+    r_i_pca <- terra::predict(r_i[[vars_in_pca]], par_list$models$pca)
+    if(length(vars_out_pca) == 0) {
+      r_i <- r_i_pca} else {
+        r_i <- c(r_i_pca, r_i[[ vars_out_pca]])
+      }
+  }
+  ##################
+
   #Predict
   invisible(predict_selected_glmnetmx(models = par_list$models,
                                       spat_var = r_i,
