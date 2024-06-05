@@ -38,7 +38,8 @@ project_selected_glmnetx <- function(models,
 
   ####PREPARE DATAFRAME TO PREDICT####
   #Extract variables from best models
-  vars <- names(models[["Models"]][[1]][[1]]$samplemeans)[-1]
+  vars <- names(models[["Models"]][[1]][[1]]$samplemeans)
+  vars <- setdiff(vars, c("pr_bg", "fold"))
 
   if(!file.exists(out_dir)){
     dir.create(out_dir, showWarnings = FALSE)
@@ -180,13 +181,13 @@ project_selected_glmnetx <- function(models,
             ,
             .export = c("predict_selected_glmnetmx")
     ) %dopar% {
-      kuenm2:::multiple_projections(i = x, res_path, raster_pattern, par_list)
+      multiple_projections(i = x, res_path, raster_pattern, par_list)
     }
   } else { #Not in parallel (using %do%)
     # Loop for com barra de progresso manual
     for (x in 1:n_models) {
       # Execute a função fit_eval_models
-      kuenm2:::multiple_projections(i = x, res_path, raster_pattern, par_list)
+      multiple_projections(i = x, res_path, raster_pattern, par_list)
 
       # Sets the progress bar to the current state
       if(progress_bar){
