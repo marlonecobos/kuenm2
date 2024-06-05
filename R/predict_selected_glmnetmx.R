@@ -45,7 +45,7 @@ predict_selected_glmnetmx <- function(models,
     varmax <- models[[1]][[1]]$varmax[-1] #Get var min
     #Variables to clamp (all variables if var_to_clamp = NULL)
     if(is.null(var_to_clamp)) {
-      var_to_clamp <- names(varmin)
+      var_to_clamp <- setdiff(names(varmin), c("pr_bg", "fold"))
     }
 
     #Clamp variables
