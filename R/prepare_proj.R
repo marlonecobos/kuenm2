@@ -37,18 +37,16 @@ prepare_proj <- function(models = NULL,
       stop(paste("present_dir", present_dir, "does not exist"))
     }
 
-    #List internal directories
+    #List internal directories or files
     internal_dir <- list.dirs(present_dir, recursive = T)[-1]
 
-    if(length(internal_dir) == 0) {
-      stop(paste("present_dir", present_dir, "is empty"))
-    }
+    #Check if there is a file in the directory
+    fdir <- list.files(present_dir, pattern = raster_pattern)
 
     #Check if there are several scenarios
     pdir <- list.dirs(present_dir)[-1]
-    #Check if there is a file in the directory
-    fdir <- list.files(present_dir, pattern = raster_pattern)
-    if(length(pdir) == 0 & length(fdir) == 0) {
+
+    if(length(pdir) == 0 & length(fdir) == 0 & length(internal_dir) == 0) {
       stop("present_dir ", present_dir, " has no folders or files to project")
     }
 
@@ -62,7 +60,7 @@ prepare_proj <- function(models = NULL,
              paste(abs_vars, collapse = "\n"))
       #If everything is OK, create list with the path
       res_present <- list()
-      res_present[["Present"]] <- present_dir
+      res_present[["Present"]] <- normalizePath(present_dir)
     }
 
     #To project using folders
