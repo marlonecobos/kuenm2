@@ -1,4 +1,25 @@
 #Compute changes between scenarios
+#' Title
+#'
+#' @param projection_paths
+#' @param referece_id
+#' @param consensus
+#' @param include_id
+#' @param user_thr
+#' @param by_gcm
+#' @param by_change
+#' @param general_summary
+#' @param force_resample
+#' @param write_results
+#' @param output_dir
+#' @param overwrite
+#' @param write_bin_models
+#' @param return_rasters
+#'
+#' @return
+#' @export
+#'
+#' @examples
 proj_changes <- function(projection_paths, #Output from project_selected_glmnetx function
                          referece_id = 1, #In projection_paths, what is the id of the reference? (present time)
                          consensus = "median", #Consensus to use (median, mean, sd, etc)
@@ -215,15 +236,23 @@ proj_changes <- function(projection_paths, #Output from project_selected_glmnetx
     #Sum rasters to get results
     res_sum <- sum(c(r_present, res_i))
 
-    # preparing description table
-    vals <- sort(na.omit(unique(res_sum[])))
+    # # preparing description table
+    # vals <- sort(na.omit(unique(res_sum[])))
+    # #Fix vals
+    # if(length(vals) != max(vals)){
+    #   vals <- seq(0, max(vals), 1)
+    #   vals <- vals[vals != 2]
+    # }
+
+    vals <- seq(0, (n_gcms*2 - 1), 1)
+
     loss <- ceiling(max(vals)/2)
     l_val <- c(loss, vals[vals > loss & vals != max(vals)])
     g_val <- vals[vals < loss & vals != 0]
     gains <- paste0("gain in ", g_val, " GCMs")
-    gains[gains == paste0("gain in ", n_gcms, " GCMs")] <- "gain in all GCMs"
+    gains[gains == paste0("gain in ", n_gcms - 1, " GCMs")] <- "gain in all GCMs"
     losses <- paste0("loss in ", max(vals) - l_val, " GCMs")
-    losses[losses == paste0("loss in ", n_gcms, " GCMs")] <- "loss in all GCMs"
+    losses[losses == paste0("loss in ", n_gcms - 1, " GCMs")] <- "loss in all GCMs"
     descriptions <- c("stable, unsuitable in current period and all GCMs", gains,
                       losses, "stable, suitable in current period and all GCMs")
     res_table <- data.frame(Raster_value = vals, Description = descriptions)

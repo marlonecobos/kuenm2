@@ -183,6 +183,7 @@ predict_selected_glmnetmx <- function(models,
   }
 
     #Final list
+  if(consensus_per_model) {
   res <- lapply(1:length(nm), function(x) {
     mcs <- lapply(consensus, function(y) {
       res$Consensus_per_model[[y]][[x]]
@@ -192,8 +193,8 @@ predict_selected_glmnetmx <- function(models,
 
     list(Replicates = rep[[x]], Model_consensus = mcs)
   })
+  names(res) } else {res <- lapply(nm, function(x) x =NULL)}
 
-  names(res)
 
   } #End when it is a raster
 

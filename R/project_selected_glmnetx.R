@@ -149,7 +149,7 @@ project_selected_glmnetx <- function(models,
   } else {ncores = ncores}
 
   #Show progress bar?
-  if (isTRUE(progress_bar)) {
+  if (progress_bar) {
     pb <- txtProgressBar(0, n_models, style = 3)
     progress <- function(n) setTxtProgressBar(pb, n) }
 
@@ -225,4 +225,3 @@ project_selected_glmnetx <- function(models,
 # parallelType = "doSNOW"
 # progress_bar = TRUE
 # verbose = TRUE
-#
