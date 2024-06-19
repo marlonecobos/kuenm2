@@ -111,3 +111,42 @@ calc_thr <- function(occ_suitability, thr = 0.1) {
 # thr <- calc_thr(r = r, data = data, consensus = "median", thr = 0.1)
 # thr
 
+
+#Helper function to calculate variance coming from replicates by gcm
+var_models_rep_by_gcm <- function(path){
+  model_files <- list.files(path = path, pattern = "replicates",
+                            full.names = TRUE)
+  if(length(model_files) > 1) {
+    r_x <- lapply(model_files, terra::rast)
+    #Take mean of replicates (1-1, 2-2, 3-3, etc...)
+    n_replicates <- terra::nlyr(r_x[[1]])
+    mean_replicates <- terra::rast(lapply(1:n_replicates, function(n){
+      rep_n <- terra::mean(rast(lapply(r_x, function(x) x[[n]])))
+    }))
+    var_rep_x <- terra::app(mean_replicates, "var")} else {
+      r_x <- terra::rast(model_files)
+      var_rep_x <- terra::app(r_x, "var")}
+  names(var_rep_x) <- basename(path)
+  return(var_rep_x)
+}
+
+var_models_model_by_gcm <- function(path, consensus){
+  r_x <- terra::rast(list.files(path = path, pattern = "Model_.*consensus",
+                         full.names = TRUE))
+  r_x <- r_x[[sapply(r_x, function(r) names(r) == consensus)]]
+  var_x <- terra::app(r_x, "var")
+  return(var_x)
+}
+
+var_models_across_gcm <- function(paths, consensus){
+  # Read rasters
+  r <- rast(lapply(paths, function(x){
+    rast(file.path(x, "General_consensus.tiff"))[[consensus]]
+  }))
+
+  #plot(r)
+  #Calculate variance
+  v <- terra::app(r, "var")
+  return(v)
+}
+
