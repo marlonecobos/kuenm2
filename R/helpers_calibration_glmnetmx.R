@@ -62,7 +62,7 @@ empty_summary <- function(omrat_thr, is_c) {
 #Function to test concave curves
 fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
                              write_summary, addsamplestobackground, weights,
-                             return_replicate) {
+                             return_replicate, AIC) {
   grid_x <- q_grids[x, ]
   formula_x <- as.formula(grid_x$Formulas)
   reg_x <- grid_x$regm
@@ -73,7 +73,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
                          f = formula_x, regmult = reg_x,
                          addsamplestobackground = addsamplestobackground,
                          weights = weights,
-                         calculate_AIC = T),
+                         calculate_AIC = T,
+                         AIC = AIC),
                silent = TRUE)
   if(any(class(m_aic) == "try-error")) {
     npar <- NA
@@ -96,10 +97,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
 
 
     #Check if model has concave curves
-    m_betas <- m_aic$betas
-
     #Select only quadratic betas
-    q_betas <- m_betas[grepl("\\^2", names(m_betas))]
+    q_betas <- m_aic$betas[grepl("\\^2", names(m_aic$betas))]
     #Check if is concave
     if(length(q_betas) == 0) {
       is_c <- FALSE} else {
@@ -179,8 +178,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
                               npar = npar,
                               is_concave = is_c,
                               row.names = NULL)
-      df_eval_q2 <- cbind(grid_x, df_eval_q)
-      return(df_eval_q2)
+      return(cbind(grid_x, df_eval_q))
     })
     names(mods) <- names(data$kfolds)
     #Return evaluation final
@@ -208,11 +206,17 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
 }
 
 #Function to test all models curves (except quadratic models when test_concave = TRUE)
-fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
-                            write_summary, addsamplestobackground, weights,
-                            return_replicate) {
+fit_eval_models <- function(x, #Each line of the formula grid
+                            formula_grid, #Formula grid (output of calibration_grid_glmnetmx)
+                            data, #Data to fit models (output of prepare_data)
+                            omrat_thr, #Omission rate threshold
+                            write_summary, #Write individual summary for each line in formula grid?
+                            addsamplestobackground, #Add samples to background?
+                            weights, #Add weights?
+                            return_replicate, #Return results of replicates
+                            AIC) { #Which AIC: ws (Warren) or nk (Nikimura)
   #Get grid x
-  grid_x <- formula_grid2[x,] #Get i candidate model
+  grid_x <- formula_grid[x,] #Get i candidate model
   formula_x <- as.formula(grid_x$Formulas) #Get formula from grid x
   reg_x <- grid_x$regm #Get regularization multiplier from grid x
 
@@ -222,9 +226,11 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
                          f = formula_x, regmult = reg_x,
                          addsamplestobackground = addsamplestobackground,
                          weights = weights,
-                         calculate_AIC = T),
+                         calculate_AIC = T,
+                         AIC = AIC),
                silent = TRUE)
 
+  #If it's not possible fit the model, return evaluation metric as NA
   if(any(class(m_aic) == "try-error")) {
     npar <- NA
     AICc <- NA
@@ -254,6 +260,7 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
       }
     #Get background index (again, if necessary)
     bgind <- which(data$calibration_data == 0)
+    #Fit model using k-folds
     mods <- try(lapply(1:length(data$kfolds), function(i) {
       notrain <- -data$kfolds[[i]]
       data_i <- data$calibration_data[notrain,]
@@ -271,20 +278,16 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
                          calculate_AIC = FALSE)
 
       #Predict model only to background
-      pred_i <- as.numeric(predict(object = mod_i,
+      pred_i <- as.numeric(predict.glmnet_mx(object = mod_i,
                                    newdata = data$calibration_data,
                                    clamp = FALSE, type = "cloglog"))
-
-      # #Predict model to spatraster, only to check
-      # vars_r <- terra::rast("Models/Araucaria_angustifolia/PCA_variables.tiff")
-      # pred_r <- terra::predict(vars_r, mod_i, type = "cloglog", na.rm = TRUE)
-      # plot(pred_r)
 
       #Extract suitability in train and test points
       suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
 
       ####Calculate omission rate following kuenm####
+      #This function is in evaluation_functions.R
       om_rate <- omrat(threshold = omrat_thr,
                        pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
@@ -301,11 +304,9 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
                             npar = npar,
                             is_concave = is_c,
                             row.names = NULL)
-      df_eval2 <- cbind(grid_x, df_eval)
-      return(df_eval2)
+      return(cbind(grid_x, df_eval))
     }), silent = TRUE)
-    names(mods) <- names(data$kfolds)
-  }
+    }
 
   #####Create empty dataframe if mods is an error####
   if(class(mods) == "try-error") {
@@ -316,9 +317,10 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
                                          is_c = is_c))
   } else{
     #Return evaluation final
+    names(mods) <- names(data$kfolds)
     eval_final <- do.call("rbind", mods) }
 
-  #Summarize results
+  #Summarize results using eval_stats function
   if(class(mods) == "try-error") {
     eval_final_summary <- cbind(grid_x,
                                 empty_summary(omrat_thr = omrat_thr,
@@ -344,7 +346,7 @@ fit_eval_models <- function(x, formula_grid2, data, formula_grid, omrat_thr,
 }
 
 #Fit best models
-fit_best_model <- function(x, dfgrid, calibration_results, data_x, n_replicates,
+fit_best_model <- function(x, dfgrid, calibration_results, n_replicates,
                            rep_data){
 
   #Get grid
@@ -353,8 +355,8 @@ fit_best_model <- function(x, dfgrid, calibration_results, data_x, n_replicates,
   rep_x <- grid_x$replicates
 
   #Get best model
-  msel <- which(calibration_results$selected_models$ID == m_id)
-  best_models_i <- calibration_results$selected_models[msel,]
+  best_models_i <- calibration_results$selected_models[which(
+    calibration_results$selected_models$ID == m_id),]
   #best_models_i <- selected_models[i,]
   best_formula <- best_models_i$Formulas
   best_regm <- best_models_i$regm
