@@ -1,5 +1,5 @@
 ####Omission Rate####
-omrat <- function(threshold = 5, pred_train, pred_test) {
+omrat <- function(threshold, pred_train, pred_test) {
   om_rate <- vector("numeric", length = length(threshold))
   for (i in 1:length(threshold)) {
     val <- ceiling(length(pred_train) * threshold[i] / 100) + 1
