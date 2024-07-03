@@ -4,6 +4,7 @@
 
 prepare_proj <- function(models = NULL,
                          variable_names = NULL,
+                         do_pca = FALSE,
                          present_dir = NULL,
                          past_dir = NULL, past_period = NULL, past_gcm = NULL,
                          future_dir = NULL, future_period = NULL,
@@ -12,18 +13,28 @@ prepare_proj <- function(models = NULL,
                          filename = NULL,
                          raster_pattern = ".tif*") {
 
+  if(is.null(models) & is.null(variable_names)) {
+    stop("You must specify models or variable_names")
+  }
+
   #Extract variables from best models
   if(!is.null(models)){
-  models <- models[["Models"]]
-  vars <- names(models[[1]][[1]]$samplemeans)[-1]
+    #If do pca, check if variables to run pca are available
+    if(do_pca){
+      if("vars_out" %in% names(models$pca)){
+        vars <- c(models$pca$vars_in, models$pca$vars_out)
+      } else {
+        vars <- models$pca$vars_in
+      }
+
+    } else {
+      #If do not use pca
+  models[["Models"]]
+  vars <- names(models[["Models"]][[1]][[1]]$samplemeans)[-1]}
   }
 
   if(is.null(models) & !is.null(variable_names)){
     vars <- variable_names
-  }
-
-  if(is.null(models) & is.null(variable_names)) {
-    stop("You must specify models or variable_names")
   }
 
   if(!is.null(models) & !is.null(variable_names)) {
@@ -226,6 +237,9 @@ prepare_proj <- function(models = NULL,
 
   #Append raster pattern
   res[["Raster_pattern"]] <- raster_pattern
+
+  #Append do PCA
+  res[["do_pca"]] <- do_pca
 
   #Save results as RDS
   if(write_file){

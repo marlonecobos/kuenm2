@@ -5,6 +5,7 @@
 
 predict_selected_glmnetmx <- function(models,
                            spat_var,
+                           do_pca = FALSE,
                            write_files = FALSE,
                            write_replicates = FALSE,
                            out_dir = NULL,
@@ -17,6 +18,16 @@ predict_selected_glmnetmx <- function(models,
                            overwrite = FALSE,
                            progress_bar = TRUE) {
 
+
+  #Do PCA, if necessary
+  if(do_pca){
+    var_pca <- terra::predict(spat_var[[models$pca$vars_in]], models$pca)
+    if(!("vars_out" %in% names(models$pca))) {
+      spat_var <- var_pca} else {
+        spat_var <- c(var_pca, spat_var[[models$pca$vars_out]])
+        rm(var_pca)
+      }
+  }
 
   #Get models names
   models <- models[["Models"]]
