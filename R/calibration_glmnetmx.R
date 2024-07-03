@@ -129,10 +129,12 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
         #             "write_summary", "return_replicate")
       ) %dopar% {
         fit_eval_concave(x = x, q_grids, data, formula_grid,
-                         omrat_thr,write_summary,
-                         addsamplestobackground,
+                         omrat_thr = omrat_thr,
+                         write_summary = write_summary,
+                         addsamplestobackground = addsamplestobackground,
                          weights = data$weights,
-                         return_replicate)
+                         return_replicate = return_replicate,
+                         AIC = AIC)
         }
       } else { #Not in parallel (using %do%)
         results_concave <- vector("list", length = n_tot)
@@ -143,7 +145,8 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
             x = x, q_grids, data, formula_grid, omrat_thr = omrat_thr,
             write_summary = write_summary,
             addsamplestobackground = addsamplestobackground,
-            weights = data$weights, return_replicate = return_replicate
+            weights = data$weights, return_replicate = return_replicate,
+            AIC = AIC
           )
 
           # Sets the progress bar to the current state
@@ -174,13 +177,11 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
     # d_concave <- d_concave[d_concave$is_concave == TRUE, ]
 
     #Identify formulas tested with concave curves
-    formula_grid2 <- formula_grid[!(formula_grid$ID %in% d_concave_sum$ID), ]
-  } else {
-    formula_grid2 <- formula_grid
+    formula_grid <- formula_grid[!(formula_grid$ID %in% d_concave_sum$ID), ]
   }
 
   #Set number of iteration based on new grid
-  n_tot <- nrow(formula_grid2)
+  n_tot <- nrow(formula_grid)
   #If n == 0, skip non-quadratic models
   if(n_tot == 0) {
     warning("All non-quadratic models have been already tested")
@@ -220,15 +221,15 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
     results <- foreach(
       x = 1:n_tot, .packages = c("glmnet", "enmpa"), .options.snow = opts
       # ,
-      # .export = c(to_export, "formula_grid2", "q_grids", "data",
+      # .export = c(to_export, "formula_grid", "q_grids", "data",
       #             "write_summary", "return_replicate")
     ) %dopar% {
-      fit_eval_models(x, formula_grid2, data,
-                      formula_grid, omrat_thr,
-                      write_summary,
+      fit_eval_models(x, formula_grid, data,
+                      omrat_thr = omrat_thr,
+                      write_summary = write_summary,
                       addsamplestobackground = addsamplestobackground,
                       weights = data$weights,
-                      return_replicate)
+                      return_replicate = return_replicate, AIC = AIC)
       }
     } else { #Not in parallel (using %do%)
       results <- vector("list", length = n_tot)
@@ -236,9 +237,10 @@ calibration_glmnetmx <- function(data, #Data in **CLASS??** format (includes wei
       for (x in 1:n_tot) {
         # Execute a função fit_eval_models
         results[[x]] <- fit_eval_models(
-          x, formula_grid2 = g, data = data, formula_grid = g, omrat_thr,
+          x, formula_grid = formula_grid, data = data, omrat_thr,
           addsamplestobackground =  addsamplestobackground,
-          weights = data$weights, write_summary, return_replicate
+          weights = data$weights, write_summary, return_replicate,
+          AIC = AIC
         )
 
         # Sets the progress bar to the current state
