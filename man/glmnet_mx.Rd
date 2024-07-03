@@ -13,6 +13,7 @@ glmnet_mx(
   addsamplestobackground = TRUE,
   weights = NULL,
   calculate_AIC = FALSE,
+  AIC = "ws",
   ...
 )
 }

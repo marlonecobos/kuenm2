@@ -5,10 +5,34 @@
 #' environmental space.
 #'
 #' @usage
-#' resp2var(fitted, modelID, variable1 , variable2, n = 100,
+#' resp2var(fitted, modelID, variable1 , variable2, n = 1000,
 #'          new_data = NULL, extrapolate = FALSE, add_bar = TRUE ,
 #'          add_limits = FALSE, color.palette	= NULL,
 #'          xlab = NULL, ylab = NULL, ...)
+#
+#' @param fitted object.
+#' @param variable1 (character) name of the variable to be plotted in x axis.
+#' @param variable2 (character) name of the variable to be plotted in y axis.
+#' @param modelID (character) name of the ModelID presents in the fitted
+#' object. Default = NULL.
+#' @param n (numeric) an integer guiding the number of breaks. Default = 1000
+#' @param new_data a `SpatRaster`, data.frame, or  matrix of variables
+#' representing the range of variable values in an area of interest.
+#' Default = NULL.
+#' @param extrapolate (logical) whether to allow extrapolation to study the
+#' behavior of the response outside the calibration limits. Ignored if
+#' `new_data` is defined. Default = TRUE.
+#' @param add_bar (logical) whether to add bar legend. Default = TRUE.
+#' @param add_limits (logical) whether to add calibration limits if
+#' `extrapolate = TRUE`. Default = FALSE.
+#' @param color.palette (function) a color palette function to be used to assign
+#' colors in the plot. Default = function(n) rev(hcl.colors(n, "terrain")).
+#' @param xlab (character) a label for the x axis. The default, NULL, uses the
+#' name defined in `variable1`.
+#' @param ylab (character) a label for the y axis. The default, NULL, uses the
+#' name defined in `variable2`.
+#' @param ... additional arguments passed to
+#' \code{\link[graphics]{image}}.
 #'
 #' @return
 #' A plot with the response interaction of two environmental dimensions for
@@ -23,10 +47,9 @@
 #' @importFrom grDevices hcl.colors
 #'
 
-
-resp2var <- function(fitted, modelID, variable1 , variable2, n = 100,
-                     new_data = NULL, extrapolate = FALSE, add_bar = TRUE ,
-                     add_limits = FALSE, color.palette	= NULL,
+resp2var <- function(fitted, modelID, variable1 , variable2, n = 1000,
+                     new_data = NULL, extrapolate = FALSE, add_bar = TRUE,
+                     add_limits = FALSE, color.palette = NULL,
                      xlab = NULL, ylab = NULL, ...) {
 
   # initial tests

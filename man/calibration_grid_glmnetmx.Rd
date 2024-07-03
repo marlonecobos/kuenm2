@@ -14,7 +14,9 @@ calibration_grid_glmnetmx(
   categorical_var = NULL,
   features = c("l", "q", "lq", "lqp", "p"),
   min_continuous = NULL,
-  regm = c(0.1, 1, 2, 3, 5)
+  regm = c(0.1, 1, 2, 3, 5),
+  write_file = TRUE,
+  file_name = NULL
 )
 }
 \description{

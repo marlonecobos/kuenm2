@@ -11,11 +11,12 @@ fit_selected_glmnetmx(
   train_portion = 0.7,
   write_models = FALSE,
   file_name = NULL,
-  parallel = TRUE,
-  ncores = 4,
+  parallel = FALSE,
+  ncores = 2,
   parallelType = "doSNOW",
   progress_bar = TRUE,
-  verbose = TRUE
+  verbose = TRUE,
+  seed = 42
 )
 }
 \description{

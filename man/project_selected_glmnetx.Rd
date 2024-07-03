@@ -8,7 +8,6 @@ project_selected_glmnetx(
   models,
   projection_file,
   out_dir = "Projection_results",
-  write_path = TRUE,
   consensus_per_model = TRUE,
   consensus_general = TRUE,
   consensus = c("median", "range", "mean", "stdev"),
@@ -17,6 +16,9 @@ project_selected_glmnetx(
   var_to_clamp = NULL,
   type = "cloglog",
   overwrite = FALSE,
+  parallel = FALSE,
+  ncores = 1,
+  parallelType = "doSNOW",
   progress_bar = TRUE,
   verbose = TRUE
 )

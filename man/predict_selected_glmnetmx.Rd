@@ -7,6 +7,7 @@
 predict_selected_glmnetmx(
   models,
   spat_var,
+  do_pca = FALSE,
   write_files = FALSE,
   write_replicates = FALSE,
   out_dir = NULL,
