@@ -91,17 +91,20 @@ fit_selected_glmnetmx <- function(calibration_results,
                            # ,
                            #     .export = c(to_export)
     ) %dopar% {
-      kuenm2:::fit_best_model(x = x, dfgrid, calibration_results, data_x, n_replicates,
-                     rep_data)
+      fit_best_model(x = x, dfgrid = dfgrid,
+                     calibration_results = calibration_results,
+                     n_replicates = n_replicates,
+                     rep_data = rep_data)
     }
   } else { #Not in parallel (using %do%)
     best_models <- vector("list", length = n_tot)
     # Loop for com barra de progresso manual
     for (x in 1:n_tot) {
       # Execute a função fit_eval_models
-      best_models[[x]] <- kuenm2:::fit_best_model(x = x, dfgrid, calibration_results,
-                                         data_x, n_replicates,
-                                         rep_data)
+      best_models[[x]] <- fit_best_model(x = x, dfgrid = dfgrid,
+                                         calibration_results = calibration_results,
+                                         n_replicates = n_replicates,
+                                         rep_data = rep_data)
 
       # Sets the progress bar to the current state
       if(progress_bar){
@@ -254,6 +257,7 @@ fit_selected_glmnetmx <- function(calibration_results,
               calibration_data = calibration_results$calibration_data,
               selected_models = calibration_results$selected_models,
               weights = calibration_results$weights,
+              pca = calibration_results$pca,
               addsamplestobackground = calibration_results$addsamplestobackground,
               omission_rate = calibration_results$omission_rate,
               thresholds = p_thr)
