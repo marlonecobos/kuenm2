@@ -10,7 +10,8 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
                       regfun = maxnet.default.regularization,
                       addsamplestobackground = TRUE,
                       weights = NULL,
-                      calculate_AIC = FALSE, ...) {
+                      calculate_AIC = FALSE, AIC = "ws",
+                      ...) {
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")
   }
@@ -68,7 +69,7 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   filter <- bb[-1] != 0
   bb <- c(bb[1], bb[-1][filter])
 
-  if (calculate_AIC & sum(filter) != 0) {
+  if (calculate_AIC & sum(filter) != 0 & AIC == "nk") {
     model$AIC <- aic_nk(x = as.matrix(mm[, filter]), y = p, beta = bb)
   } else {
     model$AIC <- NA

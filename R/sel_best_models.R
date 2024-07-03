@@ -15,12 +15,14 @@ sel_best_models <- function(cand_models,
                      save_file = T,
                      file_name = NULL){
 
+  #Remove column with the other AIC
   if(AIC == "nk") {
-    AIC <- "AIC_nk"}
+    AIC <- "AIC_nk"
+    cand_models$AIC_ws <- NULL}
 
   if(AIC == "ws") {
-    AIC <- "AIC_ws"}
-
+    AIC <- "AIC_ws"
+    cand_models$AIC_nk <- NULL}
 
   #Which omission rate?
   om_thr <- paste0("Omission_rate_at_", omrat_threshold, ".mean")

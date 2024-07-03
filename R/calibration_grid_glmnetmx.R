@@ -1,5 +1,5 @@
 #' Grid of parameters for calibration of Maxent-like glmnet models
-#'
+#' @importFrom enmpa aux_var_comb
 #' @export
 
 calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y = NULL,
@@ -24,24 +24,44 @@ calibration_grid_glmnetmx <- function(var_names = NULL, swd = NULL, x = NULL, y 
   #Get var combinations
   var_comb <- enmpa:::aux_var_comb(var_names = var_names, ################
                                    minvar = min_number)
+  #Remove combinations according to minimum number of continuous variables
+  if(!is.null(min_continuous)){
+  n_cont <- sapply(var_comb, function(x) length(x[x != categorical_var]))
+  var_comb <- var_comb[n_cont > min_continuous]
+  }
 
   #Split features
-  formula_x <- unlist(lapply(seq_along(features), function(x){
-    f_x <- features[x]
+  formula_x<- list()
+  for(f_x in features) {
     if(grepl("p", f_x) & !is.null(categorical_var)) {
-      var_comb_new <- var_comb[sapply(var_comb,
-                                      function(x)
-                                        sum(!grepl(categorical_var, x))) >= 2]
+      var_comb_new <- var_comb[sapply(var_comb, function(x) sum(!x %in% categorical_var)) >= 2]
     } else {
-      var_comb_new <- var_comb}
-    ff_x <- unlist(lapply(seq_along(var_comb_new), function(i){
-      #If type = p, get only combinations with 2 or more combinations
-
-      f_l <- prepare_formulas_glmnetmx(independent = var_comb_new[[i]], type = f_x,
-                                       categorical_var = categorical_var)
+      var_comb_new <- var_comb
+    }
+    for(vc in var_comb_new) {
+      f_l <- prepare_formulas_glmnetmx(independent = vc, type = f_x, categorical_var = categorical_var)
       names(f_l) <- f_x
-      return(f_l) }))
-  }))
+      formula_x <- c(formula_x, f_l)
+    }
+  }
+
+  # formula_x <- unlist(lapply(seq_along(features), function(x){
+  #   f_x <- features[x]
+  #   if(grepl("p", f_x) & !is.null(categorical_var)) {
+  #     var_comb_new <- var_comb[sapply(var_comb,
+  #                                     function(x)
+  #                                       sum(!grepl(categorical_var, x))) >= 2]
+  #   } else {
+  #     var_comb_new <- var_comb}
+  #   ff_x <- unlist(lapply(seq_along(var_comb_new), function(i){
+  #     #If type = p, get only combinations with 2 or more combinations
+  #
+  #     f_l <- prepare_formulas_glmnetmx(independent = var_comb_new[[i]], type = f_x,
+  #                                      categorical_var = categorical_var)
+  #     names(f_l) <- f_x
+  #     return(f_l) }))
+  # }))
+
   #Create dataframe with formulas
   formula_d <- data.frame(formula = paste(formula_x, -1),
                           features = names(formula_x))

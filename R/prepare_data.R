@@ -1,6 +1,6 @@
-#' Prepare data for model calibration using basic inputs
+#' Prepare data for model calibration
 #'
-#' @importFrom terra as.data.frame extract
+#' @importFrom terra as.data.frame extract crop prcomp predict
 #' @export
 
 prepare_data <- function(occ,
@@ -8,7 +8,16 @@ prepare_data <- function(occ,
                         x,
                         y,
                         spat_variables,
+                        mask = NULL,
                         categorical_variables = NULL,
+                        do_pca = FALSE,
+                        deviance_explained = 95,
+                        min_explainded = 5,
+                        exclude_from_pca = NULL,
+                        center = TRUE,
+                        scale = TRUE,
+                        write_pca = FALSE,
+                        output_pca = NULL,
                         nbg = 10000,
                         kfolds = 4,
                         weights = NULL,
@@ -29,26 +38,71 @@ prepare_data <- function(occ,
 
 
   #Extract name of the specie
-  if(!is.null(species)) {
+  if(is.null(species)) {
     sp_name <- as.character(occ[1, "species"])
   } else {
-    sp_name <- NULL
+    sp_name <- species
   }
+
+  #Mask variables?
+  if(!is.null(mask)){
+    spat_variables <- terra::crop(spat_variables, mask, mask = TRUE)
+  }
+
+  #### DO PCA? ####
+  if(do_pca){
+    #Select variables
+    if(!is.null(exclude_from_pca)){
+      var_to_pca <- setdiff(names(spat_variables), exclude_from_pca)
+    } else {var_to_pca <- names(spat_variables)}
+
+    #Do pca
+    pca <- terra::prcomp(spat_variables[[var_to_pca]], center = center,
+                         scale = scale)
+    pca$x <- NULL #Remove matrix: unnecessary
+    pca$vars_in <- var_to_pca #Vars included in PCA
+    pca$vars_out <- exclude_from_pca #Vars to do not include in PCA
+    #Get deviance explained
+    d_exp <- cumsum(pca$sdev/sum(pca$sdev)) * 100
+    if(!is.null(min_explainded)){
+      d_exp <- d_exp[(pca$sdev/sum(pca$sdev) * 100) > min_explainded]
+    }
+    #N axis
+    if(max(d_exp) > deviance_explained){
+    ind_exp <- min(which(d_exp >= deviance_explained))} else {
+      ind_exp <- length(d_exp)
+    }
+    env <- predict(spat_variables[[var_to_pca]], pca, index = 1:ind_exp)
+    if(!is.null(exclude_from_pca)){
+    env <- c(env, spat_variables[[exclude_from_pca]])}
+
+    #write PCA?
+    if(write_pca){
+      terra::writeRaster(env, paste0(output_pca, "/", "pca_var.tif"))
+    }
+
+  } else {
+    env <- spat_variables
+    pca <- NULL}
 
 
   #Extract variables to occurrences
   xy <- as.matrix(occ[,c(x,y)])
   colnames(xy) <- c("x", "y")
-  occ_var <- cbind(xy, terra::extract(x = spat_variables, y = xy))
+  occ_var <- cbind(xy, terra::extract(x = env, y = xy))
   occ_var$pr_bg <- 1
 
   #Get background points
-  cell_samp <- terra::as.data.frame(spat_variables[[1]], na.rm = TRUE,
+  cell_samp <- terra::as.data.frame(env[[1]], na.rm = TRUE,
                                     cells = TRUE)[, "cell"]
+  if(length(cell_samp) < nbg){
+    nbg <- length(cell_samp)
+  }
   cell_samp <- sample(cell_samp, size = nbg, replace = FALSE,
                       prob = NULL)
-  bg_var <- terra::extract(x = spat_variables, y = cell_samp, xy = TRUE)
+  bg_var <- terra::extract(x = env, y = cell_samp, xy = TRUE)
   bg_var$pr_bg <- 0
+
   #Join occ and background
   occ_bg <- rbind(occ_var, bg_var)
   #Reorder columns
@@ -99,7 +153,8 @@ prepare_data <- function(occ,
                kfolds = k_f,
                data_xy = occ_bg_xy,
                categorical_variables = categorical_variables,
-               weights = weights)
+               weights = weights,
+               pca = pca)
 
   #Save results?
   if(write_files) {
