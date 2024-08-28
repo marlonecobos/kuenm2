@@ -150,8 +150,9 @@ prepare_data <- function(occ,
   if (do_pca) {
     if (!is.null(categorical_variables)){
       exclude_from_pca = categorical_variables
+    } else {
+      exclude_from_pca = NULL
     }
-
     pca <- perform_pca(spat_variables, exclude_from_pca, center, scale,
                        deviance_explained, min_explained)
     env <- pca$env
