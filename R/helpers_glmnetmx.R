@@ -66,7 +66,7 @@ maxnet.default.regularization <- function (p, m) {
   qregtable <- list(c(0, 10, 17, 30, 100), c(1.3, 0.8, 0.5, 0.25, 0.05))
   pregtable <- list(c(0, 10, 17, 30, 100), c(2.6, 1.6, 0.9, 0.55, 0.05))
 
-  mm <- m[p == 1, ]
+  mm <- m[p == 1, , drop = FALSE]
   np <- nrow(mm)
   lqpreg <- lregtable
 

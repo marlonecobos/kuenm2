@@ -45,6 +45,7 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   }
 
   mm <- model.matrix(f, data)
+
   reg <- regfun(p, mm) * regmult
   lambdas <- 10^(seq(4, 0, length.out = 200)) * sum(reg) / length(reg) *
     sum(p) / sum(weights)
