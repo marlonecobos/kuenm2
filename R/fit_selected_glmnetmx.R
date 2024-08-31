@@ -215,7 +215,7 @@ fit_selected_glmnetmx <- function(calibration_results,
 
   #Get occurrences
   occ <- calibration_results$calibration_data[
-    calibration_results$calibration_data$pr_bg == 1, -1]
+    calibration_results$calibration_data$pr_bg == 1, -1, drop = FALSE]
 
   #Predict models to occurrences - Per replicate
   p_occ <- lapply(nm, function(x){

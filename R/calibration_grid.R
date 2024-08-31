@@ -153,7 +153,7 @@ calibration_grid_glmnetmx <- function(swd = NULL,
 
   # Determine variable names if var_names is provided
   if(!is.null(swd) && is.null(var_names)) {
-    var_names <- colnames(sp_swd$calibration_data[, -1])
+    var_names <- colnames(sp_swd$calibration_data[, -1, drop = FALSE])
   }
 
   # Get variable combinations
@@ -311,7 +311,7 @@ calibration_grid_glm <- function(swd = NULL,
 
   # Determine variable names if var_names is provided
   if(!is.null(swd) && is.null(var_names)) {
-    var_names <- colnames(sp_swd$calibration_data[, -1])
+    var_names <- colnames(sp_swd$calibration_data[, -1, drop = FALSE])
   }
 
   # Generate all combinations of variables
