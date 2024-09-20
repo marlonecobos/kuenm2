@@ -32,32 +32,40 @@ sel_best_models <- function(cand_models,
     message("\nFiltering ", nrow(cand_models), " models")
   }
 
+  #Remove models with errors
+  na_models <- cand_models[is.na(cand_models$is_concave), "ID"]
+  if(verbose){
+    message("Removing ", length(na_models),
+            " model(s) because they failed to fit")
+  }
+  cand_models <- cand_models[!is.na(cand_models$is_concave),]
+
+
   #If test concave = TRUE, remove concave curves
   if(test_concave) {
+    concave_models <- cand_models[cand_models$is_concave, "ID"]
     if(verbose){
-      message("Removing ", nrow(subset(cand_models, is_concave == TRUE)),
-              " models with concave curves")
+      message("Removing ", length(concave_models),
+              " model(s) with concave curves")
     }
-    cand_models <- subset(cand_models, is_concave == FALSE)
-  }
+    cand_models <- cand_models[!cand_models$is_concave, ]
+  } else {concave_models <- 0}
 
-  #Remove NAs from results
-  if(verbose){
-    message("Removing ", nrow(cand_models) - nrow(na.omit(cand_models)),
-            " models because NAs were found")
-  }
-  cand_models <- na.omit(cand_models)
 
   #Subset models with significativa pROC
+  insig_proc <- cand_models[cand_models$proc_pval.mean >= significance |
+                            is.na(cand_models$proc_pval.mean), "ID"]
   if(verbose){
-    message("Removing ", nrow(subset(cand_models,
-                                     proc_pval.mean >= significance)),
-            " models with non-significant values of pROC")
+    message("Removing ", length(insig_proc),
+            " model(s) with non-significant values of pROC")
   }
-  cand_models <- subset(cand_models, proc_pval.mean <= significance)
+  cand_models <- cand_models[cand_models$proc_pval.mean < significance &
+                                !is.na(cand_models$proc_pval.mean),]
 
   #Subset models by omission rate
-  cand_om <- subset(cand_models, cand_models[,om_thr] <= omrat_threshold/100)
+  high_omr <- cand_models[cand_models[,om_thr] > omrat_threshold/100, "ID"]
+
+  cand_om <- cand_models[cand_models[,om_thr] <= omrat_threshold/100,]
   if(verbose){
     message(nrow(cand_om), " models were selected with omission rate below ",
             omrat_threshold, "%")
@@ -72,6 +80,7 @@ sel_best_models <- function(cand_models,
   if(nrow(cand_om) == 0 & allow_tolerance) {
     min_thr <- min(cand_models[,om_thr])
     cand_om <- subset(cand_models, cand_models[,om_thr] <= min_thr + tolerance)
+    high_omr <- cand_models[cand_models[,om_thr] > min_thr + tolerance, "ID"]
     if(verbose){
       message("Minimum value of omission rate (",  round(min_thr*100, 1), "%) is above the selected theshold (", (omrat_threshold),"%).\nApplying tolerance and selecting ", nrow(cand_om), " models with omission rate <", round(min_thr*100 + tolerance, 1), "%")
     }
@@ -80,7 +89,8 @@ sel_best_models <- function(cand_models,
   #Calculate delta AIC
   cand_om$dAIC <- cand_om[, AIC] - min(cand_om[, AIC])
   #Select delta AIC
-  cand_final <- subset(cand_om, cand_om$dAIC <= delta_aic)
+  high_aic <- cand_om[cand_om$dAIC > delta_aic, "ID"]
+  cand_final <- cand_om[cand_om$dAIC <= delta_aic,]
 
   if(verbose){
     message("Selecting ", nrow(cand_final), " final model(s) with delta AIC <",
@@ -95,7 +105,17 @@ sel_best_models <- function(cand_models,
               row.names = F)
   }
 
-  return(cand_final)
+  #Final resuls
+  sel_res <- list(cand_final = cand_final,
+                  summary = list("delta_AIC" = delta_aic,
+                                 "Errors" = na_models,
+                                 "Concave" = concave_models,
+                                 "Non_sig_pROC" = insig_proc,
+                                 "High_omission_rate"= high_omr,
+                                 "High_AIC" = high_aic,
+                                 "Selected" = cand_final$ID))
+
+  return(sel_res)
   }
 
 # # #Test function

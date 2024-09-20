@@ -1,7 +1,11 @@
-#' Calibration routines using Maxent-like glmnet models
+#' Calibration, evaluation and selection of candidate models
+#' @description
+#' This function fits and validates candidate models using the data and grid of
+#' formulas prepared with `prepare_data()`. Then, it selects the best models
+#' based on concave curves (optional), omission rate, and AIC values.
 #'
-#' @param data an object of class `???` returned by the prepare_data() function.
-#' @param formula_grid an object of class `???` containing the grid of formulas returned by the calibration_grid_glmnetmx() function.
+#' @param data an object of class `prepare_data` returned by the prepare_data() function.
+#' @param formula_grid an object of class `formula_grid` containing the grid of formulas returned by the calibration_grid_glmnetmx() function.
 #' @param test_concave (logical) whether to test for and remove candidate models presenting concave curves. Default is TRUE.
 #' @param addsamplestobackground (logical) whether to add to the background any presence sample that is not already there. Default is TRUE.
 #' @param use_weights (logical) whether to apply the weights present in the data. Default is FALSE.
@@ -25,19 +29,23 @@
 #' @importFrom foreach foreach `%dopar%`
 #' @importFrom utils setTxtProgressBar
 #' @return
-#' An object of class ?? containing the following elements:
+#' An object of class 'calibration_results' containing the following elements:
 #' - species: a character string with the name of the species.
 #' - calibration data: a data.frame containing a column (`pr_bg`) that identifies occurrence points (1) and background points (0), along with the corresponding values of predictor variables for each point.
+#' - formula_grid: data frame containing the calibration grid with possible formulas and parameters.
 #' - kfolds: a list of vectors with the indices of rows corresponding to each fold.
 #' - data_xy: a data.frame with the coordinates of occurrence and background points.
+#' - continuous_variables: a character indicanting the continuous varibles.
 #' - categorical_variables: a character indicanting the categorical varibles (if used).
 #' - weights: the numeric vector specifying weights for the occurrence records (if used).
 #' - pca: if a principal component analysis was performed on the predictor variables, a list of class "prcomp". See ?stats::prcomp() for details.
+#' - model_type: the model type (glm or glmnet)
 #' - calibration_results: a list containing a data frame with all evaluation metrics for all replicates (if `return_replicate = TRUE`) and a summary of the evaluation metrics for each candidate model.
 #' - omission_rate: The omission rate determined by `omrat_threshold`.
 #' - addsampletobackground: a logical value indicating whether any presence sample not already in the background was added. Default is TRUE.
 #' - selected_models:  data frame with the ID and the summary of evaluation metrics for the selected models.
-#' @usage calibration_glmnetmx(data, formula_grid, test_concave = TRUE,
+#' - summary: A list containing the delta AIC values for model selection, and the ID values of models that failed to fit, had concave curves, non-significant pROC values, omission rates above the threshold, delta AIC values above the threshold, and the selected models.
+#' @usage calibration_glmnetmx(data, test_concave = TRUE,
 #'                             addsamplestobackground = TRUE, use_weights = FALSE,
 #'                             parallel = TRUE, ncores = 1, parallel_type = "doSNOW",
 #'                             progress_bar = TRUE, write_summary = FALSE,
@@ -48,9 +56,10 @@
 #' @export
 #' @references
 #' Ninomiya, Yoshiyuki, and Shuichi Kawano. "AIC for the Lasso in generalized linear models." (2016): 2537-2560.
+#'
 #' Warren, D. L., & Seifert, S. N. (2011). Ecological niche modeling in Maxent: the importance of model complexity and the performance of model selection criteria. Ecological applications, 21(2), 335-342.
 #' @examples
-#' #' #Import occurrences
+#' #Import occurrences
 #' data(occ_data, package = "kuenm2")
 #' #Import variables
 #' var <- terra::rast(system.file("extdata", "Current_variables.tif",
@@ -58,33 +67,22 @@
 #' #Use only variables 1, 2 and 3
 #' var <- var[[1:3]]
 #' #Prepare data
-#' sp_swd <- prepare_data(occ = occ_data,
-#'                        species = occ_data[1, 1],
-#'                        x = "x",
-#'                        y = "y",
-#'                        spat_variables = var,
-#'                        mask = NULL,
+#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+#'                        species = occ_data[1, 1], x = "x", y = "y",
+#'                        spat_variables = var, mask = NULL,
 #'                        categorical_variables = NULL,
-#'                        do_pca = FALSE,
-#'                        exclude_from_pca = NULL,
-#'                        nbg = 100,
-#'                        kfolds = 4,
-#'                        weights = NULL,
+#'                        do_pca = FALSE, deviance_explained = 95,
+#'                        min_explained = 5, center = TRUE, scale = TRUE,
+#'                        write_pca = FALSE, output_pca = NULL, nbg = 100,
+#'                        kfolds = 4, weights = NULL, min_number = 2,
+#'                        min_continuous = NULL,
+#'                        features = c("l", "lq"),
+#'                        regm = 1,
 #'                        include_xy = TRUE,
-#'                        write_file = FALSE,
-#'                        file_name = NULL,
+#'                        write_file = FALSE, file_name = NULL,
 #'                        seed = 1)
-#' #Create grid of formulas
-#' g <- calibration_grid_glmnetmx(data = sp_swd,
-#'                                min_number = 2,
-#'                                categorical_var = NULL,
-#'                                features = c("l", "lq"),
-#'                                min_continuous = NULL,
-#'                                regm = 1, write_file = FALSE,
-#'                                file_name = NULL)
 #' #Calibrate models
 #' m <- calibration_glmnetmx(data = sp_swd,
-#'                           formula_grid = g,
 #'                           test_concave = TRUE,
 #'                           parallel = FALSE,
 #'                           ncores = 1,
@@ -100,9 +98,9 @@
 #'                           delta_aic = 2,
 #'                           skip_existing_models = FALSE,
 #'                           verbose = TRUE)
+#' m
 #'
 calibration_glmnetmx <- function(data,
-                                formula_grid,
                                 test_concave = TRUE,
                                 addsamplestobackground = TRUE,
                                 use_weights = FALSE,
@@ -142,7 +140,7 @@ calibration_glmnetmx <- function(data,
   }
 
   #Extract formula_grid from list
-  formula_grid <- formula_grid$data
+  formula_grid <- data$formula_grid
 
   #If skip_existing_models = TRUE, update grid
   if(skip_existing_models & write_summary) {
@@ -381,11 +379,14 @@ calibration_glmnetmx <- function(data,
                         save_file = F, #Save file with best models?
                         file_name = NULL)
   #Concatenate final results
+  fm <- c(data, calibration_results = list(res_final),
+          omission_rate = omrat_threshold,
+          addsamplestobackground = addsamplestobackground,
+          weights = list(data$weights), selected_models = list(bm$cand_final),
+          summary = list(bm$summary))
+  class(fm) <- "calibration_results"
 
-  return(c(data, calibration_results = list(res_final),
-           omission_rate = omrat_threshold,
-           addsamplestobackground = addsamplestobackground,
-           weights = list(data$weights), selected_models = list(bm)))
+  return(fm)
 
 } #End of function
 
