@@ -2,33 +2,111 @@
 % Please edit documentation in R/prepare_data.R
 \name{prepare_data}
 \alias{prepare_data}
-\title{Prepare data for model calibration}
+\title{Prepare Data for Model Calibration}
 \usage{
-prepare_data(
-  occ,
-  species = NULL,
-  x,
-  y,
-  spat_variables,
-  mask = NULL,
-  categorical_variables = NULL,
-  do_pca = FALSE,
-  deviance_explained = 95,
-  min_explainded = 5,
-  exclude_from_pca = NULL,
-  center = TRUE,
-  scale = TRUE,
-  write_pca = FALSE,
-  output_pca = NULL,
-  nbg = 10000,
-  kfolds = 4,
-  weights = NULL,
-  include_xy = TRUE,
-  write_files = FALSE,
-  file_name = NULL,
-  seed = 1
-)
+prepare_data(model_type = "glmnet", occ, species = NULL, x, y,
+                   spat_variables, mask = NULL, categorical_variables = NULL,
+                   do_pca = FALSE, deviance_explained = 95, min_explained = 5,
+                   center = TRUE, scale = TRUE, write_pca = FALSE,
+                   output_pca = NULL, nbg = 10000, kfolds = 4, weights = NULL,
+                   min_number = 2, min_continuous = NULL,
+                   features = c("l", "q", "p", "lq", "lqp"),
+                   regm = c(0.1, 1, 2, 3, 5),
+                   include_xy = TRUE, write_file = FALSE, file_name = NULL,
+                   seed = 1)
+}
+\arguments{
+\item{occ}{(data frame) a data.frame containing the coordinates (longiude and latitude) of the occurrence records.}
+
+\item{species}{(character) string specifying the species name (optional). Default is NULL.}
+
+\item{x}{(character) a string specifying the name of the column in \code{occ} that contains the longitude values.}
+
+\item{y}{(character) a string specifying the name of the column in \code{occ} that contains the latitude values.}
+
+\item{spat_variables}{(SpatRaster) predictor variables used to calibrate the models.}
+
+\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables to the area where the model will be calibrated (optional). Default is NULL.}
+
+\item{categorical_variables}{(character) names of the variables that are categorial. Default is NULL.}
+
+\item{do_pca}{(logical) whether perform a principal component analysis (PCA) with the set of variables. Default is FALSE.}
+
+\item{deviance_explained}{(numeric) the cumulative percentage of total variance (deviance) that must be explained by the selected principal components. This value determines how many principal components are retained. Default is 95.}
+
+\item{min_explained}{(numeric) the minimum percentage of total variance (deviance) that a principal component must explain to be retained. Default is 5.}
+
+\item{center}{(logical) whether the variables should be shifted to be zero centered. Default is TRUE.}
+
+\item{scale}{(logical) whether the variables should be scaled to have unit variance before the analysis takes place. Default is TRUE.}
+
+\item{write_pca}{(logical) whether to save the PCA-derived raster layers (principal components) to disk. Default is FALSE.}
+
+\item{output_pca}{(character) the path or name of the folder where the PCA-derived raster layers will be saved. This is only applicable if \code{write_pca = TRUE}. Default is NULL.}
+
+\item{nbg}{(numeric) number of points to represent the background for the model. Default is 10000.}
+
+\item{kfolds}{(numeric) the number of groups (folds) into which the occurrence data will be split for cross-validation. Default is 4.}
+
+\item{weights}{(numeric) a numeric vector specifying weights for the occurrence records. This vector must have the same length as the number of rows in \code{occ}. Default is NULL, meaning all occurrence records are assigned a weight of 1.}
+
+\item{min_number}{(numeric) the minimum number of variables in a formula combination.}
+
+\item{min_continuous}{(numeric) the minimum number of continuous variables required in a combination.}
+
+\item{features}{(character) a vector of feature classes. It can be "l", "q", "p", "h", "t" or any combination of these. "h" and "t" are available only when model_type = "glmnet". Default is c("l", "q", "p", "lq", "lqp").}
+
+\item{regm}{(numeric) a vector of regularization parameters for glmnet. Default is c(0.1, 1, 2, 3, 5).}
+
+\item{include_xy}{(logical) whether to include the coordinates (longitude and latitude) in the resulting list. Default is TRUE.}
+
+\item{write_file}{(logical) whether to write the resulting list in the disk. Default is FALSE.}
+
+\item{file_name}{(character) the path or name of the folder where the resulting list will be saved. This is only applicable if \code{write_file = TRUE}. Default is NULL.}
+
+\item{seed}{(numeric) integer value to specify an initial seed to split the data. Default is 1.}
+}
+\value{
+An object of class \code{prepare_data} containing the following elements:
+\itemize{
+\item species: the name of the species.
+\item calibration data: a data frame containing a column (\code{pr_bg}) that identifies occurrence points (1) and background points (0), along with the corresponding values of predictor variables for each point.
+\item formula_grid: data frame containing the calibration grid with possible formulas and parameters.
+\item kfolds: a list of vectors with the indices of rows corresponding to each fold.
+\item data_xy: a data.frame with the coordinates of occurrence and background points.
+\item continuous_variables: a character indicanting the continuous varibles.
+\item categorical_variables: a character indicanting the categorical varibles (if used).
+\item weights: the numeric vector specifying weights for the occurrence records (if used).
+\item pca: if \code{do_pca = TRUE}, a list with class "prcomp". See ?stats::prcomp().
+\item model_type: the model type (glm or glmnet)
+}
 }
 \description{
-Prepare data for model calibration
+This function prepares data for model calibration, including optional PCA,
+background point generation, k-fold partitioning, and the creation of a grid
+of formulas with multiple parameter combinations, including distinct
+regularization multiplier values, various feature classes, and different sets
+of environmental variables.
+}
+\examples{
+#Import raster layers
+var <- terra::rast(system.file("extdata", "Current_variables.tif",
+                               package = "kuenm2"))
+#Import occurrences
+data(occ_data, package = "kuenm2")
+#Prepare data
+sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+                       species = occ_data[1, 1], x = "x", y = "y",
+                       spat_variables = var, mask = NULL,
+                       categorical_variables = "SoilType",
+                       do_pca = FALSE, deviance_explained = 95,
+                       min_explained = 5, center = TRUE, scale = TRUE,
+                       write_pca = FALSE, output_pca = NULL, nbg = 500,
+                       kfolds = 4, weights = NULL, min_number = 2,
+                       min_continuous = NULL,
+                       features = c("l", "q", "p", "lq", "lqp"),
+                       regm = c(0.1, 1, 2, 3, 5),
+                       include_xy = TRUE,
+                       write_file = FALSE, file_name = NULL,
+                       seed = 1)
 }
