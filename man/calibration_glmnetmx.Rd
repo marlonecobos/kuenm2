@@ -2,31 +2,126 @@
 % Please edit documentation in R/calibration_glmnetmx.R
 \name{calibration_glmnetmx}
 \alias{calibration_glmnetmx}
-\title{Calibration routines using Maxent-like glmnet models}
+\title{Calibration, evaluation and selection of candidate models}
 \usage{
-calibration_glmnetmx(
-  data,
-  formula_grid,
-  test_concave = TRUE,
-  addsamplestobackground = TRUE,
-  use_weights = FALSE,
-  parallel = TRUE,
-  ncores = 1,
-  progress_bar = TRUE,
-  write_summary = FALSE,
-  out_dir = NULL,
-  parallel_type = "doSNOW",
-  return_replicate = TRUE,
-  omrat_thr = c(5, 10),
-  omrat_threshold = 10,
-  AIC = "ws",
-  delta_aic = 2,
-  allow_tolerance = TRUE,
-  tolerance = 0.01,
-  skip_existing_models = FALSE,
-  verbose = TRUE
-)
+calibration_glmnetmx(data, test_concave = TRUE,
+                            addsamplestobackground = TRUE, use_weights = FALSE,
+                            parallel = TRUE, ncores = 1, parallel_type = "doSNOW",
+                            progress_bar = TRUE, write_summary = FALSE,
+                            out_dir = NULL, skip_existing_models = FALSE,
+                            return_replicate = TRUE, omrat_threshold = 10,
+                            AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
+                            tolerance = 0.01, verbose = TRUE)
+}
+\arguments{
+\item{data}{an object of class \code{prepare_data} returned by the prepare_data() function.}
+
+\item{test_concave}{(logical) whether to test for and remove candidate models presenting concave curves. Default is TRUE.}
+
+\item{addsamplestobackground}{(logical) whether to add to the background any presence sample that is not already there. Default is TRUE.}
+
+\item{use_weights}{(logical) whether to apply the weights present in the data. Default is FALSE.}
+
+\item{parallel}{(logical) whether to fit the candidate models in parallel. Default is FALSE.}
+
+\item{ncores}{(numeric) number of cores to use for parallel processing. Default is 1. This is only applicable if \code{parallel = TRUE}.}
+
+\item{parallel_type}{(character) the package to use for parallel processing: "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if \code{parallel = TRUE}.}
+
+\item{progress_bar}{(logical) whether to display a progress bar during processing. Default is TRUE.}
+
+\item{write_summary}{(logical) whether to save the evaluation results for each candidate model to disk. Default is FALSE.}
+
+\item{out_dir}{(character) the file name, with or without a path, for saving the evaluation results for each candidate model. This is only applicable if \code{write_summary = TRUE}.}
+
+\item{skip_existing_models}{(logical) whether to check for and skip candidate models that have already been fitted and saved in \code{out_dir}. This is only applicable if \code{write_summary = TRUE}. Default is FALSE.}
+
+\item{return_replicate}{(logical) whether to return the evaluation results for each replicate. Default if FALSE, meaning only the summary (mean and standard deviation) of the evaluation results will be returned.}
+
+\item{omrat_threshold}{(numeric) a value from 0 to 100 represeting the percentage of potential error (E) that the data due to any source of uncertainty. Default = 10.}
+
+\item{AIC}{(character) the type of AIC to be calculated: "ws" for AIC proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya and Kawano (2016). Default is "ws". See References for details.}
+
+\item{delta_aic}{the value of delta AIC used as a threshold to select models. Default is 2.}
+
+\item{allow_tolerance}{(logical) whether to allow selection of models with minimum values of omission rates even if their omission rate surpasses the \code{omrat_threshold}. This is only applicable if  all candidate models have omission rates higher than the \code{omrat_threshold}. Default is TRUE.}
+
+\item{tolerance}{(numeric) The value added to the minimum omission rate if it exceeds the \code{omrat_threshold}. If \code{allow_tolerance = TRUE}, selected models will have an omission rate equal to or less than the minimum rate plus this tolerance. Default is 0.01.}
+
+\item{verbose}{(logical) whether to display messages during processing. Default is TRUE.}
+
+\item{formula_grid}{an object of class \code{formula_grid} containing the grid of formulas returned by the calibration_grid_glmnetmx() function.}
+}
+\value{
+An object of class 'calibration_results' containing the following elements:
+\itemize{
+\item species: a character string with the name of the species.
+\item calibration data: a data.frame containing a column (\code{pr_bg}) that identifies occurrence points (1) and background points (0), along with the corresponding values of predictor variables for each point.
+\item formula_grid: data frame containing the calibration grid with possible formulas and parameters.
+\item kfolds: a list of vectors with the indices of rows corresponding to each fold.
+\item data_xy: a data.frame with the coordinates of occurrence and background points.
+\item continuous_variables: a character indicanting the continuous varibles.
+\item categorical_variables: a character indicanting the categorical varibles (if used).
+\item weights: the numeric vector specifying weights for the occurrence records (if used).
+\item pca: if a principal component analysis was performed on the predictor variables, a list of class "prcomp". See ?stats::prcomp() for details.
+\item model_type: the model type (glm or glmnet)
+\item calibration_results: a list containing a data frame with all evaluation metrics for all replicates (if \code{return_replicate = TRUE}) and a summary of the evaluation metrics for each candidate model.
+\item omission_rate: The omission rate determined by \code{omrat_threshold}.
+\item addsampletobackground: a logical value indicating whether any presence sample not already in the background was added. Default is TRUE.
+\item selected_models:  data frame with the ID and the summary of evaluation metrics for the selected models.
+\item summary: A list containing the delta AIC values for model selection, and the ID values of models that failed to fit, had concave curves, non-significant pROC values, omission rates above the threshold, delta AIC values above the threshold, and the selected models.
+}
 }
 \description{
-Calibration routines using Maxent-like glmnet models
+This function fits and validates candidate models using the data and grid of
+formulas prepared with \code{prepare_data}. Then, it selects the best models
+based on concave curves (optional), omission rate, and AIC values.
+}
+\examples{
+#Import occurrences
+data(occ_data, package = "kuenm2")
+#Import variables
+var <- terra::rast(system.file("extdata", "Current_variables.tif",
+                               package = "kuenm2"))
+#Use only variables 1, 2 and 3
+var <- var[[1:3]]
+#Prepare data
+sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+                       species = occ_data[1, 1], x = "x", y = "y",
+                       spat_variables = var, mask = NULL,
+                       categorical_variables = NULL,
+                       do_pca = FALSE, deviance_explained = 95,
+                       min_explained = 5, center = TRUE, scale = TRUE,
+                       write_pca = FALSE, output_pca = NULL, nbg = 100,
+                       kfolds = 4, weights = NULL, min_number = 2,
+                       min_continuous = NULL,
+                       features = c("l", "lq"),
+                       regm = 1,
+                       include_xy = TRUE,
+                       write_file = FALSE, file_name = NULL,
+                       seed = 1)
+#Calibrate models
+m <- calibration_glmnetmx(data = sp_swd,
+                          test_concave = TRUE,
+                          parallel = FALSE,
+                          ncores = 1,
+                          progress_bar = TRUE,
+                          write_summary = FALSE,
+                          out_dir = NULL,
+                          parallel_type = "doSNOW",
+                          return_replicate = TRUE,
+                          omrat_threshold = 10,
+                          allow_tolerance = TRUE,
+                          tolerance = 0.01,
+                          AIC = "ws",
+                          delta_aic = 2,
+                          skip_existing_models = FALSE,
+                          verbose = TRUE)
+m
+
+}
+\references{
+Ninomiya, Yoshiyuki, and Shuichi Kawano. "AIC for the Lasso in generalized linear models." (2016): 2537-2560.
+
+Warren, D. L., & Seifert, S. N. (2011). Ecological niche modeling in Maxent: the importance of model complexity and the performance of model selection criteria. Ecological applications, 21(2), 335-342.
 }

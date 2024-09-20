@@ -1,6 +1,7 @@
 #' Explore the spatial distribution of occurrence and background points
 #'
-#' @param data an object of class `???` returned by the prepare_data() function
+#' @param data an object of class `prepare_data` returned by the prepare_data()
+#' function
 #' @param spat_variables (SpatRaster) predictor variables used for model calibration.
 #' @param plot (logical) wheter to plot the SpatRaster. Default is TRUE.
 #'
@@ -23,21 +24,19 @@
 #' #Import occurrences
 #' data(occ_data, package = "kuenm2")
 #' #Prepare data
-#' sp_swd <- prepare_data(occ = occ_data,
-#'                        species = occ_data[1, 1],
-#'                        x = "x",
-#'                        y = "y",
-#'                        spat_variables = var,
-#'                        mask = NULL,
+#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+#'                        species = occ_data[1, 1], x = "x", y = "y",
+#'                        spat_variables = var, mask = NULL,
 #'                        categorical_variables = "SoilType",
-#'                        do_pca = TRUE,
-#'                        exclude_from_pca = NULL,
-#'                        nbg = 500,
-#'                        kfolds = 4,
-#'                        weights = NULL,
+#'                        do_pca = FALSE, deviance_explained = 95,
+#'                        min_explained = 5, center = TRUE, scale = TRUE,
+#'                        write_pca = FALSE, output_pca = NULL, nbg = 500,
+#'                        kfolds = 4, weights = NULL, min_number = 2,
+#'                        min_continuous = NULL,
+#'                        features = c("l", "q", "p", "lq", "lqp"),
+#'                        regm = c(0.1, 1, 2, 3, 5),
 #'                        include_xy = TRUE,
-#'                        write_file = FALSE,
-#'                        file_name = NULL,
+#'                        write_file = FALSE, file_name = NULL,
 #'                        seed = 1)
 #' #Explore calibration data
 #' pbg <- explore_calibration_geo(data = sp_swd, spat_variables = var[[1]],
