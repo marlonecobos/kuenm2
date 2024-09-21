@@ -7,28 +7,30 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-2611-1767")),
     person("Weverton", "Trindade", email = "wevertonf1993@gmail.com", role = "aut",
     comment = c(ORCID = "0000-0003-2045-4555")),
+    person("Luis F.", "Arias-Giraldo", email = "lfarias.giraldo@gmail.com",
+    role = "aut", comment = c(ORCID = "0000-0003-4861-8064")),
     person("Luis", "Osorio-Olvera", email = "luismurao@gmail.com", role = "aut",
     comment = c(ORCID = "0000-0003-0701-5398")),
     person("A. Townsend", "Peterson", email = "town@ku.edu", role = "aut",
     comment = c(ORCID = "0000-0003-0243-2379")))
 Maintainer: Marlon E. Cobos <manubio13@gmail.com>
-Date: 2024-04-07
+Date: 2024-09-20
 Description: A new set of tools to help with the development of detailed ecological 
     niche models using multiple algorithms. Pre-modeling analyses and 
     explorations can be done to prepare data. Model calibration (model selection)
     can be done by creating and testing several candidate models. Handy options 
     for producing final models with transfers, and evaluating such models are
-    included. Other tools to assess extrapolation risks and variablity in model
+    included. Other tools to assess extrapolation risks and variability in model
     transfers are also available. Methodological and theoretical 
     bases for the methods implemented here can be found in:
     Peterson et al. (2011) <https://www.degruyter.com/princetonup/view/title/506966>,
-    Barve et al. (2011) <doi:10.1016/j.ecolmodel.2011.02.011>,
-    Owens et al. (2013) <doi:10.1016/j.ecolmodel.2013.04.011>,
     Radosavljevic and Anderson (2014) <doi:10.1111/jbi.12227>, 
-    Peterson et al. (2028) <doi:10.1111/nyas.13873>,
-    Cobos et al. (2019a) <doi:10.7717/peerj.6281>,
-    Cobos et al. (2019b) <doi:10.1016/j.ecoinf.2019.100983>,
-    Cobos et al. (2019c) <doi:10.1101/603100>.
+    Peterson et al. (2018) <doi:10.1111/nyas.13873>,
+    Cobos et al. (2019) <doi:10.7717/peerj.6281>,
+    Alkishe et al. (2020) <doi:10.1016/j.pecon.2020.03.002>,
+    Machado-Stredel et al. (2021) <doi:10.21425/F5FBG48814>,
+    Arias-Giraldo and Cobos (2024) <doi:10.17161/bi.v18i.21742>,
+    Cobos et al. (2024) <doi:10.17161/bi.v18i.21742>.
 Imports:
     doParallel,
     doSNOW, 
@@ -40,7 +42,7 @@ Imports:
     stats,
     terra (>= 1.6),
     utils,
-    mgcv
+    mgcv (>= 1.9)
 Depends: 
     R (>= 3.5)
 VignetteBuilder: knitr
