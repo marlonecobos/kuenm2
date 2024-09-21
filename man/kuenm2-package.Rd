@@ -20,6 +20,7 @@ exploration of results.
 Authors:
 \itemize{
   \item Weverton Trindade \email{wevertonf1993@gmail.com} (\href{https://orcid.org/0000-0003-2045-4555}{ORCID})
+  \item Luis F. Arias-Giraldo \email{lfarias.giraldo@gmail.com} (\href{https://orcid.org/0000-0003-4861-8064}{ORCID})
   \item Luis Osorio-Olvera \email{luismurao@gmail.com} (\href{https://orcid.org/0000-0003-0701-5398}{ORCID})
   \item A. Townsend Peterson \email{town@ku.edu} (\href{https://orcid.org/0000-0003-0243-2379}{ORCID})
 }
