@@ -2,23 +2,86 @@
 % Please edit documentation in R/fit_selected_glmnetmx.R
 \name{fit_selected_glmnetmx}
 \alias{fit_selected_glmnetmx}
-\title{Fit selected Maxent-like glmnet models}
+\title{Fit selected models}
 \usage{
-fit_selected_glmnetmx(
-  calibration_results,
-  n_replicates = 5,
-  rep_type = "kfold",
-  train_portion = 0.7,
-  write_models = FALSE,
-  file_name = NULL,
-  parallel = FALSE,
-  ncores = 2,
-  parallelType = "doSNOW",
-  progress_bar = TRUE,
-  verbose = TRUE,
-  seed = 42
-)
+fit_selected_glmnetmx(calibration_results,
+                             n_replicates = 5,
+                             rep_type = "kfold",
+                             train_portion = 0.7,
+                             write_models = FALSE,
+                             file_name = NULL,
+                             parallel = FALSE,
+                             ncores = 2,
+                             parallelType = "doSNOW",
+                             progress_bar = TRUE,
+                             verbose = TRUE, seed = 42)
+}
+\arguments{
+\item{calibration_results}{an object of class \code{calibration_results} returned by the calibration_glmnetmx() function.}
+
+\item{n_replicates}{(numeric) number of model replicates. Default is 5.}
+
+\item{rep_type}{(chatacter) the replicate type. It can be: "kfold", "bootstrap", or "subsample". Default is "kfold".}
+
+\item{train_portion}{(numeric) the proportion of occurrence records used to train the model in each replicate. This parameter is applicable only when \code{rep_type} is set to "bootstrap" or "subsample". Default is 0.7.}
+
+\item{write_models}{whether to save the final modelts to the disk. Default is FALSE.}
+
+\item{file_name}{(character) the file name, with or without a path, for saving
+the final models. This is only applicable if \code{write_models = TRUE}.}
+
+\item{parallel}{(logical) whether to fit the final models in parallel. Default is FALSE.}
+
+\item{ncores}{(numeric) number of cores to use for parallel processing. Default is 1. This is only applicable if \code{parallel = TRUE}.}
+
+\item{parallelType}{(character) the package to use for parallel processing:
+"doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
+\code{parallel = TRUE}.}
+
+\item{progress_bar}{(logical) whether to display a progress bar during
+processing. Default is TRUE.}
+
+\item{verbose}{(logical) whether to display messages during processing.
+Default is TRUE.}
+
+\item{seed}{(numeric) integer value to specify an initial seed to split the
+data. Default is 42.}
+}
+\value{
+An object of class 'fitted_models' containing the following elements:
+\itemize{
+\item species: a character string with the name of the species.
+\item Models: a list of fitted models, including replicates (trained with the training data) and full models (trained with all available records).
+\item calibration data: a data.frame containing a column (\code{pr_bg}) that
+identifies occurrence points (1) and background points (0), along with the
+corresponding values of predictor variables for each point.
+\item selected_models:  data frame with the ID and the summary of evaluation
+metrics for the selected models.
+\item weights: a numeric vector specifying weights for data_xy (if used).
+#' - pca: if a principal component analysis was performed with variables, a list of class "prcomp". See \code{?stats::prcomp()} for details.
+\item addsampletobackground: a logical value indicating whether any presence
+\item omission_rate: The omission rate determined by \code{omrat_threshold}.
+\item thresholds: the threshold to binarize each replicate and the consensus (mean and median), calculated based on the omission rate set in \code{calibration_glmnetmx()}.
+}
 }
 \description{
-Fit selected Maxent-like glmnet models
+This function fits and obtains the consensus (mean and median) of models that were evaluated and selected using the \code{calibration_glmnetmx()} function. It also calculates the threshold (based on the omission rate set in \code{calibration_glmnetmx()}) to binarize each replicate and the consensus.
+}
+\examples{
+# Import example of calibration results (output of calibration_glmnetmx)
+data("calib_results", package = "kuenm2")
+# Fit models
+fm <- fit_selected_glmnetmx(calibration_results = calib_results,
+                            n_replicates = 2,
+                            rep_type = "kfold",
+                            train_portion = 0.7,
+                            write_models = FALSE,
+                            file_name = NULL,
+                            parallel = FALSE,
+                            ncores = 1,
+                            parallelType = "doSNOW",
+                            progress_bar = TRUE,
+                            verbose = TRUE,
+                            seed = 42)
+
 }

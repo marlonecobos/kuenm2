@@ -1,17 +1,80 @@
-#' Predict selected Maxent-like glmnet models
+#' Predict selected models for a single scenario
+#'
+#' @description
+#' This function predicts selected models for a single environmental scenario, providing options for saving the output and calculating consensus measures (mean, median, etc) across replicates and models.
+#'
+#' @param models an object of class `fitted_models` returned by the `fit_selected_glmnetmx()` function.
+#' @param spat_var (SpatRaster) the predictor variables. The names of these variables must match those used to calibrate the models, or those used to run PCA if `do_pca = TRUE` in the `prepare_data()` function.
+#' @param write_files (logical) whether to save the predictions (SpatRasters) to disk. Default is FALSE.
+#' @param write_replicates (logical) whether to save the predictions for each replicate to disk. Only applicable if `write_files` is TRUE. Default is FALSE.
+#' @param out_dir (character) directory path where predictions will be saved. Only relevant if `write_files = TRUE`
+#' @param consensus_per_model (logical) whether to compute consensus per model. Default is TRUE.
+#' @param consensus_general (logical) whether to compute a general consensus across all models. Default is TRUE.
+#' @param consensus (character) vector specifying the types of consensus to calculate across replicates and models. Available options are `"median"`, `"range"`, `"mean"`, and `"stdev"` (standard deviation). Default is `c("median", "range", "mean", "stdev")`.
+#' @param clamping (character) whether to restricts variable values to the range of the calibration data to avoid extrapolation. Default is `TRUE` (free extrapolation).
+#' @param var_to_clamp (character) vector specifying which variables to clamp. Only applicable if `clamping = TRUE`. Default is `NULL`, meaning all variables will be clamped.
+#' @param type (character) the format of the prediction values. Available options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`. Default is `"cloglog"`.
+#' @param overwrite whether to overwrite SpatRaster if they already exists. Only applicable if `write_files` is set to TRUE.
+#' @param progress_bar (logical) whether to display a progress bar during
+#' processing. Default is TRUE.
 #'
 #' @importFrom terra rast clamp predict median mean stdev diff writeRaster
+#' @importFrom utils txtProgressBar setTxtProgressBar
 #' @export
-
+#'
+#' @returns A list containing SpatRaster predictions for each replicate, along with the consensus results for each model and the overall general consensus.
+#'
+#' @usage predict_selected_glmnetmx(models, spat_var, write_files = FALSE,
+#'                                  write_replicates = FALSE, out_dir = NULL,
+#'                                  consensus_per_model = TRUE,
+#'                                  consensus_general = TRUE,
+#'                                  consensus = c("median", "range", "mean", "stdev"),
+#'                                  clamping = FALSE, var_to_clamp = NULL,
+#'                                  type = "cloglog", overwrite = FALSE,
+#'                                  progress_bar = TRUE)
+#'
+#' @examples
+#' # Import variables to predict
+#'var <- terra::rast(system.file("extdata", "Current_variables.tif",
+#'                               package = "kuenm2"))
+#'# Import example of calibration results (output of calibration_glmnetmx)
+#'data("calib_results", package = "kuenm2")
+#'# Fit final models
+#'fm <- fit_selected_glmnetmx(calibration_results = calib_results,
+#'                            n_replicates = 2,
+#'                            rep_type = "kfold",
+#'                            train_portion = 0.7,
+#'                            write_models = FALSE,
+#'                            file_name = NULL,
+#'                            parallel = FALSE,
+#'                            ncores = 1,
+#'                            parallelType = "doSNOW",
+#'                            progress_bar = TRUE,
+#'                            verbose = TRUE,
+#'                            seed = 42)
+#'# Predict to single scenario
+#'p <- predict_selected_glmnetmx(models = fm,
+#'                               spat_var = var,
+#'                               write_files = FALSE,
+#'                               write_replicates = FALSE,
+#'                               out_dir = NULL,
+#'                               consensus_per_model = TRUE,
+#'                               consensus_general = TRUE,
+#'                               consensus = c("median", "range", "mean", "stdev"),
+#'                               clamping = FALSE,
+#'                               var_to_clamp = NULL,
+#'                               type = "cloglog",
+#'                               overwrite = FALSE,
+#'                               progress_bar = TRUE)
+#'
 predict_selected_glmnetmx <- function(models,
                            spat_var,
-                           do_pca = FALSE,
                            write_files = FALSE,
                            write_replicates = FALSE,
                            out_dir = NULL,
                            consensus_per_model = TRUE,
                            consensus_general = TRUE,
-                           consensus = c("median", "range", "mean", "stdev"), #weighted mean
+                           consensus = c("median", "range", "mean", "stdev"),
                            clamping = FALSE,
                            var_to_clamp = NULL,
                            type = "cloglog",
@@ -20,7 +83,7 @@ predict_selected_glmnetmx <- function(models,
 
 
   #Do PCA, if necessary
-  if(do_pca){
+  if(!is.null(models$pca)){
     var_pca <- terra::predict(spat_var[[models$pca$vars_in]], models$pca)
     if(!("vars_out" %in% names(models$pca))) {
       spat_var <- var_pca} else {
@@ -74,7 +137,7 @@ predict_selected_glmnetmx <- function(models,
 
   #Show progress bar?
   if(progress_bar) {
-    pb <- txtProgressBar(0, n_models, style = 3)}
+    pb <- utils::txtProgressBar(0, n_models, style = 3)}
 
   #Create empty list
   p_models <- list()
@@ -103,7 +166,7 @@ predict_selected_glmnetmx <- function(models,
 
     #Set progress bar
     if(progress_bar){
-      setTxtProgressBar(pb, i) }
+      utils::setTxtProgressBar(pb, i) }
   }
 
   #Rename models and replicates
@@ -249,63 +312,3 @@ predict_selected_glmnetmx <- function(models,
   }
   return(res)
   }#End of function
-
-# #Predict simple model
-# source("Functions/Metrics_Functions.R")
-# library(terra)
-#
-# models <- readRDS("Models/Piper_fuligineum/Best_models/Best_models.RDS")
-# spat_var <- rast("Models/Piper_fuligineum/PCA_variables.tiff")
-#
-# #Predict with consensus per model and consensus general, without write files
-# pm1 <- predict_models(models = models, spat_var = spat_var,
-#                      write_files = FALSE,
-#                      write_replicates = FALSE,
-#                      out_dir = NULL,
-#                      consensus_per_model = TRUE,
-#                      consensus_general = TRUE,
-#                      consensus = c("median", "range", "mean", "stdev"), #weighted mean
-#                      type = "cloglog",
-#                      overwrite = TRUE)
-#
-# #Predict with only consensus general, without write files
-# pm2 <- predict_models(models = models, spat_var = spat_var,
-#                       write_files = FALSE,
-#                       write_replicates = FALSE,
-#                       out_dir = NULL,
-#                       consensus_per_model = FALSE,
-#                       consensus_general = TRUE,
-#                       consensus = c("median", "range", "mean", "stdev"), #weighted mean
-#                       type = "cloglog",
-#                       overwrite = TRUE)
-#
-# #Predict with only consensus per model, without write files
-# pm3 <- predict_models(models = models, spat_var = spat_var,
-#                       write_files = FALSE,
-#                       write_replicates = FALSE,
-#                       out_dir = NULL,
-#                       consensus_per_model = TRUE,
-#                       consensus_general = FALSE,
-#                       consensus = c("median", "range", "mean", "stdev"), #weighted mean
-#                       type = "cloglog",
-#                       overwrite = TRUE)
-# #Predict with consensus per model and consensus general, writing files, but not replicates
-# pm4 <- predict_models(models = models, spat_var = spat_var,
-#                       write_files = TRUE,
-#                       write_replicates = FALSE,
-#                       out_dir = "Models/Piper_fuligineum/Predictions",
-#                       consensus_per_model = TRUE,
-#                       consensus_general = TRUE,
-#                       consensus = c("median", "range", "mean", "stdev"), #weighted mean
-#                       type = "cloglog",
-#                       overwrite = TRUE)
-# #Predict with consensus per model and consensus general, writing consensus and replicates
-# pm5 <- predict_models(models = models, spat_var = spat_var,
-#                       write_files = TRUE,
-#                       write_replicates = TRUE,
-#                       out_dir = "Models/Piper_fuligineum/Predictions",
-#                       consensus_per_model = TRUE,
-#                       consensus_general = TRUE,
-#                       consensus = c("median", "range", "mean", "stdev"), #weighted mean
-#                       type = "cloglog",
-#                       overwrite = TRUE)
