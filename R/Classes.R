@@ -97,3 +97,28 @@ new_lambdas <- function(lambdas_path){
   class(res) <- c("lambdas")
   return(res)
 }
+
+#' fitted_models Class Constructor
+new_fitted_models <- function(species,
+                              Models,
+                              calibration_data,
+                              selected_models,
+                              weights,
+                              pca,
+                              addsamplestobackground,
+                              omission_rate,
+                              thresholds){
+  data <- list(
+    species = species,
+    Models = Models,
+    calibration_data = calibration_data,
+    selected_models = selected_models,
+    weights = weights,
+    pca = pca,
+    addsamplestobackground = addsamplestobackground,
+    omission_rate = omission_rate,
+    thresholds = thresholds
+  )
+  class(data) <- "fitted_models"
+  return(data)
+}
