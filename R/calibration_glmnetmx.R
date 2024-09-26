@@ -68,7 +68,9 @@
 #' @importFrom doParallel registerDoParallel
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom foreach foreach `%dopar%`
-#' @importFrom utils setTxtProgressBar
+#' @importFrom utils txtProgressBar setTxtProgressBar
+#' @importFrom stats aggregate
+#' @importFrom glmnet glmnet.control glmnet
 #'
 #' @export
 #'

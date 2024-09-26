@@ -1,7 +1,80 @@
-#' Fit selected Maxent-like glmnet models
+#' Fit selected models
+#'
+#' @description
+#' This function fits and obtains the consensus (mean and median) of models that were evaluated and selected using the `calibration_glmnetmx()` function. It also calculates the threshold (based on the omission rate set in `calibration_glmnetmx()`) to binarize each replicate and the consensus.
+#'
+#' @param calibration_results an object of class `calibration_results` returned by the calibration_glmnetmx() function.
+#' @param n_replicates (numeric) number of model replicates. Default is 5.
+#' @param rep_type (chatacter) the replicate type. It can be: "kfold", "bootstrap", or "subsample". Default is "kfold".
+#' @param train_portion (numeric) the proportion of occurrence records used to train the model in each replicate. This parameter is applicable only when `rep_type` is set to "bootstrap" or "subsample". Default is 0.7.
+#' @param write_models whether to save the final modelts to the disk. Default is FALSE.
+#' @param file_name (character) the file name, with or without a path, for saving
+#' the final models. This is only applicable if `write_models = TRUE`.
+#' @param parallel (logical) whether to fit the final models in parallel. Default is FALSE.
+#' @param ncores (numeric) number of cores to use for parallel processing. Default is 1. This is only applicable if `parallel = TRUE`.
+#' @param parallelType (character) the package to use for parallel processing:
+#' "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
+#' `parallel = TRUE`.
+#' @param progress_bar (logical) whether to display a progress bar during
+#' processing. Default is TRUE.
+#' @param verbose (logical) whether to display messages during processing.
+#' Default is TRUE.
+#' @param seed (numeric) integer value to specify an initial seed to split the
+#' data. Default is 42.
+#'
+#' @return
+#' An object of class 'fitted_models' containing the following elements:
+#' - species: a character string with the name of the species.
+#' - Models: a list of fitted models, including replicates (trained with the training data) and full models (trained with all available records).
+#' - calibration data: a data.frame containing a column (`pr_bg`) that
+#' identifies occurrence points (1) and background points (0), along with the
+#' corresponding values of predictor variables for each point.
+#' - selected_models:  data frame with the ID and the summary of evaluation
+#' metrics for the selected models.
+#' - weights: a numeric vector specifying weights for data_xy (if used).
+#' #' - pca: if a principal component analysis was performed with variables, a list of class "prcomp". See `?stats::prcomp()` for details.
+#' - addsampletobackground: a logical value indicating whether any presence
+#' - omission_rate: The omission rate determined by `omrat_threshold`.
+#' - thresholds: the threshold to binarize each replicate and the consensus (mean and median), calculated based on the omission rate set in `calibration_glmnetmx()`.
 #'
 #' @export
-
+#'
+#' @importFrom parallel makeCluster stopCluster
+#' @importFrom doParallel registerDoParallel
+#' @importFrom doSNOW registerDoSNOW
+#' @importFrom utils txtProgressBar setTxtProgressBar
+#' @importFrom foreach foreach `%dopar%`
+#' @importFrom glmnet glmnet.control glmnet
+#'
+#' @usage fit_selected_glmnetmx(calibration_results,
+#'                              n_replicates = 5,
+#'                              rep_type = "kfold",
+#'                              train_portion = 0.7,
+#'                              write_models = FALSE,
+#'                              file_name = NULL,
+#'                              parallel = FALSE,
+#'                              ncores = 2,
+#'                              parallelType = "doSNOW",
+#'                              progress_bar = TRUE,
+#'                              verbose = TRUE, seed = 42)
+#'
+#' @examples
+#' # Import example of calibration results (output of calibration_glmnetmx)
+#' data("calib_results", package = "kuenm2")
+#' # Fit models
+#' fm <- fit_selected_glmnetmx(calibration_results = calib_results,
+#'                             n_replicates = 2,
+#'                             rep_type = "kfold",
+#'                             train_portion = 0.7,
+#'                             write_models = FALSE,
+#'                             file_name = NULL,
+#'                             parallel = FALSE,
+#'                             ncores = 1,
+#'                             parallelType = "doSNOW",
+#'                             progress_bar = TRUE,
+#'                             verbose = TRUE,
+#'                             seed = 42)
+#'
 fit_selected_glmnetmx <- function(calibration_results,
                                   n_replicates = 5,
                                   rep_type = "kfold",
@@ -54,8 +127,8 @@ fit_selected_glmnetmx <- function(calibration_results,
 
   #Show progress bar?
   if (isTRUE(progress_bar)) {
-    pb <- txtProgressBar(0, n_tot, style = 3)
-    progress <- function(n) setTxtProgressBar(pb, n) }
+    pb <- utils::txtProgressBar(0, n_tot, style = 3)
+    progress <- function(n) utils::setTxtProgressBar(pb, n) }
 
   #Adjust parallelization according to the number of models and replicates
   if(n_tot == 1 & isTRUE(parallel)){
@@ -108,7 +181,7 @@ fit_selected_glmnetmx <- function(calibration_results,
 
       # Sets the progress bar to the current state
       if(progress_bar){
-        setTxtProgressBar(pb, x) }
+        utils::setTxtProgressBar(pb, x) }
     }  }
 
   #End cluster
@@ -149,8 +222,8 @@ fit_selected_glmnetmx <- function(calibration_results,
 
   #Show progress bar?
   if (isTRUE(progress_bar)) {
-    pb <- txtProgressBar(0, n_models, style = 3)
-    progress <- function(n) setTxtProgressBar(pb, n) }
+    pb <- utils::txtProgressBar(0, n_models, style = 3)
+    progress <- function(n) utils::setTxtProgressBar(pb, n) }
 
 
   #Set parallelization
@@ -193,7 +266,7 @@ fit_selected_glmnetmx <- function(calibration_results,
 
       # Sets the progress bar to the current state
       if(progress_bar){
-        setTxtProgressBar(pb, x) }
+        utils::setTxtProgressBar(pb, x) }
     }  }
 
   #Names models
@@ -252,16 +325,15 @@ fit_selected_glmnetmx <- function(calibration_results,
     })
 
   #Final results
-  res <- list(species = calibration_results$species,
-              Models = best_models,
-              calibration_data = calibration_results$calibration_data,
-              selected_models = calibration_results$selected_models,
-              weights = calibration_results$weights,
-              pca = calibration_results$pca,
-              addsamplestobackground = calibration_results$addsamplestobackground,
-              omission_rate = calibration_results$omission_rate,
-              thresholds = p_thr)
-
+  res <- new_fitted_models(species = calibration_results$species,
+                           Models = best_models,
+                           calibration_data = calibration_results$calibration_data,
+                           selected_models = calibration_results$selected_models,
+                           weights = calibration_results$weights,
+                           pca = calibration_results$pca,
+                           addsamplestobackground = calibration_results$addsamplestobackground,
+                           omission_rate = calibration_results$omission_rate,
+                           thresholds = p_thr)
   #Write models?
   if(write_models){
     saveRDS(res, file = paste0(file_name, ".RDS"))
@@ -269,17 +341,3 @@ fit_selected_glmnetmx <- function(calibration_results,
 
   return(res)
 } #End of function
-
-
-# # #Test function
-# calibration_results = readRDS("../test_kuenm2/Candidate_and_Best_models.RDS")
-# n_replicates = 5
-# rep_type = "kfold"
-# train_portion = 0.7
-# write_models = FALSE #Write files?
-# file_name = NULL #Name of the folder to write final models
-# parallel = TRUE
-# ncores = 5
-# parallelType = "doSNOW"
-# progress_bar = TRUE
-# verbose = TRUE

@@ -117,3 +117,16 @@ predict_maxent <- function(object,newdata,type="logistic",...){
 
   return(vals)
 }
+
+#' Print Method for fitted_models Class
+#' @export
+print.fitted_models <- function(x, ...){
+  cat("fitted_models object summary\n")
+  cat("==========================\n")
+  cat("Species:", x$species, "\n")
+
+  cat("Number of fitted models:", length(x$Models), "\n")
+  #Get number of replicates
+  nr <- sum(grepl("Rep", names(x$Models[[1]])))
+  cat("Models fitted with", nr, "replicates")
+}
