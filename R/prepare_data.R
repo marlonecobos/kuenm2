@@ -7,13 +7,13 @@
 #' regularization multiplier values, various feature classes, and different sets
 #' of environmental variables.
 #'
-#' @param occ (data frame) a data.frame containing the coordinates (longiude and latitude) of the occurrence records.
+#' @param occ (data frame) a data.frame containing the coordinates (longitude and latitude) of the occurrence records.
 #' @param species (character) string specifying the species name (optional). Default is NULL.
 #' @param x (character) a string specifying the name of the column in `occ` that contains the longitude values.
 #' @param y (character) a string specifying the name of the column in `occ` that contains the latitude values.
 #' @param spat_variables (SpatRaster) predictor variables used to calibrate the models.
 #' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables to the area where the model will be calibrated (optional). Default is NULL.
-#' @param categorical_variables (character) names of the variables that are categorial. Default is NULL.
+#' @param categorical_variables (character) names of the variables that are categorical. Default is NULL.
 #' @param do_pca (logical) whether perform a principal component analysis (PCA) with the set of variables. Default is FALSE.
 #' @param deviance_explained (numeric) the cumulative percentage of total variance (deviance) that must be explained by the selected principal components. This value determines how many principal components are retained. Default is 95.
 #' @param min_explained (numeric) the minimum percentage of total variance (deviance) that a principal component must explain to be retained. Default is 5.
