@@ -16,7 +16,7 @@ prepare_data(model_type = "glmnet", occ, species = NULL, x, y,
                    seed = 1)
 }
 \arguments{
-\item{occ}{(data frame) a data.frame containing the coordinates (longiude and latitude) of the occurrence records.}
+\item{occ}{(data frame) a data.frame containing the coordinates (longitude and latitude) of the occurrence records.}
 
 \item{species}{(character) string specifying the species name (optional). Default is NULL.}
 
@@ -28,7 +28,7 @@ prepare_data(model_type = "glmnet", occ, species = NULL, x, y,
 
 \item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables to the area where the model will be calibrated (optional). Default is NULL.}
 
-\item{categorical_variables}{(character) names of the variables that are categorial. Default is NULL.}
+\item{categorical_variables}{(character) names of the variables that are categorical. Default is NULL.}
 
 \item{do_pca}{(logical) whether perform a principal component analysis (PCA) with the set of variables. Default is FALSE.}
 

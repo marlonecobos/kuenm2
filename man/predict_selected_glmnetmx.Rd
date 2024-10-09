@@ -14,7 +14,7 @@ predict_selected_glmnetmx(models, spat_var, write_files = FALSE,
                                  progress_bar = TRUE)
 }
 \arguments{
-\item{models}{an object of class \code{fitted_models} returned by the fit_selected_glmnetmx() function.}
+\item{models}{an object of class \code{fitted_models} returned by the \code{fit_selected_glmnetmx()} function.}
 
 \item{spat_var}{(SpatRaster) the predictor variables. The names of these variables must match those used to calibrate the models, or those used to run PCA if \code{do_pca = TRUE} in the \code{prepare_data()} function.}
 

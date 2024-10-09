@@ -8,14 +8,15 @@ sel_best_models(
   cand_models,
   test_concave = TRUE,
   omrat_threshold = 5,
-  allow_tolerance = T,
+  allow_tolerance = TRUE,
   tolerance = 0.01,
   AIC = "nk",
   significance = 0.05,
   verbose = TRUE,
   delta_aic = 2,
-  save_file = T,
-  file_name = NULL
+  save_file = TRUE,
+  file_name = NULL,
+  model_type = c("glmnet", "glm")
 )
 }
 \description{
