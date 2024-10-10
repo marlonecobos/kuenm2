@@ -12,10 +12,12 @@ glm_mx <- function(formula, family = binomial(link = "cloglog"), data,
   # Check for missing values in the data
   if (anyNA(data)) stop("NA values in data. Please remove them and rerun.")
 
-  # Initialize weights: if weights is NULL, assign default weights based on pr_bg
-  iniweigth <- is.null(weights)
+  if (!is.data.frame(data)){
+    stop("data must be a data.frame")
+  }
 
-  if (iniweigth) {
+  # Initialize weights: if weights is NULL, assign default weights based on pr_bg
+  if (is.null(weights)) {
     weights <- ifelse(data$pr_bg == 1, 1, 10000)
   }
   # Ensure that the weights are a numeric vector
@@ -24,11 +26,12 @@ glm_mx <- function(formula, family = binomial(link = "cloglog"), data,
   }
 
   # print(length(weights))
-  # print(length(data$pr_bg))
+  # print(data)
 
   # Fit the model with the provided or default weights
   model <- suppressWarnings(
-    glm(formula = formula, family = family, data = data, weights = weights, ...))
+    glm(formula = formula, family = family, data = data,
+        weights = NULL, ...))
 
   return(model)
 }
