@@ -4,7 +4,12 @@
 #' @importFrom enmpa proc_enm
 #' @export
 
-eval_stats <- function(calib_results, omrat_thr, model_type) {
+eval_stats <- function(cal_res, omrat_thr, model_type) {
+
+  # Arguments:
+  # cal_res: Calibration results
+  # omrat_thr: Omission rate threshold
+  # model_type: Type of model, either glmnet or glm
 
   # Define omission rates and columns to aggregate
   omission_rates <- paste0("Omission_rate_at_", omrat_thr)
@@ -32,7 +37,7 @@ eval_stats <- function(calib_results, omrat_thr, model_type) {
     do.call(
       data.frame,
       stats::aggregate(as.formula(paste(x, agg_formula)),
-                       data = calib_results, FUN = function(y) {
+                       data = cal_res, FUN = function(y) {
                          c(mean = round(mean(y), 4), sd = round(sd(y), 4))
                        }, na.action = NULL)
     )
@@ -42,7 +47,7 @@ eval_stats <- function(calib_results, omrat_thr, model_type) {
   stats <- Reduce(function(x, y) merge(x, y, by = agg_by), xy)
 
   # Keep AIC and related information
-  stats_AICS <- calib_results[!duplicated(calib_results[, to_keep]), ][, to_keep]
+  stats_AICS <- cal_res[!duplicated(cal_res[, to_keep]), ][, to_keep]
   stats_final <- merge(stats, stats_AICS, by = agg_by)
 
   return(stats_final)
@@ -50,6 +55,13 @@ eval_stats <- function(calib_results, omrat_thr, model_type) {
 
 empty_replicates <- function(omrat_thr, n_row = 4, replicates = 1:4,
                              is_c = NA, model_type) {
+
+  # Arguments:
+  # omrat_thr: Omission rate threshold
+  # n_row: Number of rows
+  # replicates: Replicates
+  # is_c: Concavity status
+  # model_type: Type of model, either glmnet or glm
 
   # Define column names based on model type
   if (model_type == "glmnet") {
@@ -75,6 +87,11 @@ empty_replicates <- function(omrat_thr, n_row = 4, replicates = 1:4,
 }
 
 empty_summary <- function(omrat_thr, is_c, model_type) {
+
+  # Arguments:
+  # omrat_thr: Omission rate threshold
+  # is_c: Concavity status
+  # model_type: Type of model, either glmnet or glm
 
   # Omission rates column names
   om_means <- paste0("Omission_rate_at_", omrat_thr, ".mean")
@@ -106,7 +123,20 @@ empty_summary <- function(omrat_thr, is_c, model_type) {
 fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
                              write_summary, addsamplestobackground, weights,
                              return_replicate, model_type,
-                             AIC = NULL) {
+                             AIC) {
+
+  # Arguments:
+  # x: Each line of the formula grid
+  # q_grids: Formula grid for quadratic terms
+  # data: Data to fit models (output of prepare_data)
+  # formula_grid: Formula grid
+  # omrat_thr: Omission rate threshold
+  # write_summary: Write individual summary for each line in formula grid?
+  # addsamplestobackground: Add samples to background?
+  # weights: Add weights
+  # return_replicate: Return results of replicates
+  # model_type: Type of model, either glmnet or glm
+  # AIC: AIC for glmnet (can be ws or nk)
 
   grid_x <- q_grids[x, ]
 
@@ -215,8 +245,9 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
       }
 
       pred_i <- if (model_type == "glmnet") {
-        predict.glmnet_mx(object = mod_i, newdata = data$calibration_data,
-                          clamp = FALSE, type = "cloglog")
+        as.numeric(predict.glmnet_mx(object = mod_i,
+                                     newdata = data$calibration_data,
+                                     clamp = FALSE, type = "cloglog"))
       } else if (model_type == "glm") {
         enmpa::predict_glm(model = mod_i, newdata = data$calibration_data,
                            type = "response")
@@ -274,10 +305,9 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
 fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
                             addsamplestobackground, weights, return_replicate,
                             model_type, AIC) {
-
   # Arguments:
   # x: Each line of the formula grid
-  # formula_grid: Formula grid (output of calibration_grid_glmnetmx)
+  # formula_grid: Formula grid (output of calibration_grid)
   # data: Data to fit models (output of prepare_data)
   # omrat_thr: Omission rate threshold
   # write_summary: Write individual summary for each line in formula grid?
@@ -363,7 +393,6 @@ fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
 
       if (model_type == "glmnet") {
         # Run glmnet model
-        cat(weights_i)
         mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
@@ -436,10 +465,9 @@ fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
 
   # Summarize results using eval_stats
   eval_final_summary <- if (class(mods) == "try-error") {
-    cbind(grid_x, empty_summary(omrat_thr = omrat_thr, is_c = is_c,
-                                model_type = model_type))
+    cbind(grid_x, empty_summary(omrat_thr, is_c, model_type))
   } else {
-    eval_stats(eval_final, omrat_thr, model_type = model_type)
+    eval_stats(eval_final, omrat_thr, model_type)
   }
 
   # Write summary if requested
@@ -454,44 +482,66 @@ fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
   return(list(All_results = eval_final, Summary = eval_final_summary))
 }
 
-#Fit best models (pending to modify)
-fit_best_model <- function(x, dfgrid, calibration_results, n_replicates,
-                           rep_data){
 
-  #Get grid
-  grid_x <- dfgrid[x,]
+fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, model_type){
+
+  # Arguments:
+  # x: index of the grid
+  # dfgrid: dataframe with the grid
+  # cal_res: output of the calibration function
+  # n_replicates: number of replicates
+  # rep_data: data splitting (replicated data)
+  # model_type: Type of model, either "glmnet" or "glm"
+
+  # Get the grid information
+  grid_x <- dfgrid[x, ]
   m_id <- grid_x$models
   rep_x <- grid_x$replicates
 
-  #Get best model
-  best_models_i <- calibration_results$selected_models[which(
-    calibration_results$selected_models$ID == m_id),]
-  #best_models_i <- selected_models[i,]
-  best_formula <- best_models_i$Formulas
-  best_regm <- best_models_i$regm
+  # Get the best model's formula and parameters from calibration results
+  best_model <- cal_res$selected_models[cal_res$selected_models$ID == m_id, ]
+  best_formula <- best_model$Formulas
 
-  #Get replicate, if necessary
-  if(n_replicates > 1){
+  if (model_type == "glmnet") {
+    best_regm <- best_model$regm  # Regularization multiplier for glmnet
+  }
+
+  # Select data for the replicate, or use the entire calibration data
+  # if n_replicates == 1
+  if (n_replicates > 1) {
     rep_i <- rep_data[[rep_x]]
-    data_x <- calibration_results$calibration_data[rep_i, ]
-  } else { #Select i k-fold
-    data_x <- calibration_results$calibration_data }
-  #Run model
-  mod_x <- glmnet_mx(p = data_x[,"pr_bg"], data = data_x,
-                     f = as.formula(best_formula),
-                     regmult = best_regm,
-                     addsamplestobackground = calibration_results[["addsamplestobackground"]],
-                     weights = calibration_results[["weights"]],
-                     calculate_AIC = FALSE)
+    data_x <- cal_res$calibration_data[rep_i, ]
+  } else {
+    data_x <- cal_res$calibration_data
+  }
 
-  #Only to make sure the IDs in list are correct
+  # Fit the model based on the model_type
+  if (model_type == "glmnet") {
+    # Run glmnet model
+    mod_x <- glmnet_mx(p = data_x$pr_bg, data = data_x,
+                       f = as.formula(best_formula),
+                       regmult = best_regm,
+                       addsamplestobackground = cal_res$addsamplestobackground,
+                       weights = cal_res$weights,
+                       calculate_AIC = FALSE)
+
+  } else if (model_type == "glm") {
+    # Run glm model
+    mod_x <- glm_mx(formula = as.formula(paste("pr_bg ", best_formula)),
+                    family = binomial(link = "cloglog"),
+                    data = data_x,
+                    weights = cal_res$weights)
+
+    mod_x$data <- NULL # avoid store redundant info
+  }
+  # Assign model ID and replicate number for tracking
   mod_x$checkModel <- m_id
-  mod_x$checkreplicate <- rep_x
-  # #Predict
-  # pred_x <- terra::predict(spat_var, mod_x, type = "cloglog",
-  #                          na.rm = TRUE)
+  mod_x$checkReplicate <- rep_x
+
   return(mod_x)
 }
+
+
 
 #Bind rows to get path for each projection in project_selected_glmnetx
 bind_rows_projection <- function(data_frames) {
