@@ -6,17 +6,29 @@
 #' @importFrom stats glm
 #' @export
 
-glm_mx <- function(formula, family = binomial(link = "cloglog"), data = data,
+glm_mx <- function(formula, family = binomial(link = "cloglog"), data,
                    weights = NULL, ...) {
 
-  if(anyNA(data)) stop("NA values in data. Please remove them and rerun.")
+  # Check for missing values in the data
+  if (anyNA(data)) stop("NA values in data. Please remove them and rerun.")
 
-  if (is.null(weights))
-    weights <- ifelse(data$calibration_data$pr_bg == 1, 1, 10000)
+  # Initialize weights: if weights is NULL, assign default weights based on pr_bg
+  iniweigth <- is.null(weights)
 
+  if (iniweigth) {
+    weights <- ifelse(data$pr_bg == 1, 1, 10000)
+  }
+  # Ensure that the weights are a numeric vector
+  if (!is.numeric(weights)) {
+    stop("'weights' must be a numeric vector.")
+  }
+
+  # print(length(weights))
+  # print(length(data$pr_bg))
+
+  # Fit the model with the provided or default weights
   model <- suppressWarnings(
-    glm(formula = formula, family = family, data = data, weights = weights))
+    glm(formula = formula, family = family, data = data, weights = weights, ...))
 
   return(model)
 }
-
