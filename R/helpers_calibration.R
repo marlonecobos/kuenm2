@@ -532,7 +532,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, model_typ
                     data = data_x,
                     weights = cal_res$weights)
 
-    mod_x$data <- NULL # avoid store redundant info
+    #mod_x$data <- NULL # avoid store redundant info
   }
   # Assign model ID and replicate number for tracking
   mod_x$checkModel <- m_id
