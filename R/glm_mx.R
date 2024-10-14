@@ -33,5 +33,9 @@ glm_mx <- function(formula, family = binomial(link = "cloglog"), data,
     glm(formula = formula, family = family, data = data,
         weights = NULL, ...))
 
+  vv <- (sapply(data, class) != "factor")
+  model$varmin <- apply(data[, vv, drop = FALSE], 2, min)
+  model$varmax <- apply(data[, vv, drop = FALSE], 2, max)
+
   return(model)
 }
