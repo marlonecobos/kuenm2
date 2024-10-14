@@ -1,14 +1,14 @@
 ### Helpers functions for response curves
 
 # Consensus response curve
-response_curve_consmx <- function(glmnet_list, variable, data, n = 100,
+response_curve_consmx <- function(model_list, variable, data, n = 100,
                                   extrapolate = FALSE, new_data = NULL,
                                   xlab = NULL, ylab = NULL, col = "darkblue",
                                   ...) {
 
   # initial tests
-  if (missing(glmnet_list) | missing(variable) | missing(data)) {
-    stop("Arguments 'glmnet_list', 'data', and 'variable' must be defined.")
+  if (missing(model_list) | missing(variable) | missing(data)) {
+    stop("Arguments 'model_list', 'data', and 'variable' must be defined.")
   }
 
   if (!is.null(new_data)) {
@@ -22,11 +22,16 @@ response_curve_consmx <- function(glmnet_list, variable, data, n = 100,
   }
 
 
-  if (length(glmnet_list) == 1 ){
+  if (length(model_list) == 1 ){
+    model <- model_list[[1]]
 
-    # Check if for a model (FULL)
+    # Handling glmnet and glm models differently
+    coefs <- if (inherits(model, "glmnet")) {
+      names(model$betas)
+    } else if (inherits(model, "glm")) {
+      names(coef(model))
+    }
 
-    coefs <- names(glmnet_list[[1]]$betas)
     c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs) # check linear or quadratic term
     c2 <- any(grepl(paste0(variable, ":"), coefs))                   # check product terms 1st position
     c3 <- any(grepl(paste0(":", variable,"$"), coefs))               # check product terms 2nd position
@@ -35,15 +40,13 @@ response_curve_consmx <- function(glmnet_list, variable, data, n = 100,
       stop("Defined 'variable' is not present in the fitted model.")
     }
 
-    response_out <- response(model = glmnet_list[[1]], data = data,
+    response_out <- response(model = model_list[[1]], data = data,
                              variable = variable, n = n,
                              extrapolate = extrapolate, new_data = new_data)
 
     limits <- range(data[,variable])
 
     ## Plotting curve
-    # Create a list of arguments to pass to the plot function
-
     if (is.null(xlab)) {xlab <- variable}
     if (is.null(ylab)) {ylab <- "Suitability"}
 
@@ -65,12 +68,16 @@ response_curve_consmx <- function(glmnet_list, variable, data, n = 100,
     )
 
   } else {
-    # for multiple models in  glmnet_list
+    # for multiple models in  model_list
 
     # extract the response of the variable for each models
-    response_out <- lapply(glmnet_list, function(x) {
+    response_out <- lapply(model_list, function(x) {
 
-      coefs <- names(x$betas)
+      coefs <- if (inherits(model, "glmnet")) {
+        names(model$betas)
+      } else if (inherits(model, "glm")) {
+        names(coef(model))
+      }
       c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
       c2 <- any(grepl(paste0("^", variable, ":"), coefs))
       c3 <- any(grepl(paste0(":", variable, "$"), coefs))
@@ -149,8 +156,12 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
     }
   }
 
-  # It gets only the variable names used in the fitted model
-  vnames <- colSums(sapply(colnames(data), grepl, names(model$betas))) > 0
+  # Extract variable names used in the model
+  vnames <- if (inherits(model, "glmnet")) {
+    colSums(sapply(colnames(data), grepl, names(model$betas))) > 0
+  } else if (inherits(model, "glm")) {
+    colSums(sapply(colnames(data), grepl, names(coef(model)))) > 0
+  }
 
   if (any(!variable %in% names(vnames))) {
     stop("The name of the 'variable' was not defined correctly.")
@@ -198,8 +209,12 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   m[, variable] <- newvar
 
-  # Response of the variable
-  m$predicted <- predict.glmnet_mx(model, m, type = type)
+  # Predict using glmnet or glm
+  m$predicted <- if (inherits(model, "glmnet")) {
+    predict.glmnet_mx(model, m, type = type)
+  } else if (inherits(model, "glm")) {
+    predict.glm(model, newdata = m, type = "response")
+  }
 
   return(m[,c(variable, "predicted")])
 

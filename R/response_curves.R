@@ -65,8 +65,6 @@ response_curve <- function(fitted, variable, modelID = NULL, n = 100,
   }
 
   ## add a warming message indicating that the are not replicates.
-
-
   if (!is.null(modelID)){
 
     if (!modelID %in% names(fitted[["Models"]])){
@@ -77,12 +75,18 @@ response_curve <- function(fitted, variable, modelID = NULL, n = 100,
            )
     }
 
+    # Handling replicates or the full model
     if (by_replicates){
-      glmnet_list <- fitted[["Models"]][[modelID]]
-      glmnet_list$Full_model <- NULL
+      model_list <- fitted[["Models"]][[modelID]]
+      model_list$Full_model <- NULL
 
+      # Check if the variable is present in any of the replicates
+      coefs <- if (inherits(model_list[[1]], "glmnet")) {
+        names(model_list[[1]]$betas)
+      } else if (inherits(model_list[[1]], "glm")) {
+        names(coef(model_list[[1]]))
+      }
 
-      coefs <- names(glmnet_list[[1]]$betas)
       c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
       c2 <- any(grepl(paste0(variable, ":"), coefs))
       c3 <- any(grepl(paste0(":", variable,"$"), coefs))
@@ -90,19 +94,16 @@ response_curve <- function(fitted, variable, modelID = NULL, n = 100,
       if (any(c1, c2, c3) == FALSE){
         stop("Defined 'variable' is not present in the fitted model.")
       }
-
     } else {
-      glmnet_list <- fitted[["Models"]][[modelID]]["Full_model"]
+      model_list <- fitted[["Models"]][[modelID]]["Full_model"]
     }
-
   } else {
-
     # extract the slot Full_model for each model
-    glmnet_list <- lapply(fitted[["Models"]], function(x){x$Full_model})
+    model_list <- lapply(fitted[["Models"]], function(x){x$Full_model})
   }
 
   # Response curve for all selected models
-  response_curve_consmx(glmnet_list, data = data, variable = variable, n = n,
+  response_curve_consmx(model_list, data = data, variable = variable, n = n,
                         new_data = new_data, extrapolate = extrapolate,
                         xlab = xlab, ylab = ylab,
                         col = col, ...)
