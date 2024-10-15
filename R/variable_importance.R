@@ -72,11 +72,9 @@ get_red_devmx <- function(reduce_var, p, data, f, rm, model_type) {
     return(deviance(reduce_model)[200])
 
   } else if (model_type == "glm") {
-    reduce_model <- suppressWarnings(
-      glm(
-        formula = as.formula(paste("pr_bg", f, " - ", reduce_var)),
-        family = binomial(link = "cloglog"), data = data
-      ))
+    reduce_model <-
+      glm_mx(formula = as.formula(paste("pr_bg", f, " - ", reduce_var)),
+             data = data)
     return(deviance(reduce_model))
   }
 }

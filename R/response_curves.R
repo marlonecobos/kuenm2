@@ -84,7 +84,7 @@ response_curve <- function(fitted, variable, modelID = NULL, n = 100,
       coefs <- if (inherits(model_list[[1]], "glmnet")) {
         names(model_list[[1]]$betas)
       } else if (inherits(model_list[[1]], "glm")) {
-        names(coef(model_list[[1]]))
+        names(coef(model_list[[1]])[-1])
       }
 
       c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
@@ -140,7 +140,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     coefs <- if (inherits(model, "glmnet")) {
       names(model$betas)
     } else if (inherits(model, "glm")) {
-      names(coef(model))
+      names(coef(model)[-1])
     }
 
     c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs) # check linear or quadratic term
@@ -187,7 +187,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       coefs <- if (inherits(x, "glmnet")) {
         names(x$betas)
       } else if (inherits(x, "glm")) {
-        names(coef(x))
+        names(coef(x)[-1])
       }
       c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
       c2 <- any(grepl(paste0("^", variable, ":"), coefs))
