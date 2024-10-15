@@ -3,6 +3,9 @@
 #' @usage
 #' var_importance(fitted, modelID = NULL)
 #'
+#' @param models an object of class `fitted_models` returned by the
+#' `fit_selected()` function.
+#' @param modelID (character). Default = NULL.
 #'
 #' @return
 #' A data.frame containing the relative contribution of each variable. An
@@ -13,7 +16,6 @@
 #'
 #' @importFrom stats update as.formula deviance coef glm
 #'
-
 var_importance <- function(fitted, modelID = NULL){
   # initial tests
   if (missing(fitted)) {

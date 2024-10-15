@@ -4,11 +4,10 @@
 #' A view of variable responses in models. Responses based on single or multiple
 #' models can be provided.
 #'
-#' @usage
-#' response_curve(fitted, variable, modelID = NULL, n = 100,
-#'                by_replicates = FALSE, data = NULL, new_data = NULL,
-#'                extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
-#'                col = "darkblue" ...)
+#' @usage response_curve(fitted, variable, modelID = NULL, n = 100,
+#'                      by_replicates = FALSE, data = NULL, new_data = NULL,
+#'                      extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
+#'                      col = "darkblue", ...)
 #
 #' @param fitted object.
 #' @param variable (character) name of the variables to be plotted.
