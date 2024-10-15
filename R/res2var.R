@@ -76,7 +76,12 @@ resp2var <- function(fitted, modelID, variable1 , variable2, n = 1000,
 
   # Check if variables are defined in the model's formula as:
   # lineal, quadratic or product.
-  coefs <- names(model$betas)
+  coefs <- if (inherits(model, "glmnet")) {
+    names(model$betas)
+  } else if (inherits(model, "glm")) {
+    names(coef(model)[-1])
+  }
+
   c11 <- any(c(variable1, paste0("I(", variable1, "^2)")) %in% coefs)
   c12 <- any(grepl(paste0(variable1, ":"), coefs))
   c13 <- any(grepl(paste0(":", variable1,"$"), coefs))
@@ -93,7 +98,11 @@ resp2var <- function(fitted, modelID, variable1 , variable2, n = 1000,
 
   # Extract calibration data from the model object
   # It gets only the variable names used in the fitted model
-  vnames <- colSums(sapply(colnames(data), grepl, names(model$betas))) > 0
+  vnames <- if (inherits(model, "glmnet")) {
+    colSums(sapply(colnames(data), grepl, names(model$betas))) > 0
+  } else {
+    colSums(sapply(colnames(data), grepl, names(coef(model)))) > 0
+  }
   cal_data <- data[, vnames]
 
   # Extract the limits of the calibration data
@@ -151,7 +160,11 @@ resp2var <- function(fitted, modelID, variable1 , variable2, n = 1000,
   m[, variables[2]] <- newvar[, 2]
 
   # Response of the variables
-  predicted <-  predict.glmnet_mx(model, m, type = "cloglog")
+  predicted <- if (inherits(model, "glmnet")) {
+    predict.glmnet_mx(model, m, type = "cloglog")
+  } else {
+    predict(model, newdata = m, type = "response")
+  }
 
   # Arguments for filled.contour
   # "x,y" locations of grid lines at which the values in z are measured
