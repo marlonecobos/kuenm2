@@ -5,9 +5,9 @@
 \title{Variable response curves}
 \usage{
 response_curve(fitted, variable, modelID = NULL, n = 100,
-               by_replicates = FALSE, data = NULL, new_data = NULL,
-               extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
-               col = "darkblue" ...)
+                     by_replicates = FALSE, data = NULL, new_data = NULL,
+                     extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
+                     col = "darkblue", ...)
 }
 \arguments{
 \item{fitted}{object.}
@@ -20,7 +20,7 @@ fitted object. By default all models are included.Default = NULL.}
 \item{n}{(numeric) an integer guiding the number of breaks. Default = 100}
 
 \item{by_replicates}{(logical) whether use replicates or full_model to
-estimate the model's response curve.}
+estimate the model's response curve. Default = FALSE.}
 
 \item{data}{data.frame or matrix of data used in the model calibration step.
 Default = NULL.}
