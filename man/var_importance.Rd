@@ -6,6 +6,12 @@
 \usage{
 var_importance(fitted, modelID = NULL)
 }
+\arguments{
+\item{modelID}{(character). Default = NULL.}
+
+\item{models}{an object of class \code{fitted_models} returned by the
+\code{fit_selected()} function.}
+}
 \value{
 A data.frame containing the relative contribution of each variable. An
 identification for distinct models is added if \code{fitted} contains multiple

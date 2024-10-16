@@ -13,7 +13,8 @@ new_fitted_models(
   pca,
   addsamplestobackground,
   omission_rate,
-  thresholds
+  thresholds,
+  model_type
 )
 }
 \description{

@@ -17,6 +17,50 @@ glmnet_mx(
   ...
 )
 }
+\arguments{
+\item{p}{A vector of binary presence-background labels, where 1 indicates
+presence and 0 indicates background.}
+
+\item{data}{A \code{data.frame} containing the predictor variables for the
+model. This must include the same number of rows as the length of \code{p}.}
+
+\item{f}{A formula specifying the model to be fitted, in the format used by
+\code{\link[stats]{model.matrix}}.}
+
+\item{regmult}{(numeric) Regularization multiplier, default is 1.0.}
+
+\item{regfun}{A function that calculates regularization penalties. Default is
+\code{maxnet.default.regularization}.}
+
+\item{addsamplestobackground}{(logical) Whether to add presence points not in
+the background to the background data. Default is \code{TRUE}.}
+
+\item{weights}{(numeric) A numeric vector of weights for each observation.
+Default is \code{NULL}, which sets weights to 1 for presence points
+and 100 for background points.}
+
+\item{calculate_AIC}{(logical) Whether to calculate AIC. Default is \code{FALSE}.}
+
+\item{AIC}{(character) Method for calculating AIC, either "nk" or "ws".
+Default is "ws".}
+
+\item{...}{Additional arguments to pass to \code{\link[glmnet]{glmnet}}.}
+}
+\value{
+A fitted Maxent-like model object of class \code{glmnet_mx}, which
+includes model coefficients, AIC (if requested), and other elements
+such as feature mins and maxes, sample means, and entropy.
+}
 \description{
-Maxent-like glmnet models
+This function fits Maxent-like models using the \code{glmnet} package, designed
+for presence-background data. It includes options for regularization and
+calculating the Akaike Information Criterion (AIC).
+The model can automatically add presence points to the background if needed.
+}
+\details{
+This function is modified from maxnet and fits a Maxent-like model
+using regularization to avoid overfitting. Regularization weights
+are computed using a user-provided function and can be multiplied by
+a regularization multiplier (\code{regmult}). The function also
+includes an option to calculate AIC.
 }

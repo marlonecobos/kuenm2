@@ -69,7 +69,7 @@ print.prepare_data <- function(x, ...) {
   }
 
   if(model_type == "glm"){
-    cat("Calibration Grid (GLMN)\n")
+    cat("Calibration Grid (GLM)\n")
     cat("  - Features used:", paste(unique(x$formula_grid$Features), collapse = ", "), "\n")
     cat("  - Number of combinations:", nrow(x$formula_grid), "\n")
     cat("  - Print (n = 5):\n")

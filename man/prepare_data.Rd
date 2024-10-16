@@ -6,80 +6,100 @@
 \usage{
 prepare_data(model_type = "glmnet", occ, species = NULL, x, y,
                    spat_variables, mask = NULL, categorical_variables = NULL,
-                   do_pca = FALSE, deviance_explained = 95, min_explained = 5,
-                   center = TRUE, scale = TRUE, write_pca = FALSE,
-                   output_pca = NULL, nbg = 10000, kfolds = 4, weights = NULL,
-                   min_number = 2, min_continuous = NULL,
+                   do_pca = FALSE, deviance_explained = 95,
+                   min_explained = 5, center = TRUE, scale = TRUE,
+                   write_pca = FALSE, output_pca = NULL, nbg = 10000,
+                   kfolds = 4, weights = NULL, min_number = 2,
+                   min_continuous = NULL,
                    features = c("l", "q", "p", "lq", "lqp"),
-                   regm = c(0.1, 1, 2, 3, 5),
-                   include_xy = TRUE, write_file = FALSE, file_name = NULL,
-                   seed = 1)
+                   regm = c(0.1, 1, 2, 3, 5), include_xy = TRUE,
+                   write_file = FALSE, file_name = NULL, seed = 1)
 }
 \arguments{
-\item{occ}{(data frame) a data.frame containing the coordinates (longiude and latitude) of the occurrence records.}
+\item{model_type}{(character) model type, either "glm" or "glmnet".}
 
-\item{species}{(character) string specifying the species name (optional). Default is NULL.}
+\item{occ}{(data frame) a data.frame containing the coordinates (longitude
+and latitude) of the occurrence records.}
 
-\item{x}{(character) a string specifying the name of the column in \code{occ} that contains the longitude values.}
+\item{species}{(character) string specifying the species name (optional).
+Default is NULL.}
 
-\item{y}{(character) a string specifying the name of the column in \code{occ} that contains the latitude values.}
+\item{x}{(character) a string specifying the name of the column in \code{occ} that
+contains the longitude values.}
 
-\item{spat_variables}{(SpatRaster) predictor variables used to calibrate the models.}
+\item{y}{(character) a string specifying the name of the column in \code{occ} that
+contains the latitude values.}
 
-\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables to the area where the model will be calibrated (optional). Default is NULL.}
+\item{spat_variables}{(SpatRaster) predictor variables used to calibrate the
+models.}
 
-\item{categorical_variables}{(character) names of the variables that are categorial. Default is NULL.}
+\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
+mask the variables to the area where the model will be calibrated.
+Default is NULL.}
 
-\item{do_pca}{(logical) whether perform a principal component analysis (PCA) with the set of variables. Default is FALSE.}
+\item{categorical_variables}{(character) names of the variables that are
+categorical. Default is NULL.}
 
-\item{deviance_explained}{(numeric) the cumulative percentage of total variance (deviance) that must be explained by the selected principal components. This value determines how many principal components are retained. Default is 95.}
+\item{do_pca}{(logical) whether to perform a principal component analysis
+(PCA) with the set of variables. Default is FALSE.}
 
-\item{min_explained}{(numeric) the minimum percentage of total variance (deviance) that a principal component must explain to be retained. Default is 5.}
+\item{deviance_explained}{(numeric) the cumulative percentage of total
+variance that must be explained by the selected principal components.
+Default is 95.}
 
-\item{center}{(logical) whether the variables should be shifted to be zero centered. Default is TRUE.}
+\item{min_explained}{(numeric) the minimum percentage of total variance that
+a principal component must explain to be retained. Default is 5.}
 
-\item{scale}{(logical) whether the variables should be scaled to have unit variance before the analysis takes place. Default is TRUE.}
+\item{center}{(logical) whether the variables should be zero-centered. Default
+is TRUE.}
 
-\item{write_pca}{(logical) whether to save the PCA-derived raster layers (principal components) to disk. Default is FALSE.}
+\item{scale}{(logical) whether the variables should be scaled to have unit
+variance before the analysis takes place. Default is TRUE.}
 
-\item{output_pca}{(character) the path or name of the folder where the PCA-derived raster layers will be saved. This is only applicable if \code{write_pca = TRUE}. Default is NULL.}
+\item{write_pca}{(logical) whether to save the PCA-derived raster layers
+(principal components) to disk. Default is FALSE.}
 
-\item{nbg}{(numeric) number of points to represent the background for the model. Default is 10000.}
+\item{output_pca}{(character) the path or name of the folder where the PCA-
+derived raster layers will be saved. This is only applicable if
+\code{write_pca = TRUE}. Default is NULL.}
 
-\item{kfolds}{(numeric) the number of groups (folds) into which the occurrence data will be split for cross-validation. Default is 4.}
+\item{nbg}{(numeric) number of points to represent the background for the
+model. Default is 10000.}
 
-\item{weights}{(numeric) a numeric vector specifying weights for the occurrence records. This vector must have the same length as the number of rows in \code{occ}. Default is NULL, meaning all occurrence records are assigned a weight of 1.}
+\item{kfolds}{(numeric) the number of groups (folds) into which the occurrence
+data will be split for cross-validation. Default is 4.}
 
-\item{min_number}{(numeric) the minimum number of variables in a formula combination.}
+\item{weights}{(numeric) a numeric vector specifying weights for the
+occurrence records. Default is NULL.}
 
-\item{min_continuous}{(numeric) the minimum number of continuous variables required in a combination.}
+\item{min_number}{(numeric) the minimum number of variables in a formula
+combination.}
 
-\item{features}{(character) a vector of feature classes. It can be "l", "q", "p", "h", "t" or any combination of these. "h" and "t" are available only when model_type = "glmnet". Default is c("l", "q", "p", "lq", "lqp").}
+\item{min_continuous}{(numeric) the minimum number of continuous variables
+required in a combination. Default is NULL.}
 
-\item{regm}{(numeric) a vector of regularization parameters for glmnet. Default is c(0.1, 1, 2, 3, 5).}
+\item{features}{(character) a vector of feature classes. Default is c("l", "q",
+"p", "lq", "lqp").}
 
-\item{include_xy}{(logical) whether to include the coordinates (longitude and latitude) in the resulting list. Default is TRUE.}
+\item{regm}{(numeric) a vector of regularization parameters for glmnet.
+Default is c(0.1, 1, 2, 3, 5).}
 
-\item{write_file}{(logical) whether to write the resulting list in the disk. Default is FALSE.}
+\item{include_xy}{(logical) whether to include the coordinates (longitude and
+latitude) in the resulting list. Default is TRUE.}
 
-\item{file_name}{(character) the path or name of the folder where the resulting list will be saved. This is only applicable if \code{write_file = TRUE}. Default is NULL.}
+\item{write_file}{(logical) whether to write the resulting list to disk.
+Default is FALSE.}
 
-\item{seed}{(numeric) integer value to specify an initial seed to split the data. Default is 1.}
+\item{file_name}{(character) the path or name of the folder where the
+resulting list will be saved. This is only applicable if \code{write_file = TRUE}. Default is NULL.}
+
+\item{seed}{(numeric) integer value to specify an initial seed to split the
+data. Default is 1.}
 }
 \value{
-An object of class \code{prepare_data} containing the following elements:
-\itemize{
-\item species: the name of the species.
-\item calibration data: a data frame containing a column (\code{pr_bg}) that identifies occurrence points (1) and background points (0), along with the corresponding values of predictor variables for each point.
-\item formula_grid: data frame containing the calibration grid with possible formulas and parameters.
-\item kfolds: a list of vectors with the indices of rows corresponding to each fold.
-\item data_xy: a data.frame with the coordinates of occurrence and background points.
-\item continuous_variables: a character indicanting the continuous varibles.
-\item categorical_variables: a character indicanting the categorical varibles (if used).
-\item weights: the numeric vector specifying weights for the occurrence records (if used).
-\item pca: if \code{do_pca = TRUE}, a list with class "prcomp". See ?stats::prcomp().
-\item model_type: the model type (glm or glmnet)
-}
+An object of class \code{prepare_data} containing several components,
+including the species name, calibration data, formula grid, and others
+described in the documentation.
 }
 \description{
 This function prepares data for model calibration, including optional PCA,
@@ -89,24 +109,7 @@ regularization multiplier values, various feature classes, and different sets
 of environmental variables.
 }
 \examples{
-#Import raster layers
-var <- terra::rast(system.file("extdata", "Current_variables.tif",
-                               package = "kuenm2"))
-#Import occurrences
-data(occ_data, package = "kuenm2")
-#Prepare data
-sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
-                       species = occ_data[1, 1], x = "x", y = "y",
-                       spat_variables = var, mask = NULL,
-                       categorical_variables = "SoilType",
-                       do_pca = FALSE, deviance_explained = 95,
-                       min_explained = 5, center = TRUE, scale = TRUE,
-                       write_pca = FALSE, output_pca = NULL, nbg = 500,
-                       kfolds = 4, weights = NULL, min_number = 2,
-                       min_continuous = NULL,
-                       features = c("l", "q", "p", "lq", "lqp"),
-                       regm = c(0.1, 1, 2, 3, 5),
-                       include_xy = TRUE,
-                       write_file = FALSE, file_name = NULL,
-                       seed = 1)
+# Example usage
+sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data, species = "sp",
+                       x = "x", y = "y", spat_variables = var)
 }

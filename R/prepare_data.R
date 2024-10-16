@@ -7,78 +7,86 @@
 #' regularization multiplier values, various feature classes, and different sets
 #' of environmental variables.
 #'
-#' @param occ (data frame) a data.frame containing the coordinates (longiude and latitude) of the occurrence records.
-#' @param species (character) string specifying the species name (optional). Default is NULL.
-#' @param x (character) a string specifying the name of the column in `occ` that contains the longitude values.
-#' @param y (character) a string specifying the name of the column in `occ` that contains the latitude values.
-#' @param spat_variables (SpatRaster) predictor variables used to calibrate the models.
-#' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables to the area where the model will be calibrated (optional). Default is NULL.
-#' @param categorical_variables (character) names of the variables that are categorial. Default is NULL.
-#' @param do_pca (logical) whether perform a principal component analysis (PCA) with the set of variables. Default is FALSE.
-#' @param deviance_explained (numeric) the cumulative percentage of total variance (deviance) that must be explained by the selected principal components. This value determines how many principal components are retained. Default is 95.
-#' @param min_explained (numeric) the minimum percentage of total variance (deviance) that a principal component must explain to be retained. Default is 5.
-#' @param center (logical) whether the variables should be shifted to be zero centered. Default is TRUE.
-#' @param scale (logical) whether the variables should be scaled to have unit variance before the analysis takes place. Default is TRUE.
-#' @param write_pca (logical) whether to save the PCA-derived raster layers (principal components) to disk. Default is FALSE.
-#' @param output_pca (character) the path or name of the folder where the PCA-derived raster layers will be saved. This is only applicable if `write_pca = TRUE`. Default is NULL.
-#' @param nbg (numeric) number of points to represent the background for the model. Default is 10000.
-#' @param kfolds (numeric) the number of groups (folds) into which the occurrence data will be split for cross-validation. Default is 4.
-#' @param weights (numeric) a numeric vector specifying weights for the occurrence records. This vector must have the same length as the number of rows in `occ`. Default is NULL, meaning all occurrence records are assigned a weight of 1.
-#' @param min_number (numeric) the minimum number of variables in a formula combination.
-#' @param min_continuous (numeric) the minimum number of continuous variables required in a combination.
-#' @param features (character) a vector of feature classes. It can be "l", "q", "p", "h", "t" or any combination of these. "h" and "t" are available only when model_type = "glmnet". Default is c("l", "q", "p", "lq", "lqp").
-#' @param regm (numeric) a vector of regularization parameters for glmnet. Default is c(0.1, 1, 2, 3, 5).
-#' @param include_xy (logical) whether to include the coordinates (longitude and latitude) in the resulting list. Default is TRUE.
-#' @param write_file (logical) whether to write the resulting list in the disk. Default is FALSE.
-#' @param file_name (character) the path or name of the folder where the resulting list will be saved. This is only applicable if `write_file = TRUE`. Default is NULL.
-#' @param seed (numeric) integer value to specify an initial seed to split the data. Default is 1.
-#' @return
-#' An object of class `prepare_data` containing the following elements:
-#' - species: the name of the species.
-#' - calibration data: a data frame containing a column (`pr_bg`) that identifies occurrence points (1) and background points (0), along with the corresponding values of predictor variables for each point.
-#' - formula_grid: data frame containing the calibration grid with possible formulas and parameters.
-#' - kfolds: a list of vectors with the indices of rows corresponding to each fold.
-#' - data_xy: a data.frame with the coordinates of occurrence and background points.
-#' - continuous_variables: a character indicanting the continuous varibles.
-#' - categorical_variables: a character indicanting the categorical varibles (if used).
-#' - weights: the numeric vector specifying weights for the occurrence records (if used).
-#' - pca: if `do_pca = TRUE`, a list with class "prcomp". See ?stats::prcomp().
-#' - model_type: the model type (glm or glmnet)
-#' @export
+#' @param model_type (character) model type, either "glm" or "glmnet".
+#' @param occ (data frame) a data.frame containing the coordinates (longitude
+#'        and latitude) of the occurrence records.
+#' @param species (character) string specifying the species name (optional).
+#'        Default is NULL.
+#' @param x (character) a string specifying the name of the column in `occ` that
+#'        contains the longitude values.
+#' @param y (character) a string specifying the name of the column in `occ` that
+#'        contains the latitude values.
+#' @param spat_variables (SpatRaster) predictor variables used to calibrate the
+#'        models.
+#' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to
+#'        mask the variables to the area where the model will be calibrated.
+#'        Default is NULL.
+#' @param categorical_variables (character) names of the variables that are
+#'        categorical. Default is NULL.
+#' @param do_pca (logical) whether to perform a principal component analysis
+#'        (PCA) with the set of variables. Default is FALSE.
+#' @param deviance_explained (numeric) the cumulative percentage of total
+#'        variance that must be explained by the selected principal components.
+#'        Default is 95.
+#' @param min_explained (numeric) the minimum percentage of total variance that
+#'        a principal component must explain to be retained. Default is 5.
+#' @param center (logical) whether the variables should be zero-centered. Default
+#'        is TRUE.
+#' @param scale (logical) whether the variables should be scaled to have unit
+#'        variance before the analysis takes place. Default is TRUE.
+#' @param write_pca (logical) whether to save the PCA-derived raster layers
+#'        (principal components) to disk. Default is FALSE.
+#' @param output_pca (character) the path or name of the folder where the PCA-
+#'        derived raster layers will be saved. This is only applicable if
+#'        `write_pca = TRUE`. Default is NULL.
+#' @param nbg (numeric) number of points to represent the background for the
+#'        model. Default is 10000.
+#' @param kfolds (numeric) the number of groups (folds) into which the occurrence
+#'        data will be split for cross-validation. Default is 4.
+#' @param weights (numeric) a numeric vector specifying weights for the
+#'        occurrence records. Default is NULL.
+#' @param min_number (numeric) the minimum number of variables in a formula
+#'        combination.
+#' @param min_continuous (numeric) the minimum number of continuous variables
+#'        required in a combination. Default is NULL.
+#' @param features (character) a vector of feature classes. Default is c("l", "q",
+#'        "p", "lq", "lqp").
+#' @param regm (numeric) a vector of regularization parameters for glmnet.
+#'        Default is c(0.1, 1, 2, 3, 5).
+#' @param include_xy (logical) whether to include the coordinates (longitude and
+#'        latitude) in the resulting list. Default is TRUE.
+#' @param write_file (logical) whether to write the resulting list to disk.
+#'        Default is FALSE.
+#' @param file_name (character) the path or name of the folder where the
+#'        resulting list will be saved. This is only applicable if `write_file =
+#'        TRUE`. Default is NULL.
+#' @param seed (numeric) integer value to specify an initial seed to split the
+#'        data. Default is 1.
+#'
+#' @return An object of class `prepare_data` containing several components,
+#'         including the species name, calibration data, formula grid, and others
+#'         described in the documentation.
+#'
 #' @importFrom enmpa kfold_partition aux_var_comb
 #' @importFrom terra crop prcomp extract as.data.frame nlyr
 #' @importFrom utils combn
 #' @usage prepare_data(model_type = "glmnet", occ, species = NULL, x, y,
 #'                    spat_variables, mask = NULL, categorical_variables = NULL,
-#'                    do_pca = FALSE, deviance_explained = 95, min_explained = 5,
-#'                    center = TRUE, scale = TRUE, write_pca = FALSE,
-#'                    output_pca = NULL, nbg = 10000, kfolds = 4, weights = NULL,
-#'                    min_number = 2, min_continuous = NULL,
+#'                    do_pca = FALSE, deviance_explained = 95,
+#'                    min_explained = 5, center = TRUE, scale = TRUE,
+#'                    write_pca = FALSE, output_pca = NULL, nbg = 10000,
+#'                    kfolds = 4, weights = NULL, min_number = 2,
+#'                    min_continuous = NULL,
 #'                    features = c("l", "q", "p", "lq", "lqp"),
-#'                    regm = c(0.1, 1, 2, 3, 5),
-#'                    include_xy = TRUE, write_file = FALSE, file_name = NULL,
-#'                    seed = 1)
+#'                    regm = c(0.1, 1, 2, 3, 5), include_xy = TRUE,
+#'                    write_file = FALSE, file_name = NULL, seed = 1)
 #' @examples
-#' #Import raster layers
-#' var <- terra::rast(system.file("extdata", "Current_variables.tif",
-#'                                package = "kuenm2"))
-#' #Import occurrences
-#' data(occ_data, package = "kuenm2")
-#' #Prepare data
-#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
-#'                        species = occ_data[1, 1], x = "x", y = "y",
-#'                        spat_variables = var, mask = NULL,
-#'                        categorical_variables = "SoilType",
-#'                        do_pca = FALSE, deviance_explained = 95,
-#'                        min_explained = 5, center = TRUE, scale = TRUE,
-#'                        write_pca = FALSE, output_pca = NULL, nbg = 500,
-#'                        kfolds = 4, weights = NULL, min_number = 2,
-#'                        min_continuous = NULL,
-#'                        features = c("l", "q", "p", "lq", "lqp"),
-#'                        regm = c(0.1, 1, 2, 3, 5),
-#'                        include_xy = TRUE,
-#'                        write_file = FALSE, file_name = NULL,
-#'                        seed = 1)
+#' # Example usage
+#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data, species = "sp",
+#'                        x = "x", y = "y", spat_variables = var)
+#' @export
+
+
 prepare_data <- function(model_type = "glmnet",
                          occ,
                          species = NULL,
