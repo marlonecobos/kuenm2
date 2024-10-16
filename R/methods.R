@@ -125,8 +125,87 @@ print.fitted_models <- function(x, ...){
   cat("==========================\n")
   cat("Species:", x$species, "\n")
 
+  cat("Model type:", x$model_type, "\n")
   cat("Number of fitted models:", length(x$Models), "\n")
   #Get number of replicates
   nr <- sum(grepl("Rep", names(x$Models[[1]])))
   cat("Models fitted with", nr, "replicates")
+}
+
+#' Print Method for prepared_proj Class
+#' @export
+print.projection_data <- function(x, ...){
+  cat("projection_data object summary\n")
+  cat("=============================\n")
+
+  #Get times
+  all_times <- x[c("Present", "Past", "Future")]
+  all_times <- names(all_times[sapply(all_times, function(x) !is.null(x))])
+
+  cat("Variables prepared to project models for",
+      paste(all_times, collapse = " and "), "\n")
+
+  #If Past...
+  if("Past" %in% all_times){
+    p <- names(x[["Past"]]) #Get periods
+    g <- names(x[["Past"]][[1]]) #Get gcms
+    cat("Past projections contain the following periods and GCMs:\n")
+    cat("  - Periods:", paste(p, collapse = " | "), "\n")
+    cat("  - GCMs:", paste(g, collapse = " | "), "\n")
+  }
+
+  #If Future...
+  if("Future" %in% all_times){
+    p <- names(x[["Future"]]) #Get periods
+    s <- names(x[["Future"]][[1]]) #Get scenarios
+    g <- names(x[["Future"]][[1]][[1]]) #Get gcms
+    cat("Future projections contain the following periods, scenarios and GCMs:\n")
+    cat("  - Periods:", paste(p, collapse = " | "), "\n")
+    cat("  - Scenarios:", paste(s, collapse = " | "), "\n")
+    cat("  - GCMs:", paste(g, collapse = " | "), "\n")
+  }
+
+  #Get folder
+  f <- dirname(x[[1]][[1]])
+  cat("All variables are located in the following root directory:\n")
+  cat(f)
+}
+
+#' Print Method for model_projections Class
+#' @export
+print.model_projections <- function(x, ...){
+  cat("model_projections object summary\n")
+  cat("================================\n")
+
+  #Get times
+  all_times <- na.omit(unique(x$paths$Time))
+
+
+  cat("Models projected for",
+      paste(all_times, collapse = " and "), "\n")
+
+  #If Past...
+  if("Past" %in% all_times){
+    p <- unique(x$paths$Period[x$paths$Time == "Past"])  #Get periods
+    g <- unique(x$paths$GCM[x$paths$Time == "Past"]) #Get gcms
+    cat("Past projections contain the following periods and GCMs:\n")
+    cat("  - Periods:", paste(p, collapse = " | "), "\n")
+    cat("  - GCMs:", paste(g, collapse = " | "), "\n")
+  }
+
+  #If Future...
+  if("Future" %in% all_times){
+    p <- unique(x$paths$Period[x$paths$Time == "Future"])  #Get periods
+    s <- unique(x$paths$ssp[x$paths$Time == "Future"]) #Get scenarios
+    g <- unique(x$paths$GCM[x$paths$Time == "Future"]) #Get gcms
+    cat("Future projections contain the following periods, scenarios and GCMs:\n")
+    cat("  - Periods:", paste(p, collapse = " | "), "\n")
+    cat("  - Scenarios:", paste(s, collapse = " | "), "\n")
+    cat("  - GCMs:", paste(g, collapse = " | "), "\n")
+  }
+
+  #Get folder
+  f <- dirname(dirname(x$paths$output_path[1]))
+  cat("All raster files containing the projection results are located in the following root directory:\n",
+      f)
 }

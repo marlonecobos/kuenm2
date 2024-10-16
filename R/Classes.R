@@ -102,6 +102,8 @@ new_lambdas <- function(lambdas_path){
 new_fitted_models <- function(species,
                               Models,
                               calibration_data,
+                              continuous_variables,
+                              categorical_variables,
                               selected_models,
                               weights,
                               pca,
@@ -113,6 +115,8 @@ new_fitted_models <- function(species,
     species = species,
     Models = Models,
     calibration_data = calibration_data,
+    continuous_variables = continuous_variables,
+    categorical_variables = categorical_variables,
     selected_models = selected_models,
     weights = weights,
     pca = pca,
@@ -122,5 +126,27 @@ new_fitted_models <- function(species,
     model_type = model_type
   )
   class(data) <- "fitted_models"
+  return(data)
+}
+
+#' prepared_proj Class Constructor
+new_projection_data <- function(res_present, res_past, res_future, raster_pattern,
+                                pca
+){
+  data <- list(Present = res_present,
+               Past = res_past,
+               Future = res_future,
+               raster_pattern = raster_pattern,
+               pca = pca)
+
+  class(data) <- "projection_data"
+  return(data)
+}
+
+#' prepared_proj Class Constructor
+new_model_projections <- function(paths, thresholds){
+  data <- list(paths = paths,
+               thresholds = thresholds)
+  class(data) <- "model_projections"
   return(data)
 }
