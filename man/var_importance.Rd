@@ -4,13 +4,13 @@
 \alias{var_importance}
 \title{Variable importance}
 \usage{
-var_importance(fitted, modelID = NULL)
+var_importance(models, modelID = NULL)
 }
 \arguments{
-\item{modelID}{(character). Default = NULL.}
-
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{fit_selected()} function.}
+\code{\link{fit_selected}}() function.}
+
+\item{modelID}{(character). Default = NULL.}
 }
 \value{
 A data.frame containing the relative contribution of each variable. An
@@ -19,4 +19,24 @@ models.
 }
 \description{
 Variable importance
+}
+\examples{
+##Example with glmnet
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glmnet", package = "kuenm2")
+
+# Variable importance
+imp_glmnet <- var_importance(models = fitted_model_glmnet)
+# Plot using enmpa package
+enmpa::plot_importance(imp_glmnet)
+
+##Example with glm
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glm", package = "kuenm2")
+
+# Variable importance
+imp_glm <- var_importance(models = fitted_model_glm)
+# Plot using enmpa package
+enmpa::plot_importance(imp_glm)
+
 }

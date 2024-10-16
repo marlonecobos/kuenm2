@@ -8,6 +8,8 @@ new_fitted_models(
   species,
   Models,
   calibration_data,
+  continuous_variables,
+  categorical_variables,
   selected_models,
   weights,
   pca,

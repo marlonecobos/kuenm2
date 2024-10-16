@@ -4,18 +4,19 @@
 \alias{response_curve}
 \title{Variable response curves}
 \usage{
-response_curve(fitted, variable, modelID = NULL, n = 100,
+response_curve(models, variable, modelID = NULL, n = 100,
                      by_replicates = FALSE, data = NULL, new_data = NULL,
                      extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
                      col = "darkblue", ...)
 }
 \arguments{
-\item{fitted}{object.}
+\item{models}{an object of class \code{fitted_models} returned by the
+\code{\link{fit_selected}}() function.}
 
 \item{variable}{(character) name of the variables to be plotted.}
 
 \item{modelID}{(character) vector of ModelID(s) to be considered in the
-fitted object. By default all models are included.Default = NULL.}
+models object. By default all models are included.Default = NULL.}
 
 \item{n}{(numeric) an integer guiding the number of breaks. Default = 100}
 
@@ -47,6 +48,36 @@ name defined in \code{variable}.}
 A plot with the response curve for a \code{variable}.
 }
 \description{
-A view of variable responses in models. Responses based on single or multiple
+A view of variable responses in fitted models. Responses based on single or multiple
 models can be provided.
+}
+\examples{
+##Example with glmnet
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glmnet", package = "kuenm2")
+
+#Response curves
+response_curve(models = fitted_model_glmnet,
+               variable = "bio_1", by_replicates = T)
+response_curve(models = fitted_model_glmnet,
+               variable = "bio_7", by_replicates = T)
+response_curve(models = fitted_model_glmnet, variable = "bio_1",
+               modelID = "Model_13", by_replicates = T)
+response_curve(models = fitted_model_glmnet, variable = "bio_1",
+               modelID = "Model_1", by_replicates = T)
+
+##Example with glm
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glm", package = "kuenm2")
+
+#Response curves
+response_curve(models = fitted_model_glm,
+               variable = "bio_1", by_replicates = T)
+response_curve(models = fitted_model_glm,
+               variable = "bio_7", by_replicates = T)
+response_curve(models = fitted_model_glm, variable = "bio_1",
+               modelID = "Model_4", by_replicates = T)
+response_curve(models = fitted_model_glm, variable = "bio_12",
+               modelID = "Model_4", by_replicates = T)
+
 }

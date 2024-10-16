@@ -7,8 +7,8 @@
 explore_calibration_geo(data, spat_variables, plot = TRUE)
 }
 \arguments{
-\item{data}{an object of class \code{prepare_data} returned by the prepare_data()
-function}
+\item{data}{an object of class \code{prepare_data} returned by the
+\code{\link{prepare_data}}() function.}
 
 \item{spat_variables}{(SpatRaster) predictor variables used for model calibration.}
 
@@ -17,10 +17,10 @@ function}
 \value{
 A categorical \code{SpatRaster} with four factors representing:
 \describe{
-\item{1}{Background cells}
-\item{2}{Presence cells}
-\item{3}{Cells with both presence and background}
-\item{4}{Non-used cells}
+\item{1 - Background cells}{}
+\item{2 - Presence cells}{}
+\item{3 - Cells with both presence and background}{}
+\item{4 - Non-used cells}{}
 }
 }
 \description{

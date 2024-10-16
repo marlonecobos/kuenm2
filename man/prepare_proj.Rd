@@ -4,23 +4,108 @@
 \alias{prepare_proj}
 \title{Preparation of data for model projections}
 \usage{
-prepare_proj(
-  models = NULL,
-  variable_names = NULL,
-  do_pca = FALSE,
-  present_dir = NULL,
-  past_dir = NULL,
-  past_period = NULL,
-  past_gcm = NULL,
-  future_dir = NULL,
-  future_period = NULL,
-  future_pscen = NULL,
-  future_gcm = NULL,
-  write_file = FALSE,
-  filename = NULL,
-  raster_pattern = ".tif*"
-)
+prepare_proj(models = NULL, variable_names = NULL, present_dir = NULL,
+                   past_dir = NULL, past_period = NULL, past_gcm = NULL,
+                   future_dir = NULL, future_period = NULL,
+                   future_pscen = NULL, future_gcm = NULL,
+                   write_file = FALSE, filename = NULL,
+                   raster_pattern = ".tif*")
+}
+\arguments{
+\item{models}{an object of class \code{fitted_models} returned by the
+\code{\link{fit_selected_glmnetmx}}() function. Default is NULL.}
+
+\item{variable_names}{(character) names of the variables used to fit the model or do the PCA in the \code{\link{prepare_data}}() function. Only applicable if \code{models} argument is not provided. Default is NULL.}
+
+\item{present_dir}{(character) path to the folder containing variables that represent the current scenario for projection. Default is NULL.}
+
+\item{past_dir}{(character) path to the folder containing subfolders with variables representing past scenarios for projection. Default is NULL.}
+
+\item{past_period}{(character) names of the subfolders within \code{past_dir}, representing specific time periods (e.g., 'LGM' or 'MID').}
+
+\item{past_gcm}{(character) names of the subfolders within \code{past_period} folders, representing specific General Circulation Models (GCMs).}
+
+\item{future_dir}{(character) path to the folder containing subfolders with variables representing future scenarios for projection. Default is NULL.}
+
+\item{future_period}{(character) names of the subfolders within \code{future_dir}, representing specific time periods (e.g., '2041-2060' or '2081-2100'). Default is NULL.}
+
+\item{future_pscen}{(character) names of the subfolders within \code{future_period}, representing specific emission scenarios (e.g., 'ssp126' or 'ssp585'). Default is NULL.}
+
+\item{future_gcm}{(character) names of the subfolders within \code{future_pscen} folders, representing specific General Circulation Models (GCMs). Default is NULL.}
+
+\item{write_file}{(logical) whether to write the object containing the paths to the structured folders. This object is required for projecting models across multiple scenarios using the \code{\link{project_selected}}() function. Default is FALSE.}
+
+\item{filename}{(character) the path or name of the folder where the object will be saved. This is only applicable if \code{write_file = TRUE}. Default is NULL.}
+
+\item{raster_pattern}{(character) pattern used to identify the format of raster files within the folders. Default is ".tif*".}
+}
+\value{
+An object of class \code{prepared_proj} containing the following elements:
+\itemize{
+\item Present, Past, and Future: paths to the variables structured in subfolders.
+\item Raster_pattern: the pattern used to identify the format of raster files within the folders.
+\item PCA: if a principal component analysis (PCA) was performed on the set of variables with \code{\link{prepare_data}}(), a list with class "prcomp" will be returned. See \code{?stats::prcomp()} for details.
+}
 }
 \description{
-Preparation of data for model projections
+This function prepared data for model projections to multiple scenarios, storing the paths to the rasters representing each scenario
+}
+\examples{
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glmnet", package = "kuenm2")
+
+# Organize and structure future climate variables from WorldClim
+# Import the current variables used to fit the model.
+# In this case, SoilType will be treated as a static variable (constant across future scenarios).
+var <- terra::rast(system.file("extdata", "Current_variables.tif",
+                               package = "kuenm2"))
+# Create a "Current_raw" folder in a temporary directory and copy the raw variables there.
+out_dir_current <- file.path(tempdir(), "Current_raw")
+dir.create(out_dir_current, recursive = TRUE)
+# Save current variables in temporary directory
+writeRaster(var, file.path(out_dir_current, "Variables.tif"))
+
+# Set the input directory containing the raw future climate variables.
+# For this example, the data is located in the "inst/extdata" folder.
+in_dir <- "inst/extdata/"
+# Create a "Future_raw" folder in a temporary directory and copy the raw variables there.
+out_dir_future <- file.path(tempdir(), "Future_raw")
+# Organize and rename the future climate data, structuring it by year and GCM.
+# The 'SoilType' variable will be appended as a static variable in each scenario.
+# The files will be renamed following the "bio_" format
+organize_future_worldclim(input_dir = in_dir,
+                          output_dir = out_dir_future,
+                          name_format = "bio_", variables = NULL,
+                          fixed_variables = var$SoilType, mask = NULL,
+                          overwrite = TRUE)
+# Prepare projections using fitted models to check variables
+pr <- prepare_proj(models = fitted_model_glmnet,
+                   present_dir = out_dir_current,
+                   past_dir = NULL,
+                   past_period = NULL,
+                   past_gcm = NULL,
+                   future_dir = out_dir_future,
+                   future_period = c("2041-2060", "2081-2100"),
+                   future_pscen = c("ssp126", "ssp585"),
+                   future_gcm = c("ACCESS-CM2", "MIROC6"),
+                   write_file = FALSE,
+                   filename = NULL,
+                   raster_pattern = ".tif*")
+pr
+
+# Prepare projections using variables names
+pr_b <- prepare_proj(models = NULL,
+                     variable_names = c("bio_1", "bio_7", "bio_12"),
+                     present_dir = out_dir_current,
+                     past_dir = NULL,
+                     past_period = NULL,
+                     past_gcm = NULL,
+                     future_dir = out_dir_future,
+                     future_period = c("2041-2060", "2081-2100"),
+                     future_pscen = c("ssp126", "ssp585"),
+                     future_gcm = c("ACCESS-CM2", "MIROC6"),
+                     write_file = FALSE,
+                     filename = NULL,
+                     raster_pattern = ".tif*")
+pr_b
 }

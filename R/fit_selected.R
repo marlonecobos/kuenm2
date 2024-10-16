@@ -2,12 +2,13 @@
 #'
 #' @description
 #' This function fits and calculates the consensus (mean and median) of models
-#' that were evaluated and selected using the `calibration()` function. It also
-#' calculates the thresholds based on the omission rate set in `calibration()`.
-#' The function supports parallelization for faster model fitting.
+#' that were evaluated and selected using the \code{\link{calibration}}()
+#' function. It also calculates the thresholds based on the omission rate set in
+#'  \code{\link{calibration}}().The function supports parallelization for faster
+#'  model fitting.
 #'
 #' @param calibration_results an object of class `calibration_results` returned
-#' by the `calibration()` function.
+#' by the \code{\link{calibration}}() function.
 #' @param n_replicates (numeric) the number of model replicates. Default is 5.
 #' @param rep_type (character) the replicate type. It can be: "kfold", "bootstrap",
 #' or "subsample". Default is "kfold".
@@ -44,13 +45,14 @@
 #' metrics for the selected models.}
 #' \item{weights}{a numeric vector specifying weights for the predictor variables
 #' (if used).}
-#' \item{pca}{a list of class `prcomp` representing the result of principal
-#' component analysis (if performed).}
+#' \item{pca}{a list of class \code{\link[terra]{prcomp}} representing the
+#' result of principal component analysis (if performed).}
 #' \item{addsamplestobackground}{a logical value indicating whether any presence
 #' sample not already in the background was added.}
 #' \item{omission_rate}{the omission rate determined during the calibration step.}
 #' \item{thresholds}{the thresholds to binarize each replicate and the consensus
-#' (mean and median), calculated based on the omission rate set in `calibration()`.}
+#' (mean and median), calculated based on the omission rate set in
+#' \code{\link{calibration}}()}
 #'
 #' @export
 #'
@@ -69,10 +71,11 @@
 #'
 #' @examples
 #' # Import example of calibration results (output of calibration function)
-#' data("calib_results", package = "kuenm2")
+#' ## GLMNET
+#' data("calib_results_glmnet", package = "kuenm2")
 #'
 #' # Fit models using calibration results
-#' fm <- fit_selected(calibration_results = calib_results,
+#' fm <- fit_selected(calibration_results = calib_results_glmnet,
 #'                    n_replicates = 2,
 #'                    rep_type = "kfold",
 #'                    train_portion = 0.7,
@@ -86,7 +89,27 @@
 #'                    seed = 42)
 #'
 #' # Output the fitted models
-#' fm
+#' print(fm)
+#'
+#' ##GLM
+#' data("calib_results_glm", package = "kuenm2")
+#'
+#' # Fit models using calibration results
+#' fm_glm <- fit_selected(calibration_results = calib_results_glm,
+#'                        n_replicates = 2,
+#'                        rep_type = "kfold",
+#'                        train_portion = 0.7,
+#'                        write_models = FALSE,
+#'                        file_name = NULL,
+#'                        parallel = FALSE,
+#'                        ncores = 1,
+#'                        parallelType = "doSNOW",
+#'                        progress_bar = TRUE,
+#'                        verbose = TRUE,
+#'                        seed = 42)
+#'
+#' # Output the fitted models
+#' print(fm_glm)
 
 fit_selected <- function(calibration_results, n_replicates = 5,
                          rep_type = "kfold", train_portion = 0.7,
@@ -295,6 +318,8 @@ fit_selected <- function(calibration_results, n_replicates = 5,
     species = calibration_results$species,
     Models = best_models,
     calibration_data = calibration_results$calibration_data,
+    continuous_variables = calibration_results$continuous_variables,
+    categorical_variables = calibration_results$categorical_variables,
     selected_models = calibration_results$selected_models,
     weights = calibration_results$weights,
     pca = calibration_results$pca,
