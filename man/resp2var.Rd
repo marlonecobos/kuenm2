@@ -4,13 +4,14 @@
 \alias{resp2var}
 \title{Two-Way interaction response plot}
 \usage{
-resp2var(fitted, modelID, variable1 , variable2, n = 1000,
+resp2var(models, modelID, variable1 , variable2, n = 1000,
          new_data = NULL, extrapolate = FALSE, add_bar = TRUE ,
          add_limits = FALSE, color.palette	= NULL,
          xlab = NULL, ylab = NULL, ...)
 }
 \arguments{
-\item{fitted}{object.}
+\item{models}{an object of class \code{fitted_models} returned by the
+\code{\link{fit_selected}}() function.}
 
 \item{modelID}{(character) name of the ModelID presents in the fitted
 object. Default = NULL.}
@@ -53,4 +54,30 @@ A plot with the response interaction of two environmental dimensions for
 \description{
 A view of the species probability into a two-dimensional
 environmental space.
+}
+\examples{
+##Example with glmnet
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glmnet", package = "kuenm2")
+
+#Response curves (products)
+resp2var(models = fitted_model_glmnet, modelID = "Model_1",
+         variable1 = "bio_1", variable2 = "bio_7")
+resp2var(models = fitted_model_glmnet, modelID = "Model_13",
+         variable1 = "bio_1", variable2 = "bio_12")
+resp2var(models = fitted_model_glmnet, modelID = "Model_13",
+         variable1 = "bio_7", variable2 = "bio_12")
+
+##Example with glm
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glm", package = "kuenm2")
+
+#Response curves
+resp2var(models = fitted_model_glm, modelID = "Model_4",
+         variable1 = "bio_1", variable2 = "bio_12")
+resp2var(models = fitted_model_glm, modelID = "Model_4",
+         variable1 = "bio_1", variable2 = "bio_7")
+resp2var(models = fitted_model_glm, modelID = "Model_4",
+         variable1 = "bio_7", variable2 = "bio_12")
+
 }

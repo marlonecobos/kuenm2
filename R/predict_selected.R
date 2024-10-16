@@ -7,10 +7,11 @@
 #' replicates and models.
 #'
 #' @param models an object of class `fitted_models` returned by the
-#' `fit_selected()` function.
+#' \code{\link{fit_selected}}() function.
 #' @param spat_var a SpatRaster or data.frame of predictor variables. The names
 #' of these variables must match those used to calibrate the models or those
-#' used to run PCA if `do_pca = TRUE` in the `prepare_data()` function.
+#' used to run PCA if `do_pca = TRUE` in the \code{\link{prepare_data}}()
+#' function.
 #' @param write_files (logical) whether to save the predictions (SpatRasters)
 #' to disk. Default is FALSE.
 #' @param write_replicates (logical) whether to save the predictions for each
@@ -34,7 +35,7 @@
 #' variables will be clamped.
 #' @param type (character) the format of prediction values. For `glmnet` models,
 #' available options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`,
-#' with the default being `"cloglog"`. For `glm` is `"response"`.
+#' with the default being `"cloglog"` for glmnet and `"response"` for glm.
 #' @param overwrite (logical) whether to overwrite SpatRasters if they already
 #' exist. Only applicable if `write_files = TRUE`. Default is FALSE.
 #' @param progress_bar (logical) whether to display a progress bar during
@@ -57,31 +58,52 @@
 #'                         progress_bar = TRUE)
 #'
 #' @examples
-#' # Import predictor variables for prediction
+#' #Load package
+#' library(terra)
+#' # Import variables to predict
 #' var <- terra::rast(system.file("extdata", "Current_variables.tif",
 #'                                package = "kuenm2"))
-#'
-#' # Example of calibration results (output of calibration_glmnetmx or
-#' # calibration)
-#' data("calib_results", package = "kuenm2")
-#'
-#' # Fit final models
-#' fm <- fit_selected(calibration_results = calib_results, n_replicates = 2,
-#'                    rep_type = "kfold", train_portion = 0.7,
-#'                    write_models = FALSE, file_name = NULL,
-#'                    parallel = FALSE, ncores = 1, parallelType = "doSNOW",
-#'                    progress_bar = TRUE, verbose = TRUE, seed = 42)
-#'
-#' # Predict for a single environmental scenario
-#' p <- predict_selected(models = fm, spat_var = var, write_files = FALSE,
-#'                       write_replicates = FALSE, out_dir = NULL,
-#'                       consensus_per_model = TRUE, consensus_general = TRUE,
+#' ##Example with glmnet
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glmnet", package = "kuenm2")
+#' # Predict to single scenario
+#' p <- predict_selected(models = fitted_model_glmnet,
+#'                       spat_var = var,
+#'                       write_files = FALSE,
+#'                       write_replicates = FALSE,
+#'                       out_dir = NULL,
+#'                       consensus_per_model = TRUE,
+#'                       consensus_general = TRUE,
 #'                       consensus = c("median", "range", "mean", "stdev"),
-#'                       clamping = FALSE, var_to_clamp = NULL,
-#'                       type = "cloglog", overwrite = FALSE, progress_bar =
-#'                       TRUE)
+#'                       clamping = FALSE,
+#'                       var_to_clamp = NULL,
+#'                       type = "cloglog",
+#'                       overwrite = FALSE,
+#'                       progress_bar = TRUE)
+#' ##Example with GLMN
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glm", package = "kuenm2")
+#' # Predict to single scenario
+#' p_glm <- predict_selected(models = fitted_model_glm,
+#'                           spat_var = var,
+#'                           write_files = FALSE,
+#'                           write_replicates = FALSE,
+#'                           out_dir = NULL,
+#'                           consensus_per_model = TRUE,
+#'                           consensus_general = TRUE,
+#'                           consensus = c("median", "range", "mean", "stdev"),
+#'                           clamping = FALSE,
+#'                           var_to_clamp = NULL,
+#'                           type = "cloglog",
+#'                           overwrite = FALSE,
+#'                           progress_bar = TRUE)
+#' #Compare
+#' plot(c(p$General_consensus$mean,
+#'        p_glm$General_consensus$mean),
+#'      col = rev(terrain.colors(240)), main = c("GLMNET", "GLM"),
+#'      zlim = c(0, 1))
 #'
-
+#'
 
 predict_selected <- function(models,
                              spat_var,
@@ -97,6 +119,69 @@ predict_selected <- function(models,
                              overwrite = FALSE,
                              progress_bar = TRUE) {
 
+  #Check data
+  if (!inherits(models, "fitted_models")) {
+    stop(paste0("Argument models must be a fitted_models object, not ",
+                class(models)))
+  }
+  if (!inherits(spat_var, "SpatRaster")) {
+    stop(paste0("Argument spat_var must be a SpatRaster, not ",
+                class(spat_var)))
+  }
+  if (!inherits(write_files, "logical")) {
+    stop(paste0("Argument write_files must be logical, not ",
+                class(write_files)))
+  }
+  if(write_files & is.null(out_dir)){
+    stop("If write_files = TRUE, out_dir must be specified")
+  }
+  if(write_files & !inherits(out_dir, "character")) {
+    stop(paste0("Argument out_dir must be a character, not ",
+                class(out_dir)))
+  }
+  if(write_files & !inherits(write_replicates, "logical")) {
+    stop(paste0("Argument write_replicates must be logical, not ",
+                class(write_replicates)))
+  }
+  if (!inherits(consensus_per_model, "logical")) {
+    stop(paste0("Argument consensus_per_model must be logical, not ",
+                class(consensus_per_model)))
+  }
+  if (!inherits(consensus_general, "logical")) {
+    stop(paste0("Argument consensus_general must be logical, not ",
+                class(consensus_general)))
+  }
+  if (!inherits(consensus, "character")) {
+    stop(paste0("Argument consensus must be a character, not ",
+                class(consensus)))
+  }
+  consensus_out <- setdiff(consensus, c("median", "range", "mean", "stdev"))
+  if(length(consensus_out) > 0){
+    stop("Invalid consensus provided.
+  The available options are: 'median', 'range', 'mean' and 'stdev'")
+  }
+  if (!inherits(clamping, "logical")) {
+    stop(paste0("Argument clamping must be logical, not ",
+                class(clamping)))
+  }
+  if (clamping & !is.null(var_to_clamp) & !inherits(var_to_clamp, "character")) {
+    stop(paste0("Argument var_to_clamp must be NULL or character, not ",
+                class(var_to_clamp)))
+  }
+  if (!inherits(type, "character")) {
+    stop(paste0("Argument type must be character, not ",
+                class(type)))
+  }
+  if(!any(c("raw", "cumulative", "logistic", "cloglog") %in% type)){
+    stop("Invalid type provided.
+  The available options are: 'raw', 'cumulative', 'logistic', or 'cloglog'")
+  }
+  if (!inherits(overwrite, "logical")) {
+    stop(paste0("Argument overwrite must be logical, not ",
+                class(overwrite)))}
+  if (!inherits(progress_bar, "logical")) {
+    stop(paste0("Argument progress_bar must be logical, not ",
+                class(progress_bar)))}
 
   #Do PCA, if necessary
   # This part is not working with pca

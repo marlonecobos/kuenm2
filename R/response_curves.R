@@ -1,20 +1,21 @@
 #' Variable response curves
 #'
 #' @description
-#' A view of variable responses in models. Responses based on single or multiple
+#' A view of variable responses in fitted models. Responses based on single or multiple
 #' models can be provided.
 #'
-#' @usage response_curve(fitted, variable, modelID = NULL, n = 100,
+#' @usage response_curve(models, variable, modelID = NULL, n = 100,
 #'                      by_replicates = FALSE, data = NULL, new_data = NULL,
 #'                      extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
 #'                      col = "darkblue", ...)
 #
-#' @param fitted object.
+#' @param models an object of class `fitted_models` returned by the
+#' \code{\link{fit_selected}}() function.
 #' @param variable (character) name of the variables to be plotted.
 #' @param data data.frame or matrix of data used in the model calibration step.
 #' Default = NULL.
 #' @param modelID (character) vector of ModelID(s) to be considered in the
-#' fitted object. By default all models are included.Default = NULL.
+#' models object. By default all models are included.Default = NULL.
 #' @param n (numeric) an integer guiding the number of breaks. Default = 100
 #' @param by_replicates (logical) whether use replicates or full_model to
 #' estimate the model's response curve. Default = FALSE.
@@ -40,16 +41,70 @@
 #' @importFrom graphics abline polygon
 #' @importFrom terra minmax
 #' @importFrom mgcv gam
-
-response_curve <- function(fitted, variable, modelID = NULL, n = 100,
+#'
+#' @examples
+#' ##Example with glmnet
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glmnet", package = "kuenm2")
+#'
+#' #Response curves
+#' response_curve(models = fitted_model_glmnet,
+#'                variable = "bio_1", by_replicates = T)
+#' response_curve(models = fitted_model_glmnet,
+#'                variable = "bio_7", by_replicates = T)
+#' response_curve(models = fitted_model_glmnet, variable = "bio_1",
+#'                modelID = "Model_13", by_replicates = T)
+#' response_curve(models = fitted_model_glmnet, variable = "bio_1",
+#'                modelID = "Model_1", by_replicates = T)
+#'
+#' ##Example with glm
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glm", package = "kuenm2")
+#'
+#' #Response curves
+#' response_curve(models = fitted_model_glm,
+#'                variable = "bio_1", by_replicates = T)
+#' response_curve(models = fitted_model_glm,
+#'                variable = "bio_7", by_replicates = T)
+#' response_curve(models = fitted_model_glm, variable = "bio_1",
+#'                modelID = "Model_4", by_replicates = T)
+#' response_curve(models = fitted_model_glm, variable = "bio_12",
+#'                modelID = "Model_4", by_replicates = T)
+#'
+response_curve <- function(models, variable, modelID = NULL, n = 100,
                            by_replicates = FALSE, data = NULL,
                            new_data = NULL, extrapolate = TRUE,
                            xlab = NULL, ylab = "Suitability",
                            col = "darkblue", ...) {
 
   # initial tests
-  if (missing(fitted) | missing(variable) ) {
-    stop("Arguments 'fitted', and 'variable' must be defined.")
+  if (missing(models) | missing(variable) ) {
+    stop("Arguments 'models' and 'variable' must be defined.")
+  }
+
+  if (!inherits(models, "fitted_models")) {
+    stop(paste0("Argument models must be a fitted_models object, not ",
+                class(models)))
+  }
+
+  if (!inherits(variable, "character")) {
+    stop(paste0("Argument variable must be a character, not ",
+                class(variable)))
+  }
+
+  if (!is.null(modelID) & !inherits(modelID, "character")) {
+    stop(paste0("Argument modelID must be a character, not ",
+                class(modelID)))
+  }
+
+  if (!inherits(n, "numeric")) {
+    stop(paste0("Argument n must be numeric, not ",
+                class(n)))
+  }
+
+  if (!inherits(by_replicates, "logical")) {
+    stop(paste0("Argument by_replicates must be logical, not ",
+                class(by_replicates)))
   }
 
   if (!is.null(new_data)) {
@@ -58,25 +113,45 @@ response_curve <- function(fitted, variable, modelID = NULL, n = 100,
     }
   }
 
-  # if data is not defined it is extratec from the fitted kuenm2 object
+  if (!inherits(extrapolate, "logical")) {
+    stop(paste0("Argument extrapolate must be logical, not ",
+                class(extrapolate)))
+  }
+
+  if (!is.null(xlab) & !inherits(xlab, "character")) {
+    stop(paste0("Argument xlab must be NULL or a character, not ",
+                class(xlab)))
+  }
+
+  if (!is.null(ylab) & !inherits(ylab, "character")) {
+    stop(paste0("Argument ylab must be NULL or a character, not ",
+                class(ylab)))
+  }
+
+  if (!inherits(col, "character")) {
+    stop(paste0("Argument col must be a character, not ",
+                class(col)))
+  }
+
+  # if data is not defined it is extratec from the models kuenm2 object
   if (is.null(data)){
-    data <- fitted$calibration_data
+    data <- models$calibration_data
   }
 
   ## add a warming message indicating that the are not replicates.
   if (!is.null(modelID)){
 
-    if (!modelID %in% names(fitted[["Models"]])){
+    if (!modelID %in% names(models[["Models"]])){
       stop(paste0(
         "The 'ModelID' is not correct, check the following: [",
-        paste(names(fitted[["Models"]]), collapse = ", ")),
+        paste(names(models[["Models"]]), collapse = ", ")),
         "]"
            )
     }
 
     # Handling replicates or the full model
     if (by_replicates){
-      model_list <- fitted[["Models"]][[modelID]]
+      model_list <- models[["Models"]][[modelID]]
       model_list$Full_model <- NULL
 
       # Check if the variable is present in any of the replicates
@@ -91,14 +166,14 @@ response_curve <- function(fitted, variable, modelID = NULL, n = 100,
       c3 <- any(grepl(paste0(":", variable,"$"), coefs))
 
       if (any(c1, c2, c3) == FALSE){
-        stop("Defined 'variable' is not present in the fitted model.")
+        stop("Defined 'variable' is not present in the models model.")
       }
     } else {
-      model_list <- fitted[["Models"]][[modelID]]["Full_model"]
+      model_list <- models[["Models"]][[modelID]]["Full_model"]
     }
   } else {
     # extract the slot Full_model for each model
-    model_list <- lapply(fitted[["Models"]], function(x){x$Full_model})
+    model_list <- lapply(models[["Models"]], function(x){x$Full_model})
   }
 
   # Response curve for all selected models
@@ -147,7 +222,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     c3 <- any(grepl(paste0(":", variable,"$"), coefs))               # check product terms 2nd position
 
     if (any(c1, c2, c3) == FALSE){
-      stop("Defined 'variable' is not present in the fitted model.")
+      stop("Defined 'variable' is not present in the models model.")
     }
 
     response_out <- response(model = model_list[[1]], data = data,

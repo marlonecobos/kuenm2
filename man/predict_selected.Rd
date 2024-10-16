@@ -14,11 +14,12 @@ predict_selected(models, spat_var, write_files = FALSE,
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{fit_selected()} function.}
+\code{\link{fit_selected}}() function.}
 
 \item{spat_var}{a SpatRaster or data.frame of predictor variables. The names
 of these variables must match those used to calibrate the models or those
-used to run PCA if \code{do_pca = TRUE} in the \code{prepare_data()} function.}
+used to run PCA if \code{do_pca = TRUE} in the \code{\link{prepare_data}}()
+function.}
 
 \item{write_files}{(logical) whether to save the predictions (SpatRasters)
 to disk. Default is FALSE.}
@@ -51,7 +52,7 @@ variables will be clamped.}
 
 \item{type}{(character) the format of prediction values. For \code{glmnet} models,
 available options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"},
-with the default being \code{"cloglog"}. For \code{glm} is \code{"response"}.}
+with the default being \code{"cloglog"} for glmnet and \code{"response"} for glm.}
 
 \item{overwrite}{(logical) whether to overwrite SpatRasters if they already
 exist. Only applicable if \code{write_files = TRUE}. Default is FALSE.}
@@ -70,28 +71,50 @@ output and calculating consensus measures (mean, median, etc.) across
 replicates and models.
 }
 \examples{
-# Import predictor variables for prediction
+#Load package
+library(terra)
+# Import variables to predict
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
-
-# Example of calibration results (output of calibration_glmnetmx or
-# calibration)
-data("calib_results", package = "kuenm2")
-
-# Fit final models
-fm <- fit_selected(calibration_results = calib_results, n_replicates = 2,
-                   rep_type = "kfold", train_portion = 0.7,
-                   write_models = FALSE, file_name = NULL,
-                   parallel = FALSE, ncores = 1, parallelType = "doSNOW",
-                   progress_bar = TRUE, verbose = TRUE, seed = 42)
-
-# Predict for a single environmental scenario
-p <- predict_selected(models = fm, spat_var = var, write_files = FALSE,
-                      write_replicates = FALSE, out_dir = NULL,
-                      consensus_per_model = TRUE, consensus_general = TRUE,
+##Example with glmnet
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glmnet", package = "kuenm2")
+# Predict to single scenario
+p <- predict_selected(models = fitted_model_glmnet,
+                      spat_var = var,
+                      write_files = FALSE,
+                      write_replicates = FALSE,
+                      out_dir = NULL,
+                      consensus_per_model = TRUE,
+                      consensus_general = TRUE,
                       consensus = c("median", "range", "mean", "stdev"),
-                      clamping = FALSE, var_to_clamp = NULL,
-                      type = "cloglog", overwrite = FALSE, progress_bar =
-                      TRUE)
+                      clamping = FALSE,
+                      var_to_clamp = NULL,
+                      type = "cloglog",
+                      overwrite = FALSE,
+                      progress_bar = TRUE)
+##Example with GLMN
+# Import example of fitted_models (output of fit_selected())
+data("fitted_model_glm", package = "kuenm2")
+# Predict to single scenario
+p_glm <- predict_selected(models = fitted_model_glm,
+                          spat_var = var,
+                          write_files = FALSE,
+                          write_replicates = FALSE,
+                          out_dir = NULL,
+                          consensus_per_model = TRUE,
+                          consensus_general = TRUE,
+                          consensus = c("median", "range", "mean", "stdev"),
+                          clamping = FALSE,
+                          var_to_clamp = NULL,
+                          type = "cloglog",
+                          overwrite = FALSE,
+                          progress_bar = TRUE)
+#Compare
+plot(c(p$General_consensus$mean,
+       p_glm$General_consensus$mean),
+     col = rev(terrain.colors(240)), main = c("GLMNET", "GLM"),
+     zlim = c(0, 1))
+
 
 }

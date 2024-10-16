@@ -5,12 +5,13 @@
 #' environmental space.
 #'
 #' @usage
-#' resp2var(fitted, modelID, variable1 , variable2, n = 1000,
+#' resp2var(models, modelID, variable1 , variable2, n = 1000,
 #'          new_data = NULL, extrapolate = FALSE, add_bar = TRUE ,
 #'          add_limits = FALSE, color.palette	= NULL,
 #'          xlab = NULL, ylab = NULL, ...)
 #
-#' @param fitted object.
+#' @param models an object of class `fitted_models` returned by the
+#' \code{\link{fit_selected}}() function.
 #' @param variable1 (character) name of the variable to be plotted in x axis.
 #' @param variable2 (character) name of the variable to be plotted in y axis.
 #' @param modelID (character) name of the ModelID presents in the fitted
@@ -46,15 +47,60 @@
 #' @importFrom terra minmax
 #' @importFrom grDevices hcl.colors
 #'
+#' @examples
+#' ##Example with glmnet
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glmnet", package = "kuenm2")
+#'
+#' #Response curves (products)
+#' resp2var(models = fitted_model_glmnet, modelID = "Model_1",
+#'          variable1 = "bio_1", variable2 = "bio_7")
+#' resp2var(models = fitted_model_glmnet, modelID = "Model_13",
+#'          variable1 = "bio_1", variable2 = "bio_12")
+#' resp2var(models = fitted_model_glmnet, modelID = "Model_13",
+#'          variable1 = "bio_7", variable2 = "bio_12")
+#'
+#' ##Example with glm
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glm", package = "kuenm2")
+#'
+#' #Response curves
+#' resp2var(models = fitted_model_glm, modelID = "Model_4",
+#'          variable1 = "bio_1", variable2 = "bio_12")
+#' resp2var(models = fitted_model_glm, modelID = "Model_4",
+#'          variable1 = "bio_1", variable2 = "bio_7")
+#' resp2var(models = fitted_model_glm, modelID = "Model_4",
+#'          variable1 = "bio_7", variable2 = "bio_12")
+#'
 
-resp2var <- function(fitted, modelID, variable1 , variable2, n = 1000,
+resp2var <- function(models, modelID, variable1 , variable2, n = 1000,
                      new_data = NULL, extrapolate = FALSE, add_bar = TRUE,
                      add_limits = FALSE, color.palette = NULL,
                      xlab = NULL, ylab = NULL, ...) {
 
   # initial tests
-  if (missing(fitted) | missing(variable1) | missing(variable2)) {
-    stop("Argument 'fitted' or 'variables' must be defined.")
+  if (missing(models) | missing(variable1) | missing(variable2)) {
+    stop("Argument 'models' and 'variables' must be defined.")
+  }
+
+  if (! missing(models) & !inherits(models, "fitted_models")) {
+    stop(paste0("Argument models must be a fitted_models object, not ",
+                class(models)))
+  }
+
+  if (!inherits(variable1, "character")) {
+    stop(paste0("Argument variable1 must be a character, not ",
+                class(variable1)))
+  }
+
+  if (!inherits(variable2, "character")) {
+    stop(paste0("Argument variable2 must be a character, not ",
+                class(variable2)))
+  }
+
+  if (!inherits(n, "numeric")) {
+    stop(paste0("Argument n must be numeric, not ",
+                class(n)))
   }
 
   if (!is.null(new_data)) {
@@ -63,14 +109,39 @@ resp2var <- function(fitted, modelID, variable1 , variable2, n = 1000,
     }
   }
 
+  if (!inherits(extrapolate, "logical")) {
+    stop(paste0("Argument extrapolate must be logical, not ",
+                class(extrapolate)))
+  }
+
+  if (!inherits(add_bar, "logical")) {
+    stop(paste0("Argument add_bar must be logical, not ",
+                class(add_bar)))
+  }
+
+  if (!inherits(add_limits, "logical")) {
+    stop(paste0("Argument add_limits must be logical, not ",
+                class(add_limits)))
+  }
+
+  if (!is.null(xlab) & !inherits(xlab, "character")) {
+    stop(paste0("Argument xlab must be NULL or a character, not ",
+                class(xlab)))
+  }
+
+  if (!is.null(ylab) & !inherits(ylab, "character")) {
+    stop(paste0("Argument ylab must be NULL or a character, not ",
+                class(ylab)))
+  }
+
   if (is.null(xlab)) xlab <- variable1
   if (is.null(ylab)) ylab <- variable2
   if (is.null(color.palette)) color.palette = function(n) rev(hcl.colors(n, "terrain"))
   # if (is.null(color.palette)) color.palette = function(n) hcl.colors(n)
 
 
-  model <- fitted[["Models"]][[modelID]][["Full_model"]]
-  data <- fitted[["calibration_data"]]
+  model <- models[["Models"]][[modelID]][["Full_model"]]
+  data <- models[["calibration_data"]]
   variables <- c(variable1, variable2)
 
 
@@ -91,13 +162,13 @@ resp2var <- function(fitted, modelID, variable1 , variable2, n = 1000,
   c23 <- any(grepl(paste0(":", variable2,"$"), coefs))
 
   if (any(c11, c12, c13) == FALSE){
-    stop("Defined 'variable1' is not present in the fitted model.")
+    stop("Defined 'variable1' is not present in the models model.")
   } else if (any(c21, c22, c23) == FALSE){
-    stop("Defined 'variable2' is not present in the fitted model.")
+    stop("Defined 'variable2' is not present in the models model.")
   }
 
   # Extract calibration data from the model object
-  # It gets only the variable names used in the fitted model
+  # It gets only the variable names used in the models model
   vnames <- if (inherits(model, "glmnet")) {
     colSums(sapply(colnames(data), grepl, names(model$betas))) > 0
   } else {

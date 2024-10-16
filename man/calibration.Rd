@@ -13,8 +13,9 @@ calibration(data, test_concave = TRUE, addsamplestobackground = TRUE,
            tolerance = 0.01, verbose = TRUE)
 }
 \arguments{
-\item{data}{an object of class \code{prepare_data} returned by the prepare_data() function.
-It contains the calibration data, formulas grid, kfolds, and model type.}
+\item{data}{an object of class \code{prepare_data} returned by the
+\code{\link{prepare_data()}} function. It contains the calibration data,
+formulas grid, kfolds, and model type.}
 
 \item{test_concave}{(logical) whether to test for and remove candidate models
 presenting concave curves. Default is TRUE.}
@@ -109,7 +110,7 @@ values above the threshold, and the selected models.
 }
 \description{
 This function fits and validates candidate models using the data and grid of
-formulas prepared with \code{prepare_data()}. It supports both \code{glm} and \code{glmnet}
+formulas prepared with \code{\link{prepare_data}}(). It supports both \code{glm} and \code{glmnet}
 model types. The function then selects the best models based on concave
 curves (optional), omission rate, and AIC values.
 }
@@ -124,7 +125,8 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 # Use only variables 1, 2 and 3
 var <- var[[1:3]]
 
-# Prepare data
+#### GLMNET ####
+# Prepare data for glmnet model
 sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
                        spat_variables = var, mask = NULL,
@@ -140,7 +142,7 @@ sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        write_file = FALSE, file_name = NULL,
                        seed = 1)
 
-# Calibrate models
+# Calibrate glmnet models
 m <- calibration(data = sp_swd,
                  test_concave = TRUE,
                  parallel = FALSE,
@@ -158,6 +160,42 @@ m <- calibration(data = sp_swd,
                  skip_existing_models = FALSE,
                  verbose = TRUE)
 m
+
+#### GLM ####
+# Prepare data for glm model
+sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
+                           species = occ_data[1, 1], x = "x", y = "y",
+                           spat_variables = var, mask = NULL,
+                           categorical_variables = NULL,
+                           do_pca = FALSE, deviance_explained = 95,
+                           min_explained = 5, center = TRUE, scale = TRUE,
+                           write_pca = FALSE, output_pca = NULL, nbg = 100,
+                           kfolds = 4, weights = NULL, min_number = 2,
+                           min_continuous = NULL,
+                           features = c("l", "lq"),
+                           regm = 1,
+                           include_xy = TRUE,
+                           write_file = FALSE, file_name = NULL,
+                           seed = 1)
+
+# Calibrate glm models
+m_glm <- calibration(data = sp_swd_glm,
+                     test_concave = TRUE,
+                     parallel = FALSE,
+                     ncores = 1,
+                     progress_bar = TRUE,
+                     write_summary = FALSE,
+                     out_dir = NULL,
+                     parallel_type = "doSNOW",
+                     return_replicate = TRUE,
+                     omrat_threshold = 10,
+                     allow_tolerance = TRUE,
+                     tolerance = 0.01,
+                     AIC = "ws",
+                     delta_aic = 2,
+                     skip_existing_models = FALSE,
+                     verbose = TRUE)
+m_glm
 }
 \references{
 Ninomiya, Yoshiyuki, and Shuichi Kawano. "AIC for the Lasso in generalized

@@ -81,9 +81,40 @@
 #'                    regm = c(0.1, 1, 2, 3, 5), include_xy = TRUE,
 #'                    write_file = FALSE, file_name = NULL, seed = 1)
 #' @examples
-#' # Example usage
-#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data, species = "sp",
-#'                        x = "x", y = "y", spat_variables = var)
+#' #Import raster layers
+#' var <- terra::rast(system.file("extdata", "Current_variables.tif",
+#'                                package = "kuenm2"))
+#' #Import occurrences
+#' data(occ_data, package = "kuenm2")
+#' #Prepare data for glmnet model
+#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+#'                        species = occ_data[1, 1], x = "x", y = "y",
+#'                        spat_variables = var, mask = NULL,
+#'                        categorical_variables = "SoilType",
+#'                        do_pca = FALSE, deviance_explained = 95,
+#'                        min_explained = 5, center = TRUE, scale = TRUE,
+#'                        write_pca = FALSE, output_pca = NULL, nbg = 500,
+#'                        kfolds = 4, weights = NULL, min_number = 2,
+#'                        min_continuous = NULL,
+#'                        features = c("l", "q", "p", "lq", "lqp"),
+#'                        regm = c(0.1, 1, 2, 3, 5),
+#'                        include_xy = TRUE,
+#'                        write_file = FALSE, file_name = NULL,
+#'                        seed = 1)
+#' print(sp_swd)
+#' #Prepare data for glm model
+#' sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
+#'                            species = occ_data[1, 1], x = "x", y = "y",
+#'                            spat_variables = var, mask = NULL,
+#'                            categorical_variables = "SoilType",
+#'                            do_pca = FALSE, deviance_explained = 95,
+#'                            min_explained = 5, center = TRUE, scale = TRUE,
+#'                            write_pca = FALSE, output_pca = NULL, nbg = 500,
+#'                            kfolds = 4, weights = NULL, min_number = 2,
+#'                            min_continuous = NULL, features = c("l", "q", "lq", "lpq"),
+#'                            regm = c(0.1, 1, 2), include_xy = TRUE,
+#'                            write_file = F, file_name = FALSE, seed = 1)
+#' print(sp_swd_glm)
 #' @export
 
 

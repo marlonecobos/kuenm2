@@ -1,10 +1,10 @@
 #' Variable importance
 #'
 #' @usage
-#' var_importance(fitted, modelID = NULL)
+#' var_importance(models, modelID = NULL)
 #'
 #' @param models an object of class `fitted_models` returned by the
-#' `fit_selected()` function.
+#' \code{\link{fit_selected}}() function.
 #' @param modelID (character). Default = NULL.
 #'
 #' @return
@@ -16,16 +16,35 @@
 #'
 #' @importFrom stats update as.formula deviance coef glm
 #'
-var_importance <- function(fitted, modelID = NULL){
+#' @examples
+#' ##Example with glmnet
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glmnet", package = "kuenm2")
+#'
+#' # Variable importance
+#' imp_glmnet <- var_importance(models = fitted_model_glmnet)
+#' # Plot using enmpa package
+#' enmpa::plot_importance(imp_glmnet)
+#'
+#' ##Example with glm
+#' # Import example of fitted_models (output of fit_selected())
+#' data("fitted_model_glm", package = "kuenm2")
+#'
+#' # Variable importance
+#' imp_glm <- var_importance(models = fitted_model_glm)
+#' # Plot using enmpa package
+#' enmpa::plot_importance(imp_glm)
+#'
+var_importance <- function(models, modelID = NULL){
   # initial tests
-  if (missing(fitted)) {
+  if (missing(models)) {
     stop("Argument 'model' must be defined.")
   }
 
-  list_models <- fitted[["Models"]]
-  model_info  <- fitted[["selected_models"]]
-  data        <- fitted[["calibration_data"]]
-  model_type  <- fitted[["model_type"]]
+  list_models <- models[["Models"]]
+  model_info  <- models[["selected_models"]]
+  data        <- models[["calibration_data"]]
+  model_type  <- models[["model_type"]]
 
   if (is.null(modelID)){
     models <- names(list_models)
