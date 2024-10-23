@@ -195,7 +195,8 @@ predict_selected <- function(models,
     }
   }
 
-  # Get model names
+  # Extract info from fitted object
+  categorical_layers <- models[["categorical_variables"]]
   models <- models[["Models"]]
   nm <- names(models)
 
@@ -247,7 +248,20 @@ predict_selected <- function(models,
     inner_list <- list()
 
     for (x in models[[i]]) {
+
       if (inherits(spat_var, "SpatRaster")) {
+
+        #  Convert Layers to Factors in SpatRaster
+        if (!is.null(categorical_layers) && length(categorical_layers) > 0) {
+          for (layer in categorical_layers) {
+            if (layer %in% names(spat_var)) {  # Check if the layer exists
+              spat_var[[layer]] <- terra::as.factor(spat_var[[layer]])
+            } else {
+              warning(paste("Layer", layer, "not found in the SpatRaster."))
+            }
+          }
+        }
+
         if (inherits(x, "glmnet")) {
           prediction <- terra::predict(spat_var, x, na.rm = TRUE,
                                        type = type, fun = predict.glmnet_mx)
