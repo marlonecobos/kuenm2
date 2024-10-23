@@ -40,7 +40,7 @@ glm_mx <- function(formula, family = binomial(link = "cloglog"), data,
 
   # Initialize weights: if weights is NULL, assign default weights based on pr_bg
   if (is.null(weights)) {
-    weights <- ifelse(data$pr_bg == 1, 1, 10000)
+    weights <- ifelse(data$pr_bg == 1, 1, 100)
   }
   # Ensure that the weights are a numeric vector
   if (!is.numeric(weights)) {
