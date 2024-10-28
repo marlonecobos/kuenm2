@@ -298,96 +298,102 @@ kuenm_mop <- function(data,
   #Get raster pattern to read
   raster_pattern <- projection_data$raster_pattern
 
-  #Get dataframe with path to predictions
-  #Present
-  if("Present" %in% sc){
-    #Create folder
-    present_dir <- file.path(out_dir, "Present/")
-    present_sc <- names(projection_data[["Present"]])
-    suppressWarnings({
-      d_present <- data.frame(Time = "Present",
-                              Period = "Present",
-                              Scenario = present_sc,
-                              input_path = unlist(projection_data[["Present"]]),
-                              output_path = normalizePath(file.path(present_dir,
-                                                                    present_sc)))
-      })
-    }
+  #Check scenarios for predicting
+  res_path <- check_pred_scenarios(projection_data = projection_data,
+                                   out_dir = out_dir)
 
 
-  #Past
-  if("Past" %in% sc){
-    #Create folder
-    past_dir <- file.path(out_dir, "Past/")
-    #Get grid of projections
-    df_past <- do.call(rbind, lapply(names(projection_data$Past), function(time) {
-      time_data <- projection_data$Past[[time]]
-      do.call(rbind, lapply(names(time_data), function(gcm) {
-        data.frame(Time = "Past", Period = time, GCM = gcm, Path = time_data[[gcm]], stringsAsFactors = FALSE)
-      }))
-    }))
 
-    #Looping in the grid
-
-    #Create dataframe with path to results
-    suppressWarnings({
-      d_past <- data.frame(Time = "Past",
-                           Period = df_past$Period,
-                           GCM = df_past$GCM,
-                           input_path = df_past$Path,
-                           output_path = normalizePath(file.path(past_dir, df_past$Period,
-                                                                 df_past$GCM),
-                                                       mustWork = FALSE))
-      })
-  }
-  #Future
-  ####Project to Future scenarios####
-  if("Future" %in% sc){
-    #Create folder
-    future_dir <- file.path(out_dir, "Future/")
-
-    #Create grid of time-ssp-gcm
-    df_future <- do.call(rbind, lapply(names(projection_data[["Future"]]), function(year_range) {
-      year_range_data <- projection_data[["Future"]][[year_range]]
-      do.call(rbind, lapply(names(year_range_data), function(ssp) {
-        ssp_data <- year_range_data[[ssp]]
-        do.call(rbind, lapply(names(ssp_data), function(gcm) {
-          data.frame(Time = "Future", Period = year_range, ssp = ssp,
-                     GCM = gcm, Path = ssp_data[[gcm]],
-                     stringsAsFactors = FALSE)
-        }))      }))    }))
-
-
-    #Create dataframe with path to results
-    suppressWarnings({
-      d_future <- data.frame(Time = df_future$Time,
-                             Period = df_future$Period,
-                             ssp = df_future$ssp,
-                             GCM = df_future$GCM,
-                             input_path = df_future$Path,
-                             output_path = normalizePath(file.path(future_dir,
-                                                                   df_future$Period,
-                                                                   df_future$ssp,
-                                                                   df_future$GCM),
-                                                         mustWork = FALSE))
-      })
-    }
-
-  #Get dataframe with path to each projection
-  if(!("Present" %in% sc)){
-    d_present <- NULL
-  }
-  if(!("Past" %in% sc)){
-    d_past <- NULL
-  }
-  if(!("Future" %in% sc)){
-    d_future <- NULL
-  }
-
-  #Return and write files with path
-  res_path <- kuenm2:::bind_rows_projection(list(d_present, d_past, d_future))
-  #Create ID
-  res_path$id <- 1:nrow(res_path)
+  # #Get dataframe with path to predictions
+  # #Present
+  # if("Present" %in% sc){
+  #   #Create folder
+  #   present_dir <- file.path(out_dir, "Present/")
+  #   present_sc <- names(projection_data[["Present"]])
+  #   suppressWarnings({
+  #     d_present <- data.frame(Time = "Present",
+  #                             Period = "Present",
+  #                             Scenario = present_sc,
+  #                             input_path = unlist(projection_data[["Present"]]),
+  #                             output_path = normalizePath(file.path(present_dir,
+  #                                                                   present_sc)))
+  #     })
+  #   }
+  #
+  #
+  # #Past
+  # if("Past" %in% sc){
+  #   #Create folder
+  #   past_dir <- file.path(out_dir, "Past/")
+  #   #Get grid of projections
+  #   df_past <- do.call(rbind, lapply(names(projection_data$Past), function(time) {
+  #     time_data <- projection_data$Past[[time]]
+  #     do.call(rbind, lapply(names(time_data), function(gcm) {
+  #       data.frame(Time = "Past", Period = time, GCM = gcm, Path = time_data[[gcm]], stringsAsFactors = FALSE)
+  #     }))
+  #   }))
+  #
+  #   #Looping in the grid
+  #
+  #   #Create dataframe with path to results
+  #   suppressWarnings({
+  #     d_past <- data.frame(Time = "Past",
+  #                          Period = df_past$Period,
+  #                          GCM = df_past$GCM,
+  #                          input_path = df_past$Path,
+  #                          output_path = normalizePath(file.path(past_dir, df_past$Period,
+  #                                                                df_past$GCM),
+  #                                                      mustWork = FALSE))
+  #     })
+  # }
+  # #Future
+  # ####Project to Future scenarios####
+  # if("Future" %in% sc){
+  #   #Create folder
+  #   future_dir <- file.path(out_dir, "Future/")
+  #
+  #   #Create grid of time-ssp-gcm
+  #   df_future <- do.call(rbind, lapply(names(projection_data[["Future"]]), function(year_range) {
+  #     year_range_data <- projection_data[["Future"]][[year_range]]
+  #     do.call(rbind, lapply(names(year_range_data), function(ssp) {
+  #       ssp_data <- year_range_data[[ssp]]
+  #       do.call(rbind, lapply(names(ssp_data), function(gcm) {
+  #         data.frame(Time = "Future", Period = year_range, ssp = ssp,
+  #                    GCM = gcm, Path = ssp_data[[gcm]],
+  #                    stringsAsFactors = FALSE)
+  #       }))      }))    }))
+  #
+  #
+  #   #Create dataframe with path to results
+  #   suppressWarnings({
+  #     d_future <- data.frame(Time = df_future$Time,
+  #                            Period = df_future$Period,
+  #                            ssp = df_future$ssp,
+  #                            GCM = df_future$GCM,
+  #                            input_path = df_future$Path,
+  #                            output_path = normalizePath(file.path(future_dir,
+  #                                                                  df_future$Period,
+  #                                                                  df_future$ssp,
+  #                                                                  df_future$GCM),
+  #                                                        mustWork = FALSE))
+  #     })
+  #   }
+  #
+  # #Get dataframe with path to each projection
+  # if(!("Present" %in% sc)){
+  #   d_present <- NULL
+  # }
+  # if(!("Past" %in% sc)){
+  #   d_past <- NULL
+  # }
+  # if(!("Future" %in% sc)){
+  #   d_future <- NULL
+  # }
+  #
+  # #Return and write files with path
+  # res_path <- kuenm2:::bind_rows_projection(list(d_present, d_past, d_future))
+  # #Create ID
+  # res_path$id <- 1:nrow(res_path)
 
   #Show progress bar?
   if (progress_bar) {
@@ -402,12 +408,16 @@ kuenm_mop <- function(data,
                  full.names = TRUE))
     #Do PCA?
     if(!is.null(data$pca)){
-      r <- terra::predict(r, data$pca)
+      r <- terra::predict(r[[data$pca$vars_in]], data$pca)
     }
 
     #Subset variables?
     if(subset_variables){
-      v <- names(fitted_models$Models$Model_1$Full_model$samplemeans)[-1]
+      v <- names(fitted_models$Models[[1]]$Full_model$samplemeans)[-1]
+      #Remove categorical variables
+      if(!(is.null(data$categorical_variables))){
+        v <- setdiff(v, data$categorical_variables)
+      }
       r <- r[[v]]
       m <- m[,v]
     }

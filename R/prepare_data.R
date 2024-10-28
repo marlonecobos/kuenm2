@@ -321,8 +321,14 @@ prepare_data <- function(model_type = "glmnet",
     } else {
       exclude_from_pca = NULL
     }
-    pca <- perform_pca(spat_variables, exclude_from_pca, center, scale,
-                       deviance_explained, min_explained)
+    pca <- perform_pca(spat_variables, exclude_from_pca = exclude_from_pca,
+                       project = FALSE, projection_data = NULL, out_dir = NULL,
+                       overwrite = FALSE, progress_bar = FALSE,
+                       center = center, scale = scale,
+                       deviance_explained = deviance_explained,
+                       min_explained = min_explained)
+    pca$projection_directory <- NULL #Remove projection directory
+
     env <- pca$env
   } else {
     env <- spat_variables
@@ -357,7 +363,7 @@ prepare_data <- function(model_type = "glmnet",
   data <- new_prepare_data(species, calibration_data = occ_bg, formula_grid,
                            kfolds = k_f, data_xy = occ_bg_xy,
                            continuous_variables = continuous_variable_names,
-                           categorical_variables, weights, pca, model_type)
+                           categorical_variables, weights, pca = pca$pca, model_type)
   #Define class
   class(data) <- "prepare_data"
 

@@ -77,38 +77,6 @@ print.prepare_data <- function(x, ...) {
   }
 }
 
-# Helper function to perform PCA
-perform_pca <- function(spat_variables, exclude_from_pca = NULL, center, scale,
-                        deviance_explained, min_explained) {
-
-  if (!is.null(exclude_from_pca)) {
-    var_to_pca <-  setdiff(names(spat_variables), exclude_from_pca)
-  } else {
-    var_to_pca <- names(spat_variables)
-  }
-
-
-  pca <- terra::prcomp(spat_variables[[var_to_pca]], center = center, scale = scale)
-  pca$x <- NULL
-  pca$vars_in <- var_to_pca
-  pca$vars_out <- exclude_from_pca
-
-  d_exp <- cumsum(pca$sdev/sum(pca$sdev)) * 100
-  d_exp <- d_exp[(pca$sdev/sum(pca$sdev) * 100) > min_explained]
-
-  ind_exp <- if (max(d_exp) > deviance_explained) min(which(d_exp >= deviance_explained)) else length(d_exp)
-
-  env <- predict(spat_variables[[var_to_pca]], pca, index = 1:ind_exp)
-
-  if (!is.null(exclude_from_pca)) {
-    env <- c(env, spat_variables[[exclude_from_pca]])
-  }
-
-  names(d_exp) <- paste0("PC", 1:ind_exp)
-
-  return(list(env = env, pca = pca, deviance_explained_cumsum = d_exp))
-}
-
 # Helper function to extract occurrence variables
 extract_occurrence_variables <- function(occ, x, y, env) {
   xy <- as.matrix(occ[, c(x, y)])

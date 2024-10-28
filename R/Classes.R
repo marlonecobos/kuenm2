@@ -131,12 +131,12 @@ new_fitted_models <- function(species,
 
 #' prepared_proj Class Constructor
 new_projection_data <- function(res_present, res_past, res_future, raster_pattern,
-                                pca
-){
+                                variables, pca){
   data <- list(Present = res_present,
                Past = res_past,
                Future = res_future,
                raster_pattern = raster_pattern,
+               variables = variables,
                pca = pca)
 
   class(data) <- "projection_data"
