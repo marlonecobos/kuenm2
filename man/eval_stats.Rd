@@ -4,7 +4,7 @@
 \alias{eval_stats}
 \title{Summarize evaluation results}
 \usage{
-eval_stats(cal_res, omrat_thr, model_type)
+eval_stats(cal_res, omission_rate, model_type)
 }
 \description{
 Summarize evaluation results
