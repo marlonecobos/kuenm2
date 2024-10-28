@@ -183,15 +183,13 @@ predict_selected <- function(models,
     stop(paste0("Argument progress_bar must be logical, not ",
                 class(progress_bar)))}
 
-  #Do PCA, if necessary
-  # This part is not working with pca
+
   if(!is.null(models$pca)){
-    var_pca <- terra::predict(spat_var[[models$pca$vars_in]], models$pca)
     if(!("vars_out" %in% names(models$pca))) {
-      spat_var <- var_pca
+      spat_var <- terra::predict(spat_var[[models$pca$vars_in]], models$pca)
     } else {
-      spat_var <- c(var_pca, spat_var[[models$pca$vars_out]])
-      rm(var_pca)
+      spat_var <- c(terra::predict(spat_var[[models$pca$vars_in]], models$pca),
+                    spat_var[[models$pca$vars_out]])
     }
   }
 

@@ -4,14 +4,14 @@
 #' This function fits and validates candidate models using the data and grid of
 #' formulas prepared with \code{\link{prepare_data}}(). It supports both `glm` and `glmnet`
 #' model types. The function then selects the best models based on concave
-#' curves (optional), omission rate, and AIC values.
+#' curves (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
 #' calibration(data, test_concave = TRUE, addsamplestobackground = TRUE,
 #'            use_weights = FALSE, parallel = TRUE, ncores = 4,
 #'            parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
 #'            out_dir = NULL, skip_existing_models = FALSE,
-#'            return_replicate = TRUE, omrat_threshold = 10,
+#'            return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
 #'            AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
 #'            tolerance = 0.01, verbose = TRUE)
 #'
@@ -44,13 +44,17 @@
 #' @param return_replicate (logical) whether to return the evaluation results
 #' for each replicate. Default is TRUE, meaning evaluation results for each
 #' replicate will be returned.
-#' @param omrat_threshold (numeric) a value from 0 to 100 representing the
-#' percentage of potential error due to any source of uncertainty. Default is 10.
+#' @param omission_rate (numeric) values from 0 to 100 representing the
+#' percentage of potential error due to any source of uncertainty. This value is
+#' used to calculate the omission rate. Default is 10. See details.
+#' @param omrat_threshold (numeric) the maximum omission rate a candidate model
+#' can have to be considered a best model. This value must match one of the
+#' values specified in omrat. Defaut is 10.
 #' @param AIC (character) the type of AIC to be calculated: "ws" for AIC
 #' proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
 #' and Kawano (2016). Default is "ws". See References for details.
-#' @param delta_aic the value of delta AIC used as a threshold to select models.
-#' Default is 2.
+#' @param delta_aic (numeric) the value of delta AIC used as a threshold to
+#' select models. Default is 2.
 #' @param allow_tolerance (logical) whether to allow selection of models with
 #' minimum values of omission rates even if their omission rate surpasses the
 #' `omrat_threshold`. This is only applicable if all candidate models have
@@ -91,7 +95,8 @@
 #' - calibration_results: a list containing a data frame with all evaluation
 #' metrics for all replicates (if `return_replicate = TRUE`) and a summary of
 #' the evaluation metrics for each candidate model.
-#' - omission_rate: The omission rate determined by `omrat_threshold`.
+#' - omission_rate: The omission rate determined by `omrat_threshold` for
+#' selecting best models.
 #' - addsamplestobackground: a logical value indicating whether any presence
 #' sample not already in the background was added.
 #' - selected_models: data frame with the ID and the summary of evaluation
@@ -108,6 +113,18 @@
 #' Warren, D. L., & Seifert, S. N. (2011). Ecological niche modeling in Maxent:
 #' the importance of model complexity and the performance of model selection
 #' criteria. Ecological applications, 21(2), 335-342.
+#'
+#' @details
+#' Partial ROC is calculated following Peterson et al.
+#' (2008; http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008).
+#'
+#' Omission rates are calculated using models trained with separate testing data
+#' subsets. Users can specify multiple omission rates to be calculated
+#' (e.g., c(5, 10)), though only one can be used as the threshold for selecting
+#' the best models.
+#'
+#' Model complexity (AIC) is assessed using models generated with the complete
+#' set of occurrences.
 #'
 #' @examples
 #' # Import occurrences
@@ -147,6 +164,7 @@
 #'                  out_dir = NULL,
 #'                  parallel_type = "doSNOW",
 #'                  return_replicate = TRUE,
+#'                  omission_rate = c(5, 10),
 #'                  omrat_threshold = 10,
 #'                  allow_tolerance = TRUE,
 #'                  tolerance = 0.01,
@@ -183,6 +201,7 @@
 #'                      out_dir = NULL,
 #'                      parallel_type = "doSNOW",
 #'                      return_replicate = TRUE,
+#'                      omission_rate = c(5, 10),
 #'                      omrat_threshold = 10,
 #'                      allow_tolerance = TRUE,
 #'                      tolerance = 0.01,
@@ -205,6 +224,7 @@ calibration <- function(data,
                         out_dir = NULL,
                         skip_existing_models = FALSE,
                         return_replicate = TRUE,
+                        omission_rate = 10,
                         omrat_threshold = 10,
                         AIC = "ws",
                         delta_aic = 2,
@@ -302,8 +322,9 @@ calibration <- function(data,
         results_concave <- foreach::foreach(
           x = 1:n_tot,
           .packages = c("glmnet", "enmpa"),
-          .options.snow = opts ) %dopar% {
+          .options.snow = opts) %dopar% {
             fit_eval_concave(x = x, q_grids, data, formula_grid,
+                             omission_rate = omission_rate,
                              omrat_thr = omrat_threshold,
                              write_summary = write_summary,
                              addsamplestobackground = addsamplestobackground,
@@ -316,6 +337,7 @@ calibration <- function(data,
         for (x in 1:n_tot) {
           results_concave[[x]] <-
             fit_eval_concave(x = x, q_grids, data, formula_grid,
+                             omission_rate = omission_rate,
                              omrat_thr = omrat_threshold,
                              write_summary = write_summary,
                              addsamplestobackground = addsamplestobackground,
@@ -383,6 +405,7 @@ calibration <- function(data,
         .packages = c("glmnet", "enmpa"),
         .options.snow = opts ) %dopar% {
           fit_eval_models(x, formula_grid, data,
+                          omission_rate = omission_rate,
                           omrat_thr = omrat_threshold,
                           write_summary = write_summary,
                           addsamplestobackground = addsamplestobackground,
@@ -395,6 +418,7 @@ calibration <- function(data,
       for (x in 1:n_tot) {
         results[[x]] <-
           fit_eval_models(x, formula_grid = formula_grid, data = data,
+                          omission_rate = omission_rate,
                           omrat_thr = omrat_threshold,
                           addsamplestobackground =  addsamplestobackground,
                           weights = weights, write_summary,
@@ -433,7 +457,7 @@ calibration <- function(data,
                         allow_tolerance = allow_tolerance,
                         tolerance = tolerance, AIC = AIC,
                         significance = 0.05, verbose = verbose,
-                        delta_aic = delta_aic, save_file = FALSE,
+                        delta_aic = delta_aic,
                         model_type = model_type)
 
   # Concatenate final results

@@ -1,18 +1,91 @@
-#' Select best among candidate models
+#' Select best models
+#'
+#' @description
+#' This function selects the best models according to user-defined criteria, evaluating statistical significance (partial ROC), predictive ability (omission rates), and model complexity (AIC).
+#'
+#' @param cand_models (data.frame) a summary of the evaluation metrics for each
+#' candidate model. In the output of the \code{\link{calibration}}(), this
+#' data.frame is located in `$calibration_results$Summary`.
+#' @param model_type (character) model type, either "glm" or "glmnet".
+#' @param test_concave (logical) whether to remove candidate models presenting
+#' concave curves. Default is TRUE.
+#' @param omrat_threshold (numeric) the maximum omission rate a candidate model
+#' can have to be considered a best model. Default is 10. This value must match
+#' one of the values specified in `omrat` in \code{\link{calibration}}().
+#' @param allow_tolerance (logical) whether to allow selection of models with
+#' minimum values of omission rates even if their omission rate surpasses the
+#' `omrat_threshold`. This is only applicable if all candidate models have
+#' omission rates higher than the `omrat_threshold`. Default is TRUE.
+#' @param tolerance (numeric) The value added to the minimum omission rate if it
+#' exceeds the `omrat_threshold`. If `allow_tolerance = TRUE`, selected models
+#' will have an omission rate equal to or less than the minimum rate plus this
+#' tolerance. Default is 0.01.
+#' @param AIC (character) the type of AIC to be calculated: "ws" for AIC
+#' proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
+#' and Kawano (2016). This is only applicable if model_type = "glmnet".
+#' Default is "ws". See References for details.
+#' @param significance (numeric) the significance level to select models
+#' based on the partial ROC (pROC). Default is 0.05. See Details.
+#' @param delta_aic (numeric) the value of delta AIC used as a threshold to
+#' select models. Default is 2.
+#' @param verbose (logical) whether to display messages during processing.
+#' Default is TRUE.
+#'
+#' @details
+#' Partial ROC is calculated following Peterson et al.
+#' (2008; http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008).
+#'
+#' @return
+#' A list containing the following elements:
+#' - selected_models: data frame with the ID and the summary of evaluation
+#' metrics for the selected models.
+#' - summary: A list containing the delta AIC values for model selection, and
+#' the ID values of models that failed to fit, had concave curves,
+#' non-significant pROC values, omission rates above the threshold, delta AIC
+#' values above the threshold, and the selected models.
 #'
 #' @export
+#' @references
+#' Ninomiya, Yoshiyuki, and Shuichi Kawano. "AIC for the Lasso in generalized
+#' linear models." (2016): 2537-2560.
+#'
+#' Warren, D. L., & Seifert, S. N. (2011). Ecological niche modeling in Maxent:
+#' the importance of model complexity and the performance of model selection
+#' criteria. Ecological applications, 21(2), 335-342.
+#'
+#' @examples
+#' # Import example of calibration results (output of calibration function)
+#' ## GLM
+#' data("calib_results_glm", package = "kuenm2")
+#'
+#' #Select new best models based on another value of omission rate
+#' new_best_model <- sel_best_models(cand_models = calib_results_glm$calibration_results$Summary,
+#'                                   model_type = "glm",
+#'                                   test_concave = TRUE,
+#'                                   omrat_threshold = 5,
+#'                                   allow_tolerance = TRUE,
+#'                                   tolerance = 0.01,
+#'                                   AIC = "ws",
+#'                                   significance = 0.05,
+#'                                   delta_aic = 10, #Higher value of delta AIC
+#'                                   verbose = TRUE)
+#' #Compare with best models selected previously, with omission rate of 10 and delta AIC of 2
+#' calib_results_glm$summary$Selected #Models 1, 2 and 5 selected
+#' new_best_model$summary$Selected #Models 1 and 5 selected
+#' #Replace selected models in calib_results
+#' calib_results_glm$selected_models <- new_best_model$cand_final
+#' calib_results_glm$summary <- new_best_model$summary
+#'
 sel_best_models <- function(cand_models,
+                            model_type = c("glmnet", "glm"),
                             test_concave = TRUE,
-                            omrat_threshold = 5,
+                            omrat_threshold = 10,
                             allow_tolerance = TRUE,
                             tolerance = 0.01,
-                            AIC = "nk", # Only used for glmnet
+                            AIC = "ws",
                             significance = 0.05,
-                            verbose = TRUE,
                             delta_aic = 2,
-                            save_file = TRUE,
-                            file_name = NULL,
-                            model_type = c("glmnet", "glm")) {
+                            verbose = TRUE) {
 
   # Adjust AIC column based on model type
   if (model_type == "glmnet") {
@@ -96,17 +169,10 @@ sel_best_models <- function(cand_models,
     message("Selecting ", nrow(cand_final), " final model(s) with delta AIC <", delta_aic)
   }
 
-  # Save the final models to a file if requested
-  if (save_file) {
-    if (is.null(file_name)) {
-      stop("File name must be defined.")
-    }
-    write.csv(cand_final, paste0(file_name, ".csv"), row.names = FALSE)
-  }
-
   # Final results
   sel_res <- list(cand_final = cand_final,
                   summary = list("delta_AIC" = delta_aic,
+                                 "omission_rate_thr" = omrat_threshold,
                                  "Errors" = na_models,
                                  "Concave" = concave_models,
                                  "Non_sig_pROC" = insig_proc,

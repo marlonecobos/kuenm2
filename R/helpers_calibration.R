@@ -4,15 +4,15 @@
 #' @importFrom enmpa proc_enm
 #' @export
 
-eval_stats <- function(cal_res, omrat_thr, model_type) {
+eval_stats <- function(cal_res, omission_rate, model_type) {
 
   # Arguments:
   # cal_res: Calibration results
-  # omrat_thr: Omission rate threshold
+  # omission_rate: Omission rate threshold
   # model_type: Type of model, either glmnet or glm
 
   # Define omission rates and columns to aggregate
-  omission_rates <- paste0("Omission_rate_at_", omrat_thr)
+  omission_rates <- paste0("Omission_rate_at_", omission_rate)
   toagg <- c(omission_rates, "proc_auc_ratio", "proc_pval")
 
   # Aggregation groups depending on the model type
@@ -53,7 +53,7 @@ eval_stats <- function(cal_res, omrat_thr, model_type) {
   return(stats_final)
 }
 
-empty_replicates <- function(omrat_thr, n_row = 4, replicates = 1:4,
+empty_replicates <- function(omission_rate, n_row = 4, replicates = 1:4,
                              is_c = NA, model_type) {
 
   # Arguments:
@@ -65,11 +65,11 @@ empty_replicates <- function(omrat_thr, n_row = 4, replicates = 1:4,
 
   # Define column names based on model type
   if (model_type == "glmnet") {
-    column_names <- c("Replicate", paste0("Omission_rate_at_", omrat_thr),
+    column_names <- c("Replicate", paste0("Omission_rate_at_", omission_rate),
                       "proc_auc_ratio", "proc_pval", "AIC_nk", "AIC_ws", "npar",
                       "is_concave")
   } else if (model_type == "glm") {
-    column_names <- c("Replicate", paste0("Omission_rate_at_", omrat_thr),
+    column_names <- c("Replicate", paste0("Omission_rate_at_", omission_rate),
                       "proc_auc_ratio", "proc_pval", "AIC", "npar", "is_concave")
   } else {
     stop("Unsupported model type. Please use 'glmnet' or 'glm'.")
@@ -86,7 +86,7 @@ empty_replicates <- function(omrat_thr, n_row = 4, replicates = 1:4,
   return(df_eval_q)
 }
 
-empty_summary <- function(omrat_thr, is_c, model_type) {
+empty_summary <- function(omission_rate, is_c, model_type) {
 
   # Arguments:
   # omrat_thr: Omission rate threshold
@@ -94,8 +94,8 @@ empty_summary <- function(omrat_thr, is_c, model_type) {
   # model_type: Type of model, either glmnet or glm
 
   # Omission rates column names
-  om_means <- paste0("Omission_rate_at_", omrat_thr, ".mean")
-  om_sd <- paste0("Omission_rate_at_", omrat_thr, ".sd")
+  om_means <- paste0("Omission_rate_at_", omission_rate, ".mean")
+  om_sd <- paste0("Omission_rate_at_", omission_rate, ".sd")
 
   # Base column names depending on the model type
   if (model_type == "glmnet") {
@@ -120,7 +120,7 @@ empty_summary <- function(omrat_thr, is_c, model_type) {
   return(eval_final_q)
 }
 
-fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
+fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omrat_thr,
                              write_summary, addsamplestobackground, weights,
                              return_replicate, model_type,
                              AIC) {
@@ -211,13 +211,13 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
       formula_grid[x, ]
     }
 
-    df_eval_q <- empty_replicates(omrat_thr = omrat_thr,
+    df_eval_q <- empty_replicates(omission_rate = omission_rate,
                                   n_row = nrow(grid_q) * length(data$kfolds),
                                   replicates = names(data$kfolds),
                                   is_c = is_c,
                                   model_type = model_type)
     df_eval_q2 <- cbind(grid_q, df_eval_q)
-    eval_final_q <- empty_summary(omrat_thr = omrat_thr, is_c = is_c,
+    eval_final_q <- empty_summary(omission_rate = omission_rate, is_c = is_c,
                                   model_type = model_type)
     eval_final_q_summary <- cbind(grid_q, eval_final_q)
 
@@ -256,7 +256,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
       # Calculate metrics (omission rate, pROC)
       suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
-      om_rate <- omrat(threshold = omrat_thr, pred_train = suit_val_cal,
+      om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
       proc_i <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                 prediction = pred_i)
@@ -285,7 +285,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
     })
     names(mods) <- names(data$kfolds)
     eval_final_q <- do.call("rbind", mods)
-    eval_final_q_summary <- eval_stats(eval_final_q, omrat_thr, model_type)
+    eval_final_q_summary <- eval_stats(eval_final_q, omission_rate, model_type)
   }
 
   # Write summary if requested
@@ -302,9 +302,9 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omrat_thr,
   return(list(All_results = eval_final_q, Summary = eval_final_q_summary))
 }
 
-fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
-                            addsamplestobackground, weights, return_replicate,
-                            model_type, AIC) {
+fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
+                            write_summary, addsamplestobackground, weights,
+                            return_replicate, model_type, AIC) {
   # Arguments:
   # x: Each line of the formula grid
   # formula_grid: Formula grid (output of calibration_grid)
@@ -420,7 +420,7 @@ fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
 
       # Calculate omission rate and pROC
-      om_rate <- omrat(threshold = omrat_thr, pred_train = suit_val_cal,
+      om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
       proc_i <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                 prediction = pred_i)
@@ -453,7 +453,7 @@ fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
   ##### Handle errors and summarize results #####
   if (class(mods) == "try-error") {
     eval_final <- cbind(grid_x,
-                        empty_replicates(omrat_thr = omrat_thr,
+                        empty_replicates(omission_rate = omission_rate,
                                          n_row = length(data$kfolds),
                                          replicates = names(data$kfolds),
                                          is_c = is_c, model_type = model_type))
@@ -465,9 +465,9 @@ fit_eval_models <- function(x, formula_grid, data, omrat_thr, write_summary,
 
   # Summarize results using eval_stats
   eval_final_summary <- if (class(mods) == "try-error") {
-    cbind(grid_x, empty_summary(omrat_thr, is_c, model_type))
+    cbind(grid_x, empty_summary(omission_rate, is_c, model_type))
   } else {
-    eval_stats(eval_final, omrat_thr, model_type)
+    eval_stats(eval_final, omission_rate, model_type)
   }
 
   # Write summary if requested

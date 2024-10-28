@@ -23,6 +23,7 @@
 #' - Present, Past, and Future: paths to the variables structured in subfolders.
 #' - Raster_pattern: the pattern used to identify the format of raster files within the folders.
 #' - PCA: if a principal component analysis (PCA) was performed on the set of variables with \code{\link{prepare_data}}(), a list with class "prcomp" will be returned. See `?stats::prcomp()` for details.
+#' - variables: names of the raw predictos variables used to project.
 #'
 #' @usage prepare_proj(models = NULL, variable_names = NULL, present_dir = NULL,
 #'                    past_dir = NULL, past_period = NULL, past_gcm = NULL,
@@ -177,7 +178,8 @@ prepare_proj <- function(models = NULL,
   }
 
   #Get variables used to fit models
-  vars <- c(models$continuous_variables, models$categorical_variables)
+  if(!is.null(models)){
+  vars <- c(models$continuous_variables, models$categorical_variables)}
 
   if(is.null(models) & !is.null(variable_names)){
     vars <- variable_names
@@ -383,7 +385,9 @@ prepare_proj <- function(models = NULL,
   res <- new_projection_data(res_present = res_present,
                            res_past = res_past,
                            res_future = res_future,
-                           raster_pattern = raster_pattern, pca = pca)
+                           raster_pattern = raster_pattern,
+                           variables = vars,
+                           pca = pca)
   #Save results as RDS
   if(write_file){
   saveRDS(res, paste0(filename, ".RDS"))}
