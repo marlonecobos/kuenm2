@@ -4,7 +4,14 @@
 \alias{new_projection_data}
 \title{prepared_proj Class Constructor}
 \usage{
-new_projection_data(res_present, res_past, res_future, raster_pattern, pca)
+new_projection_data(
+  res_present,
+  res_past,
+  res_future,
+  raster_pattern,
+  variables,
+  pca
+)
 }
 \description{
 prepared_proj Class Constructor

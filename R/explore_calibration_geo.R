@@ -1,7 +1,7 @@
 #' Explore the spatial distribution of occurrence and background points
 #'
 #' @param data an object of class `prepare_data` returned by the
-#' \code{\link{prepare_data}}() function.
+#'            \code{\link{prepare_data}}() function.
 #' @param spat_variables (SpatRaster) predictor variables used for model calibration.
 #' @param plot (logical) wheter to plot the SpatRaster. Default is TRUE.
 #'

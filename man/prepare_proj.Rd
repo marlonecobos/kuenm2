@@ -45,6 +45,7 @@ An object of class \code{prepared_proj} containing the following elements:
 \item Present, Past, and Future: paths to the variables structured in subfolders.
 \item Raster_pattern: the pattern used to identify the format of raster files within the folders.
 \item PCA: if a principal component analysis (PCA) was performed on the set of variables with \code{\link{prepare_data}}(), a list with class "prcomp" will be returned. See \code{?stats::prcomp()} for details.
+\item variables: names of the raw predictos variables used to project.
 }
 }
 \description{
