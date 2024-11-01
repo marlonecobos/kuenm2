@@ -108,6 +108,9 @@ sel_best_models <- function(cand_models,
   # Omission rate column name
   om_thr <- paste0("Omission_rate_at_", omrat_threshold, ".mean")
 
+  #proc-pval columns
+  proc_pval <- paste0("pval_pROC_at_", omrat_threshold, ".mean")
+
   # Log the number of models being filtered
   if (verbose) {
     message("\nFiltering ", nrow(cand_models), " models")
@@ -132,11 +135,12 @@ sel_best_models <- function(cand_models,
   }
 
   # Subset models with significant pROC
-  insig_proc <- cand_models[cand_models$proc_pval.mean >= significance | is.na(cand_models$proc_pval.mean), "ID"]
+  insig_proc <- cand_models[cand_models[[proc_pval]] >= significance | is.na(cand_models[[proc_pval]]), "ID"]
   if (verbose) {
     message("Removing ", length(insig_proc), " model(s) with non-significant values of pROC")
   }
-  cand_models <- cand_models[cand_models$proc_pval.mean < significance & !is.na(cand_models$proc_pval.mean), ]
+  cand_models <- cand_models[cand_models[[proc_pval]] < significance &
+                               !is.na(cand_models[[proc_pval]]), ]
 
   # Subset models by omission rate
   high_omr <- cand_models[cand_models[, om_thr] > omrat_threshold / 100, "ID"]

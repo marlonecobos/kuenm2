@@ -11,9 +11,12 @@ eval_stats <- function(cal_res, omission_rate, model_type) {
   # omission_rate: Omission rate threshold
   # model_type: Type of model, either glmnet or glm
 
-  # Define omission rates and columns to aggregate
+  # Define omission rates and proc to aggregate
   omission_rates <- paste0("Omission_rate_at_", omission_rate)
-  toagg <- c(omission_rates, "proc_auc_ratio", "proc_pval")
+  proc_values <- paste0("Mean_AUC_ratio_at_", omission_rate)
+  pval_values <- paste0("pval_pROC_at_", omission_rate)
+
+  toagg <- c(omission_rates, proc_values, pval_values)
 
   # Aggregation groups depending on the model type
   if (model_type == "glmnet") {
@@ -65,12 +68,18 @@ empty_replicates <- function(omission_rate, n_row = 4, replicates = 1:4,
 
   # Define column names based on model type
   if (model_type == "glmnet") {
-    column_names <- c("Replicate", paste0("Omission_rate_at_", omission_rate),
-                      "proc_auc_ratio", "proc_pval", "AIC_nk", "AIC_ws", "npar",
+    column_names <- c("Replicate",
+                      paste0("Omission_rate_at_", omission_rate),
+                      paste0("Mean_AUC_ratio_at_", omission_rate),
+                      paste0("pval_pROC_at_", omission_rate),
+                      "AIC_nk", "AIC_ws", "npar",
                       "is_concave")
   } else if (model_type == "glm") {
-    column_names <- c("Replicate", paste0("Omission_rate_at_", omission_rate),
-                      "proc_auc_ratio", "proc_pval", "AIC", "npar", "is_concave")
+    column_names <- c("Replicate",
+                      paste0("Omission_rate_at_", omission_rate),
+                      paste0("Mean_AUC_ratio_at_", omission_rate),
+                      paste0("pval_pROC_at_", omission_rate),
+                      "AIC", "npar", "is_concave")
   } else {
     stop("Unsupported model type. Please use 'glmnet' or 'glm'.")
   }
@@ -97,16 +106,22 @@ empty_summary <- function(omission_rate, is_c, model_type) {
   om_means <- paste0("Omission_rate_at_", omission_rate, ".mean")
   om_sd <- paste0("Omission_rate_at_", omission_rate, ".sd")
 
+  #Proc columns names
+  auc_means <- paste0("Mean_AUC_ratio_at_", omission_rate, ".mean")
+  auc_sd <- paste0("Mean_AUC_ratio_at_", omission_rate, ".sd")
+  pval_means <- paste0("pval_pROC_at_", omission_rate, ".mean")
+  pval_sd <- paste0("pval_pROC_at_", omission_rate, ".sd")
+
   # Base column names depending on the model type
   if (model_type == "glmnet") {
     column_names <- c(om_means, om_sd,
-                      "proc_auc_ratio.mean", "proc_auc_ratio.sd",
-                      "proc_pval.mean", "proc_pval.sd",
+                      auc_means, auc_sd,
+                      pval_means, pval_sd,
                       "AIC_nk", "AIC_ws", "npar", "is_concave")
   } else if (model_type == "glm") {
     column_names <- c(om_means, om_sd,
-                      "proc_auc_ratio.mean", "proc_auc_ratio.sd",
-                      "proc_pval.mean", "proc_pval.sd",
+                      auc_means, auc_sd,
+                      pval_means, pval_sd,
                       "AIC", "npar", "is_concave")
   } else {
     stop("Unsupported model type. Please use 'glmnet' or 'glm'.")
@@ -219,7 +234,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     df_eval_q2 <- cbind(grid_q, df_eval_q)
     eval_final_q <- empty_summary(omission_rate = omission_rate, is_c = is_c,
                                   model_type = model_type)
-    eval_final_q_summary <- cbind(grid_q, eval_final_q)
+    eval_final_q_summary <- reorder_stats_columns(cbind(grid_q, eval_final_q),
+                                                  omission_rate)
 
   } else {
     # If not concave, calculate metrics
@@ -258,14 +274,21 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
       om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
-      proc_i <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                prediction = pred_i)
+      #Proc
+      proc_i <- lapply(omission_rate, function(omr){
+        proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+                        prediction = pred_i, threshold = omr)$pROC_summary
+        names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+                             paste0("pval_pROC_at_", omr))
+        return(proc_omr)
+      })
+      proc_i <- unlist(proc_i)
+
 
       df_eval_q <-  if (model_type == "glmnet") {
         data.frame(Replicate = i,
-                   t(data.frame(om_rate)),
-                   proc_auc_ratio = proc_i$pROC_summary[1],
-                   proc_pval = proc_i$pROC_summary[2],
+                   t(om_rate),
+                   t(proc_i),
                    AIC_nk = m_aic$AIC,
                    AIC_ws = AICc,
                    npar = npar,
@@ -273,9 +296,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
                    row.names = NULL)
       } else {
         data.frame(Replicate = i,
-                   t(data.frame(om_rate)),
-                   proc_auc_ratio = proc_i$pROC_summary[1],
-                   proc_pval = proc_i$pROC_summary[2],
+                   t(om_rate),
+                   t(proc_i),
                    AIC = m_aic$aic,
                    npar = npar,
                    is_concave = is_c,
@@ -285,7 +307,10 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     })
     names(mods) <- names(data$kfolds)
     eval_final_q <- do.call("rbind", mods)
-    eval_final_q_summary <- eval_stats(eval_final_q, omission_rate, model_type)
+    eval_final_q_summary <- reorder_stats_columns(eval_stats(eval_final_q,
+                                                             omission_rate,
+                                                             model_type),
+                                                  omission_rate = omission_rate)
   }
 
   # Write summary if requested
@@ -422,15 +447,22 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
       # Calculate omission rate and pROC
       om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
-      proc_i <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                prediction = pred_i)
+      #Proc
+      proc_i <- lapply(omission_rate, function(omr){
+        proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+                                    prediction = pred_i, threshold = omr)$pROC_summary
+        names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+                             paste0("pval_pROC_at_", omr))
+        return(proc_omr)
+      })
+      proc_i <- unlist(proc_i)
+
 
       # Save metrics in a dataframe
       df_eval <-  if (model_type == "glmnet") {
         data.frame(Replicate = i,
-                   t(data.frame(om_rate)),
-                   proc_auc_ratio = proc_i$pROC_summary[1],
-                   proc_pval = proc_i$pROC_summary[2],
+                   t(om_rate),
+                   t(proc_i),
                    AIC_nk = m_aic$AIC,
                    AIC_ws = AICc,
                    npar = npar,
@@ -438,9 +470,8 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
                    row.names = NULL)
       } else if (model_type == "glm") {
         data.frame(Replicate = i,
-                   t(data.frame(om_rate)),
-                   proc_auc_ratio = proc_i$pROC_summary[1],
-                   proc_pval = proc_i$pROC_summary[2],
+                   t(om_rate),
+                   t(proc_i),
                    AIC = m_aic$aic,
                    npar = npar,
                    is_concave = is_c,
@@ -465,9 +496,12 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
   # Summarize results using eval_stats
   eval_final_summary <- if (class(mods) == "try-error") {
-    cbind(grid_x, empty_summary(omission_rate, is_c, model_type))
+    reorder_stats_columns(cbind(grid_x, empty_summary(omission_rate, is_c,
+                                                      model_type)),
+                          omission_rate = omission_rate)
   } else {
-    eval_stats(eval_final, omission_rate, model_type)
+    reorder_stats_columns(eval_stats(eval_final, omission_rate, model_type),
+                          omission_rate = omission_rate)
   }
 
   # Write summary if requested
@@ -588,3 +622,21 @@ print.calibration_results <- function(x, ...){
   cat("  - Print selected models (n = 5):\n")
   print(head(x$selected_models))
 }
+
+#Reorder columns in stats final
+reorder_stats_columns <- function(stats_final, omission_rate){
+  first_cols<- intersect(c("ID", "Formulas", "regm", "Features"),
+                         colnames(stats_final))
+  metric_cols <- c(paste0("Omission_rate_at_", omission_rate, ".mean"),
+                   paste0("Omission_rate_at_", omission_rate, ".sd"),
+                   #Proc columns names
+                   paste0("Mean_AUC_ratio_at_", omission_rate, ".mean"),
+                   paste0("Mean_AUC_ratio_at_", omission_rate, ".sd"),
+                   paste0("pval_pROC_at_", omission_rate, ".mean"),
+                   paste0("pval_pROC_at_", omission_rate, ".sd"))
+  ordered_metric_cols <- unlist(lapply(omission_rate, function(rate) {
+    grep(paste0("_", rate, "\\."), metric_cols, value = TRUE)
+  }))
+  last_cols <- setdiff(colnames(stats_final), c(first_cols, metric_cols))
+  orders_cols <- c(first_cols, ordered_metric_cols, last_cols)
+  return(stats_final[,orders_cols])}
