@@ -195,8 +195,8 @@ Ensure that all variables specified in spat_variables are available in projectio
   pca$vars_in <- var_to_pca
   pca$vars_out <- exclude_from_pca
 
-  d_exp <- cumsum(pca$sdev/sum(pca$sdev)) * 100
-  d_exp <- d_exp[(pca$sdev/sum(pca$sdev) * 100) > min_explained]
+  d_exp <- cumsum(pca$sdev^2/sum(pca$sdev^2)) * 100
+  d_exp <- d_exp[(pca$sdev^2/sum(pca$sdev^2) * 100) > min_explained]
 
   ind_exp <- if (max(d_exp) > deviance_explained) min(which(d_exp >= deviance_explained)) else length(d_exp)
 
