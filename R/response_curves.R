@@ -146,7 +146,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
         "The 'ModelID' is not correct, check the following: [",
         paste(names(models[["Models"]]), collapse = ", ")),
         "]"
-           )
+      )
     }
 
     # Handling replicates or the full model
@@ -180,8 +180,10 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
   response_curve_consmx(model_list, data = data, variable = variable, n = n,
                         new_data = new_data, extrapolate = extrapolate,
                         xlab = xlab, ylab = ylab,
-                        col = col, ...)
-  }
+                        col = col,
+                        categorical_variables = models$categorical_variables,
+                        ...)
+}
 
 ### Helpers functions for response curves
 
@@ -189,6 +191,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
 response_curve_consmx <- function(model_list, variable, data, n = 100,
                                   extrapolate = FALSE, new_data = NULL,
                                   xlab = NULL, ylab = NULL, col = "darkblue",
+                                  categorical_variables = NULL,
                                   ...) {
 
   # initial tests
@@ -227,7 +230,8 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
     response_out <- response(model = model_list[[1]], data = data,
                              variable = variable, n = n,
-                             extrapolate = extrapolate, new_data = new_data)
+                             extrapolate = extrapolate, new_data = new_data,
+                             categorical_variables = categorical_variables)
 
     limits <- range(data[,variable])
 
@@ -269,8 +273,8 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
       if (any(c1, c2, c3)){
 
-        out <- response(x, data, variable, new_data = new_data,
-                        extrapolate = extrapolate)
+        out <- kuenm2:::response(x, data, variable, new_data = new_data,
+                                 extrapolate = extrapolate, categorical_variables = categorical_variables)
         return(out)
 
       } else {
@@ -328,7 +332,8 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
 # It gets the response from an individual model
 response <- function(model, data, variable, type = "cloglog", n = 100,
-                     new_data = NULL, extrapolate = FALSE) {
+                     new_data = NULL, extrapolate = FALSE,
+                     categorical_variables = NULL) {
 
   # initial tests
   if (missing(model) | missing(variable) | missing(data)) {
@@ -360,7 +365,15 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
   cal_mins <-  apply(cal_data, 2, FUN = min)
 
   # Get the average of all variables
-  means <- colMeans(cal_data)
+
+  ####Check - For deal with categorical variables####
+  means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
+  if(!is.null(categorical_variables)){
+    mode_cat <- as.numeric(names(which.max(table(cal_data[, categorical_variables]))))
+    names(mode_cat) <- categorical_variables
+    means <- c(means, mode_cat)
+  }
+  #########################################
 
   if (is.null(new_data)) {
     if (extrapolate) {
