@@ -273,8 +273,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
       if (any(c1, c2, c3)){
 
-        out <- kuenm2:::response(x, data, variable, new_data = new_data,
-                                 extrapolate = extrapolate, categorical_variables = categorical_variables)
+        out <- response(x, data, variable, new_data = new_data,
+                        extrapolate = extrapolate,
+                        categorical_variables = categorical_variables)
         return(out)
 
       } else {
@@ -369,10 +370,11 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
   ####Check - For deal with categorical variables####
   means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
   if(!is.null(categorical_variables)){
-    mode_cat <- as.numeric(names(which.max(table(cal_data[, categorical_variables]))))
-    names(mode_cat) <- categorical_variables
+    mode_cat <- sapply(categorical_variables, function(x){
+      as.numeric(names(which.max(table(cal_data[, x]))))
+    })
     means <- c(means, mode_cat)
-  }
+    }
   #########################################
 
   if (is.null(new_data)) {

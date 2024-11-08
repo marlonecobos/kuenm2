@@ -6,6 +6,7 @@
 \usage{
 project_selected(models, projection_data,
                                out_dir,
+                               mask = NULL,
                                consensus_per_model = TRUE,
                                consensus_general = TRUE,
                                consensus = c("median", "range", "mean", "stdev"),
@@ -22,6 +23,9 @@ project_selected(models, projection_data,
 \item{projection_data}{an object of class \code{prepared_proj} returned by the \code{\link{prepare_proj()}}() function. This file contains the paths to the rasters representing each scenario.}
 
 \item{out_dir}{(character) a path to a root directory for saving the raster file of each projection.}
+
+\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
+mask the variables before predict. Default is NULL.}
 
 \item{consensus_per_model}{(logical) whether to calculate consensus across replicates when there are more than one replicate per model. Default is TRUE.}
 

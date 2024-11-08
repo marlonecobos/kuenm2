@@ -7,6 +7,7 @@
 organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
                                variables = NULL, fixed_variables = NULL,
                                check_extent = TRUE, mask = NULL,
+                               progress_bar = TRUE,
                                overwrite = FALSE)
 }
 \arguments{
@@ -23,6 +24,8 @@ organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
 \item{check_extent}{(logical) whether to ensure that the \code{fixed_variables} have the same spatial extent as the bioclimatic variables. Applicable only if \code{fixed_variables} is provided. Default is TRUE.}
 
 \item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables (optional). Default is NULL.}
+
+\item{progress_bar}{(logical) whether to display a progress bar during processing. Default is TRUE.}
 
 \item{overwrite}{whether to overwrite existing files in the output directory. Default is FALSE.}
 }

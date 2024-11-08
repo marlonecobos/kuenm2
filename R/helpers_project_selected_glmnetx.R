@@ -7,6 +7,15 @@ multiple_projections <- function(i, res_path, raster_pattern, par_list){
   r_i <- terra::rast(list.files(input_i, full.names = T,
                                 pattern = raster_pattern))
 
+  #Mask?
+  if(!is.null(par_list$mask)){
+    #If in parallel, unwrap mask
+    if(inherits(par_list$mask, "PackedSpatVector")){
+      par_list$mask <- terra::unwrap(par_list$mask)
+    }
+    r_i <- terra::crop(x = r_i, y = par_list$mask, mask = TRUE)
+  }
+
   #Predict
   invisible(predict_selected(models = par_list$models,
                                       spat_var = r_i,

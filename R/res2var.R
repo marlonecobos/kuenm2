@@ -180,9 +180,19 @@ resp2var <- function(models, modelID, variable1 , variable2, n = 1000,
   cal_maxs <-  apply(cal_data, 2, FUN = max)
   cal_mins <-  apply(cal_data, 2, FUN = min)
 
-  # Get the average of all variables
-  means <- apply(cal_data, 2, FUN = mean)
+  # # Get the average of all variables
+  # means <- apply(cal_data, 2, FUN = mean)
 
+  ####Check - For deal with categorical variables####
+  means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
+
+  if(!is.null(models$categorical_variables)){
+    mode_cat <- sapply(models$categorical_variables, function(x){
+      as.numeric(names(which.max(table(cal_data[, x]))))
+    })
+    means <- c(means, mode_cat)
+  }
+  #########################################
 
   if (is.null(new_data)) {
 
