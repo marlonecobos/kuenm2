@@ -10,12 +10,14 @@
 #' @param fixed_variables (SpatRaster) optional static variables (i.e., soil type) used in the model, which will remain unchanged in future scenarios. This variable will be included with each future scenario. Default is NULL.
 #' @param check_extent (logical) whether to ensure that the `fixed_variables` have the same spatial extent as the bioclimatic variables. Applicable only if `fixed_variables` is provided. Default is TRUE.
 #' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables (optional). Default is NULL.
+#' @param progress_bar (logical) whether to display a progress bar during processing. Default is TRUE.
 #' @param overwrite whether to overwrite existing files in the output directory. Default is FALSE.
 #'
 #' @return
 #' A list of paths to the folders where the organized climate data has been saved.
 #'
 #' @importFrom terra rast crop ext writeRaster
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @details
 #' The raw variables downloaded from WorldClim are named as "Bio01", "Bio02", "Bio03", "Bio10", etc. The `name_format` parameter controls how these variables will be renamed:
@@ -29,6 +31,7 @@
 #' @usage organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
 #'                                variables = NULL, fixed_variables = NULL,
 #'                                check_extent = TRUE, mask = NULL,
+#'                                progress_bar = TRUE,
 #'                                overwrite = FALSE)
 #'
 #' @examples
@@ -51,11 +54,12 @@
 #'                                overwrite = TRUE)
 #'
 organize_future_worldclim <- function(input_dir, output_dir,
-                                  name_format = "bio_",
-                                  variables = NULL,
-                                  fixed_variables = NULL,
-                                  check_extent = TRUE,
-                                  mask = NULL, overwrite = FALSE){
+                                      name_format = "bio_",
+                                      variables = NULL,
+                                      fixed_variables = NULL,
+                                      check_extent = TRUE,
+                                      mask = NULL, progress_bar = TRUE,
+                                      overwrite = FALSE){
   #Check data
   if (!inherits(input_dir, "character")) {
     stop(paste0("Argument input_dir must be a character, not ",
@@ -73,8 +77,8 @@ organize_future_worldclim <- function(input_dir, output_dir,
   }
 
   if(!is.null(variables) & !inherits(variables, "character")){
-      stop(paste0("Argument variables must be NULL or a character, not ",
-                  class(variables)))
+    stop(paste0("Argument variables must be NULL or a character, not ",
+                class(variables)))
   }
 
   if(!is.null(fixed_variables)){
@@ -90,6 +94,9 @@ organize_future_worldclim <- function(input_dir, output_dir,
     stop(paste0("Argument mask must be a SpatVector, SpatVector, or SpatExtent, not ",
                 class(mask)))
   }
+  if (!inherits(progress_bar, "logical")) {
+    stop(paste0("Argument progress_bar must be logical, not ",
+                class(progress_bar)))}
 
   if (!is.logical(overwrite)) {
     stop(paste0("Argument overwrite must be logical, not ",
@@ -108,10 +115,17 @@ organize_future_worldclim <- function(input_dir, output_dir,
 
   if(length(lf) == 0)
     stop("The input_dir does not contain any variable representing future scenarios from WorldClim 2.1")
+
+  if (progress_bar) {
+    pb <- utils::txtProgressBar(0, length(lf), style = 3)
+    progress <- function(n) utils::setTxtProgressBar(pb, n) }
+
   #For each file, rename, extract gcm and year and cut if necessary
-  p <- lapply(lf, function(x){
+  p <- list()
+
+  for(x in 1:length(lf)){
     #Read file
-    var_x <- terra::rast(file.path(input_dir, x))
+    var_x <- terra::rast(file.path(input_dir, lf[x]))
     #Rename variables
     vnumber <- as.numeric(gsub("[^0-9]", "", names(var_x)))
     if(name_format %in% c("bio_0", "bio0", "Bio_0", "Bio0")){
@@ -124,9 +138,9 @@ organize_future_worldclim <- function(input_dir, output_dir,
       var_x <- terra::crop(var_x, mask, mask = TRUE)
     }
     #Extract gcm and year
-    gcm <- gsub(".*bioc_(.*?)_ssp.*", "\\1", x)
-    year <- gsub(".*_(.*?)\\.tif", "\\1", x)
-    ssp <-  gsub(".*_([^_]+)_.*", "\\1", x)
+    gcm <- gsub(".*bioc_(.*?)_ssp.*", "\\1", lf[x])
+    year <- gsub(".*_(.*?)\\.tif", "\\1", lf[x])
+    ssp <-  gsub(".*_([^_]+)_.*", "\\1", lf[x])
 
     #If variables is not null, subset variables
     if(!is.null(variables)){
@@ -158,11 +172,75 @@ organize_future_worldclim <- function(input_dir, output_dir,
     dir.create(res_save, recursive = T, showWarnings = FALSE)
     #Save
     terra::writeRaster(var_x, file.path(res_save, "Variables.tiff"),
-                overwrite = overwrite)
-    return(res_save)
-    })
+                       overwrite = overwrite)
+
+    # Sets the progress bar to the current state
+    if(progress_bar){
+      utils::setTxtProgressBar(pb, x) }
+
+    p[[x]] <- res_save
+  }
+
+  # p <- lapply(lf, function(x){
+  #   #Read file
+  #   var_x <- terra::rast(file.path(input_dir, x))
+  #   #Rename variables
+  #   vnumber <- as.numeric(gsub("[^0-9]", "", names(var_x)))
+  #   if(name_format %in% c("bio_0", "bio0", "Bio_0", "Bio0")){
+  #     vnumber[vnumber < 10] <- paste0(0, vnumber[vnumber < 10])
+  #   }
+  #   names(var_x) <- paste0(name_format, vnumber)
+  #
+  #   #If there is a mask, crop
+  #   if(!is.null(mask)){
+  #     var_x <- terra::crop(var_x, mask, mask = TRUE)
+  #   }
+  #   #Extract gcm and year
+  #   gcm <- gsub(".*bioc_(.*?)_ssp.*", "\\1", x)
+  #   year <- gsub(".*_(.*?)\\.tif", "\\1", x)
+  #   ssp <-  gsub(".*_([^_]+)_.*", "\\1", x)
+  #
+  #   #If variables is not null, subset variables
+  #   if(!is.null(variables)){
+  #     #Check if there are variables that do not match
+  #     var_out <- setdiff(variables, names(var_x))
+  #     if(length(var_out) > 0){
+  #       stop("The variable names do not match those in the future climate data")
+  #     }
+  #     var_x <- var_x[[variables]]
+  #   }
+  #
+  #   #Append fixed variables
+  #   if(!is.null(fixed_variables)){
+  #     #If there is a mask, crop
+  #     if(!is.null(mask)){
+  #       fixed_variables <- terra::crop(fixed_variables, mask, mask = TRUE)
+  #     }
+  #     if(check_extent){
+  #       if(terra::ext(fixed_variables) != terra::ext(var_x)){
+  #         terra::ext(fixed_variables) <- terra::ext(var_x)
+  #       }
+  #     }
+  #     #Append
+  #     var_x <- c(var_x, fixed_variables)
+  #   }
+  #
+  #   #Create folders to save results
+  #   res_save <- file.path(output_dir, year, ssp, gcm)
+  #   dir.create(res_save, recursive = T, showWarnings = FALSE)
+  #   #Save
+  #   terra::writeRaster(var_x, file.path(res_save, "Variables.tiff"),
+  #                      overwrite = overwrite)
+  #
+  #   # Sets the progress bar to the current state
+  #   if(progress_bar){
+  #     utils::setTxtProgressBar(pb, x) }
+  #
+  #   return(res_save)
+  # })
   #Return folders
-  return(p)
+  return(cat("\nVariables successfully organized in the root directory:\n",
+             output_dir))
 }
 
 #Test function

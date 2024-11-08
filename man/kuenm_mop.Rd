@@ -7,6 +7,7 @@
 kuenm_mop(
   data,
   subset_variables = TRUE,
+  mask = NULL,
   fitted_models = NULL,
   projection_data,
   out_dir,
@@ -32,6 +33,8 @@ kuenm_mop(
 function.}
 
 \item{subset_variables}{(logical) whether to include in the analysis only the variables present in the selected models. Default is TRUE.}
+
+\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables (optional). Default is NULL.}
 
 \item{fitted_models}{an object of class \code{fitted_models} returned by the
 \code{\link[kuenm2]{fit_selected}} function.}
@@ -235,6 +238,7 @@ dir.create(out_dir, recursive = TRUE)
 # MOP
 kmop <- kuenm_mop(data = sp_swd,
                   subset_variables = TRUE,
+                  mask = NULL,
                   fitted_models = fitted_model_glmnet,
                   projection_data = pr,
                   out_dir = out_dir,

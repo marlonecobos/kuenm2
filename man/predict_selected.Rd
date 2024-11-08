@@ -21,6 +21,9 @@ of these variables must match those used to calibrate the models or those
 used to run PCA if \code{do_pca = TRUE} in the \code{\link{prepare_data}}()
 function.}
 
+\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
+mask the variables before predict. Default is NULL.}
+
 \item{write_files}{(logical) whether to save the predictions (SpatRasters)
 to disk. Default is FALSE.}
 

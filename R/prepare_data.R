@@ -186,8 +186,9 @@ prepare_data <- function(model_type = "glmnet",
                 class(spat_variables)))
   }
 
-  if (!is.null(mask) & !inherits(mask, "SpatVector")) {
-    stop(paste0("Argument mask must be a SpatVector, not ",
+  if(!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
+                                        "SpatExtent"))){
+    stop(paste0("Argument mask must be a SpatVector, SpatExtent or SpatRaster, not ",
                 class(mask)))
   }
 

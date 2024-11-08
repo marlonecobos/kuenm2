@@ -7,6 +7,8 @@
 #' \code{\link{fit_selected}}() function.
 #' @param projection_data an object of class `prepared_proj` returned by the \code{\link{prepare_proj()}}() function. This file contains the paths to the rasters representing each scenario.
 #' @param out_dir (character) a path to a root directory for saving the raster file of each projection.
+#' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to
+#'        mask the variables before predict. Default is NULL.
 #' @param consensus_per_model (logical) whether to calculate consensus across replicates when there are more than one replicate per model. Default is TRUE.
 #' @param consensus_general (logical) whether to calculate consensus across models when there are more than one selected model. Default is TRUE.
 #' @param consensus (character) consensus measures to calculate. Options available are 'median', 'range', 'mean' and 'stdev' (standard deviation). Default is c("median", "range", "mean", "stdev").
@@ -31,11 +33,13 @@
 #' @importFrom doParallel registerDoParallel
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom terra crop wrap unwrap
 #'
 #' @return A `model_projections` object that provides the paths to the raster files with the projection results and the corresponding thresholds used to binarize the predictions.
 #'
 #' @usage project_selected(models, projection_data,
 #'                                out_dir,
+#'                                mask = NULL,
 #'                                consensus_per_model = TRUE,
 #'                                consensus_general = TRUE,
 #'                                consensus = c("median", "range", "mean", "stdev"),
@@ -154,6 +158,7 @@
 project_selected <- function(models,
                              projection_data,
                              out_dir,
+                             mask = NULL,
                              consensus_per_model = TRUE,
                              consensus_general = TRUE,
                              consensus = c("median", "range", "mean", "stdev"),
@@ -180,6 +185,13 @@ project_selected <- function(models,
     stop(paste0("Argument out_dir must be a character, not ",
                 class(out_dir)))
   }
+
+  if(!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
+                                        "SpatExtent"))){
+    stop(paste0("Argument mask must be a SpatVector, SpatExtent or SpatRaster, not ",
+                class(mask)))
+  }
+
   if (!inherits(consensus_per_model, "logical")) {
     stop(paste0("Argument consensus_per_model must be logical, not ",
                 class(consensus_per_model)))
@@ -245,6 +257,7 @@ project_selected <- function(models,
 
   #Save parameters in a list to send to foreach nodes#
   par_list <- list(models = models,
+                   mask = mask,
                    projection_data = projection_data,
                    consensus_per_model = consensus_per_model,
                    consensus_general = consensus_general,
@@ -397,6 +410,10 @@ project_selected <- function(models,
   } else {
     opts <- NULL}
   ###################################
+
+  #If parallel and mask, wrap variables
+  if(!is.null(mask) & parallel)
+    par_list$mask <- terra::wrap( par_list$mask)
 
   #Run predictions
   if(parallel){

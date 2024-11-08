@@ -12,6 +12,8 @@
 #' of these variables must match those used to calibrate the models or those
 #' used to run PCA if `do_pca = TRUE` in the \code{\link{prepare_data}}()
 #' function.
+#' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to
+#'        mask the variables before predict. Default is NULL.
 #' @param write_files (logical) whether to save the predictions (SpatRasters)
 #' to disk. Default is FALSE.
 #' @param write_replicates (logical) whether to save the predictions for each
@@ -107,6 +109,7 @@
 
 predict_selected <- function(models,
                              spat_var,
+                             mask = NULL,
                              write_files = FALSE,
                              write_replicates = FALSE,
                              out_dir = NULL,
@@ -128,6 +131,13 @@ predict_selected <- function(models,
     stop(paste0("Argument spat_var must be a SpatRaster, not ",
                 class(spat_var)))
   }
+
+  if(!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
+                                        "SpatExtent"))){
+    stop(paste0("Argument mask must be a SpatVector, SpatExtent or SpatRaster, not ",
+                class(mask)))
+  }
+
   if (!inherits(write_files, "logical")) {
     stop(paste0("Argument write_files must be logical, not ",
                 class(write_files)))
@@ -183,6 +193,9 @@ predict_selected <- function(models,
     stop(paste0("Argument progress_bar must be logical, not ",
                 class(progress_bar)))}
 
+  if(!is.null(mask)){
+    spat_var <- terra::crop(spat_var, mask, mask = TRUE)
+  }
 
   if(!is.null(models$pca)){
     if(!("vars_out" %in% names(models$pca))) {
