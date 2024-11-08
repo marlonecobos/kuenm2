@@ -122,6 +122,10 @@ var_importance_indmx <- function(model, p, data, f, rm, model_type) {
     names(coef(model)[-1])
   }
 
+  #Fix categorical terms
+  coefs <- unique(gsub("categorical\\(([^\\)]+)\\):[0-9]+", "categorical(\\1)",
+                       coefs))
+
   # deviance of the reduced models
   dev_reduction <- sapply(coefs, function(variable) {
 
