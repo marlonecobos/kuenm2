@@ -310,7 +310,8 @@ fit_selected <- function(calibration_results, n_replicates = 5,
 
   # Calculate thresholds
   p_thr <- lapply(p_occ, function(model) {
-    lapply(model, calc_thr, thr = calibration_results$omission_rate / 100)
+    lapply(model, calc_thr,
+           thr = calibration_results$summary$omission_rate_thr / 100)
   })
 
   # Prepare final results
@@ -324,7 +325,7 @@ fit_selected <- function(calibration_results, n_replicates = 5,
     weights = calibration_results$weights,
     pca = calibration_results$pca,
     addsamplestobackground = calibration_results$addsamplestobackground,
-    omission_rate = calibration_results$omission_rate,
+    omission_rate = calibration_results$summary$omission_rate_thr,
     thresholds = p_thr,
     model_type = model_type
   )
