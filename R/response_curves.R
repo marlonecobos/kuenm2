@@ -133,6 +133,13 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                 class(col)))
   }
 
+  if (!is.null(models$categorical_variables)) {
+    if (variable %in% models$categorical_variables) {
+      stop(paste0("Response curves for categorical variables are not yet",
+                  " implemented. We're actively working on it."))
+    }
+  }
+
   # if data is not defined it is extratec from the models kuenm2 object
   if (is.null(data)){
     data <- models$calibration_data
@@ -369,7 +376,7 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   ####Check - For deal with categorical variables####
   means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
-  if(!is.null(categorical_variables)){
+  if(!is.null(categorical_variables) & vnames[categorical_variables]){
     mode_cat <- sapply(categorical_variables, function(x){
       as.numeric(names(which.max(table(cal_data[, x]))))
     })
