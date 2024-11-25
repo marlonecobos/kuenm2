@@ -134,6 +134,12 @@ resp2var <- function(models, modelID, variable1 , variable2, n = 1000,
                 class(ylab)))
   }
 
+  if (!is.null(models$categorical_variables)) {
+    if (any(c(variable1, variable2) %in% models$categorical_variables)) {
+      stop(paste0("Function designed exclusively for continuous variables."))
+    }
+  }
+
   if (is.null(xlab)) xlab <- variable1
   if (is.null(ylab)) ylab <- variable2
   if (is.null(color.palette)) color.palette = function(n) rev(hcl.colors(n, "terrain"))
@@ -187,10 +193,12 @@ resp2var <- function(models, modelID, variable1 , variable2, n = 1000,
   means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
 
   if(!is.null(models$categorical_variables)){
-    mode_cat <- sapply(models$categorical_variables, function(x){
-      as.numeric(names(which.max(table(cal_data[, x]))))
-    })
-    means <- c(means, mode_cat)
+    if (vnames[models$categorical_variables]){
+      mode_cat <- sapply(models$categorical_variables, function(x){
+        as.numeric(names(which.max(table(cal_data[, x]))))
+      })
+      means <- c(means, mode_cat)
+    }
   }
   #########################################
 
