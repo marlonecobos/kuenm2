@@ -6,7 +6,8 @@
 \usage{
 response_curve(models, variable, modelID = NULL, n = 100,
                      by_replicates = FALSE, data = NULL, new_data = NULL,
-                     extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
+                     extrapolate = TRUE, extrapolation_factor = 0.1,
+                     xlab = NULL, ylab = "Suitability",
                      col = "darkblue", ...)
 }
 \arguments{
@@ -34,6 +35,10 @@ explicitly include a data component.}
 \item{extrapolate}{(logical) whether to allow extrapolation to study the
 behavior of the response outside the calibration limits. Ignored if
 \code{new_data} is defined. Default = TRUE.}
+
+\item{extrapolation_factor}{(numeric) a multiplier used to calculate the
+extrapolation range. Larger values allow broader extrapolation beyond the
+observed data range. Default is 0.1.}
 
 \item{xlab}{(character) a label for the x axis. The default, NULL, uses the
 name defined in \code{variable}.}

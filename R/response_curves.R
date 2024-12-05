@@ -6,7 +6,8 @@
 #'
 #' @usage response_curve(models, variable, modelID = NULL, n = 100,
 #'                      by_replicates = FALSE, data = NULL, new_data = NULL,
-#'                      extrapolate = TRUE, xlab = NULL, ylab = "Suitability",
+#'                      extrapolate = TRUE, extrapolation_factor = 0.1,
+#'                      xlab = NULL, ylab = "Suitability",
 #'                      col = "darkblue", ...)
 #
 #' @param models an object of class `fitted_models` returned by the
@@ -26,6 +27,9 @@
 #' @param extrapolate (logical) whether to allow extrapolation to study the
 #' behavior of the response outside the calibration limits. Ignored if
 #' `new_data` is defined. Default = TRUE.
+#' @param extrapolation_factor (numeric) a multiplier used to calculate the
+#' extrapolation range. Larger values allow broader extrapolation beyond the
+#' observed data range. Default is 0.1.
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
 #' name defined in `variable`.
 #' @param ylab (character) a label for the y axis. Default = "Suitability".
@@ -74,6 +78,7 @@
 response_curve <- function(models, variable, modelID = NULL, n = 100,
                            by_replicates = FALSE, data = NULL,
                            new_data = NULL, extrapolate = TRUE,
+                           extrapolation_factor = 0.1,
                            xlab = NULL, ylab = "Suitability",
                            col = "darkblue", ...) {
 
@@ -186,6 +191,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
   # Response curve for all selected models
   response_curve_consmx(model_list, data = data, variable = variable, n = n,
                         new_data = new_data, extrapolate = extrapolate,
+                        extrapolation_factor = extrapolation_factor,
                         xlab = xlab, ylab = ylab,
                         col = col,
                         categorical_variables = models$categorical_variables,
@@ -196,7 +202,9 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
 
 # Consensus response curve
 response_curve_consmx <- function(model_list, variable, data, n = 100,
-                                  extrapolate = FALSE, new_data = NULL,
+                                  extrapolate = FALSE,
+                                  extrapolation_factor = 0.11,
+                                  new_data = NULL,
                                   xlab = NULL, ylab = NULL, col = "darkblue",
                                   categorical_variables = NULL,
                                   ...) {
@@ -237,7 +245,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
     response_out <- response(model = model_list[[1]], data = data,
                              variable = variable, n = n,
-                             extrapolate = extrapolate, new_data = new_data,
+                             extrapolate = extrapolate,
+                             extrapolation_factor = extrapolation_factor,
+                             new_data = new_data,
                              categorical_variables = categorical_variables)
 
     limits <- range(data[,variable])
@@ -282,6 +292,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
         out <- response(x, data, variable, new_data = new_data,
                         extrapolate = extrapolate,
+                        extrapolation_factor = extrapolation_factor,
                         categorical_variables = categorical_variables)
         return(out)
 
@@ -341,6 +352,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 # It gets the response from an individual model
 response <- function(model, data, variable, type = "cloglog", n = 100,
                      new_data = NULL, extrapolate = FALSE,
+                     extrapolation_factor = 0.11,
                      categorical_variables = NULL) {
 
   # initial tests
@@ -367,6 +379,8 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   # Extract calibration data from the model object
   cal_data <- data[, vnames, drop = FALSE]
+  #Should we use the means at sample locations as Maxent?
+  #cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
 
   # Extract the limits of the calibration data
   cal_maxs <-  apply(cal_data, 2, FUN = max)
@@ -376,7 +390,7 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   ####Check - For deal with categorical variables####
   means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
-  if(!is.null(categorical_variables) & vnames[categorical_variables]){
+  if(!is.null(categorical_variables) && vnames[categorical_variables]){
     mode_cat <- sapply(categorical_variables, function(x){
       as.numeric(names(which.max(table(cal_data[, x]))))
     })
@@ -388,7 +402,7 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
     if (extrapolate) {
 
       rr <- range(cal_data[, variable]) # range of the calibration data
-      extension <- 0.11 * diff(rr)
+      extension <- extrapolation_factor * diff(rr)
 
       l_limit <- rr[1] - extension
       u_limit <- rr[2] + extension
