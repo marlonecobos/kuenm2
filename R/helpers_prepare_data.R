@@ -164,7 +164,7 @@ calibration_grid_glmnetmx <- function(occ_bg,
   var_comb <- enmpa:::aux_var_comb(var_names = var_names, minvar = min_number)
 
   # Remove combinations according to minimum number of continuous variables
-  if(!is.null(min_continuous)){
+  if(!is.null(min_continuous) & !is.null(categorical_var)){
     n_cont <- sapply(var_comb, function(x) length(x[x != categorical_var]))
     var_comb <- var_comb[n_cont > min_continuous]
   }
