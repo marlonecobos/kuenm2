@@ -6,7 +6,9 @@
 #'
 #' @usage response_curve(models, variable, modelID = NULL, n = 100,
 #'                      by_replicates = FALSE, data = NULL, new_data = NULL,
+#'                      averages_from = "pr",
 #'                      extrapolate = TRUE, extrapolation_factor = 0.1,
+#'                      l_limit = NULL, u_limit = NULL,
 #'                      xlab = NULL, ylab = "Suitability",
 #'                      col = "darkblue", ...)
 #
@@ -24,17 +26,36 @@
 #' representing the range of variable values in an area of interest.
 #' Default = NULL. It must be defined in case the model entered does not
 #' explicitly include a data component.
+#' @param averages_from (character) specifies how the averages or modes of the
+#' variables are calculated. Available options are "pr" (to calculate averages
+#' from the presence localities) or "pr_bg" (to use the combined set of presence
+#' and background localities). Default is "pr". See details.
 #' @param extrapolate (logical) whether to allow extrapolation to study the
 #' behavior of the response outside the calibration limits. Ignored if
 #' `new_data` is defined. Default = TRUE.
 #' @param extrapolation_factor (numeric) a multiplier used to calculate the
 #' extrapolation range. Larger values allow broader extrapolation beyond the
 #' observed data range. Default is 0.1.
+#' @param l_limit (numeric) specifies the lower limit for the variable. Default
+#' is \code{NULL}, meaning the lower limit will be calculated based on the
+#' data's minimum value and the \code{extrapolation_factor}
+#' (if \code{extrapolation = TRUE}).
+#' @param u_limit (numeric) specifies the upper limit for the variable. Default
+#' is \code{NULL}, meaning the upper limit will be calculated based on the
+#' data's minimum value and the \code{extrapolation_factor}
+#' (if \code{extrapolation = TRUE}).
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
 #' name defined in `variable`.
 #' @param ylab (character) a label for the y axis. Default = "Suitability".
 #' @param col (character) color for lines. Default = "darkblue".
 #' @param ... additional arguments passed to \code{\link[graphics]{plot}}.
+#'
+#' @details
+#' The response curves are generated with all other variables set to their mean
+#' values (or mode for categorical variables), calculated either from the
+#' presence localities (if averages_from = "pr") or from the combined set of
+#' presence and background localities (if averages_from = "pr_bg").
+#'
 #'
 #' @return
 #' A plot with the response curve for a `variable`.
@@ -77,8 +98,9 @@
 #'
 response_curve <- function(models, variable, modelID = NULL, n = 100,
                            by_replicates = FALSE, data = NULL,
-                           new_data = NULL, extrapolate = TRUE,
-                           extrapolation_factor = 0.1,
+                           new_data = NULL, averages_from = "pr",
+                           extrapolate = TRUE, extrapolation_factor = 0.1,
+                           l_limit = NULL, u_limit = NULL,
                            xlab = NULL, ylab = "Suitability",
                            col = "darkblue", ...) {
 
@@ -116,6 +138,15 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
     if (!class(new_data)[1] %in% c("matrix", "data.frame", "SpatRaster")) {
       stop("'new_data' must be of class 'matrix', 'data.frame', 'SpatRaster'")
     }
+  }
+
+  if (!inherits(extrapolation_factor, "numeric")) {
+    stop(paste0("Argument extrapolate must be numeric, not ",
+                class(extrapolation_factor)))
+  }
+
+  if (!averages_from %in% c("pr_bg", "pr")) {
+    stop("Argument averages_from must be 'pr_bg' or 'pr'")
   }
 
   if (!inherits(extrapolate, "logical")) {
@@ -195,6 +226,8 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                         xlab = xlab, ylab = ylab,
                         col = col,
                         categorical_variables = models$categorical_variables,
+                        averages_from = averages_from,
+                        l_limit = l_limit, u_limit = u_limit,
                         ...)
 }
 
@@ -207,6 +240,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                                   new_data = NULL,
                                   xlab = NULL, ylab = NULL, col = "darkblue",
                                   categorical_variables = NULL,
+                                  averages_from = "pr",
+                                  l_limit = NULL,
+                                  u_limit = NULL,
                                   ...) {
 
   # initial tests
@@ -248,7 +284,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                              extrapolate = extrapolate,
                              extrapolation_factor = extrapolation_factor,
                              new_data = new_data,
-                             categorical_variables = categorical_variables)
+                             categorical_variables = categorical_variables,
+                             averages_from = averages_from,
+                             l_limit = l_limit, u_limit = u_limit)
 
     limits <- range(data[,variable])
 
@@ -293,7 +331,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
         out <- response(x, data, variable, new_data = new_data,
                         extrapolate = extrapolate,
                         extrapolation_factor = extrapolation_factor,
-                        categorical_variables = categorical_variables)
+                        categorical_variables = categorical_variables,
+                        averages_from = averages_from,
+                        l_limit = l_limit, u_limit = u_limit)
         return(out)
 
       } else {
@@ -353,7 +393,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 response <- function(model, data, variable, type = "cloglog", n = 100,
                      new_data = NULL, extrapolate = FALSE,
                      extrapolation_factor = 0.11,
-                     categorical_variables = NULL) {
+                     categorical_variables = NULL,
+                     averages_from = "pr_bg",
+                     l_limit = NULL, u_limit = NULL) {
 
   # initial tests
   if (missing(model) | missing(variable) | missing(data)) {
@@ -378,9 +420,10 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
   }
 
   # Extract calibration data from the model object
-  cal_data <- data[, vnames, drop = FALSE]
-  #Should we use the means at sample locations as Maxent?
-  #cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
+  if(averages_from == "pr"){
+  cal_data <- data[, vnames, drop = FALSE] } else if (averages_from == "pr_bg"){
+    cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
+  }
 
   # Extract the limits of the calibration data
   cal_maxs <-  apply(cal_data, 2, FUN = max)
@@ -404,7 +447,9 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
       rr <- range(cal_data[, variable]) # range of the calibration data
       extension <- extrapolation_factor * diff(rr)
 
+      if(is.null(l_limit))
       l_limit <- rr[1] - extension
+      if(is.null(u_limit))
       u_limit <- rr[2] + extension
 
       rangev <- c(l_limit, u_limit)

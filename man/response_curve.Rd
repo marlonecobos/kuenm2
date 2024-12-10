@@ -6,7 +6,9 @@
 \usage{
 response_curve(models, variable, modelID = NULL, n = 100,
                      by_replicates = FALSE, data = NULL, new_data = NULL,
+                     averages_from = "pr",
                      extrapolate = TRUE, extrapolation_factor = 0.1,
+                     l_limit = NULL, u_limit = NULL,
                      xlab = NULL, ylab = "Suitability",
                      col = "darkblue", ...)
 }
@@ -32,6 +34,11 @@ representing the range of variable values in an area of interest.
 Default = NULL. It must be defined in case the model entered does not
 explicitly include a data component.}
 
+\item{averages_from}{(character) specifies how the averages or modes of the
+variables are calculated. Available options are "pr" (to calculate averages
+from the presence localities) or "pr_bg" (to use the combined set of presence
+and background localities). Default is "pr". See details.}
+
 \item{extrapolate}{(logical) whether to allow extrapolation to study the
 behavior of the response outside the calibration limits. Ignored if
 \code{new_data} is defined. Default = TRUE.}
@@ -39,6 +46,16 @@ behavior of the response outside the calibration limits. Ignored if
 \item{extrapolation_factor}{(numeric) a multiplier used to calculate the
 extrapolation range. Larger values allow broader extrapolation beyond the
 observed data range. Default is 0.1.}
+
+\item{l_limit}{(numeric) specifies the lower limit for the variable. Default
+is \code{NULL}, meaning the lower limit will be calculated based on the
+data's minimum value and the \code{extrapolation_factor}
+(if \code{extrapolation = TRUE}).}
+
+\item{u_limit}{(numeric) specifies the upper limit for the variable. Default
+is \code{NULL}, meaning the upper limit will be calculated based on the
+data's minimum value and the \code{extrapolation_factor}
+(if \code{extrapolation = TRUE}).}
 
 \item{xlab}{(character) a label for the x axis. The default, NULL, uses the
 name defined in \code{variable}.}
@@ -55,6 +72,12 @@ A plot with the response curve for a \code{variable}.
 \description{
 A view of variable responses in fitted models. Responses based on single or multiple
 models can be provided.
+}
+\details{
+The response curves are generated with all other variables set to their mean
+values (or mode for categorical variables), calculated either from the
+presence localities (if averages_from = "pr") or from the combined set of
+presence and background localities (if averages_from = "pr_bg").
 }
 \examples{
 ##Example with glmnet
