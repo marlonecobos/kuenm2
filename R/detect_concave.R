@@ -5,7 +5,7 @@
 #' range of GLM and GLMNET models.
 #'
 #' @usage detect_concave(model, calib_data, extrapolation_factor = 0.1,
-#'                      limit_is_zero = NULL, plot = FALSE,
+#'                      var_limits = NULL, averages_from, plot = FALSE,
 #'                      mfrow = NULL, legend = FALSE)
 #'
 #' @param model an object of class `glmnet_mx` or `glm`.
@@ -13,11 +13,15 @@
 #' @param extrapolation_factor (numeric) a multiplier used to calculate the
 #' extrapolation range. Larger values allow broader extrapolation beyond the
 #' observed data range. Default is 0.1.
-#' @param limit_is_zero (character) names of variables whose lower limit is zero
-#' and should not include negative values (e.g., precipitation variables). This
-#' ensures that the detection of concave curves, which identify higher
-#' suitability at both extremes, are constrained at the lower boundary of zero.
-#' Default is NULL, meaning no variables will have their lower limit set to zero.
+#' @param var_limits (list) A named list specifying the lower and/or upper limits
+#' for some variables. The first value represents the lower limit, and the
+#' second value represents the upper limit. Default is \code{NULL}, meaning no
+#' specific limits are applied, and the range will be calculated using the
+#' \code{extrapolation_factor}. See details.
+#' @param averages_from (character) specifies how the averages or modes of the
+#' variables are calculated. Available options are "pr" (to calculate averages
+#' from the presence localities) or "pr_bg" (to use the combined set of presence
+#' and background localities). Default is "pr". See details.
 #' @param plot (logical) whether to plot the response curve for the variables.
 #' Default is FALSE.
 #' @param mfrow (numeric) a vector of the form c(number of rows, number of columns)
@@ -33,6 +37,18 @@
 #' model, multiplied by the extrapolation factor. A concave curve is detected
 #' when the beta coefficient is positive, and the vertex — where the curve
 #' changes direction — lies between the lower and upper limits of the variable.
+#'
+#' Users can specify the lower and upper limits for certain variables using
+#' \code{var_limits}. For example, if \code{var_limits = list("bio12" = c(0, NA),
+#' "bio15" = c(0, 100))}, the lower limit for \code{bio12} will be 0, and the
+#' upper limit will be calculated using the extrapolation factor. Similarly,
+#' the lower and upper limits for \code{bio15} will be 0 and 100, respectively.
+#'
+#' For calculating the vertex position, a response curve for a given variable is
+#' generated with all other variables set to their mean values (or mode for
+#' categorical variables). These values are calculated either from the presence
+#' localities (if \code{averages_from = "pr"}) or from the combined set of
+#' presence and background localities (if \code{averages_from = "pr_bg"}).
 #'
 #'
 #' @return A list with the following elements for each variable:
@@ -68,8 +84,19 @@
 #'
 detect_concave <- function(model, calib_data,
                           extrapolation_factor = 0.1,
-                          limit_is_zero = NULL, plot = FALSE,
+                          averages_from = "pr",
+                          var_limits = NULL, plot = FALSE,
                           mfrow = NULL, legend = FALSE){
+
+
+  if (!inherits(extrapolation_factor, "numeric")) {
+    stop(paste0("Argument extrapolate must be numeric, not ",
+                class(extrapolation_factor)))
+  }
+
+  if (!averages_from %in% c("pr_bg", "pr")) {
+    stop("Argument averages_from must be 'pr_bg' or 'pr'")
+  }
 
   #Get modeltype
   model_type <- if(inherits(model, "glmnet_mx")){
@@ -81,6 +108,11 @@ detect_concave <- function(model, calib_data,
     coefs <- coef(model)[,200]
   } else {
     coefs <- coef(model)
+  }
+
+  #Subset calib_data
+  if(averages_from == "pr_bg"){
+    calib_data <- calib_data[calib_data$pr_bg == 1, ]
   }
 
   #Get means of variables from calibration data
@@ -98,6 +130,17 @@ detect_concave <- function(model, calib_data,
   #Calculate vertex
   vertex <- calculate_vertex(coefs, means)
 
+  #Variables to limit manually
+  if(!is.null(var_limits)){
+    v_lim <- names(var_limits)
+    #Check if some variable is not correctly assigned
+    var_out <- setdiff(v_lim, colnames(calib_data))
+    if(length(var_out) > 0)
+      stop("Variables specified in 'var_limits' are absent from the model.\n",
+           "The available variables for defining limits are: ",
+           paste(names(vertex), collapse = "; "))
+  }
+
   #Store information in a list
   var_info <- lapply(names(vertex), function(v){
 
@@ -108,9 +151,15 @@ detect_concave <- function(model, calib_data,
     x_min <- model$varmin[[v]] - extrapolation_factor_i
     x_max <- model$varmax[[v]] + extrapolation_factor_i
 
-    #Variables to limit to 0
-    if(v %in% limit_is_zero & x_min < 0){
-      x_min <- 0
+    #Set manual limits
+    if(!is.null(var_limits)){
+    if(v %in% v_lim){
+      if(!is.na(var_limits[[v]][1]))
+        x_min <- var_limits[[v]][1]
+
+      if(!is.na(var_limits[[v]][2]))
+        x_max <- var_limits[[v]][2]
+    }
     }
 
     #Beta coefficient
@@ -141,11 +190,13 @@ detect_concave <- function(model, calib_data,
     } else {par(mfrow = c(1,1))}
 
     for(i in names(var_info)){
-      r <- kuenm2:::response(model = model, data = calib_data, variable = i,
-                             type = "cloglog", n = 100,
-                             new_data = NULL, extrapolate = TRUE,
-                             extrapolation_factor = extrapolation_factor,
-                             categorical_variables = cv)
+      r <- response(model = model, data = calib_data, variable = i,
+                    type = "cloglog", n = 100,
+                    new_data = NULL, extrapolate = TRUE,
+                    extrapolation_factor = extrapolation_factor,
+                    categorical_variables = cv,
+                    averages_from = averages_from,
+                    l_limit = var_info[[i]]$x_min, u_limit = var_info[[i]]$x_max)
       #Extract info to plot
       variable <- i
       x_values <- r[,1]

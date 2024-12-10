@@ -5,7 +5,7 @@
 \title{Detect concave curves in GLM and GLMNET models}
 \usage{
 detect_concave(model, calib_data, extrapolation_factor = 0.1,
-                     limit_is_zero = NULL, plot = FALSE,
+                     var_limits = NULL, averages_from, plot = FALSE,
                      mfrow = NULL, legend = FALSE)
 }
 \arguments{
@@ -17,11 +17,16 @@ detect_concave(model, calib_data, extrapolation_factor = 0.1,
 extrapolation range. Larger values allow broader extrapolation beyond the
 observed data range. Default is 0.1.}
 
-\item{limit_is_zero}{(character) names of variables whose lower limit is zero
-and should not include negative values (e.g., precipitation variables). This
-ensures that the detection of concave curves, which identify higher
-suitability at both extremes, are constrained at the lower boundary of zero.
-Default is NULL, meaning no variables will have their lower limit set to zero.}
+\item{averages_from}{(character) specifies how the averages or modes of the
+variables are calculated. Available options are "pr" (to calculate averages
+from the presence localities) or "pr_bg" (to use the combined set of presence
+and background localities). Default is "pr". See details.}
+
+\item{var_limits}{(list) A named list specifying the lower and/or upper limits
+for some variables. The first value represents the lower limit, and the
+second value represents the upper limit. Default is \code{NULL}, meaning no
+specific limits are applied, and the range will be calculated using the
+\code{extrapolation_factor}. See details.}
 
 \item{plot}{(logical) whether to plot the response curve for the variables.
 Default is FALSE.}
@@ -61,6 +66,18 @@ as the difference between the variable's maximum and minimum values in the
 model, multiplied by the extrapolation factor. A concave curve is detected
 when the beta coefficient is positive, and the vertex — where the curve
 changes direction — lies between the lower and upper limits of the variable.
+
+Users can specify the lower and upper limits for certain variables using
+\code{var_limits}. For example, if \code{var_limits = list("bio12" = c(0, NA),
+"bio15" = c(0, 100))}, the lower limit for \code{bio12} will be 0, and the
+upper limit will be calculated using the extrapolation factor. Similarly,
+the lower and upper limits for \code{bio15} will be 0 and 100, respectively.
+
+For calculating the vertex position, a response curve for a given variable is
+generated with all other variables set to their mean values (or mode for
+categorical variables). These values are calculated either from the presence
+localities (if \code{averages_from = "pr"}) or from the combined set of
+presence and background localities (if \code{averages_from = "pr_bg"}).
 }
 \examples{
 # Import example of a fitted_model (output of fit_selected()) that have

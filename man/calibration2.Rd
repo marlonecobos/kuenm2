@@ -5,7 +5,8 @@
 \title{Calibration, evaluation, and selection of candidate models}
 \usage{
 calibration2(data, test_concave = TRUE, extrapolation_factor = 0.1,
-           limit_is_zero = NULL, addsamplestobackground = TRUE,
+           var_limits = NULL, averages_from = "pr" ,
+           addsamplestobackground = TRUE,
            use_weights = FALSE, parallel = TRUE, ncores = 4,
            parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
            out_dir = NULL, skip_existing_models = FALSE,
@@ -26,11 +27,16 @@ extrapolation range for each variable when detecting concave curves. Larger
 values allow broader extrapolation beyond the observed data range, while
 smaller values restrict the range. Default is 0.1. See details.}
 
-\item{limit_is_zero}{(character) names of variables whose lower limit is zero
-and should not include negative values (e.g., precipitation variables). This
-ensures that the detection of concave curves, which identify higher
-suitability at both extremes, are constrained at the lower boundary of zero.
-Default is NULL, meaning no variables will have their lower limit set to zero.}
+\item{var_limits}{(list) A named list specifying the lower and/or upper limits
+for some variables. The first value represents the lower limit, and the
+second value represents the upper limit. Default is \code{NULL}, meaning no
+specific limits are applied, and the range will be calculated using the
+\code{extrapolation_factor}. See details.}
+
+\item{averages_from}{(character) specifies how the averages or modes of the
+variables are calculated. Available options are "pr" (to calculate averages
+from the presence localities) or "pr_bg" (to use the combined set of presence
+and background localities). Default is "pr". See details.}
 
 \item{addsamplestobackground}{(logical) whether to add to the background any
 presence sample that is not already there. Default is TRUE.}
@@ -150,6 +156,18 @@ as the difference between the variable's maximum and minimum values in the
 model, multiplied by the extrapolation factor. A concave curve is detected
 when the beta coefficient is positive, and the vertex — where the curve
 changes direction — lies between the lower and upper limits of the variable.
+
+Users can specify the lower and upper limits for certain variables using
+\code{var_limits}. For example, if \code{var_limits = list("bio12" = c(0, NA),
+"bio15" = c(0, 100))}, the lower limit for \code{bio12} will be 0, and the
+upper limit will be calculated using the extrapolation factor. Similarly,
+the lower and upper limits for \code{bio15} will be 0 and 100, respectively.
+
+For calculating the vertex position, a response curve for a given variable is
+generated with all other variables set to their mean values (or mode for
+categorical variables). These values are calculated either from the presence
+localities (if \code{averages_from = "pr"}) or from the combined set of
+presence and background localities (if \code{averages_from = "pr_bg"}).
 }
 \examples{
 # Import occurrences
@@ -158,9 +176,8 @@ data(occ_data, package = "kuenm2")
 # Import variables
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
-
-# Use only variables 1, 2 and 3
-var <- var[[1:3]]
+#Remove categorical variable
+var <- var[[1:4]]
 
 #### GLMNET ####
 # Prepare data for glmnet model
@@ -171,7 +188,7 @@ sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        do_pca = FALSE, deviance_explained = 95,
                        min_explained = 5, center = TRUE, scale = TRUE,
                        write_pca = FALSE, output_pca = NULL, nbg = 100,
-                       kfolds = 4, weights = NULL, min_number = 2,
+                       kfolds = 4, weights = NULL, min_number = 3,
                        min_continuous = NULL,
                        features = c("l", "lq"),
                        regm = 1,
@@ -181,24 +198,27 @@ sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
 
 # Calibrate glmnet models
 m <- calibration2(data = sp_swd,
-                 test_concave = TRUE,
-                 extrapolation_factor = 0.1,
-                 limit_is_zero = NULL,
-                 parallel = FALSE,
-                 ncores = 1,
-                 progress_bar = TRUE,
-                 write_summary = FALSE,
-                 out_dir = NULL,
-                 parallel_type = "doSNOW",
-                 return_replicate = TRUE,
-                 omission_rate = c(5, 10),
-                 omrat_threshold = 10,
-                 allow_tolerance = TRUE,
-                 tolerance = 0.01,
-                 AIC = "ws",
-                 delta_aic = 2,
-                 skip_existing_models = FALSE,
-                 verbose = TRUE)
+                  test_concave = TRUE,
+                  extrapolation_factor = 0.1,
+                  var_limits = list("bio_7" = c(0, NA),
+                                    "bio_12" = c(0, NA),
+                                    "bio_15" = c(0, 100)),
+                  averages_from = "pr",
+                  parallel = FALSE,
+                  ncores = 1,
+                  progress_bar = TRUE,
+                  write_summary = FALSE,
+                  out_dir = NULL,
+                  parallel_type = "doSNOW",
+                  return_replicate = TRUE,
+                  omission_rate = c(5, 10),
+                  omrat_threshold = 10,
+                  allow_tolerance = TRUE,
+                  tolerance = 0.01,
+                  AIC = "ws",
+                  delta_aic = 2,
+                  skip_existing_models = FALSE,
+                  verbose = TRUE)
 m
 
 #### GLM ####
@@ -210,7 +230,7 @@ sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
                            do_pca = FALSE, deviance_explained = 95,
                            min_explained = 5, center = TRUE, scale = TRUE,
                            write_pca = FALSE, output_pca = NULL, nbg = 100,
-                           kfolds = 4, weights = NULL, min_number = 2,
+                           kfolds = 4, weights = NULL, min_number = 3,
                            min_continuous = NULL,
                            features = c("l", "lq"),
                            regm = 1,
@@ -220,25 +240,29 @@ sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
 
 # Calibrate glm models
 m_glm <- calibration2(data = sp_swd_glm,
-                     test_concave = TRUE,
-                     extrapolation_factor = 0.1,
-                     limit_is_zero = NULL,
-                     parallel = FALSE,
-                     ncores = 1,
-                     progress_bar = TRUE,
-                     write_summary = FALSE,
-                     out_dir = NULL,
-                     parallel_type = "doSNOW",
-                     return_replicate = TRUE,
-                     omission_rate = c(5, 10),
-                     omrat_threshold = 10,
-                     allow_tolerance = TRUE,
-                     tolerance = 0.01,
-                     AIC = "ws",
-                     delta_aic = 2,
-                     skip_existing_models = FALSE,
-                     verbose = TRUE)
+                      test_concave = TRUE,
+                      extrapolation_factor = 0.1,
+                      var_limits = list("bio_7" = c(0, NA),
+                                        "bio_12" = c(0, NA),
+                                        "bio_15" = c(0, 100)),
+                      averages_from = "pr",
+                      parallel = FALSE,
+                      ncores = 1,
+                      progress_bar = TRUE,
+                      write_summary = FALSE,
+                      out_dir = NULL,
+                      parallel_type = "doSNOW",
+                      return_replicate = TRUE,
+                      omission_rate = c(5, 10),
+                      omrat_threshold = 10,
+                      allow_tolerance = TRUE,
+                      tolerance = 0.01,
+                      AIC = "ws",
+                      delta_aic = 2,
+                      skip_existing_models = FALSE,
+                      verbose = TRUE)
 m_glm
+
 }
 \references{
 Ninomiya, Yoshiyuki, and Shuichi Kawano. "AIC for the Lasso in generalized
