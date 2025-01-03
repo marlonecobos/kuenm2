@@ -8,7 +8,8 @@ prepare_data(model_type = "glmnet", occ, species = NULL, x, y,
                    spat_variables, mask = NULL, categorical_variables = NULL,
                    do_pca = FALSE, deviance_explained = 95,
                    min_explained = 5, center = TRUE, scale = TRUE,
-                   write_pca = FALSE, output_pca = NULL, nbg = 10000,
+                   write_pca = FALSE, output_pca = NULL,
+                   exclude_from_pca = NULL, nbg = 10000,
                    kfolds = 4, weights = NULL, min_number = 2,
                    min_continuous = NULL,
                    features = c("l", "q", "p", "lq", "lqp"),
@@ -62,6 +63,12 @@ variance before the analysis takes place. Default is TRUE.}
 \item{output_pca}{(character) the path or name of the folder where the PCA-
 derived raster layers will be saved. This is only applicable if
 \code{write_pca = TRUE}. Default is NULL.}
+
+\item{exclude_from_pca}{(character) variable names within spat_variables that
+should not be included in the PCA transformation. Instead, these
+variables will be added directly to the final set of output variables
+without being modified. The default is NULL, meaning all variables
+will be used unless specified otherwise.}
 
 \item{nbg}{(numeric) number of points to represent the background for the
 model. Default is 10000.}
@@ -121,7 +128,8 @@ sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        categorical_variables = "SoilType",
                        do_pca = FALSE, deviance_explained = 95,
                        min_explained = 5, center = TRUE, scale = TRUE,
-                       write_pca = FALSE, output_pca = NULL, nbg = 500,
+                       write_pca = FALSE, output_pca = NULL,
+                       exclude_from_pca = NULL, nbg = 500,
                        kfolds = 4, weights = NULL, min_number = 2,
                        min_continuous = NULL,
                        features = c("l", "q", "p", "lq", "lqp"),
@@ -137,7 +145,8 @@ sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
                            categorical_variables = "SoilType",
                            do_pca = FALSE, deviance_explained = 95,
                            min_explained = 5, center = TRUE, scale = TRUE,
-                           write_pca = FALSE, output_pca = NULL, nbg = 500,
+                           write_pca = FALSE, output_pca = NULL,
+                           exclude_from_pca = NULL, nbg = 500,
                            kfolds = 4, weights = NULL, min_number = 2,
                            min_continuous = NULL, features = c("l", "q", "lq", "lpq"),
                            regm = c(0.1, 1, 2), include_xy = TRUE,
