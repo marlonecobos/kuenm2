@@ -3,9 +3,11 @@
 #' @description
 #' This function selects the best models according to user-defined criteria, evaluating statistical significance (partial ROC), predictive ability (omission rates), and model complexity (AIC).
 #'
+#' @param calibration_results an object of class `calibration_results` returned
+#' by the \code{\link{calibration}}() function. Default is NULL.
 #' @param cand_models (data.frame) a summary of the evaluation metrics for each
 #' candidate model. In the output of the \code{\link{calibration}}(), this
-#' data.frame is located in `$calibration_results$Summary`.
+#' data.frame is located in `$calibration_results$Summary`. Default is NULL.
 #' @param model_type (character) model type, either "glm" or "glmnet".
 #' @param test_concave (logical) whether to remove candidate models presenting
 #' concave curves. Default is TRUE.
@@ -36,7 +38,9 @@
 #' (2008; http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008).
 #'
 #' @return
-#' A list containing the following elements:
+#' If calibration_results is provided, it returns a new calibration_results with
+#' the new selected models and summary. If calibration_results is NULL, it
+#' returns a list containing the following elements:
 #' - selected_models: data frame with the ID and the summary of evaluation
 #' metrics for the selected models.
 #' - summary: A list containing the delta AIC values for model selection, and
@@ -76,7 +80,8 @@
 #' calib_results_glm$selected_models <- new_best_model$cand_final
 #' calib_results_glm$summary <- new_best_model$summary
 #'
-sel_best_models <- function(cand_models,
+sel_best_models <- function(calibration_results = NULL,
+                            cand_models = NULL,
                             model_type = c("glmnet", "glm"),
                             test_concave = TRUE,
                             omrat_threshold = 10,
@@ -86,6 +91,14 @@ sel_best_models <- function(cand_models,
                             significance = 0.05,
                             delta_aic = 2,
                             verbose = TRUE) {
+  #Check data
+  if(is.null(calibration_results) & is.null(cand_models)){
+    stop("You must specified calibration_results or cand_models")
+  }
+
+  if(!is.null(calibration_results)){
+    cand_models <- calibration_results$calibration_results$Summary
+  }
 
   # Adjust AIC column based on model type
   if (model_type == "glmnet") {
@@ -184,7 +197,14 @@ sel_best_models <- function(cand_models,
                                  "High_AIC" = high_aic,
                                  "Selected" = cand_final$ID))
 
-  return(sel_res)
+  #Update calibration_results if necessary
+  if(!is.null(calibration_results)){
+    calibration_results$selected_models <- sel_res$cand_final
+    calibration_results$summary <- sel_res$summary
+    calibration_results$omission_rate <- omrat_threshold
+    return(calibration_results)
+  } else {
+  return(sel_res)}
 }
 
 

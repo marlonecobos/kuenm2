@@ -144,12 +144,16 @@ detect_concave <- function(model, calib_data,
   #Store information in a list
   var_info <- lapply(names(vertex), function(v){
 
+    #Get min and max from variables
+    varmin <- min(calib_data[, v])
+    varmax <- max(calib_data[, v])
+
     #Get extrapolation
-    rr <- diff(c(model$varmin[[v]], model$varmax[[v]]))
+    rr <- diff(c(varmin, varmax))
     extrapolation_factor_i <- rr * extrapolation_factor
 
-    x_min <- model$varmin[[v]] - extrapolation_factor_i
-    x_max <- model$varmax[[v]] + extrapolation_factor_i
+    x_min <- varmin - extrapolation_factor_i
+    x_max <- varmax + extrapolation_factor_i
 
     #Set manual limits
     if(!is.null(var_limits)){
@@ -175,8 +179,8 @@ detect_concave <- function(model, calib_data,
              "b2" = b2,
              "x_min" = x_min,
              "x_max" = x_max,
-             "real_x_min" = model$varmin[[v]],
-             "real_x_max" = model$varmax[[v]]))
+             "real_x_min" = varmin,
+             "real_x_max" = varmax))
     })
 
   names(var_info) <- names(vertex)
@@ -196,7 +200,8 @@ detect_concave <- function(model, calib_data,
                     extrapolation_factor = extrapolation_factor,
                     categorical_variables = cv,
                     averages_from = averages_from,
-                    l_limit = var_info[[i]]$x_min, u_limit = var_info[[i]]$x_max)
+                    l_limit = var_info[[i]]$x_min,
+                    u_limit = var_info[[i]]$x_max)
       #Extract info to plot
       variable <- i
       x_values <- r[,1]
@@ -206,8 +211,8 @@ detect_concave <- function(model, calib_data,
       beta2 <- var_info[[i]][["b2"]]
       vertex_v <- var_info[[i]][["vertex"]]
       beta0 <- coefs[[1]]
-      real_xmin <- model$varmin[[variable]]
-      real_xmax <- model$varmax[[variable]]
+      real_xmin <- var_info[[i]][["real_x_min"]]
+      real_xmax <- var_info[[i]][["real_x_max"]]
 
       plot_curve_direction(model, x_values, y_values, variable, x_min, x_max,
                            beta2, vertex_v, real_xmin, real_xmax, means, legend,

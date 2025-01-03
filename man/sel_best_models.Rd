@@ -5,7 +5,8 @@
 \title{Select best models}
 \usage{
 sel_best_models(
-  cand_models,
+  calibration_results = NULL,
+  cand_models = NULL,
   model_type = c("glmnet", "glm"),
   test_concave = TRUE,
   omrat_threshold = 10,
@@ -18,9 +19,12 @@ sel_best_models(
 )
 }
 \arguments{
+\item{calibration_results}{an object of class \code{calibration_results} returned
+by the \code{\link{calibration}}() function. Default is NULL.}
+
 \item{cand_models}{(data.frame) a summary of the evaluation metrics for each
 candidate model. In the output of the \code{\link{calibration}}(), this
-data.frame is located in \verb{$calibration_results$Summary}.}
+data.frame is located in \verb{$calibration_results$Summary}. Default is NULL.}
 
 \item{model_type}{(character) model type, either "glm" or "glmnet".}
 
@@ -56,7 +60,9 @@ select models. Default is 2.}
 Default is TRUE.}
 }
 \value{
-A list containing the following elements:
+If calibration_results is provided, it returns a new calibration_results with
+the new selected models and summary. If calibration_results is NULL, it
+returns a list containing the following elements:
 \itemize{
 \item selected_models: data frame with the ID and the summary of evaluation
 metrics for the selected models.

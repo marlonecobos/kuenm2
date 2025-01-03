@@ -39,6 +39,11 @@
 #' @param output_pca (character) the path or name of the folder where the PCA-
 #'        derived raster layers will be saved. This is only applicable if
 #'        `write_pca = TRUE`. Default is NULL.
+#' @param exclude_from_pca (character) variable names within spat_variables that
+#'        should not be included in the PCA transformation. Instead, these
+#'        variables will be added directly to the final set of output variables
+#'        without being modified. The default is NULL, meaning all variables
+#'        will be used unless specified otherwise.
 #' @param nbg (numeric) number of points to represent the background for the
 #'        model. Default is 10000.
 #' @param kfolds (numeric) the number of groups (folds) into which the occurrence
@@ -74,7 +79,8 @@
 #'                    spat_variables, mask = NULL, categorical_variables = NULL,
 #'                    do_pca = FALSE, deviance_explained = 95,
 #'                    min_explained = 5, center = TRUE, scale = TRUE,
-#'                    write_pca = FALSE, output_pca = NULL, nbg = 10000,
+#'                    write_pca = FALSE, output_pca = NULL,
+#'                    exclude_from_pca = NULL, nbg = 10000,
 #'                    kfolds = 4, weights = NULL, min_number = 2,
 #'                    min_continuous = NULL,
 #'                    features = c("l", "q", "p", "lq", "lqp"),
@@ -93,7 +99,8 @@
 #'                        categorical_variables = "SoilType",
 #'                        do_pca = FALSE, deviance_explained = 95,
 #'                        min_explained = 5, center = TRUE, scale = TRUE,
-#'                        write_pca = FALSE, output_pca = NULL, nbg = 500,
+#'                        write_pca = FALSE, output_pca = NULL,
+#'                        exclude_from_pca = NULL, nbg = 500,
 #'                        kfolds = 4, weights = NULL, min_number = 2,
 #'                        min_continuous = NULL,
 #'                        features = c("l", "q", "p", "lq", "lqp"),
@@ -109,7 +116,8 @@
 #'                            categorical_variables = "SoilType",
 #'                            do_pca = FALSE, deviance_explained = 95,
 #'                            min_explained = 5, center = TRUE, scale = TRUE,
-#'                            write_pca = FALSE, output_pca = NULL, nbg = 500,
+#'                            write_pca = FALSE, output_pca = NULL,
+#'                            exclude_from_pca = NULL, nbg = 500,
 #'                            kfolds = 4, weights = NULL, min_number = 2,
 #'                            min_continuous = NULL, features = c("l", "q", "lq", "lpq"),
 #'                            regm = c(0.1, 1, 2), include_xy = TRUE,
@@ -133,6 +141,7 @@ prepare_data <- function(model_type = "glmnet",
                          scale = TRUE,
                          write_pca = FALSE,
                          output_pca = NULL,
+                         exclude_from_pca = NULL,
                          nbg = 10000,
                          kfolds = 4,
                          weights = NULL,
@@ -318,9 +327,9 @@ prepare_data <- function(model_type = "glmnet",
 
   if (do_pca) {
     if (!is.null(categorical_variables)){
-      exclude_from_pca = categorical_variables
+      exclude_from_pca = c(categorical_variables, exclude_from_pca)
     } else {
-      exclude_from_pca = NULL
+      exclude_from_pca = exclude_from_pca
     }
     pca <- perform_pca(spat_variables, exclude_from_pca = exclude_from_pca,
                        project = FALSE, projection_data = NULL, out_dir = NULL,
@@ -329,7 +338,6 @@ prepare_data <- function(model_type = "glmnet",
                        deviance_explained = deviance_explained,
                        min_explained = min_explained)
     pca$projection_directory <- NULL #Remove projection directory
-
     env <- pca$env
   } else {
     env <- spat_variables
