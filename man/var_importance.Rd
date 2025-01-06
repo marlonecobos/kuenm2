@@ -4,13 +4,30 @@
 \alias{var_importance}
 \title{Variable importance}
 \usage{
-var_importance(models, modelID = NULL)
+var_importance(models, modelID = NULL, parallel = FALSE, ncores = 2,
+               parallelType = "doSNOW", progress_bar = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
 \code{\link{fit_selected}}() function.}
 
 \item{modelID}{(character). Default = NULL.}
+
+\item{parallel}{(logical) whether to calculate importance in parallel.
+Default is FALSE.}
+
+\item{ncores}{(numeric) the number of cores to use for parallel processing.
+Default is 2. This is only applicable if \code{parallel = TRUE}.}
+
+\item{parallelType}{(character) the parallelization package to use:
+either "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable
+if \code{parallel = TRUE}.}
+
+\item{progress_bar}{(logical) whether to display a progress bar during processing.
+Default is TRUE.}
+
+\item{verbose}{(logical) whether to display detailed messages during processing.
+Default is TRUE.}
 }
 \value{
 A data.frame containing the relative contribution of each variable. An
