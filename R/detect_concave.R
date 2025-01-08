@@ -145,6 +145,7 @@ detect_concave <- function(model, calib_data,
   var_names <- names(coefs[coefs != 0])
   var_names <- var_names[var_names != "(Intercept)"]
   var_names <- gsub("I\\((.*?)\\^2\\)", "\\1", var_names)
+  var_names <- var_names[!grepl("categorical", var_names)]
   var_names <- unique(unlist(strsplit(var_names, ":")))
 
   var_info <- lapply(var_names, function(v){
