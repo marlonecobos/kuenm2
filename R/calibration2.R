@@ -608,7 +608,8 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
   if (isTRUE(is_c) | is.na(is_c)) {
     # If concave, return grid
     grid_q <- if (model_type == "glmnet") {
-      all_reg <- unique(formula_grid$regm)
+      all_reg <- formula_grid$regm[formula_grid$Formulas == grid_x$Formulas &
+                                     formula_grid$Features == grid_x$Features]
       do.call("rbind", lapply(seq_along(all_reg), function(k) {
         grid_x_i <- grid_x
         grid_x_i$regm <- all_reg[k]
