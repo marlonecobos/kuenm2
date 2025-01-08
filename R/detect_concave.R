@@ -85,7 +85,7 @@
 detect_concave <- function(model, calib_data,
                           extrapolation_factor = 0.1,
                           averages_from = "pr",
-                          var_limits = NULL, plot = FALSE,
+                          var_limits = NULL, plot = FALSE, plot_linear = FALSE,
                           mfrow = NULL, legend = FALSE){
 
 
@@ -142,8 +142,12 @@ detect_concave <- function(model, calib_data,
   }
 
   #Store information in a list
-  var_info <- lapply(names(vertex), function(v){
+  var_names <- names(coefs[coefs != 0])
+  var_names <- var_names[var_names != "(Intercept)"]
+  var_names <- gsub("I\\((.*?)\\^2\\)", "\\1", var_names)
+  var_names <- unique(unlist(strsplit(var_names, ":")))
 
+  var_info <- lapply(var_names, function(v){
     #Get min and max from variables
     varmin <- min(calib_data[, v])
     varmax <- max(calib_data[, v])
@@ -167,15 +171,24 @@ detect_concave <- function(model, calib_data,
     }
 
     #Beta coefficient
-    b2 <- coefs[[paste0("I(", v, "^2)")]]
+    v2 <- paste0("I(", v, "^2)")
+    if(v2 %in% names(coefs)){
+    b2 <- coefs[[v2]] } else {
+      b2 <- 0
+    }
 
     #Check if curve is concave
+    if(v %in% names(vertex)){
     is_concave <- b2 > 0 &
       vertex[[v]] > x_min &
       vertex[[v]] < x_max
+    vertex_v <- vertex[[v]]} else {
+        is_concave <- FALSE
+        vertex_v <- NA
+      }
 
     return(list("is_concave" = is_concave,
-             "vertex" = vertex[[v]],
+             "vertex" =  vertex_v ,
              "b2" = b2,
              "x_min" = x_min,
              "x_max" = x_max,
@@ -183,7 +196,7 @@ detect_concave <- function(model, calib_data,
              "real_x_max" = varmax))
     })
 
-  names(var_info) <- names(vertex)
+  names(var_info) <- var_names
 
   #If plot...
   if(plot){
@@ -230,7 +243,7 @@ detect_concave <- function(model, calib_data,
 # Plot curve
 plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_max,
                                  beta2, vertex_v, real_xmin, real_xmax, means,
-                                 legend = legend, model_type) {
+                                 legend, model_type) {
 
   # Plot curve
   plot(x_values, y_values, type = "l", col = "blue",
@@ -238,6 +251,7 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
 
   # Add vertex to the graph
   #Get variables means
+  if(!is.na(vertex_v)){
   means_v <- as.data.frame(t(c(means[names(means) != variable],
                                setNames(vertex_v, variable))))
   if(model_type == "glmnet_mx"){
@@ -247,6 +261,7 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
   }
   points(vertex_v, p_vertex, col = "red", pch = 19)
   text(vertex_v, p_vertex, "vertex", col = "red", pos = 4)  # Add the text "vertex"
+  }
 
 
   # Add variable range
@@ -255,11 +270,14 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
 
   if(legend){
     result <- if(beta2 < 0) {
-      "Convex curve"
+      "Unimodal curve"
     } else if (beta2 > 0 & vertex_v > x_min & vertex_v < x_max) {
-      "Concave curve inside the range"
+      "Bimodal curve inside the range"
     } else if (beta2 > 0 & (vertex_v < x_min | vertex_v > x_max)){
-      "Concave curve outside the range"}
+      "Bimodal curve outside the range"
+    } else if (beta2 == 0){
+      "Monotonic curve"
+      }
 
     # legend("topright", legend = result, col = "black", lty = 1, cex = 0.8,
     #        bty = "n")

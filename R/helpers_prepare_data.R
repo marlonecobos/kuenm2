@@ -171,7 +171,6 @@ calibration_grid_glmnetmx <- function(occ_bg,
 
   # Split features
   formula_x <- list()
-  n_variables <- c()
   for(f_x in features) {
     if(grepl("p", f_x) & !is.null(categorical_var)) {
       var_comb_new <- var_comb[sapply(var_comb, function(x) sum(!x %in% categorical_var)) >= 2]
@@ -182,15 +181,12 @@ calibration_grid_glmnetmx <- function(occ_bg,
       f_l <- prepare_formulas_glmnetmx(independent = vc, type = f_x, categorical_var = categorical_var)
       names(f_l) <- f_x
       formula_x <- c(formula_x, f_l)
-      #Get number of variables
-      n_variables <- c(n_variables, length(vc))
-    }
+      }
   }
 
   # Create a data frame with formulas and their corresponding features
   formula_d <- data.frame(Formulas = vapply(formula_x, function(f) paste(f, "-1"), character(1)),
                           Features = names(formula_x),
-                          n_variables = n_variables,
                           stringsAsFactors = FALSE)
 
   # Expand the grid by combining formulas and regularization parameters
@@ -199,7 +195,7 @@ calibration_grid_glmnetmx <- function(occ_bg,
 
   f_grid <- merge(f_grid, formula_d, by = "Formulas", sort = FALSE)
   f_grid$ID <- seq_len(nrow(f_grid))
-  f_grid <- f_grid[, c("ID", "Formulas", "regm", "Features", "n_variables")]
+  f_grid <- f_grid[, c("ID", "Formulas", "regm", "Features")]
   f_grid$Formulas <- as.character(f_grid$Formulas)
 
   return(f_grid)
@@ -309,7 +305,6 @@ calibration_grid_glm <- function(occ_bg,
 
   # Prepare formulas for each feature type
   formula_list <- list()
-  n_variables <- c()
 
   for (feature_type in features) {
     if (grepl("p", feature_type) && !is.null(categorical_var)) {
@@ -322,9 +317,7 @@ calibration_grid_glm <- function(occ_bg,
       formula <- prepare_formulas_glm(independent = vars, type = feature_type,
                                       categorical_var = categorical_var)
       formula_list <- c(formula_list, setNames(list(formula), feature_type))
-      #Get number of variables
-      n_variables <- c(n_variables, length(vars))
-    }
+      }
   }
 
   # Create a data frame with the formulas and their corresponding features
@@ -332,7 +325,6 @@ calibration_grid_glm <- function(occ_bg,
     ID = seq_along(formula_list),
     Formulas = unlist(formula_list),
     Features = names(formula_list),
-    n_variables = n_variables,
     stringsAsFactors = FALSE
   )
   return(formula_grid)
