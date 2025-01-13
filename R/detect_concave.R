@@ -79,7 +79,9 @@
 #' detect_concave(model = fitted_model_concave$Models$Model_798$Full_model,
 #'                calib_data = fitted_model_concave$calibration_data,
 #'                extrapolation_factor = 0.2,
-#'                limit_is_zero = c("sand", "clay"),
+#'                var_limits = list("bio_2" = c(0, NA),
+#'                                  "sand" = c(0, NA),
+#'                                  "clay" = c(0, NA))
 #'                plot = TRUE, mfrow = c(2, 3), legend = TRUE)
 #'
 detect_concave <- function(model, calib_data,
@@ -260,8 +262,8 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
   } else {
     p_vertex <- predict.glm(model, newdata = means_v, type = "response")
   }
-  points(vertex_v, p_vertex, col = "red", pch = 19)
-  text(vertex_v, p_vertex, "vertex", col = "red", pos = 4)  # Add the text "vertex"
+  points(vertex_v, p_vertex, col = "black", pch = 19)
+  text(vertex_v, p_vertex, "vertex", col = "black", pos = 4)  # Add the text "vertex"
   }
 
 
@@ -271,11 +273,11 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
 
   if(legend){
     result <- if(beta2 < 0) {
-      "Unimodal curve"
+      "Convex curve"
     } else if (beta2 > 0 & vertex_v > x_min & vertex_v < x_max) {
-      "Bimodal curve inside the range"
+      "Concave curve inside the range"
     } else if (beta2 > 0 & (vertex_v < x_min | vertex_v > x_max)){
-      "Bimodal curve outside the range"
+      "Concave curve outside the range"
     } else if (beta2 == 0){
       "Monotonic curve"
       }
@@ -285,11 +287,11 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
 
     #Get color of subtitle
     color_sub <- if(beta2 < 0) {
-      "forestgreen"
+      "#009E73"
     } else if (beta2 > 0 & vertex_v > x_min & vertex_v < x_max) {
-      "red"
+      "#D55E00"
     } else if (beta2 > 0 & (vertex_v < x_min | vertex_v > x_max)){
-      "orange"}
+      "#CC79A7"}
 
     mtext(result, side = 3, line = 0.5, cex = 0.8, col = color_sub, font = 2)
 
