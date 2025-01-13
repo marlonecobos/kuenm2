@@ -133,12 +133,12 @@ detect_concave <- function(model, calib_data,
   #Variables to limit manually
   if(!is.null(var_limits)){
     v_lim <- names(var_limits)
-    #Check if some variable is not correctly assigned
-    var_out <- setdiff(v_lim, colnames(calib_data))
-    if(length(var_out) > 0)
-      stop("Variables specified in 'var_limits' are absent from the model.\n",
-           "The available variables for defining limits are: ",
-           paste(names(vertex), collapse = "; "))
+    # #Check if some variable is not correctly assigned
+    # var_out <- setdiff(v_lim, colnames(calib_data))
+    # if(length(var_out) > 0)
+    #   warning("Variables specified in 'var_limits' are absent from the model.\n",
+    #        "The available variables for defining limits are: ",
+    #        paste(names(vertex), collapse = "; "))
   }
 
   #Store information in a list
