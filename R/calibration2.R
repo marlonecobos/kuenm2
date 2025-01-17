@@ -80,6 +80,8 @@
 #' tolerance. Default is 0.01.
 #' @param verbose (logical) whether to display messages during processing.
 #' Default is TRUE.
+#' @param ... Additional arguments passed to \code{\link[enmpa]{proc_enm}} for
+#' calculating partial ROC. See ?enmpa::proc_enm
 #'
 #' @importFrom parallel makeCluster stopCluster
 #' @importFrom doParallel registerDoParallel
@@ -275,7 +277,7 @@ calibration2 <- function(data,
                         delta_aic = 2,
                         allow_tolerance = TRUE,
                         tolerance = 0.01,
-                        verbose = TRUE) {
+                        verbose = TRUE, ...) {
 
   # Convert calibration data to dataframe if necessary
   if (is.matrix(data$calibration_data) || is.array(data$calibration_data)) {
@@ -394,7 +396,7 @@ calibration2 <- function(data,
                              model_type = model_type, AIC = AIC,
                              extrapolation_factor = extrapolation_factor,
                              var_limits = var_limits,
-                             averages_from = averages_from
+                             averages_from = averages_from, ...
             )
           # Sets the progress bar to the current state
           if(progress_bar) setTxtProgressBar(pb, x)
@@ -533,7 +535,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
                              write_summary, addsamplestobackground, weights,
                              return_replicate, model_type,
                              AIC, extrapolation_factor, var_limits,
-                             averages_from = "pr") {
+                             averages_from = "pr", ...) {
 
   # Arguments:
   # x: Each line of the formula grid
@@ -634,7 +636,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
 
   } else {
     # If not concave, calculate metrics
-    bgind <- which(data$calibration_data == 0)
+    bgind <- which(data$calibration_data$pr_bg == 0)
     mods <- lapply(1:length(data$kfolds), function(i) {
       notrain <- -data$kfolds[[i]]
       data_i <- data$calibration_data[notrain, ]
@@ -672,13 +674,13 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
       #Proc
       proc_i <- lapply(omission_rate, function(omr){
         proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                    prediction = pred_i, threshold = omr)$pROC_summary
+                                    prediction = pred_i,
+                                    threshold = omr, ...)$pROC_summary
         names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
                              paste0("pval_pROC_at_", omr))
         return(proc_omr)
       })
       proc_i <- unlist(proc_i)
-
 
       df_eval_q <-  if (model_type == "glmnet") {
         data.frame(Replicate = i,
@@ -806,7 +808,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
     # is_c <- if (length(q_betas) == 0) FALSE else any(q_betas > 0)
 
     # Get background index
-    bgind <- which(data$calibration_data == 0)
+    bgind <- which(data$calibration_data$pr_bg == 0)
 
     # Fit models using k-fold cross-validation
     mods <- try(lapply(1:length(data$kfolds), function(i) {
@@ -854,7 +856,8 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
       #Proc
       proc_i <- lapply(omission_rate, function(omr){
         proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                    prediction = pred_i, threshold = omr)$pROC_summary
+                                    prediction = pred_i,
+                                    threshold = omr, ...)$pROC_summary
         names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
                              paste0("pval_pROC_at_", omr))
         return(proc_omr)

@@ -99,6 +99,9 @@ tolerance. Default is 0.01.}
 
 \item{verbose}{(logical) whether to display messages during processing.
 Default is TRUE.}
+
+\item{...}{Additional arguments passed to \code{\link[enmpa]{proc_enm}} for
+calculating partial ROC. See ?enmpa::proc_enm}
 }
 \value{
 An object of class 'calibration_results' containing the following elements:
