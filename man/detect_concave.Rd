@@ -88,7 +88,9 @@ data("fitted_model_concave", package = "kuenm2")
 detect_concave(model = fitted_model_concave$Models$Model_798$Full_model,
                calib_data = fitted_model_concave$calibration_data,
                extrapolation_factor = 0.2,
-               limit_is_zero = c("sand", "clay"),
+               var_limits = list("bio_2" = c(0, NA),
+                                 "sand" = c(0, NA),
+                                 "clay" = c(0, NA))
                plot = TRUE, mfrow = c(2, 3), legend = TRUE)
 
 }
