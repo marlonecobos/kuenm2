@@ -12,11 +12,10 @@ extract_occurrence_variables <- function(occ, x, y, env) {
 generate_background_variables <- function(env, nbg) {
   cell_samp <- terra::as.data.frame(env[[1]], na.rm = TRUE, cells = TRUE)[, "cell"]
 
-  if (length(cell_samp) < nbg) {
-    nbg <- length(cell_samp)
+  if (length(cell_samp) > nbg) {
+    cell_samp <- sample(cell_samp, size = nbg, replace = FALSE)
   }
 
-  cell_samp <- sample(cell_samp, size = nbg, replace = FALSE)
   bg_var <- terra::extract(x = env, y = cell_samp, xy = TRUE)
   bg_var$pr_bg <- 0
 

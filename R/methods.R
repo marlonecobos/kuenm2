@@ -162,7 +162,7 @@ print.prepared_data <- function(x, ...) {
   if(algorithm == "glmnet"){
     cat("Calibration Grid (GLMNET)\n")
     cat("  - Features used:", paste(unique(x$formula_grid$Features), collapse = ", "), "\n")
-    cat("  - Reg. multipliers used:", paste(unique(x$formula_grid$regm), collapse = ", "), "\n")
+    cat("  - Reg. multipliers used:", paste(unique(x$formula_grid$reg_mult), collapse = ", "), "\n")
     cat("  - Number of combinations:", nrow(x$formula_grid), "\n")
     cat("  - Print formulas (n = 5):\n")
     print(head(x$formula_grid, 5))
