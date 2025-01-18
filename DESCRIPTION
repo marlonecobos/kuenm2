@@ -1,7 +1,7 @@
 Package: kuenm2
 Type: Package
 Title: Detailed Development of Ecological Niche Models
-Version: 0.0.8
+Version: 0.0.9
 Authors@R: c(
     person("Marlon E.", "Cobos", email = "manubio13@gmail.com", role = c("aut","cre"),
     comment = c(ORCID = "0000-0002-2611-1767")),
@@ -14,7 +14,7 @@ Authors@R: c(
     person("A. Townsend", "Peterson", email = "town@ku.edu", role = "aut",
     comment = c(ORCID = "0000-0003-0243-2379")))
 Maintainer: Marlon E. Cobos <manubio13@gmail.com>
-Date: 2024-09-20
+Date: 2025-01-18
 Description: A new set of tools to help with the development of detailed ecological 
     niche models using multiple algorithms. Pre-modeling analyses and 
     explorations can be done to prepare data. Model calibration (model selection)
@@ -22,7 +22,7 @@ Description: A new set of tools to help with the development of detailed ecologi
     for producing final models with transfers, and evaluating such models are
     included. Other tools to assess extrapolation risks and variability in model
     transfers are also available. Methodological and theoretical 
-    bases for the methods implemented here can be found in:
+    basis for the methods implemented here can be found in:
     Peterson et al. (2011) <https://www.degruyter.com/princetonup/view/title/506966>,
     Radosavljevic and Anderson (2014) <doi:10.1111/jbi.12227>, 
     Peterson et al. (2018) <doi:10.1111/nyas.13873>,
@@ -37,12 +37,12 @@ Imports:
     enmpa (>= 0.1.5),
     foreach (>= 1.5),
     glmnet (>= 4.1),
+    mgcv (>= 1.9),
     mop (>= 0.1),
     parallel,
     stats,
     terra (>= 1.6),
-    utils,
-    mgcv (>= 1.9)
+    utils
 Depends: 
     R (>= 3.5)
 VignetteBuilder: knitr
