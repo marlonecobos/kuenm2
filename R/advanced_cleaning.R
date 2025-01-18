@@ -18,7 +18,7 @@
 #' @param move_limit_distance maximum distance to move records outside cells
 #' with valid values. Default = NULL. Must be defined if \code{move_points_inside}
 #' = TRUE.
-#' @param verbose (logical) whether to print messages of progress. Deafult =
+#' @param verbose (logical) whether to print messages of progress. Default =
 #' TRUE.
 #'
 #' @details

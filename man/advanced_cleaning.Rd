@@ -39,7 +39,7 @@ cells with valid values to the closest cell with values. Default = TRUE.}
 with valid values. Default = NULL. Must be defined if \code{move_points_inside}
 = TRUE.}
 
-\item{verbose}{(logical) whether to print messages of progress. Deafult =
+\item{verbose}{(logical) whether to print messages of progress. Default =
 TRUE.}
 }
 \value{
