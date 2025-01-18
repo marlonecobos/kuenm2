@@ -119,10 +119,10 @@ predict_maxent <- function(object,newdata,type="logistic",...){
 }
 
 
-#' Print Method for prepare_data Class
+#' Print Method for prepared_data Class
 #' @export
-print.prepare_data <- function(x, ...) {
-  cat("prepare_data object summary\n")
+print.prepared_data <- function(x, ...) {
+  cat("prepared_data object summary\n")
   cat("==========================\n")
   cat("Species:", x$species, "\n")
   cat("Number of occurrences:", nrow(x$calibration_data), "\n")

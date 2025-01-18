@@ -3,7 +3,7 @@
 S3method(print,calibration_results)
 S3method(print,fitted_models)
 S3method(print,model_projections)
-S3method(print,prepare_data)
+S3method(print,prepared_data)
 S3method(print,projection_data)
 export(advanced_cleaning)
 export(assign_block)
