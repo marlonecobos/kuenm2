@@ -1,82 +1,4 @@
 #### HELPERS FOR PREPARE DATA ####
-#' prepare_data Class Constructor
-new_prepare_data <- function(species, calibration_data, formula_grid,
-                             kfolds, data_xy, continuous_variables,
-                             categorical_variables, weights, pca, model_type) {
-  data <- list(
-    species = species,
-    calibration_data = calibration_data,
-    formula_grid = formula_grid,
-    kfolds = kfolds,
-    data_xy = data_xy,
-    continuous_variables = continuous_variables,
-    categorical_variables = categorical_variables,
-    weights = weights,
-    pca = pca,
-    model_type = model_type
-  )
-  class(data) <- "prepare_data"
-  return(data)
-}
-
-#' Print Method for prepare_data Class
-#' @export
-print.prepare_data <- function(x, ...) {
-  cat("prepare_data object summary\n")
-  cat("==========================\n")
-  cat("Species:", x$species, "\n")
-  cat("Number of occurrences:", nrow(x$calibration_data), "\n")
-  cat("  - Number of presence points:", table(x$calibration_data$pr_bg)[2], "\n")
-  cat("  - Number of background points:", table(x$calibration_data$pr_bg)[1], "\n")
-
-  cat("k-Fold Cross-Validation:\n")
-  cat("  - Number of folds:", length(x$kfolds), "\n")
-  cat("Continuous Variables:\n")
-  cat("  -", paste(x$continuous_variables, collapse = ", "), "\n")
-
-  if (!is.null(x$categorical_variables) && length(x$categorical_variables) > 0) {
-    cat("Categorical Variables:\n")
-    cat("  -", paste(x$categorical_variables, collapse = ", "), "\n")
-  } else {
-    cat("Categorical Variables: None\n")
-  }
-
-  if (!is.null(x$pca)) {
-    cat("PCA Information:\n")
-    cat("  - Variables included:", paste(x$pca$pca$vars_in, collapse = ", "), "\n")
-    cat("  - Number of PCA components:", length(x$pca$deviance_explained_cumsum), "\n")
-  } else {
-    cat("PCA Information: PCA not performed\n")
-  }
-
-  if (!is.null(x$weights)) {
-    cat("Weights Information:\n")
-    cat("  - Weights provided: Yes\n")
-  } else {
-    cat("Weights Information: No weights provided\n")
-  }
-
-  model_type <- x$model_type
-
-  #Print formula grid
-  if(model_type == "glmnet"){
-    cat("Calibration Grid (GLMNET)\n")
-    cat("  - Features used:", paste(unique(x$formula_grid$Features), collapse = ", "), "\n")
-    cat("  - Reg. multipliers used:", paste(unique(x$formula_grid$regm), collapse = ", "), "\n")
-    cat("  - Number of combinations:", nrow(x$formula_grid), "\n")
-    cat("  - Print formulas (n = 5):\n")
-    print(head(x$formula_grid, 5))
-  }
-
-  if(model_type == "glm"){
-    cat("Calibration Grid (GLM)\n")
-    cat("  - Features used:", paste(unique(x$formula_grid$Features), collapse = ", "), "\n")
-    cat("  - Number of combinations:", nrow(x$formula_grid), "\n")
-    cat("  - Print (n = 5):\n")
-    print(head(x$formula_grid, 5))
-  }
-}
-
 # Helper function to extract occurrence variables
 extract_occurrence_variables <- function(occ, x, y, env) {
   xy <- as.matrix(occ[, c(x, y)])
@@ -122,21 +44,21 @@ calibration_grid <- function(occ_bg,
                              min_continuous = NULL,
                              categorical_var = NULL,
                              features = c("l", "q", "lq", "lqp", "p"),
-                             model_type = c("glm", "glmnet"),
+                             algorithm = c("glm", "glmnet"),
                              regm = c(0.1, 1, 2, 3, 5)) {
 
-  # Validate the model_type input
-  model_type <- match.arg(model_type)
+  # Validate the algorithm input
+  algorithm <- match.arg(algorithm)
 
 
-  if (model_type == "glm") {
+  if (algorithm == "glm") {
     # Call the GLM-specific function
     cal_grid_data <- calibration_grid_glm(occ_bg = occ_bg,
                                           min_number = min_number,
                                           min_continuous = min_continuous,
                                           categorical_var = categorical_var,
                                           features = features)
-  } else if (model_type == "glmnet") {
+  } else if (algorithm == "glmnet") {
     # Call the GLMNET-specific function
     cal_grid_data <- calibration_grid_glmnetmx(occ_bg = occ_bg,
                                                min_number = min_number,

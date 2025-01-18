@@ -4,20 +4,19 @@
 \alias{prepare_data}
 \title{Prepare Data for Model Calibration}
 \usage{
-prepare_data(model_type = "glmnet", occ, species = NULL, x, y,
-                   spat_variables, mask = NULL, categorical_variables = NULL,
-                   do_pca = FALSE, deviance_explained = 95,
-                   min_explained = 5, center = TRUE, scale = TRUE,
-                   write_pca = FALSE, output_pca = NULL,
-                   exclude_from_pca = NULL, nbg = 10000,
-                   kfolds = 4, weights = NULL, min_number = 2,
-                   min_continuous = NULL,
-                   features = c("l", "q", "p", "lq", "lqp"),
-                   regm = c(0.1, 1, 2, 3, 5), include_xy = TRUE,
-                   write_file = FALSE, file_name = NULL, seed = 1)
+prepare_data(algorithm, occ, species = NULL, x, y,
+             spat_variables, mask = NULL, categorical_variables = NULL,
+             do_pca = FALSE, deviance_explained = 95,
+             min_explained = 5, center = TRUE, scale = TRUE,
+             write_pca = FALSE, output_pca = NULL,
+             exclude_from_pca = NULL, nbg = 10000,
+             kfolds = 4, weights = NULL, min_number = 2,
+             min_continuous = NULL, features = c("l", "q", "p", "lq", "lqp"),
+             regm = c(0.1, 1, 2, 3, 5), include_xy = TRUE,
+             write_file = FALSE, file_name = NULL, seed = 1)
 }
 \arguments{
-\item{model_type}{(character) model type, either "glm" or "glmnet".}
+\item{algorithm}{(character) type algorithm, either "glm" or "glmnet".}
 
 \item{occ}{(data frame) a data.frame containing the coordinates (longitude
 and latitude) of the occurrence records.}
@@ -111,9 +110,8 @@ described in the documentation.
 \description{
 This function prepares data for model calibration, including optional PCA,
 background point generation, k-fold partitioning, and the creation of a grid
-of formulas with multiple parameter combinations, including distinct
-regularization multiplier values, various feature classes, and different sets
-of environmental variables.
+parameter combinations, including distinct regularization multiplier values,
+various feature classes, and different sets of environmental variables.
 }
 \examples{
 #Import raster layers
@@ -122,7 +120,7 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 #Import occurrences
 data(occ_data, package = "kuenm2")
 #Prepare data for glmnet model
-sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
                        spat_variables = var, mask = NULL,
                        categorical_variables = "SoilType",
@@ -139,7 +137,7 @@ sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        seed = 1)
 print(sp_swd)
 #Prepare data for glm model
-sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
+sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            species = occ_data[1, 1], x = "x", y = "y",
                            spat_variables = var, mask = NULL,
                            categorical_variables = "SoilType",

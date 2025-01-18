@@ -46,6 +46,7 @@ new_back_cal <- function(summary, background, background_bias = NULL,
   return(val)
 }
 
+
 new_lambdas <- function(lambdas_path){
   lambdas <- readLines(lambdas_path)
   maxcalcsV <- c("linearPredictorNormalizer",
@@ -98,7 +99,48 @@ new_lambdas <- function(lambdas_path){
   return(res)
 }
 
-#' fitted_models Class Constructor
+
+
+# prepared_data Class Constructor
+new_prepared_data <- function(species, calibration_data, formula_grid,
+                             kfolds, data_xy, continuous_variables,
+                             categorical_variables, weights, pca, algorithm) {
+  data <- list(
+    species = species,
+    calibration_data = calibration_data,
+    formula_grid = formula_grid,
+    kfolds = kfolds,
+    data_xy = data_xy,
+    continuous_variables = continuous_variables,
+    categorical_variables = categorical_variables,
+    weights = weights,
+    pca = pca,
+    algorithm = algorithm
+  )
+  class(data) <- "prepared_data"
+  return(data)
+}
+
+
+# calibration_results Class Constructor
+new_calibration_results <- function(prepared_data, calibration_results,
+                                    omission_rate, addsamplestobackground,
+                                    weights, selected_models, summary) {
+
+  fm <- c(prepared_data, calibration_results = calibration_results,
+          omission_rate = omission_rate,
+          addsamplestobackground = addsamplestobackground,
+          weights = list(weights),
+          selected_models = selected_models,
+          summary = summary)
+
+  class(fm) <- "calibration_results"
+  return(fm)
+}
+
+
+
+# fitted_models Class Constructor
 new_fitted_models <- function(species,
                               Models,
                               calibration_data,
@@ -129,7 +171,9 @@ new_fitted_models <- function(species,
   return(data)
 }
 
-#' prepared_proj Class Constructor
+
+
+# prepared_proj Class Constructor
 new_projection_data <- function(res_present, res_past, res_future, raster_pattern,
                                 variables, pca){
   data <- list(Present = res_present,
@@ -143,7 +187,9 @@ new_projection_data <- function(res_present, res_past, res_future, raster_patter
   return(data)
 }
 
-#' prepared_proj Class Constructor
+
+
+# prepared_proj Class Constructor
 new_model_projections <- function(paths, thresholds){
   data <- list(paths = paths,
                thresholds = thresholds)

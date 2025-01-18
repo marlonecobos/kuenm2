@@ -599,29 +599,7 @@ bind_rows_projection <- function(data_frames) {
 }
 
 
-#' Print Method for prepare_data Class
-#' @export
-print.calibration_results <- function(x, ...){
-  cat(paste0("calibration_results object summary (", x$model_type,")\n"))
-  cat("=============================================================\n")
-  cat("Species:", x$species, "\n")
 
-  cat("Number of candidate models:", nrow(x$calibration_results$Summary), "\n")
-
-  #Print summary
-  cat("  - Models removed because they failed to fit:", length(x$summary$Errors), "\n")
-  cat("  - Models removed with concave curves:", length(x$summary$Concave), "\n")
-  cat("  - Models removed with non-significant values of pROC:",
-      length(x$summary$Non_sig_pROC), "\n")
-  cat("  - Models removed with omission rate >", paste0(x$omission_rate, "%:"),
-      length(x$summary$High_omission_rate), "\n")
-  cat("  - Models removed with delta AIC >", paste0(x$summary$delta_AIC, ":"),
-      length(x$summary$High_AIC), "\n")
-  cat("Selected models:", nrow(x$selected_models), "\n")
-
-  cat("  - Print selected models (n = 5):\n")
-  print(head(x$selected_models))
-}
 
 #Reorder columns in stats final
 reorder_stats_columns <- function(stats_final, omission_rate){

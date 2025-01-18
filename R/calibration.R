@@ -2,18 +2,18 @@
 #'
 #' @description
 #' This function fits and validates candidate models using the data and grid of
-#' formulas prepared with \code{\link{prepare_data}}(). It supports both `glm` and `glmnet`
-#' model types. The function then selects the best models based on concave
-#' curves (optional), partial ROC, omission rate, and AIC values.
+#' formulas prepared with \code{\link{prepare_data}}(). It supports both
+#' algorithms `glm` and `glmnet`. The function then selects the best models
+#' based on concave curves (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
 #' calibration(data, test_concave = TRUE, addsamplestobackground = TRUE,
-#'            use_weights = FALSE, parallel = TRUE, ncores = 4,
-#'            parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
-#'            out_dir = NULL, skip_existing_models = FALSE,
-#'            return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
-#'            AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
-#'            tolerance = 0.01, verbose = TRUE)
+#'             use_weights = FALSE, parallel = TRUE, ncores = 4,
+#'             parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
+#'             out_dir = NULL, skip_existing_models = FALSE,
+#'             return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
+#'             AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
+#'             tolerance = 0.01, verbose = TRUE)
 #'
 #' @param data an object of class `prepare_data` returned by the
 #' \code{\link{prepare_data()}} function. It contains the calibration data,
@@ -91,7 +91,7 @@
 #' - weights: a numeric vector specifying weights for data_xy (if used).
 #' - pca: if a principal component analysis was performed with variables, a list
 #' of class "prcomp". See ?stats::prcomp() for details.
-#' - model_type: the model type (glm or glmnet)
+#' - algorithm: the model type (glm or glmnet)
 #' - calibration_results: a list containing a data frame with all evaluation
 #' metrics for all replicates (if `return_replicate = TRUE`) and a summary of
 #' the evaluation metrics for each candidate model.
@@ -139,7 +139,7 @@
 #'
 #' #### GLMNET ####
 #' # Prepare data for glmnet model
-#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+#' sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
 #'                        spat_variables = var, mask = NULL,
 #'                        categorical_variables = NULL,
@@ -176,7 +176,7 @@
 #'
 #' #### GLM ####
 #' # Prepare data for glm model
-#' sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
+#' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
 #'                            species = occ_data[1, 1], x = "x", y = "y",
 #'                            spat_variables = var, mask = NULL,
 #'                            categorical_variables = NULL,
@@ -243,7 +243,7 @@ calibration <- function(data,
   }
 
   # Define global vars
-  model_type <- data$model_type
+  algorithm <- data$algorithm
   formula_grid <- data$formula_grid
   weights <- data$weights
 
@@ -330,7 +330,7 @@ calibration <- function(data,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             model_type = model_type, AIC = AIC)
+                             algorithm = algorithm, AIC = AIC)
           }
       } else {
         results_concave <- vector("list", length = n_tot)
@@ -343,7 +343,7 @@ calibration <- function(data,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             model_type = model_type, AIC = AIC
+                             algorithm = algorithm, AIC = AIC
             )
           # Sets the progress bar to the current state
           if(progress_bar) setTxtProgressBar(pb, x)
@@ -411,7 +411,7 @@ calibration <- function(data,
                           addsamplestobackground = addsamplestobackground,
                           weights = weights,
                           return_replicate = return_replicate, AIC = AIC,
-                          model_type = model_type)
+                          algorithm = algorithm)
         }
     } else {
       results <- vector("list", length = n_tot)
@@ -422,7 +422,7 @@ calibration <- function(data,
                           omrat_thr = omrat_threshold,
                           addsamplestobackground =  addsamplestobackground,
                           weights = weights, write_summary,
-                          return_replicate, AIC = AIC, model_type = model_type)
+                          return_replicate, AIC = AIC, algorithm = algorithm)
 
         if(progress_bar) setTxtProgressBar(pb, x)
       }
@@ -458,15 +458,16 @@ calibration <- function(data,
                         tolerance = tolerance, AIC = AIC,
                         significance = 0.05, verbose = verbose,
                         delta_aic = delta_aic,
-                        model_type = model_type)
+                        algorithm = algorithm)
 
   # Concatenate final results
-  fm <- c(data, calibration_results = list(res_final),
-          omission_rate = omrat_threshold,
-          addsamplestobackground = addsamplestobackground,
-          weights = list(weights),
-          selected_models = list(bm$cand_final),
-          summary = list(bm$summary))
+  fm <- new_calibration_results(
+    prepared_data = data, calibration_results = list(res_final),
+    omission_rate = omrat_threshold,
+    addsamplestobackground = addsamplestobackground,
+    weights = weights, selected_models = list(bm$cand_final),
+    summary = list(bm$summary)
+  )
 
   class(fm) <- "calibration_results"
   return(fm)
