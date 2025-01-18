@@ -45,7 +45,7 @@ calibration_grid <- function(occ_bg,
                              categorical_var = NULL,
                              features = c("l", "q", "lq", "lqp", "p"),
                              algorithm = c("glm", "glmnet"),
-                             regm = c(0.1, 1, 2, 3, 5)) {
+                             reg_mult = c(0.1, 1, 2, 3, 5)) {
 
   # Validate the algorithm input
   algorithm <- match.arg(algorithm)
@@ -65,7 +65,7 @@ calibration_grid <- function(occ_bg,
                                                min_continuous = min_continuous,
                                                categorical_var = categorical_var,
                                                features = features,
-                                               regm = regm)
+                                               reg_mult = reg_mult)
   }
 
   return(cal_grid_data)
@@ -77,7 +77,7 @@ calibration_grid_glmnetmx <- function(occ_bg,
                                       features = c("l", "q", "lq", "lqp", "p"),
                                       min_number = 2,
                                       min_continuous = NULL,
-                                      regm = c(0.1, 1, 2, 3, 5)){
+                                      reg_mult = c(0.1, 1, 2, 3, 5)){
 
   #Get variable names
   var_names <- colnames(occ_bg[, -1, drop = FALSE])
@@ -112,18 +112,18 @@ calibration_grid_glmnetmx <- function(occ_bg,
                           stringsAsFactors = FALSE)
 
   # Expand the grid by combining formulas and regularization parameters
-  f_grid <- expand.grid(Formulas = formula_d$Formulas, regm = regm,
+  f_grid <- expand.grid(Formulas = formula_d$Formulas, reg_mult = reg_mult,
                         stringsAsFactors = FALSE)
 
   f_grid <- merge(f_grid, formula_d, by = "Formulas", sort = FALSE)
   f_grid$ID <- seq_len(nrow(f_grid))
-  f_grid <- f_grid[, c("ID", "Formulas", "regm", "Features")]
+  f_grid <- f_grid[, c("ID", "Formulas", "reg_mult", "Features")]
   f_grid$Formulas <- as.character(f_grid$Formulas)
 
   return(f_grid)
 }
 
-#' Prepare Formulas for GLMNET
+# Prepare Formulas for GLMNET
 prepare_formulas_glmnetmx <- function(independent, type = "lqpht",
                                       categorical_var = NULL,
                                       minvar = 1, maxvar = NULL) {
@@ -206,7 +206,7 @@ prepare_formulas_glmnetmx <- function(independent, type = "lqpht",
   return(out)
 }
 
-#' Calibration Grid Generation using GLM
+# Calibration Grid Generation using GLM
 calibration_grid_glm <- function(occ_bg,
                                  min_number = 2,
                                  min_continuous = NULL,
@@ -252,7 +252,7 @@ calibration_grid_glm <- function(occ_bg,
   return(formula_grid)
 }
 
-#' Prepare Formulas for GLM
+# Prepare Formulas for GLM
 prepare_formulas_glm <- function(independent, type = "l", categorical_var = NULL) {
 
   # Validate the 'type' input

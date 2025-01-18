@@ -6,6 +6,12 @@
 #' uncorrelated, orthogonal components based on the PCA axes, which can be used
 #' to simplify data structure and reduce correlations.
 #'
+#' @usage
+#' perform_pca(spat_variables, exclude_from_pca = NULL, project = FALSE,
+#'             projection_data = NULL, out_dir = NULL, overwrite = FALSE,
+#'             progress_bar = FALSE, center = TRUE, scale = FALSE,
+#'             variance_explained = 95, min_explained = 5)
+#'
 #' @param spat_variables (SpatRaster) set of predictor variables that the
 #'        function will summarize into a set of orthogonal, uncorrelated
 #'        components based on PCA.
@@ -33,8 +39,8 @@
 #' @param center (logical) whether the variables should be zero-centered.
 #'        Default is TRUE.
 #' @param scale (logical) whether the variables should be scaled to have unit
-#'        variance before the analysis takes place. Default is TRUE.
-#' @param deviance_explained (numeric) the cumulative percentage of total
+#'        variance before the analysis takes place. Default is FALSE.
+#' @param variance_explained (numeric) the cumulative percentage of total
 #'        variance that must be explained by the selected principal components.
 #'        Default is 95.
 #' @param min_explained (numeric) the minimum percentage of total variance that
@@ -45,7 +51,7 @@
 #' the PCA axes of the predictor variables.
 #' - pca: an object of class prcomp, containing the details of the PCA analysis.
 #' See \code{\link{stats::prcomp()}}()
-#' - deviance_explained_cum_sum: The cumulative percentage of total variance
+#' - variance_explained_cum_sum: The cumulative percentage of total variance
 #' explained by each of the selected principal components. This value indicates
 #' how much of the data’s original variability is captured by the PCA
 #' transformation.
@@ -57,11 +63,6 @@
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #' @export
 #'
-#' @usage perform_pca(spat_variables, exclude_from_pca = NULL, project = FALSE,
-#'        projection_data = NULL, out_dir = NULL, overwrite = FALSE,
-#'        progress_bar = FALSE, center = TRUE, scale = TRUE,
-#'        deviance_explained = 95, min_explained = 5)
-#'
 #' @examples
 #' #PCA only with current variables
 #' #Import raster layers
@@ -70,7 +71,7 @@
 #'
 #' #PCA
 #' pca_var <- perform_pca(spat_variables = var, exclude_from_pca = "SoilType",
-#'                        center = TRUE, scale = TRUE, deviance_explained = 95,
+#'                        center = TRUE, scale = TRUE, variance_explained = 95,
 #'                        min_explained = 5)
 #' plot(pca_var$env)
 #'
@@ -114,15 +115,15 @@
 #'                         project = TRUE, projection_data = pr, out_dir = out_dir,
 #'                         overwrite = TRUE, progress_bar = FALSE,
 #'                         center = TRUE, scale = TRUE,
-#'                         deviance_explained = 95,
+#'                         variance_explained = 95,
 #'                         min_explained = 5)
 #' proj_pca$projection_directory #Directory with projected PCA-variables
 #'
 perform_pca <- function(spat_variables, exclude_from_pca = NULL,
                        project = FALSE, projection_data = NULL, out_dir = NULL,
                        overwrite = FALSE, progress_bar = FALSE,
-                       center = TRUE, scale = TRUE,
-                       deviance_explained = 95, min_explained = 5) {
+                       center = TRUE, scale = FALSE,
+                       variance_explained = 95, min_explained = 5) {
 
   #Check data
   if (!inherits(spat_variables, "SpatRaster")) {
@@ -164,9 +165,9 @@ perform_pca <- function(spat_variables, exclude_from_pca = NULL,
   if (!inherits(scale, "logical")) {
     stop(paste0("Argument scale must be logical, not ",
                 class(scale)))}
-  if (!is.numeric(deviance_explained)) {
-    stop(paste0("Argument deviance_explained must be numeric, not ",
-                class(deviance_explained)))
+  if (!is.numeric(variance_explained)) {
+    stop(paste0("Argument variance_explained must be numeric, not ",
+                class(variance_explained)))
   }
   if (!is.numeric(min_explained)) {
     stop(paste0("Argument min_explained must be numeric, not ",
@@ -198,7 +199,7 @@ Ensure that all variables specified in spat_variables are available in projectio
   d_exp <- cumsum(pca$sdev^2/sum(pca$sdev^2)) * 100
   d_exp <- d_exp[(pca$sdev^2/sum(pca$sdev^2) * 100) > min_explained]
 
-  ind_exp <- if (max(d_exp) > deviance_explained) min(which(d_exp >= deviance_explained)) else length(d_exp)
+  ind_exp <- if (max(d_exp) > variance_explained) min(which(d_exp >= variance_explained)) else length(d_exp)
 
   env <- terra::predict(spat_variables[[var_to_pca]], pca, index = 1:ind_exp)
 
@@ -246,6 +247,6 @@ Ensure that all variables specified in spat_variables are available in projectio
     }
 
   } #End of project
-  return(list(env = env, pca = pca, deviance_explained_cumsum = d_exp,
+  return(list(env = env, pca = pca, variance_explained_cumsum = d_exp,
               projection_directory = out_dir))
 }

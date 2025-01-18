@@ -5,9 +5,9 @@
 \title{Transform variables using Principal Component analysis (PCA)}
 \usage{
 perform_pca(spat_variables, exclude_from_pca = NULL, project = FALSE,
-       projection_data = NULL, out_dir = NULL, overwrite = FALSE,
-       progress_bar = FALSE, center = TRUE, scale = TRUE,
-       deviance_explained = 95, min_explained = 5)
+            projection_data = NULL, out_dir = NULL, overwrite = FALSE,
+            progress_bar = FALSE, center = TRUE, scale = FALSE,
+            variance_explained = 95, min_explained = 5)
 }
 \arguments{
 \item{spat_variables}{(SpatRaster) set of predictor variables that the
@@ -45,9 +45,9 @@ is FALSE}
 Default is TRUE.}
 
 \item{scale}{(logical) whether the variables should be scaled to have unit
-variance before the analysis takes place. Default is TRUE.}
+variance before the analysis takes place. Default is FALSE.}
 
-\item{deviance_explained}{(numeric) the cumulative percentage of total
+\item{variance_explained}{(numeric) the cumulative percentage of total
 variance that must be explained by the selected principal components.
 Default is 95.}
 
@@ -61,7 +61,7 @@ A list containing the following elements:
 the PCA axes of the predictor variables.
 \item pca: an object of class prcomp, containing the details of the PCA analysis.
 See \code{\link{stats::prcomp()}}()
-\item deviance_explained_cum_sum: The cumulative percentage of total variance
+\item variance_explained_cum_sum: The cumulative percentage of total variance
 explained by each of the selected principal components. This value indicates
 how much of the data’s original variability is captured by the PCA
 transformation.
@@ -84,7 +84,7 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 
 #PCA
 pca_var <- perform_pca(spat_variables = var, exclude_from_pca = "SoilType",
-                       center = TRUE, scale = TRUE, deviance_explained = 95,
+                       center = TRUE, scale = TRUE, variance_explained = 95,
                        min_explained = 5)
 plot(pca_var$env)
 
@@ -128,7 +128,7 @@ proj_pca <- perform_pca(spat_variables = var, exclude_from_pca = "SoilType",
                         project = TRUE, projection_data = pr, out_dir = out_dir,
                         overwrite = TRUE, progress_bar = FALSE,
                         center = TRUE, scale = TRUE,
-                        deviance_explained = 95,
+                        variance_explained = 95,
                         min_explained = 5)
 proj_pca$projection_directory #Directory with projected PCA-variables
 

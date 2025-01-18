@@ -10,7 +10,7 @@ calibration_grid_glmnetmx(
   features = c("l", "q", "lq", "lqp", "p"),
   min_number = 2,
   min_continuous = NULL,
-  regm = c(0.1, 1, 2, 3, 5)
+  reg_mult = c(0.1, 1, 2, 3, 5)
 )
 }
 \description{

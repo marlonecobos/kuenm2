@@ -5,14 +5,14 @@
 \title{Prepare Data for Model Calibration}
 \usage{
 prepare_data(algorithm, occ, species = NULL, x, y,
-             spat_variables, mask = NULL, categorical_variables = NULL,
-             do_pca = FALSE, deviance_explained = 95,
-             min_explained = 5, center = TRUE, scale = TRUE,
-             write_pca = FALSE, output_pca = NULL,
-             exclude_from_pca = NULL, nbg = 10000,
-             kfolds = 4, weights = NULL, min_number = 2,
-             min_continuous = NULL, features = c("l", "q", "p", "lq", "lqp"),
-             regm = c(0.1, 1, 2, 3, 5), include_xy = TRUE,
+             raster_variables, mask = NULL, categorical_variables = NULL,
+             do_pca = FALSE, exclude_from_pca = NULL, variance_explained = 95,
+             min_explained = 5, center = TRUE, scale = FALSE,
+             write_pca = FALSE, pca_directory = NULL,
+             n_background = 10000, kfolds = 4, weights = NULL,
+             min_number = 2, min_continuous = NULL,
+             features = c("q", "lq", "lp", "qp", "lqp"),
+             reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
              write_file = FALSE, file_name = NULL, seed = 1)
 }
 \arguments{
@@ -30,7 +30,7 @@ contains the longitude values.}
 \item{y}{(character) a string specifying the name of the column in \code{occ} that
 contains the latitude values.}
 
-\item{spat_variables}{(SpatRaster) predictor variables used to calibrate the
+\item{raster_variables}{(SpatRaster) predictor variables used to calibrate the
 models.}
 
 \item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
@@ -43,7 +43,7 @@ categorical. Default is NULL.}
 \item{do_pca}{(logical) whether to perform a principal component analysis
 (PCA) with the set of variables. Default is FALSE.}
 
-\item{deviance_explained}{(numeric) the cumulative percentage of total
+\item{variance_explained}{(numeric) the cumulative percentage of total
 variance that must be explained by the selected principal components.
 Default is 95.}
 
@@ -54,47 +54,47 @@ a principal component must explain to be retained. Default is 5.}
 is TRUE.}
 
 \item{scale}{(logical) whether the variables should be scaled to have unit
-variance before the analysis takes place. Default is TRUE.}
+variance before the analysis takes place. Default is FALSE.}
 
 \item{write_pca}{(logical) whether to save the PCA-derived raster layers
 (principal components) to disk. Default is FALSE.}
 
-\item{output_pca}{(character) the path or name of the folder where the PCA-
-derived raster layers will be saved. This is only applicable if
-\code{write_pca = TRUE}. Default is NULL.}
+\item{pca_directory}{(character) the path or name of the folder where the PC
+raster layers will be saved. This is only applicable if \code{write_pca = TRUE}.
+Default is NULL.}
 
-\item{exclude_from_pca}{(character) variable names within spat_variables that
-should not be included in the PCA transformation. Instead, these
+\item{exclude_from_pca}{(character) variable names within raster_variables
+that should not be included in the PCA transformation. Instead, these
 variables will be added directly to the final set of output variables
 without being modified. The default is NULL, meaning all variables
 will be used unless specified otherwise.}
 
-\item{nbg}{(numeric) number of points to represent the background for the
-model. Default is 10000.}
+\item{n_background}{(numeric) number of points to represent the background
+for the model. Default is 10000.}
 
-\item{kfolds}{(numeric) the number of groups (folds) into which the occurrence
-data will be split for cross-validation. Default is 4.}
+\item{kfolds}{(numeric) the number of groups (folds) the occurrence
+data will be split into for cross-validation. Default is 4.}
 
 \item{weights}{(numeric) a numeric vector specifying weights for the
 occurrence records. Default is NULL.}
 
-\item{min_number}{(numeric) the minimum number of variables in a formula
-combination.}
+\item{min_number}{(numeric) the minimum number of variables to be included in
+the model formulas to be generated.}
 
 \item{min_continuous}{(numeric) the minimum number of continuous variables
 required in a combination. Default is NULL.}
 
-\item{features}{(character) a vector of feature classes. Default is c("l", "q",
-"p", "lq", "lqp").}
+\item{features}{(character) a vector of feature classes. Default is c("q",
+"lq", "lp", "qp", "lqp").}
 
-\item{regm}{(numeric) a vector of regularization parameters for glmnet.
+\item{reg_mult}{(numeric) a vector of regularization parameters for glmnet.
 Default is c(0.1, 1, 2, 3, 5).}
 
 \item{include_xy}{(logical) whether to include the coordinates (longitude and
-latitude) in the resulting list. Default is TRUE.}
+latitude) in the results from preparing data. Default is TRUE.}
 
-\item{write_file}{(logical) whether to write the resulting list to disk.
-Default is FALSE.}
+\item{write_file}{(logical) whether to write the resulting prepared_data list
+in a local directory. Default is FALSE.}
 
 \item{file_name}{(character) the path or name of the folder where the
 resulting list will be saved. This is only applicable if \code{write_file = TRUE}. Default is NULL.}
@@ -103,9 +103,11 @@ resulting list will be saved. This is only applicable if \code{write_file = TRUE
 data. Default is 1.}
 }
 \value{
-An object of class \code{prepare_data} containing several components,
-including the species name, calibration data, formula grid, and others
-described in the documentation.
+An object of class \code{prepared_data} containing all elements to run a model
+calibration routine. The elements include: species, calibration data,
+a grid of model parameters, indices of k-folds for cross validation,
+xy coordinates, names of continuous and categorical variables, weights,
+results from PCA, and modeling algorithm.
 }
 \description{
 This function prepares data for model calibration, including optional PCA,
@@ -122,16 +124,16 @@ data(occ_data, package = "kuenm2")
 #Prepare data for glmnet model
 sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
-                       spat_variables = var, mask = NULL,
+                       raster_variables = var, mask = NULL,
                        categorical_variables = "SoilType",
-                       do_pca = FALSE, deviance_explained = 95,
+                       do_pca = FALSE, variance_explained = 95,
                        min_explained = 5, center = TRUE, scale = TRUE,
-                       write_pca = FALSE, output_pca = NULL,
-                       exclude_from_pca = NULL, nbg = 500,
+                       write_pca = FALSE, pca_directory = NULL,
+                       exclude_from_pca = NULL, n_background = 500,
                        kfolds = 4, weights = NULL, min_number = 2,
                        min_continuous = NULL,
                        features = c("l", "q", "p", "lq", "lqp"),
-                       regm = c(0.1, 1, 2, 3, 5),
+                       reg_mult = c(0.1, 1, 2, 3, 5),
                        include_xy = TRUE,
                        write_file = FALSE, file_name = NULL,
                        seed = 1)
@@ -139,15 +141,15 @@ print(sp_swd)
 #Prepare data for glm model
 sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            species = occ_data[1, 1], x = "x", y = "y",
-                           spat_variables = var, mask = NULL,
+                           raster_variables = var, mask = NULL,
                            categorical_variables = "SoilType",
-                           do_pca = FALSE, deviance_explained = 95,
+                           do_pca = FALSE, variance_explained = 95,
                            min_explained = 5, center = TRUE, scale = TRUE,
-                           write_pca = FALSE, output_pca = NULL,
-                           exclude_from_pca = NULL, nbg = 500,
+                           write_pca = FALSE, pca_directory = NULL,
+                           exclude_from_pca = NULL, n_background = 500,
                            kfolds = 4, weights = NULL, min_number = 2,
                            min_continuous = NULL, features = c("l", "q", "lq", "lpq"),
-                           regm = c(0.1, 1, 2), include_xy = TRUE,
+                           reg_mult = c(0.1, 1, 2), include_xy = TRUE,
                            write_file = F, file_name = FALSE, seed = 1)
 print(sp_swd_glm)
 }

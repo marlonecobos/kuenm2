@@ -8,14 +8,14 @@
 #'
 #' @usage
 #' prepare_data(algorithm, occ, species = NULL, x, y,
-#'              spat_variables, mask = NULL, categorical_variables = NULL,
-#'              do_pca = FALSE, deviance_explained = 95,
-#'              min_explained = 5, center = TRUE, scale = TRUE,
-#'              write_pca = FALSE, output_pca = NULL,
-#'              exclude_from_pca = NULL, nbg = 10000,
-#'              kfolds = 4, weights = NULL, min_number = 2,
-#'              min_continuous = NULL, features = c("l", "q", "p", "lq", "lqp"),
-#'              regm = c(0.1, 1, 2, 3, 5), include_xy = TRUE,
+#'              raster_variables, mask = NULL, categorical_variables = NULL,
+#'              do_pca = FALSE, exclude_from_pca = NULL, variance_explained = 95,
+#'              min_explained = 5, center = TRUE, scale = FALSE,
+#'              write_pca = FALSE, pca_directory = NULL,
+#'              n_background = 10000, kfolds = 4, weights = NULL,
+#'              min_number = 2, min_continuous = NULL,
+#'              features = c("q", "lq", "lp", "qp", "lqp"),
+#'              reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
 #'              write_file = FALSE, file_name = NULL, seed = 1)
 #'
 #' @param algorithm (character) type algorithm, either "glm" or "glmnet".
@@ -27,7 +27,7 @@
 #' contains the longitude values.
 #' @param y (character) a string specifying the name of the column in `occ` that
 #' contains the latitude values.
-#' @param spat_variables (SpatRaster) predictor variables used to calibrate the
+#' @param raster_variables (SpatRaster) predictor variables used to calibrate the
 #' models.
 #' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to
 #' mask the variables to the area where the model will be calibrated.
@@ -36,7 +36,12 @@
 #' categorical. Default is NULL.
 #' @param do_pca (logical) whether to perform a principal component analysis
 #' (PCA) with the set of variables. Default is FALSE.
-#' @param deviance_explained (numeric) the cumulative percentage of total
+#' @param exclude_from_pca (character) variable names within raster_variables
+#' that should not be included in the PCA transformation. Instead, these
+#' variables will be added directly to the final set of output variables
+#' without being modified. The default is NULL, meaning all variables
+#' will be used unless specified otherwise.
+#' @param variance_explained (numeric) the cumulative percentage of total
 #' variance that must be explained by the selected principal components.
 #' Default is 95.
 #' @param min_explained (numeric) the minimum percentage of total variance that
@@ -44,35 +49,30 @@
 #' @param center (logical) whether the variables should be zero-centered. Default
 #' is TRUE.
 #' @param scale (logical) whether the variables should be scaled to have unit
-#' variance before the analysis takes place. Default is TRUE.
+#' variance before the analysis takes place. Default is FALSE.
 #' @param write_pca (logical) whether to save the PCA-derived raster layers
 #' (principal components) to disk. Default is FALSE.
-#' @param output_pca (character) the path or name of the folder where the PCA-
-#' derived raster layers will be saved. This is only applicable if
-#' `write_pca = TRUE`. Default is NULL.
-#' @param exclude_from_pca (character) variable names within spat_variables that
-#' should not be included in the PCA transformation. Instead, these
-#' variables will be added directly to the final set of output variables
-#' without being modified. The default is NULL, meaning all variables
-#' will be used unless specified otherwise.
-#' @param nbg (numeric) number of points to represent the background for the
-#' model. Default is 10000.
-#' @param kfolds (numeric) the number of groups (folds) into which the occurrence
-#' data will be split for cross-validation. Default is 4.
+#' @param pca_directory (character) the path or name of the folder where the PC
+#' raster layers will be saved. This is only applicable if `write_pca = TRUE`.
+#' Default is NULL.
+#' @param n_background (numeric) number of points to represent the background
+#' for the model. Default is 10000.
+#' @param kfolds (numeric) the number of groups (folds) the occurrence
+#' data will be split into for cross-validation. Default is 4.
 #' @param weights (numeric) a numeric vector specifying weights for the
 #' occurrence records. Default is NULL.
-#' @param min_number (numeric) the minimum number of variables in a formula
-#' combination.
+#' @param min_number (numeric) the minimum number of variables to be included in
+#' the model formulas to be generated.
 #' @param min_continuous (numeric) the minimum number of continuous variables
 #' required in a combination. Default is NULL.
-#' @param features (character) a vector of feature classes. Default is c("l", "q",
-#' "p", "lq", "lqp").
-#' @param regm (numeric) a vector of regularization parameters for glmnet.
+#' @param features (character) a vector of feature classes. Default is c("q",
+#' "lq", "lp", "qp", "lqp").
+#' @param reg_mult (numeric) a vector of regularization parameters for glmnet.
 #' Default is c(0.1, 1, 2, 3, 5).
 #' @param include_xy (logical) whether to include the coordinates (longitude and
-#' latitude) in the resulting list. Default is TRUE.
-#' @param write_file (logical) whether to write the resulting list to disk.
-#' Default is FALSE.
+#' latitude) in the results from preparing data. Default is TRUE.
+#' @param write_file (logical) whether to write the resulting prepared_data list
+#' in a local directory. Default is FALSE.
 #' @param file_name (character) the path or name of the folder where the
 #' resulting list will be saved. This is only applicable if `write_file =
 #' TRUE`. Default is NULL.
@@ -80,9 +80,11 @@
 #' data. Default is 1.
 #'
 #' @return
-#' An object of class `prepare_data` containing several components,
-#' including the species name, calibration data, formula grid, and others
-#' described in the documentation.
+#' An object of class `prepared_data` containing all elements to run a model
+#' calibration routine. The elements include: species, calibration data,
+#' a grid of model parameters, indices of k-folds for cross validation,
+#' xy coordinates, names of continuous and categorical variables, weights,
+#' results from PCA, and modeling algorithm.
 #'
 #' @importFrom enmpa kfold_partition aux_var_comb
 #' @importFrom terra crop prcomp extract as.data.frame nlyr
@@ -99,16 +101,16 @@
 #' #Prepare data for glmnet model
 #' sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
-#'                        spat_variables = var, mask = NULL,
+#'                        raster_variables = var, mask = NULL,
 #'                        categorical_variables = "SoilType",
-#'                        do_pca = FALSE, deviance_explained = 95,
+#'                        do_pca = FALSE, variance_explained = 95,
 #'                        min_explained = 5, center = TRUE, scale = TRUE,
-#'                        write_pca = FALSE, output_pca = NULL,
-#'                        exclude_from_pca = NULL, nbg = 500,
+#'                        write_pca = FALSE, pca_directory = NULL,
+#'                        exclude_from_pca = NULL, n_background = 500,
 #'                        kfolds = 4, weights = NULL, min_number = 2,
 #'                        min_continuous = NULL,
 #'                        features = c("l", "q", "p", "lq", "lqp"),
-#'                        regm = c(0.1, 1, 2, 3, 5),
+#'                        reg_mult = c(0.1, 1, 2, 3, 5),
 #'                        include_xy = TRUE,
 #'                        write_file = FALSE, file_name = NULL,
 #'                        seed = 1)
@@ -116,15 +118,15 @@
 #' #Prepare data for glm model
 #' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
 #'                            species = occ_data[1, 1], x = "x", y = "y",
-#'                            spat_variables = var, mask = NULL,
+#'                            raster_variables = var, mask = NULL,
 #'                            categorical_variables = "SoilType",
-#'                            do_pca = FALSE, deviance_explained = 95,
+#'                            do_pca = FALSE, variance_explained = 95,
 #'                            min_explained = 5, center = TRUE, scale = TRUE,
-#'                            write_pca = FALSE, output_pca = NULL,
-#'                            exclude_from_pca = NULL, nbg = 500,
+#'                            write_pca = FALSE, pca_directory = NULL,
+#'                            exclude_from_pca = NULL, n_background = 500,
 #'                            kfolds = 4, weights = NULL, min_number = 2,
 #'                            min_continuous = NULL, features = c("l", "q", "lq", "lpq"),
-#'                            regm = c(0.1, 1, 2), include_xy = TRUE,
+#'                            reg_mult = c(0.1, 1, 2), include_xy = TRUE,
 #'                            write_file = F, file_name = FALSE, seed = 1)
 #' print(sp_swd_glm)
 
@@ -135,24 +137,24 @@ prepare_data <- function(algorithm,
                          species = NULL,
                          x,
                          y,
-                         spat_variables,
+                         raster_variables,
                          mask = NULL,
                          categorical_variables = NULL,
                          do_pca = FALSE,
-                         deviance_explained = 95,
+                         variance_explained = 95,
                          min_explained = 5,
                          center = TRUE,
                          scale = TRUE,
                          write_pca = FALSE,
-                         output_pca = NULL,
+                         pca_directory = NULL,
                          exclude_from_pca = NULL,
-                         nbg = 10000,
+                         n_background = 10000,
                          kfolds = 4,
                          weights = NULL,
                          min_number = 2,
                          min_continuous = NULL,
                          features = c("q", "lq", "lp", "qp", "lqp"),
-                         regm = c(0.1, 0.5, 1, 2, 3),
+                         reg_mult = c(0.1, 0.5, 1, 2, 3),
                          include_xy = TRUE,
                          write_file = FALSE,
                          file_name = NULL,
@@ -194,9 +196,9 @@ prepare_data <- function(algorithm,
     stop("The value provided for 'y' must match one of the column names in 'occ'.")
   }
 
-  if (!inherits(spat_variables, "SpatRaster")) {
-    stop(paste0("Argument spat_variables must be a SpatRaster, not ",
-                class(spat_variables)))
+  if (!inherits(raster_variables, "SpatRaster")) {
+    stop(paste0("Argument raster_variables must be a SpatRaster, not ",
+                class(raster_variables)))
   }
 
   if(!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
@@ -215,9 +217,9 @@ prepare_data <- function(algorithm,
                 class(do_pca)))
   }
 
-  if (do_pca & !is.numeric(deviance_explained)) {
-    stop(paste0("Argument deviance_explained must be numeric, not ",
-                class(deviance_explained)))
+  if (do_pca & !is.numeric(variance_explained)) {
+    stop(paste0("Argument variance_explained must be numeric, not ",
+                class(variance_explained)))
   }
 
   if (do_pca & !is.numeric(min_explained)) {
@@ -240,9 +242,9 @@ prepare_data <- function(algorithm,
                 class(write_pca)))
   }
 
-  if (!is.numeric(nbg)) {
-    stop(paste0("Argument nbg must be numeric, not ",
-                class(nbg)))
+  if (!is.numeric(n_background)) {
+    stop(paste0("Argument n_background must be numeric, not ",
+                class(n_background)))
   }
 
   if (!is.numeric(kfolds)) {
@@ -259,8 +261,8 @@ prepare_data <- function(algorithm,
                 class(min_number)))
   }
 
-  if (min_number > terra::nlyr(spat_variables)) {
-    stop("'min_number' can't be greater than the number of variables in 'spat_variables'")
+  if (min_number > terra::nlyr(raster_variables)) {
+    stop("'min_number' can't be greater than the number of variables in 'raster_variables'")
   }
 
   if (!is.null(min_continuous) & !is.numeric(min_continuous)) {
@@ -269,8 +271,8 @@ prepare_data <- function(algorithm,
   }
 
   if (!is.null(min_continuous)) {
-    if(min_continuous > terra::nlyr(spat_variables)){
-    stop("'min_continuous' can't be greater than the number of variables in 'spat_variables'")
+    if(min_continuous > terra::nlyr(raster_variables)){
+    stop("'min_continuous' can't be greater than the number of variables in 'raster_variables'")
   }}
 
   if (!is.character(features)) {
@@ -285,9 +287,9 @@ prepare_data <- function(algorithm,
          "Features can be l, q, p, t, h, or combinations of these")
   }
 
-  if (!is.numeric(regm)) {
-    stop(paste0("Argument regm must be numeric, not ",
-                class(regm)))
+  if (!is.numeric(reg_mult)) {
+    stop(paste0("Argument reg_mult must be numeric, not ",
+                class(reg_mult)))
   }
 
   if (!is.logical(include_xy)) {
@@ -315,18 +317,18 @@ prepare_data <- function(algorithm,
   }
 
   if (!is.null(categorical_variables)){
-    if (!categorical_variables %in% names(spat_variables)){
-      stop("Categorical variables are not defined correctly. They must be a layer in 'spat_variables'")
+    if (!categorical_variables %in% names(raster_variables)){
+      stop("Categorical variables are not defined correctly. They must be a layer in 'raster_variables'")
     }
-    continuous_variable_names <- setdiff(names(spat_variables), categorical_variables)
+    continuous_variable_names <- setdiff(names(raster_variables), categorical_variables)
   } else {
-    continuous_variable_names <- names(spat_variables)
+    continuous_variable_names <- names(raster_variables)
   }
 
   sp_name <- species
 
   if (!is.null(mask)) {
-    spat_variables <- terra::crop(spat_variables, mask, mask = TRUE)
+    raster_variables <- terra::crop(raster_variables, mask, mask = TRUE)
   }
 
   if (do_pca) {
@@ -335,21 +337,21 @@ prepare_data <- function(algorithm,
     } else {
       exclude_from_pca = exclude_from_pca
     }
-    pca <- perform_pca(spat_variables, exclude_from_pca = exclude_from_pca,
+    pca <- perform_pca(raster_variables, exclude_from_pca = exclude_from_pca,
                        project = FALSE, projection_data = NULL, out_dir = NULL,
                        overwrite = FALSE, progress_bar = FALSE,
                        center = center, scale = scale,
-                       deviance_explained = deviance_explained,
+                       variance_explained = variance_explained,
                        min_explained = min_explained)
     pca$projection_directory <- NULL #Remove projection directory
     env <- pca$env
   } else {
-    env <- spat_variables
+    env <- raster_variables
     pca <- NULL
   }
 
   occ_var <- extract_occurrence_variables(occ, x, y, env)
-  bg_var <- generate_background_variables(env, nbg)
+  bg_var <- generate_background_variables(env, n_background)
 
   # combine occurrence and background data
   occ_bg <- rbind(occ_var, bg_var)
@@ -371,7 +373,7 @@ prepare_data <- function(algorithm,
   formula_grid <- calibration_grid(occ_bg, min_number, min_continuous,
                                    categorical_var = categorical_variables,
                                    features, algorithm,
-                                   regm)
+                                   reg_mult)
 
   data <- new_prepared_data(species, calibration_data = occ_bg, formula_grid,
                             kfolds = k_f, data_xy = occ_bg_xy,
