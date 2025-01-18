@@ -23,7 +23,7 @@
 #' the columns considered. Default = TRUE.
 #' @param by_decimal_precision (logical) whether to remove certain records with
 #' coordinate precision lower than that of the following three parameters.
-#' Default = TRUE.
+#' Default = FALSE
 #' @param decimal_precision (numeric) decimal precision threshold for
 #' coordinates. Default = 0. Ignored if the following two parameters are defined.
 #' @param longitude_precision (numeric) decimal precision threshold for
@@ -49,7 +49,7 @@
 #' initial_cleaning(data, species_column, longitude_column, latitude_column,
 #'                  other_columns = NULL, keep_all_columns = TRUE,
 #'                  sort_columns = TRUE, remove_na = TRUE, remove_empty = TRUE,
-#'                  remove_duplicates = TRUE, by_decimal_precision = TRUE,
+#'                  remove_duplicates = TRUE, by_decimal_precision = FALSE,
 #'                  decimal_precision = 0, longitude_precision = NULL,
 #'                  latitude_precision = NULL)
 
@@ -60,7 +60,7 @@ initial_cleaning <- function(data, species_column, longitude_column,
                              keep_all_columns = TRUE,
                              sort_columns = TRUE, remove_na = TRUE,
                              remove_empty = TRUE, remove_duplicates = TRUE,
-                             by_decimal_precision = TRUE,
+                             by_decimal_precision = FALSE,
                              decimal_precision = 0, longitude_precision = NULL,
                              latitude_precision = NULL) {
 
