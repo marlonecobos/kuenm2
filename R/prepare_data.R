@@ -1,4 +1,4 @@
-#' Prepare Data for Model Calibration
+#' Prepare data for model calibration
 #'
 #' @description
 #' This function prepares data for model calibration, including optional PCA,

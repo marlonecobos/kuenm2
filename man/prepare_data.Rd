@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepare_data.R
 \name{prepare_data}
 \alias{prepare_data}
-\title{Prepare Data for Model Calibration}
+\title{Prepare data for model calibration}
 \usage{
 prepare_data(algorithm, occ, species = NULL, x, y,
              raster_variables, mask = NULL, categorical_variables = NULL,
