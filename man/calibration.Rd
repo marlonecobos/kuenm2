@@ -154,45 +154,21 @@ sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
                        reg_mult = 1)
 
 # Calibrate glmnet models
-m <- calibration(data = sp_swd,
-                 omission_rate = c(5, 10))
+m <- calibration(data = sp_swd, omission_rate = c(5, 10))
+
 m
 
 #### GLM ####
 # Prepare data for glm model
 sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            species = occ_data[1, 1], x = "x", y = "y",
-                           raster_variables = var, mask = NULL,
-                           categorical_variables = NULL,
-                           do_pca = FALSE, deviance_explained = 95,
-                           min_explained = 5, center = TRUE, scale = TRUE,
-                           write_pca = FALSE, output_pca = NULL, nbg = 100,
-                           kfolds = 4, weights = NULL, min_number = 2,
-                           min_continuous = NULL,
-                           features = c("l", "lq"),
-                           regm = 1,
-                           include_xy = TRUE,
-                           write_file = FALSE, file_name = NULL,
-                           seed = 1)
+                           raster_variables = var,
+                           n_background = 100,
+                           features = c("l", "lq", "q", "lqp"))
 
 # Calibrate glm models
-m_glm <- calibration(data = sp_swd_glm,
-                     test_concave = TRUE,
-                     parallel = FALSE,
-                     ncores = 1,
-                     progress_bar = TRUE,
-                     write_summary = FALSE,
-                     output_directory = NULL,
-                     parallel_option = "doSNOW",
-                     return_replicate = TRUE,
-                     omission_rate = c(5, 10),
-                     omrat_threshold = 10,
-                     allow_tolerance = TRUE,
-                     tolerance = 0.01,
-                     AIC_option = "ws",
-                     delta_aic = 2,
-                     skip_existing_models = FALSE,
-                     verbose = TRUE)
+m_glm <- calibration(data = sp_swd_glm, omission_rate = c(5, 10))
+
 m_glm
 }
 \references{

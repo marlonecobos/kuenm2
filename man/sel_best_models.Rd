@@ -4,19 +4,11 @@
 \alias{sel_best_models}
 \title{Select models that perform the best among all candidates}
 \usage{
-sel_best_models(
-  calibration_results = NULL,
-  cand_models = NULL,
-  algorithm = c("glmnet", "glm"),
-  test_concave = TRUE,
-  omrat_threshold = 10,
-  allow_tolerance = TRUE,
-  tolerance = 0.01,
-  AIC_option = "ws",
-  significance = 0.05,
-  delta_aic = 2,
-  verbose = TRUE
-)
+sel_best_models(calibration_results = NULL, cand_models = NULL,
+                algorithm = c("glmnet", "glm"), test_concave = TRUE,
+                omrat_threshold = 10, allow_tolerance = TRUE,
+                tolerance = 0.01, AIC_option = "ws", significance = 0.05,
+                delta_aic = 2, verbose = TRUE)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
@@ -89,21 +81,16 @@ data("calib_results_glm", package = "kuenm2")
 #Select new best models based on another value of omission rate
 new_best_model <- sel_best_models(cand_models = calib_results_glm$calibration_results$Summary,
                                   algorithm = "glm",
-                                  test_concave = TRUE,
                                   omrat_threshold = 5,
-                                  allow_tolerance = TRUE,
-                                  tolerance = 0.01,
-                                  AIC_option = "ws",
-                                  significance = 0.05,
-                                  delta_aic = 10, #Higher value of delta AIC
-                                  verbose = TRUE)
-#Compare with best models selected previously, with omission rate of 10 and delta AIC of 2
-calib_results_glm$summary$Selected #Models 1, 2 and 5 selected
-new_best_model$summary$Selected #Models 1 and 5 selected
-#Replace selected models in calib_results
+                                  delta_aic = 10)  # Higher value of delta AIC
+
+# Compare with best models selected previously, with omission rate of 10 and delta AIC of 2
+calib_results_glm$summary$Selected  # Models 1, 2 and 5 selected
+new_best_model$summary$Selected  # Models 1 and 5 selected
+
+# Replace selected models in calib_results
 calib_results_glm$selected_models <- new_best_model$cand_final
 calib_results_glm$summary <- new_best_model$summary
-
 }
 \references{
 Ninomiya, Yoshiyuki, and Shuichi Kawano. "AIC for the Lasso in generalized
