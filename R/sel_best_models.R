@@ -1,14 +1,16 @@
-#' Select best models
+#' Select models that perform the best among all candidates
 #'
 #' @description
-#' This function selects the best models according to user-defined criteria, evaluating statistical significance (partial ROC), predictive ability (omission rates), and model complexity (AIC).
+#' This function selects the best models according to user-defined criteria,
+#' evaluating statistical significance (partial ROC), predictive ability
+#' (omission rates), and model complexity (AIC).
 #'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the \code{\link{calibration}}() function. Default is NULL.
 #' @param cand_models (data.frame) a summary of the evaluation metrics for each
 #' candidate model. In the output of the \code{\link{calibration}}(), this
 #' data.frame is located in `$calibration_results$Summary`. Default is NULL.
-#' @param model_type (character) model type, either "glm" or "glmnet".
+#' @param algorithm (character) model type, either "glm" or "glmnet".
 #' @param test_concave (logical) whether to remove candidate models presenting
 #' concave curves. Default is TRUE.
 #' @param omrat_threshold (numeric) the maximum omission rate a candidate model
@@ -22,9 +24,9 @@
 #' exceeds the `omrat_threshold`. If `allow_tolerance = TRUE`, selected models
 #' will have an omission rate equal to or less than the minimum rate plus this
 #' tolerance. Default is 0.01.
-#' @param AIC (character) the type of AIC to be calculated: "ws" for AIC
+#' @param AIC_option (character) the type of AIC to be calculated: "ws" for AIC
 #' proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-#' and Kawano (2016). This is only applicable if model_type = "glmnet".
+#' and Kawano (2016). This is only applicable if algorithm = "glmnet".
 #' Default is "ws". See References for details.
 #' @param significance (numeric) the significance level to select models
 #' based on the partial ROC (pROC). Default is 0.05. See Details.
@@ -64,12 +66,12 @@
 #'
 #' #Select new best models based on another value of omission rate
 #' new_best_model <- sel_best_models(cand_models = calib_results_glm$calibration_results$Summary,
-#'                                   model_type = "glm",
+#'                                   algorithm = "glm",
 #'                                   test_concave = TRUE,
 #'                                   omrat_threshold = 5,
 #'                                   allow_tolerance = TRUE,
 #'                                   tolerance = 0.01,
-#'                                   AIC = "ws",
+#'                                   AIC_option = "ws",
 #'                                   significance = 0.05,
 #'                                   delta_aic = 10, #Higher value of delta AIC
 #'                                   verbose = TRUE)
@@ -82,57 +84,57 @@
 #'
 sel_best_models <- function(calibration_results = NULL,
                             cand_models = NULL,
-                            model_type = c("glmnet", "glm"),
+                            algorithm = c("glmnet", "glm"),
                             test_concave = TRUE,
                             omrat_threshold = 10,
                             allow_tolerance = TRUE,
                             tolerance = 0.01,
-                            AIC = "ws",
+                            AIC_option = "ws",
                             significance = 0.05,
                             delta_aic = 2,
                             verbose = TRUE) {
   #Check data
-  if(is.null(calibration_results) & is.null(cand_models)){
+  if (is.null(calibration_results) & is.null(cand_models)) {
     stop("You must specified calibration_results or cand_models")
   }
 
-  if(!is.null(calibration_results)){
+  if (!is.null(calibration_results)) {
     cand_models <- calibration_results$calibration_results$Summary
   }
 
   # Adjust AIC column based on model type
-  if (model_type == "glmnet") {
+  if (algorithm == "glmnet") {
     # Remove the unused AIC column in glmnet
-    if (AIC == "nk") {
-      AIC <- "AIC_nk"
+    if (AIC_option == "nk") {
+      AIC_option <- "AIC_nk"
       cand_models$AIC_ws <- NULL
-    } else if (AIC == "ws") {
-      AIC <- "AIC_ws"
+    } else if (AIC_option == "ws") {
+      AIC_option <- "AIC_ws"
       cand_models$AIC_nk <- NULL
     } else {
-      stop("Unsupported AIC type. Please use 'nk' or 'ws'.")
+      stop("Unsupported AIC option. Please use 'nk' or 'ws'.")
     }
-  } else if (model_type == "glm") {
-    AIC <- "AIC" # For glm models, we only use a single AIC column
+  } else if (algorithm == "glm") {
+    AIC_option <- "AIC" # For glm models, we only use a single AIC column
   } else {
-    stop("Unsupported model type. Please use 'glmnet' or 'glm'.")
+    stop("Unsupported algorithm. Please use 'glmnet' or 'glm'.")
   }
 
   # Omission rate column name
-  om_thr <- paste0("Omission_rate_at_", omrat_threshold, ".mean")
+  om_thr <- paste0("Omission_rate_at_", omrat_threshold, "_mean")
 
   #proc-pval columns
-  proc_pval <- paste0("pval_pROC_at_", omrat_threshold, ".mean")
+  proc_pval <- paste0("pval_pROC_at_", omrat_threshold, "_mean")
 
   # Log the number of models being filtered
   if (verbose) {
-    message("\nFiltering ", nrow(cand_models), " models")
+    message("Selecting best among ", nrow(cand_models), " models")
   }
 
   # Remove models with errors
   na_models <- cand_models[is.na(cand_models$is_concave), "ID"]
   if (verbose) {
-    message("Removing ", length(na_models), " model(s) because they failed to fit")
+    message("Removing ", length(na_models), " model(s) that failed to fit")
   }
   cand_models <- cand_models[!is.na(cand_models$is_concave), ]
 
@@ -140,7 +142,7 @@ sel_best_models <- function(calibration_results = NULL,
   if (test_concave) {
     concave_models <- cand_models[cand_models$is_concave, "ID"]
     if (verbose) {
-      message("Removing ", length(concave_models), " model(s) with concave curves")
+      message("Removing ", length(concave_models), " model(s) with concave responses")
     }
     cand_models <- cand_models[!cand_models$is_concave, ]
   } else {
@@ -148,9 +150,10 @@ sel_best_models <- function(calibration_results = NULL,
   }
 
   # Subset models with significant pROC
-  insig_proc <- cand_models[cand_models[[proc_pval]] >= significance | is.na(cand_models[[proc_pval]]), "ID"]
+  insig_proc <- cand_models[cand_models[[proc_pval]] >= significance |
+                              is.na(cand_models[[proc_pval]]), "ID"]
   if (verbose) {
-    message("Removing ", length(insig_proc), " model(s) with non-significant values of pROC")
+    message("Removing ", length(insig_proc), " model(s) with non-significant pROC values")
   }
   cand_models <- cand_models[cand_models[[proc_pval]] < significance &
                                !is.na(cand_models[[proc_pval]]), ]
@@ -159,12 +162,13 @@ sel_best_models <- function(calibration_results = NULL,
   high_omr <- cand_models[cand_models[, om_thr] > omrat_threshold / 100, "ID"]
   cand_om <- cand_models[cand_models[, om_thr] <= omrat_threshold / 100, ]
   if (verbose) {
-    message(nrow(cand_om), " models were selected with omission rate below ", omrat_threshold, "%")
+    message(nrow(cand_om), " models passed the ", omrat_threshold, "% omission criterion")
   }
 
   # Stop if no models meet the omission rate threshold and allow_tolerance is FALSE
   if (nrow(cand_om) == 0 & !allow_tolerance) {
-    stop("There are no models with values of omission rate below ", omrat_threshold, "%. Try with allow_tolerance = TRUE.")
+    stop("There were no models with omissions below ", omrat_threshold, "%.",
+         "Try using the arguments 'allow_tolerance' and 'tolerance'.")
   }
 
   # Apply tolerance if no models meet the omission rate threshold and allow_tolerance is TRUE
@@ -173,12 +177,15 @@ sel_best_models <- function(calibration_results = NULL,
     cand_om <- subset(cand_models, cand_models[, om_thr] <= min_thr + tolerance)
     high_omr <- cand_models[cand_models[, om_thr] > min_thr + tolerance, "ID"]
     if (verbose) {
-      message("Minimum value of omission rate (", round(min_thr * 100, 1), "%) is above the selected threshold (", omrat_threshold, "%).\nApplying tolerance and selecting ", nrow(cand_om), " models with omission rate <", round(min_thr * 100 + tolerance, 1), "%")
+      message("Minimum value of omission in models (", round(min_thr * 100, 1),
+              "%) > omission criterion (", omrat_threshold, "%).\n",
+              "Applying tolerance: ", nrow(cand_om), " models with omission <",
+              round((min_thr + tolerance) * 100, 1), "% were found")
     }
   }
 
   # Calculate delta AIC and select models based on delta AIC
-  cand_om$dAIC <- cand_om[, AIC] - min(cand_om[, AIC])
+  cand_om$dAIC <- cand_om[, AIC_option] - min(cand_om[, AIC_option])
   high_aic <- cand_om[cand_om$dAIC > delta_aic, "ID"]
   cand_final <- cand_om[cand_om$dAIC <= delta_aic, ]
 
@@ -198,7 +205,7 @@ sel_best_models <- function(calibration_results = NULL,
                                  "Selected" = cand_final$ID))
 
   #Update calibration_results if necessary
-  if(!is.null(calibration_results)){
+  if(!is.null(calibration_results)) {
     calibration_results$selected_models <- sel_res$cand_final
     calibration_results$summary <- sel_res$summary
     calibration_results$omission_rate <- omrat_threshold
@@ -206,53 +213,3 @@ sel_best_models <- function(calibration_results = NULL,
   } else {
   return(sel_res)}
 }
-
-
-# # #Test function
-# #With minimum omission rate below the selected threshold
-# bm <- sel_best_models(cand_models = cr,
-#                        test_concave = TRUE,
-#                        omrat = 5,
-#                        omrat_threshold = 5, #5%
-#                        allow_tolerance = T,
-#                        tolerance = 0.01,
-#                        AIC = "nk",
-#                        significance = 0.05,
-#                        verbose = TRUE,
-#                        save_file = T,
-#                        output_dir = dir,
-#                        delta_aic = 2)
-# #Save best model
-# write.csv(bm, "Models/Piper_fuligineum/selected_models.csv", row.names = F)
-#
-# #With minimum omission rate above the selected threshold, allowing tolerance
-# bm2 <- sel_best_models(cand_models = cr,
-#                       test_concave = TRUE,
-#                       omrat = 5,
-#                       omrat_threshold = 1, #1%
-#                       allow_tolerance = T,
-#                       tolerance = 0.01,
-#                       AIC = "nk",
-#                       significance = 0.05,
-#                       verbose = TRUE,
-#                       delta_aic = 2,
-#                       save_file = F,
-#                       output_dir = NUL)
-#
-# #With minimum omission rate above the selected threshold, allowing tolerance
-# bm3 <- sel_best_models(cand_models = cr,
-#                       test_concave = TRUE,
-#                       omrat = 5,
-#                       omrat_threshold = 1, #1%
-#                       allow_tolerance = F,
-#                       tolerance = 0.01,
-#                       AIC = "nk",
-#                       significance = 0.05,
-#                       verbose = TRUE,
-#                       delta_aic = 2,
-#                       save_file = F,
-#                       output_dir = NUL)
-#
-#
-#
-#

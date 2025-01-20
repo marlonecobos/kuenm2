@@ -1,25 +1,26 @@
-#' Calibration, evaluation, and selection of candidate models
+#' Fitting and evaluation of models, and selection of the best ones
 #'
 #' @description
-#' This function fits and validates candidate models using the data and grid of
-#' formulas prepared with \code{\link{prepare_data}}(). It supports both
+#' This function fits and evaluates candidate models using the data and grid of
+#' formulas prepared with \code{\link{prepare_data}}. It supports both
 #' algorithms `glm` and `glmnet`. The function then selects the best models
-#' based on concave curves (optional), partial ROC, omission rate, and AIC values.
+#' based on unimodality (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
-#' calibration(data, test_concave = TRUE, addsamplestobackground = TRUE,
-#'             use_weights = FALSE, parallel = TRUE, ncores = 4,
-#'             parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
-#'             out_dir = NULL, skip_existing_models = FALSE,
-#'             return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
-#'             AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
+#' calibration(data, addsamplestobackground = TRUE,use_weights = FALSE,
+#'             parallel = FALSE, ncores = 4, parallel_option = "doSNOW",
+#'             progress_bar = TRUE, write_summary = FALSE,
+#'             output_directory = NULL, skip_existing_models = FALSE,
+#'             return_replicate = TRUE, test_concave = FALSE,
+#'             omission_rate = 10, omrat_threshold = 10,
+#'             AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
 #'             tolerance = 0.01, verbose = TRUE)
 #'
-#' @param data an object of class `prepare_data` returned by the
+#' @param data an object of class `prepared_data` returned by the
 #' \code{\link{prepare_data()}} function. It contains the calibration data,
 #' formulas grid, kfolds, and model type.
 #' @param test_concave (logical) whether to test for and remove candidate models
-#' presenting concave curves. Default is TRUE.
+#' presenting concave curves. Default is FALSE.
 #' @param addsamplestobackground (logical) whether to add to the background any
 #' presence sample that is not already there. Default is TRUE.
 #' @param use_weights (logical) whether to apply the weights present in the
@@ -28,18 +29,18 @@
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
 #' Default is 1. This is only applicable if `parallel = TRUE`.
-#' @param parallel_type (character) the package to use for parallel processing:
+#' @param parallel_option (character) the package to use for parallel processing:
 #' "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
 #' @param write_summary (logical) whether to save the evaluation results for
 #' each candidate model to disk. Default is FALSE.
-#' @param out_dir (character) the file name, with or without a path, for saving
+#' @param output_directory (character) the file name, with or without a path, for saving
 #' the evaluation results for each candidate model. This is only applicable if
 #' `write_summary = TRUE`.
 #' @param skip_existing_models (logical) whether to check for and skip candidate
-#' models that have already been fitted and saved in `out_dir`. This is only
+#' models that have already been fitted and saved in `output_directory`. This is only
 #' applicable if `write_summary = TRUE`. Default is FALSE.
 #' @param return_replicate (logical) whether to return the evaluation results
 #' for each replicate. Default is TRUE, meaning evaluation results for each
@@ -50,7 +51,7 @@
 #' @param omrat_threshold (numeric) the maximum omission rate a candidate model
 #' can have to be considered a best model. This value must match one of the
 #' values specified in omrat. Defaut is 10.
-#' @param AIC (character) the type of AIC to be calculated: "ws" for AIC
+#' @param AIC_option (character) the type of AIC to be calculated: "ws" for AIC
 #' proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
 #' and Kawano (2016). Default is "ws". See References for details.
 #' @param delta_aic (numeric) the value of delta AIC used as a threshold to
@@ -141,44 +142,21 @@
 #' # Prepare data for glmnet model
 #' sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
-#'                        spat_variables = var, mask = NULL,
-#'                        categorical_variables = NULL,
-#'                        do_pca = FALSE, deviance_explained = 95,
-#'                        min_explained = 5, center = TRUE, scale = TRUE,
-#'                        write_pca = FALSE, output_pca = NULL, nbg = 100,
-#'                        kfolds = 4, weights = NULL, min_number = 2,
-#'                        min_continuous = NULL,
+#'                        raster_variables = var,
+#'                        n_background = 100,
 #'                        features = c("l", "lq"),
-#'                        regm = 1,
-#'                        include_xy = TRUE,
-#'                        write_file = FALSE, file_name = NULL,
-#'                        seed = 1)
+#'                        reg_mult = 1)
 #'
 #' # Calibrate glmnet models
 #' m <- calibration(data = sp_swd,
-#'                  test_concave = TRUE,
-#'                  parallel = FALSE,
-#'                  ncores = 1,
-#'                  progress_bar = TRUE,
-#'                  write_summary = FALSE,
-#'                  out_dir = NULL,
-#'                  parallel_type = "doSNOW",
-#'                  return_replicate = TRUE,
-#'                  omission_rate = c(5, 10),
-#'                  omrat_threshold = 10,
-#'                  allow_tolerance = TRUE,
-#'                  tolerance = 0.01,
-#'                  AIC = "ws",
-#'                  delta_aic = 2,
-#'                  skip_existing_models = FALSE,
-#'                  verbose = TRUE)
+#'                  omission_rate = c(5, 10))
 #' m
 #'
 #' #### GLM ####
 #' # Prepare data for glm model
 #' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
 #'                            species = occ_data[1, 1], x = "x", y = "y",
-#'                            spat_variables = var, mask = NULL,
+#'                            raster_variables = var, mask = NULL,
 #'                            categorical_variables = NULL,
 #'                            do_pca = FALSE, deviance_explained = 95,
 #'                            min_explained = 5, center = TRUE, scale = TRUE,
@@ -198,14 +176,14 @@
 #'                      ncores = 1,
 #'                      progress_bar = TRUE,
 #'                      write_summary = FALSE,
-#'                      out_dir = NULL,
-#'                      parallel_type = "doSNOW",
+#'                      output_directory = NULL,
+#'                      parallel_option = "doSNOW",
 #'                      return_replicate = TRUE,
 #'                      omission_rate = c(5, 10),
 #'                      omrat_threshold = 10,
 #'                      allow_tolerance = TRUE,
 #'                      tolerance = 0.01,
-#'                      AIC = "ws",
+#'                      AIC_option = "ws",
 #'                      delta_aic = 2,
 #'                      skip_existing_models = FALSE,
 #'                      verbose = TRUE)
@@ -213,20 +191,20 @@
 
 
 calibration <- function(data,
-                        test_concave = TRUE,
                         addsamplestobackground = TRUE,
                         use_weights = FALSE,
-                        parallel = TRUE,
+                        parallel = FALSE,
                         ncores = 4,
-                        parallel_type = "doSNOW",
+                        parallel_option = "doSNOW",
                         progress_bar = TRUE,
                         write_summary = FALSE,
-                        out_dir = NULL,
+                        output_directory = NULL,
                         skip_existing_models = FALSE,
                         return_replicate = TRUE,
+                        test_concave = FALSE,
                         omission_rate = 10,
                         omrat_threshold = 10,
-                        AIC = "ws",
+                        AIC_option = "ws",
                         delta_aic = 2,
                         allow_tolerance = TRUE,
                         tolerance = 0.01,
@@ -238,8 +216,8 @@ calibration <- function(data,
   }
 
   # If write_summary = TRUE, create directory
-  if (write_summary && !file.exists(out_dir)) {
-    dir.create(out_dir)
+  if (write_summary && !file.exists(output_directory)) {
+    dir.create(output_directory)
   }
 
   # Define global vars
@@ -249,14 +227,14 @@ calibration <- function(data,
 
   # Skip existing models if requested
   if (skip_existing_models && write_summary) {
-    ready_models <- list.files(path = out_dir, pattern = "summary", full.names = TRUE)
+    ready_models <- list.files(path = output_directory, pattern = "summary", full.names = TRUE)
     ready_models <- do.call("rbind", lapply(seq_along(ready_models), function(i) {
       read.csv(ready_models[i])
     }))
     run_models <- setdiff(formula_grid$ID, ready_models$ID)
 
     if (length(run_models) == 0) {
-      stop(paste("All models completed. Check the folder:", out_dir))
+      stop(paste("All models completed. Check the folder:", output_directory))
     } else {
       formula_grid <- formula_grid[formula_grid$ID %in% run_models, ]
     }
@@ -280,8 +258,8 @@ calibration <- function(data,
 
   # Parallelization setup
   if (parallel) {
-    if (!(parallel_type %in% c("doSNOW", "doParallel"))) {
-      stop("Invalid parallel_type. Use 'doSNOW' or 'doParallel'.")
+    if (!(parallel_option %in% c("doSNOW", "doParallel"))) {
+      stop("Invalid parallel_option. Use 'doSNOW' or 'doParallel'.")
     }
     cl <- parallel::makeCluster(ncores)
   }
@@ -291,26 +269,26 @@ calibration <- function(data,
 
   if (test_concave) {
     if (verbose) {
-      cat("\n Task 1/2: checking concave curves in quadratic models\n")
+      message("Task 1/2: checking for concave responses in models:")
     }
 
     q_grids <- formula_grid[grepl("q", formula_grid$Features), ]
     n_tot <- nrow(q_grids)
 
     if(n_tot == 0) {
-      warning("All quadratic models have been already tested")
+      message("None of the models include quadratic terms")
     } else {
-      if (isTRUE(progress_bar)) {
+      if (progress_bar) {
         pb <- txtProgressBar(min = 0, max = n_tot, style = 3)
         progress <- function(n) setTxtProgressBar(pb, n)
         opts <- list(progress = progress)}
 
-      if (parallel & parallel_type == "doParallel") {
+      if (parallel & parallel_option == "doParallel") {
         doParallel::registerDoParallel(cl)
         opts <- NULL # Progress bar does not work with doParallel
       }
 
-      if (parallel & parallel_type == "doSNOW") {
+      if (parallel & parallel_option == "doSNOW") {
         doSNOW::registerDoSNOW(cl)
         if (isTRUE(progress_bar))
           opts <- list(progress = progress)
@@ -330,7 +308,7 @@ calibration <- function(data,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             algorithm = algorithm, AIC = AIC)
+                             algorithm = algorithm, AIC_option = AIC_option)
           }
       } else {
         results_concave <- vector("list", length = n_tot)
@@ -343,7 +321,7 @@ calibration <- function(data,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             algorithm = algorithm, AIC = AIC
+                             algorithm = algorithm, AIC_option = AIC_option
             )
           # Sets the progress bar to the current state
           if(progress_bar) setTxtProgressBar(pb, x)
@@ -354,7 +332,7 @@ calibration <- function(data,
 
   # Update formula grid after concave test
   if(!test_concave) {n_tot = 0}
-  if(test_concave & n_tot > 0){
+  if(test_concave & n_tot > 0) {
 
     # Convert results to dataframe
     d_concave_rep <- do.call("rbind", lapply(results_concave,
@@ -371,35 +349,36 @@ calibration <- function(data,
   n_tot <- nrow(formula_grid)
 
   if(n_tot == 0) {
-    warning("All non-quadratic models have been already tested")
+    message("All candidate models have been tested in task 1")
   } else {
+
+    if(verbose) {
+      if(test_concave) {
+        message("\n\nTask 2/2: fitting and evaluating models with no concave responses:")
+      } else {
+        message("Task 1/1: fitting and evaluating models:")
+      }
+    }
 
     if (progress_bar) {
       pb <- txtProgressBar(0, n_tot, style = 3)
       progress <- function(n) setTxtProgressBar(pb, n) }
 
-    if (parallel_type == "doParallel") {
+    if (parallel_option == "doParallel") {
       doParallel::registerDoParallel(cl)
       opts <- NULL
     }
 
-    if (parallel_type == "doSNOW") {
+    if (parallel_option == "doSNOW") {
       doSNOW::registerDoSNOW(cl)
-      if (isTRUE(progress_bar))
+      if (isTRUE(progress_bar)) {
         opts <- list(progress = progress)
-      else opts <- NULL
-    }
-
-    if(verbose) {
-      if(test_concave) {
-        cat("\nTask 2/2: calibrating non-quadratic models and quadratic models",
-            "without concave curves\n")
       } else {
-        cat("Task 1/1: calibrating models\n")
+        opts <- NULL
       }
     }
 
-    if(parallel){
+    if (parallel) {
       results <- foreach(
         x = 1:n_tot,
         .packages = c("glmnet", "enmpa"),
@@ -410,7 +389,7 @@ calibration <- function(data,
                           write_summary = write_summary,
                           addsamplestobackground = addsamplestobackground,
                           weights = weights,
-                          return_replicate = return_replicate, AIC = AIC,
+                          return_replicate = return_replicate, AIC_option = AIC_option,
                           algorithm = algorithm)
         }
     } else {
@@ -422,21 +401,26 @@ calibration <- function(data,
                           omrat_thr = omrat_threshold,
                           addsamplestobackground =  addsamplestobackground,
                           weights = weights, write_summary,
-                          return_replicate, AIC = AIC, algorithm = algorithm)
+                          return_replicate, AIC_option = AIC_option,
+                          algorithm = algorithm)
 
-        if(progress_bar) setTxtProgressBar(pb, x)
+        if (progress_bar) {
+          setTxtProgressBar(pb, x)
+        }
       }
     }
 
     # Stop cluster
-    if(parallel) parallel::stopCluster(cl)
+    if (parallel) {
+      parallel::stopCluster(cl)
+    }
 
-    d_res_rep <- do.call("rbind", lapply(results, function(x) x$Replicates))
+    d_res_rep <- do.call("rbind", lapply(results, function(x) x$All_results))
     row.names(d_res_rep) <- NULL
     d_res_sum <- do.call("rbind", lapply(results, function(x) x$Summary))
 
     # Join results with results concave, if it exists
-    if(test_concave) {
+    if (test_concave) {
       replicates_final <- rbind(d_concave_rep, d_res_rep)
       summary_final <- rbind(d_concave_sum, d_res_sum)
       res_final <- list(All_results = replicates_final,
@@ -446,16 +430,21 @@ calibration <- function(data,
     }
   }# End of if(n == 0)
 
-  if(n_tot == 0){
+  if (n_tot == 0) {
     res_final <- list(All_results = d_concave_rep,
-                      Summary = d_concave_sum)}
+                      Summary = d_concave_sum)
+  }
 
   # Select the best models
+  if (verbose) {
+    message("\n\nModel selection step:")
+  }
+
   bm <- sel_best_models(cand_models = res_final$Summary,
                         test_concave = test_concave,
                         omrat_threshold = omrat_threshold,
                         allow_tolerance = allow_tolerance,
-                        tolerance = tolerance, AIC = AIC,
+                        tolerance = tolerance, AIC_option = AIC_option,
                         significance = 0.05, verbose = verbose,
                         delta_aic = delta_aic,
                         algorithm = algorithm)

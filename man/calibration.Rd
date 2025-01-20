@@ -2,23 +2,21 @@
 % Please edit documentation in R/calibration.R
 \name{calibration}
 \alias{calibration}
-\title{Calibration, evaluation, and selection of candidate models}
+\title{Fitting and evaluation of models, and selection of the best ones}
 \usage{
-calibration(data, test_concave = TRUE, addsamplestobackground = TRUE,
-            use_weights = FALSE, parallel = TRUE, ncores = 4,
-            parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
-            out_dir = NULL, skip_existing_models = FALSE,
-            return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
-            AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
+calibration(data, addsamplestobackground = TRUE,use_weights = FALSE,
+            parallel = FALSE, ncores = 4, parallel_option = "doSNOW",
+            progress_bar = TRUE, write_summary = FALSE,
+            output_directory = NULL, skip_existing_models = FALSE,
+            return_replicate = TRUE, test_concave = FALSE,
+            omission_rate = 10, omrat_threshold = 10,
+            AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
             tolerance = 0.01, verbose = TRUE)
 }
 \arguments{
-\item{data}{an object of class \code{prepare_data} returned by the
+\item{data}{an object of class \code{prepared_data} returned by the
 \code{\link{prepare_data()}} function. It contains the calibration data,
 formulas grid, kfolds, and model type.}
-
-\item{test_concave}{(logical) whether to test for and remove candidate models
-presenting concave curves. Default is TRUE.}
 
 \item{addsamplestobackground}{(logical) whether to add to the background any
 presence sample that is not already there. Default is TRUE.}
@@ -32,7 +30,7 @@ Default is FALSE.}
 \item{ncores}{(numeric) number of cores to use for parallel processing.
 Default is 1. This is only applicable if \code{parallel = TRUE}.}
 
-\item{parallel_type}{(character) the package to use for parallel processing:
+\item{parallel_option}{(character) the package to use for parallel processing:
 "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 \code{parallel = TRUE}.}
 
@@ -42,17 +40,20 @@ processing. Default is TRUE.}
 \item{write_summary}{(logical) whether to save the evaluation results for
 each candidate model to disk. Default is FALSE.}
 
-\item{out_dir}{(character) the file name, with or without a path, for saving
+\item{output_directory}{(character) the file name, with or without a path, for saving
 the evaluation results for each candidate model. This is only applicable if
 \code{write_summary = TRUE}.}
 
 \item{skip_existing_models}{(logical) whether to check for and skip candidate
-models that have already been fitted and saved in \code{out_dir}. This is only
+models that have already been fitted and saved in \code{output_directory}. This is only
 applicable if \code{write_summary = TRUE}. Default is FALSE.}
 
 \item{return_replicate}{(logical) whether to return the evaluation results
 for each replicate. Default is TRUE, meaning evaluation results for each
 replicate will be returned.}
+
+\item{test_concave}{(logical) whether to test for and remove candidate models
+presenting concave curves. Default is FALSE.}
 
 \item{omission_rate}{(numeric) values from 0 to 100 representing the
 percentage of potential error due to any source of uncertainty. This value is
@@ -62,7 +63,7 @@ used to calculate the omission rate. Default is 10. See details.}
 can have to be considered a best model. This value must match one of the
 values specified in omrat. Defaut is 10.}
 
-\item{AIC}{(character) the type of AIC to be calculated: "ws" for AIC
+\item{AIC_option}{(character) the type of AIC to be calculated: "ws" for AIC
 proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
 and Kawano (2016). Default is "ws". See References for details.}
 
@@ -115,10 +116,10 @@ values above the threshold, and the selected models.
 }
 }
 \description{
-This function fits and validates candidate models using the data and grid of
-formulas prepared with \code{\link{prepare_data}}(). It supports both
+This function fits and evaluates candidate models using the data and grid of
+formulas prepared with \code{\link{prepare_data}}. It supports both
 algorithms \code{glm} and \code{glmnet}. The function then selects the best models
-based on concave curves (optional), partial ROC, omission rate, and AIC values.
+based on unimodality (optional), partial ROC, omission rate, and AIC values.
 }
 \details{
 Partial ROC is calculated following Peterson et al.
@@ -147,44 +148,21 @@ var <- var[[1:3]]
 # Prepare data for glmnet model
 sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
-                       spat_variables = var, mask = NULL,
-                       categorical_variables = NULL,
-                       do_pca = FALSE, deviance_explained = 95,
-                       min_explained = 5, center = TRUE, scale = TRUE,
-                       write_pca = FALSE, output_pca = NULL, nbg = 100,
-                       kfolds = 4, weights = NULL, min_number = 2,
-                       min_continuous = NULL,
+                       raster_variables = var,
+                       n_background = 100,
                        features = c("l", "lq"),
-                       regm = 1,
-                       include_xy = TRUE,
-                       write_file = FALSE, file_name = NULL,
-                       seed = 1)
+                       reg_mult = 1)
 
 # Calibrate glmnet models
 m <- calibration(data = sp_swd,
-                 test_concave = TRUE,
-                 parallel = FALSE,
-                 ncores = 1,
-                 progress_bar = TRUE,
-                 write_summary = FALSE,
-                 out_dir = NULL,
-                 parallel_type = "doSNOW",
-                 return_replicate = TRUE,
-                 omission_rate = c(5, 10),
-                 omrat_threshold = 10,
-                 allow_tolerance = TRUE,
-                 tolerance = 0.01,
-                 AIC = "ws",
-                 delta_aic = 2,
-                 skip_existing_models = FALSE,
-                 verbose = TRUE)
+                 omission_rate = c(5, 10))
 m
 
 #### GLM ####
 # Prepare data for glm model
 sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            species = occ_data[1, 1], x = "x", y = "y",
-                           spat_variables = var, mask = NULL,
+                           raster_variables = var, mask = NULL,
                            categorical_variables = NULL,
                            do_pca = FALSE, deviance_explained = 95,
                            min_explained = 5, center = TRUE, scale = TRUE,
@@ -204,14 +182,14 @@ m_glm <- calibration(data = sp_swd_glm,
                      ncores = 1,
                      progress_bar = TRUE,
                      write_summary = FALSE,
-                     out_dir = NULL,
-                     parallel_type = "doSNOW",
+                     output_directory = NULL,
+                     parallel_option = "doSNOW",
                      return_replicate = TRUE,
                      omission_rate = c(5, 10),
                      omrat_threshold = 10,
                      allow_tolerance = TRUE,
                      tolerance = 0.01,
-                     AIC = "ws",
+                     AIC_option = "ws",
                      delta_aic = 2,
                      skip_existing_models = FALSE,
                      verbose = TRUE)

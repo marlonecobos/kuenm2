@@ -13,7 +13,7 @@ glmnet_mx(
   addsamplestobackground = TRUE,
   weights = NULL,
   calculate_AIC = FALSE,
-  AIC = "ws",
+  AIC_option = "ws",
   ...
 )
 }
@@ -41,7 +41,7 @@ and 100 for background points.}
 
 \item{calculate_AIC}{(logical) Whether to calculate AIC. Default is \code{FALSE}.}
 
-\item{AIC}{(character) Method for calculating AIC, either "nk" or "ws".
+\item{AIC_option}{(character) Method for calculating AIC, either "nk" or "ws".
 Default is "ws".}
 
 \item{...}{Additional arguments to pass to \code{\link[glmnet]{glmnet}}.}

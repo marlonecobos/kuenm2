@@ -4,12 +4,12 @@
 #' @importFrom enmpa proc_enm
 #' @export
 
-eval_stats <- function(cal_res, omission_rate, model_type) {
+eval_stats <- function(cal_res, omission_rate, algorithm) {
 
   # Arguments:
   # cal_res: Calibration results
   # omission_rate: Omission rate threshold
-  # model_type: Type of model, either glmnet or glm
+  # algorithm: Type of model, either glmnet or glm
 
   # Define omission rates and proc to aggregate
   omission_rates <- paste0("Omission_rate_at_", omission_rate)
@@ -19,12 +19,12 @@ eval_stats <- function(cal_res, omission_rate, model_type) {
   toagg <- c(omission_rates, proc_values, pval_values)
 
   # Aggregation groups depending on the model type
-  if (model_type == "glmnet") {
-    agg_by <- c("Formulas", "regm", "Features")
-    to_keep <- c("ID", "Formulas", "regm", "Features", "AIC_nk", "AIC_ws",
+  if (algorithm == "glmnet") {
+    agg_by <- c("Formulas", "reg_mult", "Features")
+    to_keep <- c("ID", "Formulas", "reg_mult", "Features", "AIC_nk", "AIC_ws",
                  "npar", "is_concave")
 
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     agg_by <- c("Formulas", "Features")
     to_keep <- c("ID", "Formulas", "Features", "AIC", "npar", "is_concave")
 
@@ -53,28 +53,30 @@ eval_stats <- function(cal_res, omission_rate, model_type) {
   stats_AICS <- cal_res[!duplicated(cal_res[, to_keep]), ][, to_keep]
   stats_final <- merge(stats, stats_AICS, by = agg_by)
 
+  colnames(stats_final) <- gsub("\\.", "_", colnames(stats_final))
+
   return(stats_final)
 }
 
 empty_replicates <- function(omission_rate, n_row = 4, replicates = 1:4,
-                             is_c = NA, model_type) {
+                             is_c = NA, algorithm) {
 
   # Arguments:
   # omrat_thr: Omission rate threshold
   # n_row: Number of rows
   # replicates: Replicates
   # is_c: Concavity status
-  # model_type: Type of model, either glmnet or glm
+  # algorithm: Type of model, either glmnet or glm
 
   # Define column names based on model type
-  if (model_type == "glmnet") {
+  if (algorithm == "glmnet") {
     column_names <- c("Replicate",
                       paste0("Omission_rate_at_", omission_rate),
                       paste0("Mean_AUC_ratio_at_", omission_rate),
                       paste0("pval_pROC_at_", omission_rate),
                       "AIC_nk", "AIC_ws", "npar",
                       "is_concave")
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     column_names <- c("Replicate",
                       paste0("Omission_rate_at_", omission_rate),
                       paste0("Mean_AUC_ratio_at_", omission_rate),
@@ -95,30 +97,30 @@ empty_replicates <- function(omission_rate, n_row = 4, replicates = 1:4,
   return(df_eval_q)
 }
 
-empty_summary <- function(omission_rate, is_c, model_type) {
+empty_summary <- function(omission_rate, is_c, algorithm) {
 
   # Arguments:
   # omrat_thr: Omission rate threshold
   # is_c: Concavity status
-  # model_type: Type of model, either glmnet or glm
+  # algorithm: Type of model, either glmnet or glm
 
   # Omission rates column names
-  om_means <- paste0("Omission_rate_at_", omission_rate, ".mean")
-  om_sd <- paste0("Omission_rate_at_", omission_rate, ".sd")
+  om_means <- paste0("Omission_rate_at_", omission_rate, "_mean")
+  om_sd <- paste0("Omission_rate_at_", omission_rate, "_sd")
 
   #Proc columns names
-  auc_means <- paste0("Mean_AUC_ratio_at_", omission_rate, ".mean")
-  auc_sd <- paste0("Mean_AUC_ratio_at_", omission_rate, ".sd")
-  pval_means <- paste0("pval_pROC_at_", omission_rate, ".mean")
-  pval_sd <- paste0("pval_pROC_at_", omission_rate, ".sd")
+  auc_means <- paste0("Mean_AUC_ratio_at_", omission_rate, "_mean")
+  auc_sd <- paste0("Mean_AUC_ratio_at_", omission_rate, "_sd")
+  pval_means <- paste0("pval_pROC_at_", omission_rate, "_mean")
+  pval_sd <- paste0("pval_pROC_at_", omission_rate, "_sd")
 
   # Base column names depending on the model type
-  if (model_type == "glmnet") {
+  if (algorithm == "glmnet") {
     column_names <- c(om_means, om_sd,
                       auc_means, auc_sd,
                       pval_means, pval_sd,
                       "AIC_nk", "AIC_ws", "npar", "is_concave")
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     column_names <- c(om_means, om_sd,
                       auc_means, auc_sd,
                       pval_means, pval_sd,
@@ -135,10 +137,11 @@ empty_summary <- function(omission_rate, is_c, model_type) {
   return(eval_final_q)
 }
 
+
+
 fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omrat_thr,
                              write_summary, addsamplestobackground, weights,
-                             return_replicate, model_type,
-                             AIC) {
+                             return_replicate, algorithm, AIC_option) {
 
   # Arguments:
   # x: Each line of the formula grid
@@ -150,25 +153,25 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   # addsamplestobackground: Add samples to background?
   # weights: Add weights
   # return_replicate: Return results of replicates
-  # model_type: Type of model, either glmnet or glm
-  # AIC: AIC for glmnet (can be ws or nk)
+  # algorithm: Type of model, either glmnet or glm
+  # AIC_option: AIC for glmnet (can be ws or nk)
 
   grid_x <- q_grids[x, ]
 
-  if (model_type == "glmnet") {
+  if (algorithm == "glmnet") {
     # For glmnet model
     formula_x <- as.formula(grid_x$Formulas)
-    reg_x <- grid_x$regm
+    reg_x <- grid_x$reg_mult
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                            data = data$calibration_data,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
                            weights = weights,
                            calculate_AIC = TRUE,
-                           AIC = AIC),
+                           AIC_option = AIC_option),
                  silent = TRUE)
 
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     # For glm model
     formula_x <- as.formula(paste("pr_bg ", grid_x$Formulas))
     m_aic <- glm_mx(formula = formula_x, family = binomial(link = "cloglog"),
@@ -186,13 +189,13 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     class(mods) <- "try-error"
   } else {
     # Get number of parameters
-    npar <- if (model_type == "glmnet") {
+    npar <- if (algorithm == "glmnet") {
       length(m_aic$betas)
     } else{
       length(m_aic$coefficients[-1])
     }
 
-    if (model_type == "glmnet") {
+    if (algorithm == "glmnet") {
       vals <- predict.glmnet_mx(object = m_aic,
                                 newdata = data$calibration_data[
                                   data$calibration_data$pr_bg == 1, ],
@@ -201,7 +204,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     }
 
     # Check for concave curves (quadratic terms)
-    q_betas <- if (model_type == "glmnet") {
+    q_betas <- if (algorithm == "glmnet") {
       m_aic$betas[grepl("\\^2", names(m_aic$betas))]
     } else {
       m_aic$coefficients[-1][grepl("\\^2", names(m_aic$coefficients[-1]))]
@@ -213,13 +216,13 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   # Handle concave results
   if (isTRUE(is_c) | is.na(is_c)) {
     # If concave, return grid
-    grid_q <- if (model_type == "glmnet") {
-      all_reg <- unique(formula_grid$regm)
+    grid_q <- if (algorithm == "glmnet") {
+      all_reg <- unique(formula_grid$reg_mult)
       do.call("rbind", lapply(seq_along(all_reg), function(k) {
         grid_x_i <- grid_x
-        grid_x_i$regm <- all_reg[k]
+        grid_x_i$reg_mult <- all_reg[k]
         grid_x_i$ID <- formula_grid[formula_grid$Formulas == grid_x$Formulas &
-                                      formula_grid$regm == all_reg[k], "ID"]
+                                      formula_grid$reg_mult == all_reg[k], "ID"]
         return(grid_x_i)
       }))
     } else {
@@ -230,10 +233,10 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
                                   n_row = nrow(grid_q) * length(data$kfolds),
                                   replicates = names(data$kfolds),
                                   is_c = is_c,
-                                  model_type = model_type)
+                                  algorithm = algorithm)
     df_eval_q2 <- cbind(grid_q, df_eval_q)
     eval_final_q <- empty_summary(omission_rate = omission_rate, is_c = is_c,
-                                  model_type = model_type)
+                                  algorithm = algorithm)
     eval_final_q_summary <- reorder_stats_columns(cbind(grid_q, eval_final_q),
                                                   omission_rate)
 
@@ -250,21 +253,21 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
         weights_i <- NULL
       }
 
-      if (model_type == "glmnet") {
+      if (algorithm == "glmnet") {
         mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
                            weights = weights_i, calculate_AIC = FALSE)
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         mod_i <- glm_mx(formula = formula_x, family = binomial(link = "cloglog"),
                         data = data_i, weights = weights_i)
       }
 
-      pred_i <- if (model_type == "glmnet") {
+      pred_i <- if (algorithm == "glmnet") {
         as.numeric(predict.glmnet_mx(object = mod_i,
                                      newdata = data$calibration_data,
                                      clamp = FALSE, type = "cloglog"))
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         enmpa::predict_glm(model = mod_i, newdata = data$calibration_data,
                            type = "response")
       }
@@ -285,7 +288,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
       proc_i <- unlist(proc_i)
 
 
-      df_eval_q <-  if (model_type == "glmnet") {
+      df_eval_q <-  if (algorithm == "glmnet") {
         data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
@@ -309,7 +312,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     eval_final_q <- do.call("rbind", mods)
     eval_final_q_summary <- reorder_stats_columns(eval_stats(eval_final_q,
                                                              omission_rate,
-                                                             model_type),
+                                                             algorithm),
                                                   omission_rate = omission_rate)
   }
 
@@ -327,9 +330,11 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   return(list(All_results = eval_final_q, Summary = eval_final_q_summary))
 }
 
+
+
 fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
                             write_summary, addsamplestobackground, weights,
-                            return_replicate, model_type, AIC) {
+                            return_replicate, algorithm, AIC_option) {
   # Arguments:
   # x: Each line of the formula grid
   # formula_grid: Formula grid (output of calibration_grid)
@@ -339,24 +344,24 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
   # addsamplestobackground: Add samples to background?
   # weights: Add weights
   # return_replicate: Return results of replicates
-  # model_type: Type of model, either glmnet or glm
-  # AIC: AIC for glmnet (can be ws or nk)
+  # algorithm: Type of model, either glmnet or glm
+  # AIC_option: AIC_option for glmnet (can be ws or nk)
 
   grid_x <- formula_grid[x,] # Get i candidate model
 
-  if (model_type == "glmnet") {
+  if (algorithm == "glmnet") {
     # Fit glmnet model
-    reg_x <- grid_x$regm # Get regularization multiplier for glmnet
+    reg_x <- grid_x$reg_mult # Get regularization multiplier for glmnet
     formula_x <- as.formula(grid_x$Formulas) # Get formula from grid x
 
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                            data = data$calibration_data,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
-                           weights = weights, calculate_AIC = TRUE, AIC = AIC
-    ),
+                           weights = weights, calculate_AIC = TRUE,
+                           AIC_option = AIC_option),
     silent = TRUE)
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     # Fit glm model
     formula_x <- as.formula(paste("pr_bg", grid_x$Formulas))
     m_aic <- glm_mx(formula = formula_x,
@@ -376,14 +381,14 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
     class(mods) <- "try-error"
   } else {
     # Get number of parameters
-    npar <- if (model_type == "glmnet") {
+    npar <- if (algorithm == "glmnet") {
       length(m_aic$betas)
     } else{
       length(m_aic$coefficients[-1])
     }
 
     # Calculate AIC for glmnet or glm
-    AICc <- if (model_type == "glmnet") {
+    AICc <- if (algorithm == "glmnet") {
       vals <- predict.glmnet_mx(object = m_aic,
                                 newdata = data$calibration_data[
                                   data$calibration_data$pr_bg == 1, ],
@@ -393,7 +398,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
     }
 
     # Check for concave curves (quadratic terms)
-    q_betas <- if (model_type == "glmnet") {
+    q_betas <- if (algorithm == "glmnet") {
       m_aic$betas[grepl("\\^2", names(m_aic$betas))]
     } else {
       m_aic$coefficients[-1][grepl("\\^2", names(m_aic$coefficients[-1]))]
@@ -416,7 +421,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
         weights_i <- NULL
       }
 
-      if (model_type == "glmnet") {
+      if (algorithm == "glmnet") {
         # Run glmnet model
         mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                            f = formula_x, regmult = reg_x,
@@ -430,11 +435,11 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
       }
 
       # Predict model
-      pred_i <- if (model_type == "glmnet") {
+      pred_i <- if (algorithm == "glmnet") {
         as.numeric(predict.glmnet_mx(object = mod_i,
                                      newdata = data$calibration_data,
                                      clamp = FALSE, type = "cloglog"))
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         enmpa::predict_glm(model = mod_i,
                            newdata = data$calibration_data,
                            type = "response")
@@ -459,7 +464,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
 
       # Save metrics in a dataframe
-      df_eval <-  if (model_type == "glmnet") {
+      df_eval <-  if (algorithm == "glmnet") {
         data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
@@ -468,7 +473,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
                    npar = npar,
                    is_concave = is_c,
                    row.names = NULL)
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
@@ -487,7 +492,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
                         empty_replicates(omission_rate = omission_rate,
                                          n_row = length(data$kfolds),
                                          replicates = names(data$kfolds),
-                                         is_c = is_c, model_type = model_type))
+                                         is_c = is_c, algorithm = algorithm))
   } else {
     # Combine evaluation results
     names(mods) <- names(data$kfolds)
@@ -497,10 +502,10 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
   # Summarize results using eval_stats
   eval_final_summary <- if (class(mods) == "try-error") {
     reorder_stats_columns(cbind(grid_x, empty_summary(omission_rate, is_c,
-                                                      model_type)),
+                                                      algorithm)),
                           omission_rate = omission_rate)
   } else {
-    reorder_stats_columns(eval_stats(eval_final, omission_rate, model_type),
+    reorder_stats_columns(eval_stats(eval_final, omission_rate, algorithm),
                           omission_rate = omission_rate)
   }
 
@@ -512,12 +517,15 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
   }
 
   # Return replicates?
-  if (!return_replicate) eval_final <- NULL
+  if (!return_replicate) {
+    eval_final <- NULL
+  }
+
   return(list(All_results = eval_final, Summary = eval_final_summary))
 }
 
 
-fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, model_type){
+fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, algorithm){
 
   # Arguments:
   # x: index of the grid
@@ -525,7 +533,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, model_typ
   # cal_res: output of the calibration function
   # n_replicates: number of replicates
   # rep_data: data splitting (replicated data)
-  # model_type: Type of model, either "glmnet" or "glm"
+  # algorithm: Type of model, either "glmnet" or "glm"
 
   # Get the grid information
   grid_x <- dfgrid[x, ]
@@ -536,8 +544,8 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, model_typ
   best_model <- cal_res$selected_models[cal_res$selected_models$ID == m_id, ]
   best_formula <- best_model$Formulas
 
-  if (model_type == "glmnet") {
-    best_regm <- best_model$regm  # Regularization multiplier for glmnet
+  if (algorithm == "glmnet") {
+    best_regm <- best_model$reg_mult  # Regularization multiplier for glmnet
   }
 
   # Select data for the replicate, or use the entire calibration data
@@ -549,8 +557,8 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, model_typ
     data_x <- cal_res$calibration_data
   }
 
-  # Fit the model based on the model_type
-  if (model_type == "glmnet") {
+  # Fit the model based on the algorithm
+  if (algorithm == "glmnet") {
     # Run glmnet model
     mod_x <- glmnet_mx(p = data_x$pr_bg, data = data_x,
                        f = as.formula(best_formula),
@@ -559,7 +567,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, model_typ
                        weights = cal_res$weights,
                        calculate_AIC = FALSE)
 
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     # Run glm model
     mod_x <- glm_mx(formula = as.formula(paste("pr_bg ", best_formula)),
                     family = binomial(link = "cloglog"),
@@ -603,18 +611,19 @@ bind_rows_projection <- function(data_frames) {
 
 #Reorder columns in stats final
 reorder_stats_columns <- function(stats_final, omission_rate){
-  first_cols<- intersect(c("ID", "Formulas", "regm", "Features"),
+  first_cols<- intersect(c("ID", "Formulas", "reg_mult", "Features"),
                          colnames(stats_final))
-  metric_cols <- c(paste0("Omission_rate_at_", omission_rate, ".mean"),
-                   paste0("Omission_rate_at_", omission_rate, ".sd"),
+  metric_cols <- c(paste0("Omission_rate_at_", omission_rate, "_mean"),
+                   paste0("Omission_rate_at_", omission_rate, "_sd"),
                    #Proc columns names
-                   paste0("Mean_AUC_ratio_at_", omission_rate, ".mean"),
-                   paste0("Mean_AUC_ratio_at_", omission_rate, ".sd"),
-                   paste0("pval_pROC_at_", omission_rate, ".mean"),
-                   paste0("pval_pROC_at_", omission_rate, ".sd"))
+                   paste0("Mean_AUC_ratio_at_", omission_rate, "_mean"),
+                   paste0("Mean_AUC_ratio_at_", omission_rate, "_sd"),
+                   paste0("pval_pROC_at_", omission_rate, "_mean"),
+                   paste0("pval_pROC_at_", omission_rate, "_sd"))
   ordered_metric_cols <- unlist(lapply(omission_rate, function(rate) {
-    grep(paste0("_", rate, "\\."), metric_cols, value = TRUE)
+    grep(paste0("_", rate, "_"), metric_cols, value = TRUE)
   }))
   last_cols <- setdiff(colnames(stats_final), c(first_cols, metric_cols))
   orders_cols <- c(first_cols, ordered_metric_cols, last_cols)
-  return(stats_final[,orders_cols])}
+  return(stats_final[,orders_cols])
+}

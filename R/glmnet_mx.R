@@ -20,7 +20,7 @@
 #'        Default is \code{NULL}, which sets weights to 1 for presence points
 #'        and 100 for background points.
 #' @param calculate_AIC (logical) Whether to calculate AIC. Default is \code{FALSE}.
-#' @param AIC (character) Method for calculating AIC, either "nk" or "ws".
+#' @param AIC_option (character) Method for calculating AIC, either "nk" or "ws".
 #' Default is "ws".
 #' @param ... Additional arguments to pass to \code{\link[glmnet]{glmnet}}.
 #'
@@ -43,7 +43,7 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
                       regfun = maxnet.default.regularization,
                       addsamplestobackground = TRUE,
                       weights = NULL,
-                      calculate_AIC = FALSE, AIC = "ws",
+                      calculate_AIC = FALSE, AIC_option = "ws",
                       ...) {
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")
@@ -103,7 +103,7 @@ glmnet_mx <- function(p, data, f, regmult = 1.0,
   filter <- bb[-1] != 0
   bb <- c(bb[1], bb[-1][filter])
 
-  if (calculate_AIC & sum(filter) != 0 & AIC == "nk") {
+  if (calculate_AIC & sum(filter) != 0 & AIC_option == "nk") {
     model$AIC <- aic_nk(x = as.matrix(mm[, filter]), y = p, beta = bb)
   } else {
     model$AIC <- NA

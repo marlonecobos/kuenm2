@@ -2,17 +2,17 @@
 % Please edit documentation in R/sel_best_models.R
 \name{sel_best_models}
 \alias{sel_best_models}
-\title{Select best models}
+\title{Select models that perform the best among all candidates}
 \usage{
 sel_best_models(
   calibration_results = NULL,
   cand_models = NULL,
-  model_type = c("glmnet", "glm"),
+  algorithm = c("glmnet", "glm"),
   test_concave = TRUE,
   omrat_threshold = 10,
   allow_tolerance = TRUE,
   tolerance = 0.01,
-  AIC = "ws",
+  AIC_option = "ws",
   significance = 0.05,
   delta_aic = 2,
   verbose = TRUE
@@ -26,7 +26,7 @@ by the \code{\link{calibration}}() function. Default is NULL.}
 candidate model. In the output of the \code{\link{calibration}}(), this
 data.frame is located in \verb{$calibration_results$Summary}. Default is NULL.}
 
-\item{model_type}{(character) model type, either "glm" or "glmnet".}
+\item{algorithm}{(character) model type, either "glm" or "glmnet".}
 
 \item{test_concave}{(logical) whether to remove candidate models presenting
 concave curves. Default is TRUE.}
@@ -45,9 +45,9 @@ exceeds the \code{omrat_threshold}. If \code{allow_tolerance = TRUE}, selected m
 will have an omission rate equal to or less than the minimum rate plus this
 tolerance. Default is 0.01.}
 
-\item{AIC}{(character) the type of AIC to be calculated: "ws" for AIC
+\item{AIC_option}{(character) the type of AIC to be calculated: "ws" for AIC
 proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-and Kawano (2016). This is only applicable if model_type = "glmnet".
+and Kawano (2016). This is only applicable if algorithm = "glmnet".
 Default is "ws". See References for details.}
 
 \item{significance}{(numeric) the significance level to select models
@@ -73,7 +73,9 @@ values above the threshold, and the selected models.
 }
 }
 \description{
-This function selects the best models according to user-defined criteria, evaluating statistical significance (partial ROC), predictive ability (omission rates), and model complexity (AIC).
+This function selects the best models according to user-defined criteria,
+evaluating statistical significance (partial ROC), predictive ability
+(omission rates), and model complexity (AIC).
 }
 \details{
 Partial ROC is calculated following Peterson et al.
@@ -86,12 +88,12 @@ data("calib_results_glm", package = "kuenm2")
 
 #Select new best models based on another value of omission rate
 new_best_model <- sel_best_models(cand_models = calib_results_glm$calibration_results$Summary,
-                                  model_type = "glm",
+                                  algorithm = "glm",
                                   test_concave = TRUE,
                                   omrat_threshold = 5,
                                   allow_tolerance = TRUE,
                                   tolerance = 0.01,
-                                  AIC = "ws",
+                                  AIC_option = "ws",
                                   significance = 0.05,
                                   delta_aic = 10, #Higher value of delta AIC
                                   verbose = TRUE)
