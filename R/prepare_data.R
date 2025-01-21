@@ -77,7 +77,7 @@
 #' resulting list will be saved. This is only applicable if `write_file =
 #' TRUE`. Default is NULL.
 #' @param seed (numeric) integer value to specify an initial seed to split the
-#' data. Default is 1.
+#' data and extract background. Default is 1.
 #'
 #' @return
 #' An object of class `prepared_data` containing all elements to run a model
@@ -269,7 +269,8 @@ prepare_data <- function(algorithm,
   }
 
   occ_var <- extract_occurrence_variables(occ, x, y, raster_variables)
-  bg_var <- generate_background_variables(raster_variables, n_background)
+  bg_var <- generate_background_variables(raster_variables, n_background,
+                                          seed = seed)
 
   # combine occurrence and background data
   occ_bg <- rbind(occ_var, bg_var)

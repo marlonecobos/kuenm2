@@ -9,10 +9,11 @@ extract_occurrence_variables <- function(occ, x, y, env) {
 }
 
 # Helper function to generate background variables
-generate_background_variables <- function(env, nbg) {
+generate_background_variables <- function(env, nbg, seed = 1) {
   cell_samp <- terra::as.data.frame(env[[1]], na.rm = TRUE, cells = TRUE)[, "cell"]
 
   if (length(cell_samp) > nbg) {
+    set.seed(seed)
     cell_samp <- sample(cell_samp, size = nbg, replace = FALSE)
   }
 
