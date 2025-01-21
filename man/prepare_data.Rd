@@ -100,7 +100,7 @@ in a local directory. Default is FALSE.}
 resulting list will be saved. This is only applicable if \code{write_file = TRUE}. Default is NULL.}
 
 \item{seed}{(numeric) integer value to specify an initial seed to split the
-data. Default is 1.}
+data and extract background. Default is 1.}
 }
 \value{
 An object of class \code{prepared_data} containing all elements to run a model
