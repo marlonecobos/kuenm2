@@ -8,7 +8,7 @@
 #' environmental variables.
 #'
 #' @usage
-#' prepare_user_data(algorithm, user_data, pr_bg = "pr_bg", species = NULL,
+#' prepare_user_data(algorithm, user_data, pr_bg, species = NULL,
 #'                   x = NULL,y = NULL, categorical_variables = NULL,
 #'                   do_pca = FALSE, exclude_from_pca = NULL,
 #'                   variance_explained = 95, min_explained = 5, center = TRUE,
@@ -27,9 +27,9 @@
 #' user_data that contains the presence/background.
 #' @param species (character) string specifying the species name (optional).
 #' Default is NULL.
-#' @param x (character) a string specifying the name of the column in `occ` that
+#' @param x (character) a string specifying the name of the column in `user_data` that
 #' contains the longitude values.
-#' @param y (character) a string specifying the name of the column in `occ` that
+#' @param y (character) a string specifying the name of the column in `user_data` that
 #' contains the latitude values.
 #' @param categorical_variables (character) names of the variables that are
 #' categorical. Default is NULL.
@@ -94,7 +94,7 @@
 #' # Import user-prepared calibration data
 #' data("user_data", package = "kuenm2")
 #' # Prepare data for glmnet model
-#' glmnet_swd_user <- prepare_user_data(algorithm = "glmnet", user_data = user_data,
+#' glmnet_swd_user <- prepare_user_data(algorithm = "glmnet", user_data = user_data, pr_bg = "pr_bg",
 #'                                      species = "Myrcia hatschbachii",
 #'                                      categorical_variables = "SoilType",
 #'                                      features = c("l", "q", "p", "lq", "lqp"),
@@ -103,6 +103,7 @@
 #'
 #' # Prepare data for glm model
 #' glm_swd_user <- prepare_user_data(algorithm = "glm", user_data = user_data,
+#'                                   pr_bg = "pr_bg",
 #'                                   species = "Myrcia hatschbachii",
 #'                                   categorical_variables = "SoilType",
 #'                                   features = c("l", "q", "p", "lq", "lqp"),
@@ -111,7 +112,7 @@
 
 
 
-prepare_user_data <- function(algorithm, user_data, pr_bg = "pr_bg",
+prepare_user_data <- function(algorithm, user_data, pr_bg,
                          species = NULL, x = NULL,y = NULL,
                          categorical_variables = NULL, do_pca = FALSE,
                          exclude_from_pca = NULL, variance_explained = 95,
