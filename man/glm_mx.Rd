@@ -4,7 +4,8 @@
 \alias{glm_mx}
 \title{Maxent-like Generalized Linear Models (GLM)}
 \usage{
-glm_mx(formula, family = binomial(link = "cloglog"), data, weights = NULL, ...)
+glm_mx(formula, family = binomial(link = "cloglog"), data,
+       weights = NULL, ...)
 }
 \arguments{
 \item{formula}{A formula specifying the model to be fitted, in the format
@@ -16,11 +17,12 @@ which is commonly used for presence-background data.}
 
 \item{data}{A \code{data.frame} containing the variables in the model. Must
 include a column named \code{pr_bg} that indicates whether a record is
-a presence (1) or background (0).}
+a presence (1) or background (0), and at least another column with an
+independent variable (predictor).}
 
 \item{weights}{Optional. A numeric vector of weights for each observation. If
-not provided, default weights of 1 for presences and 10000 for
-background points will be used.}
+not provided, default weights of 1 for presences and 100 for background
+are used.}
 
 \item{...}{Additional arguments to be passed to \code{\link[stats]{glm}}.}
 }
@@ -30,11 +32,11 @@ the minimum and maximum values of the non-factor variables in the
 dataset, stored as \code{model$varmin} and \code{model$varmax}.
 }
 \description{
-This function fits a Maxent-like Generalized Linear Model (GLM) to binary
+This function fits a Generalized Linear Model (GLM) to binary
 presence-background data. It allows for the specification of custom weights,
-with a default weighting scheme where presences are weighted as 1 and
-background points as 10000.
+with a default in which presences have a weight of 1 and background 100.
 }
 \details{
-For more details, see Fithian and Hastie (2013) DOI: 10.1214/13-AOAS667.
+For more details about glms using presence and background emulating what
+Maxent does, see Fithian and Hastie (2013) DOI: 10.1214/13-AOAS667.
 }

@@ -4,18 +4,9 @@
 \alias{glmnet_mx}
 \title{Maxent-like glmnet models}
 \usage{
-glmnet_mx(
-  p,
-  data,
-  f,
-  regmult = 1,
-  regfun = maxnet.default.regularization,
-  addsamplestobackground = TRUE,
-  weights = NULL,
-  calculate_AIC = FALSE,
-  AIC_option = "ws",
-  ...
-)
+glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
+          addsamplestobackground = TRUE, weights = NULL,
+          calculate_AIC = FALSE, AIC_option = "ws", ...)
 }
 \arguments{
 \item{p}{A vector of binary presence-background labels, where 1 indicates
@@ -58,8 +49,8 @@ calculating the Akaike Information Criterion (AIC).
 The model can automatically add presence points to the background if needed.
 }
 \details{
-This function is modified from maxnet and fits a Maxent-like model
-using regularization to avoid overfitting. Regularization weights
+This function is modified from the package maxnet and fits a Maxent-like
+model using regularization to avoid overfitting. Regularization weights
 are computed using a user-provided function and can be multiplied by
 a regularization multiplier (\code{regmult}). The function also
 includes an option to calculate AIC.

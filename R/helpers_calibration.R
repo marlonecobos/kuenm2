@@ -58,6 +58,8 @@ eval_stats <- function(cal_res, omission_rate, algorithm) {
   return(stats_final)
 }
 
+
+
 empty_replicates <- function(omission_rate, n_row = 4, replicates = 1:4,
                              is_c = NA, algorithm) {
 
@@ -96,6 +98,8 @@ empty_replicates <- function(omission_rate, n_row = 4, replicates = 1:4,
 
   return(df_eval_q)
 }
+
+
 
 empty_summary <- function(omission_rate, is_c, algorithm) {
 
@@ -525,7 +529,8 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 }
 
 
-fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, algorithm){
+
+fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, algorithm) {
 
   # Arguments:
   # x: index of the grid
@@ -585,7 +590,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, algorithm
 
 
 
-#Bind rows to get path for each projection in project_selected_glmnetx
+# Bind rows to get path for each projection in project_selected_glmnetx
 bind_rows_projection <- function(data_frames) {
   all_columns <- c("Time", "Period", "Scenario", "ssp", "GCM",
                    "input_path", "output_path")
@@ -608,8 +613,7 @@ bind_rows_projection <- function(data_frames) {
 
 
 
-
-#Reorder columns in stats final
+# Reorder columns in stats final
 reorder_stats_columns <- function(stats_final, omission_rate){
   first_cols<- intersect(c("ID", "Formulas", "reg_mult", "Features"),
                          colnames(stats_final))

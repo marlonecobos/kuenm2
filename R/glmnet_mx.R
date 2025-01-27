@@ -1,49 +1,60 @@
 #' Maxent-like glmnet models
 #'
+#' @description
 #' This function fits Maxent-like models using the \code{glmnet} package, designed
 #' for presence-background data. It includes options for regularization and
 #' calculating the Akaike Information Criterion (AIC).
 #' The model can automatically add presence points to the background if needed.
 #'
+#' @usage
+#' glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
+#'           addsamplestobackground = TRUE, weights = NULL,
+#'           calculate_AIC = FALSE, AIC_option = "ws", ...)
+#'
 #' @param p A vector of binary presence-background labels, where 1 indicates
-#'        presence and 0 indicates background.
+#' presence and 0 indicates background.
 #' @param data A \code{data.frame} containing the predictor variables for the
-#'        model. This must include the same number of rows as the length of \code{p}.
+#' model. This must include the same number of rows as the length of \code{p}.
 #' @param f A formula specifying the model to be fitted, in the format used by
-#'        \code{\link[stats]{model.matrix}}.
+#' \code{\link[stats]{model.matrix}}.
 #' @param regmult (numeric) Regularization multiplier, default is 1.0.
 #' @param regfun A function that calculates regularization penalties. Default is
-#'        \code{maxnet.default.regularization}.
+#' \code{maxnet.default.regularization}.
 #' @param addsamplestobackground (logical) Whether to add presence points not in
-#'        the background to the background data. Default is \code{TRUE}.
+#' the background to the background data. Default is \code{TRUE}.
 #' @param weights (numeric) A numeric vector of weights for each observation.
-#'        Default is \code{NULL}, which sets weights to 1 for presence points
-#'        and 100 for background points.
+#' Default is \code{NULL}, which sets weights to 1 for presence points
+#' and 100 for background points.
 #' @param calculate_AIC (logical) Whether to calculate AIC. Default is \code{FALSE}.
 #' @param AIC_option (character) Method for calculating AIC, either "nk" or "ws".
 #' Default is "ws".
 #' @param ... Additional arguments to pass to \code{\link[glmnet]{glmnet}}.
 #'
-#' @return A fitted Maxent-like model object of class \code{glmnet_mx}, which
-#'         includes model coefficients, AIC (if requested), and other elements
-#'         such as feature mins and maxes, sample means, and entropy.
+#' @return
+#' A fitted Maxent-like model object of class \code{glmnet_mx}, which
+#' includes model coefficients, AIC (if requested), and other elements
+#' such as feature mins and maxes, sample means, and entropy.
 #'
-#' @details This function is modified from maxnet and fits a Maxent-like model
-#'          using regularization to avoid overfitting. Regularization weights
-#'          are computed using a user-provided function and can be multiplied by
-#'          a regularization multiplier (\code{regmult}). The function also
-#'          includes an option to calculate AIC.
+#' @details
+#' This function is modified from the package maxnet and fits a Maxent-like
+#' model using regularization to avoid overfitting. Regularization weights
+#' are computed using a user-provided function and can be multiplied by
+#' a regularization multiplier (\code{regmult}). The function also
+#' includes an option to calculate AIC.
 #'
 #' @importFrom glmnet glmnet.control glmnet
 #' @export
-#'
-#'
 
-glmnet_mx <- function(p, data, f, regmult = 1.0,
+
+glmnet_mx <- function(p,
+                      data,
+                      f,
+                      regmult = 1.0,
                       regfun = maxnet.default.regularization,
                       addsamplestobackground = TRUE,
                       weights = NULL,
-                      calculate_AIC = FALSE, AIC_option = "ws",
+                      calculate_AIC = FALSE,
+                      AIC_option = "ws",
                       ...) {
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")

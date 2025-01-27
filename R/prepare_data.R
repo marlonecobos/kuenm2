@@ -257,11 +257,13 @@ prepare_data <- function(algorithm,
     }
 
     pca <- perform_pca(raster_variables, exclude_from_pca = exclude_from_pca,
-                       project = FALSE, projection_data = NULL, out_dir = NULL,
+                       project = FALSE, projection_data = NULL,
+                       out_dir = ifelse(write_pca, pca_directory, NULL),
                        overwrite = FALSE, progress_bar = FALSE,
                        center = center, scale = scale,
                        variance_explained = variance_explained,
                        min_explained = min_explained)
+
     pca$projection_directory <- NULL #Remove projection directory
     raster_variables <- pca$env
   } else {
