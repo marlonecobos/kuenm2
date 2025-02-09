@@ -44,7 +44,7 @@ calibration_grid <- function(occ_bg,
                              min_continuous = NULL,
                              categorical_var = NULL,
                              features = c("l", "q", "lq", "lqp", "p"),
-                             algorithm = c("glm", "glmnet"),
+                             algorithm = c("glm", "maxnet"),
                              reg_mult = c(0.1, 1, 2, 3, 5)) {
 
   # Validate the algorithm input
@@ -58,8 +58,8 @@ calibration_grid <- function(occ_bg,
                                           min_continuous = min_continuous,
                                           categorical_var = categorical_var,
                                           features = features)
-  } else if (algorithm == "glmnet") {
-    # Call the GLMNET-specific function
+  } else if (algorithm == "maxnet") {
+    # Call the maxnet-specific function
     cal_grid_data <- calibration_grid_glmnetmx(occ_bg = occ_bg,
                                                min_number = min_number,
                                                min_continuous = min_continuous,
@@ -71,7 +71,7 @@ calibration_grid <- function(occ_bg,
   return(cal_grid_data)
 }
 
-#' Calibration Grid Generation using GLMNET
+#' Calibration Grid Generation using maxnet
 calibration_grid_glmnetmx <- function(occ_bg,
                                       categorical_var = NULL,
                                       features = c("l", "q", "lq", "lqp", "p"),
@@ -123,7 +123,7 @@ calibration_grid_glmnetmx <- function(occ_bg,
   return(f_grid)
 }
 
-# Prepare Formulas for GLMNET
+# Prepare Formulas for maxnet
 prepare_formulas_glmnetmx <- function(independent, type = "lqpht",
                                       categorical_var = NULL,
                                       minvar = 1, maxvar = NULL) {
