@@ -28,11 +28,11 @@ user_data that contains the presence/background.}
 \item{species}{(character) string specifying the species name (optional).
 Default is NULL.}
 
-\item{x}{(character) a string specifying the name of the column in \code{user_data} that
-contains the longitude values.}
+\item{x}{(character) a string specifying the name of the column in \code{user_data}
+that contains the longitude values.}
 
-\item{y}{(character) a string specifying the name of the column in \code{user_data} that
-contains the latitude values.}
+\item{y}{(character) a string specifying the name of the column in \code{user_data}
+that contains the latitude values.}
 
 \item{categorical_variables}{(character) names of the variables that are
 categorical. Default is NULL.}
@@ -114,7 +114,8 @@ environmental variables.
 # Import user-prepared calibration data
 data("user_data", package = "kuenm2")
 # Prepare data for maxnet model
-maxnet_swd_user <- prepare_user_data(algorithm = "maxnet", user_data = user_data, pr_bg = "pr_bg",
+maxnet_swd_user <- prepare_user_data(algorithm = "maxnet",
+                                     user_data = user_data, pr_bg = "pr_bg",
                                      species = "Myrcia hatschbachii",
                                      categorical_variables = "SoilType",
                                      features = c("l", "q", "p", "lq", "lqp"),

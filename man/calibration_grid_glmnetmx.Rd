@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpers_prepare_data.R
 \name{calibration_grid_glmnetmx}
 \alias{calibration_grid_glmnetmx}
-\title{Calibration Grid Generation using GLMNET}
+\title{Calibration Grid Generation using maxnet}
 \usage{
 calibration_grid_glmnetmx(
   occ_bg,
@@ -14,5 +14,5 @@ calibration_grid_glmnetmx(
 )
 }
 \description{
-Calibration Grid Generation using GLMNET
+Calibration Grid Generation using maxnet
 }
