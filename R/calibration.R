@@ -275,7 +275,7 @@ calibration <- function(data,
       if(parallel){
         results_concave <- foreach::foreach(
           x = 1:n_tot,
-          .packages = c("maxnet", "enmpa"),
+          .packages = c("glmnet", "enmpa"),
           .options.snow = opts) %dopar% {
             fit_eval_concave(x = x, q_grids, data, formula_grid,
                              omission_rate = omission_rate,
@@ -357,7 +357,7 @@ calibration <- function(data,
     if (parallel) {
       results <- foreach(
         x = 1:n_tot,
-        .packages = c("maxnet", "enmpa"),
+        .packages = c("glmnet", "enmpa"),
         .options.snow = opts ) %dopar% {
           fit_eval_models(x, formula_grid, data,
                           omission_rate = omission_rate,
