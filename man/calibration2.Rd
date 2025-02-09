@@ -5,14 +5,14 @@
 \title{Calibration, evaluation, and selection of candidate models}
 \usage{
 calibration2(data, test_concave = TRUE, extrapolation_factor = 0.1,
-           var_limits = NULL, averages_from = "pr" ,
-           addsamplestobackground = TRUE,
-           use_weights = FALSE, parallel = TRUE, ncores = 4,
-           parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
-           out_dir = NULL, skip_existing_models = FALSE,
-           return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
-           AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
-           tolerance = 0.01, verbose = TRUE)
+             var_limits = NULL, averages_from = "pr" ,
+             addsamplestobackground = TRUE,
+             use_weights = FALSE, parallel = TRUE, ncores = 4,
+             parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
+             out_dir = NULL, skip_existing_models = FALSE,
+             return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
+             AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
+             tolerance = 0.01, verbose = TRUE)
 }
 \arguments{
 \item{data}{an object of class \code{prepare_data} returned by the
@@ -119,7 +119,7 @@ formulas and parameters.
 \item weights: a numeric vector specifying weights for data_xy (if used).
 \item pca: if a principal component analysis was performed with variables, a list
 of class "prcomp". See ?stats::prcomp() for details.
-\item model_type: the model type (glm or glmnet)
+\item algorithm: the model type (glm or maxnet)
 \item calibration_results: a list containing a data frame with all evaluation
 metrics for all replicates (if \code{return_replicate = TRUE}) and a summary of
 the evaluation metrics for each candidate model.
@@ -137,7 +137,7 @@ values above the threshold, and the selected models.
 }
 \description{
 This function fits and validates candidate models using the data and grid of
-formulas prepared with \code{\link{prepare_data}}(). It supports both \code{glm} and \code{glmnet}
+formulas prepared with \code{\link{prepare_data}}(). It supports both \code{glm} and \code{maxnet}
 model types. The function then selects the best models based on concave
 curves (optional), partial ROC, omission rate, and AIC values.
 }
@@ -182,9 +182,9 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 #Remove categorical variable
 var <- var[[1:4]]
 
-#### GLMNET ####
-# Prepare data for glmnet model
-sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+#### maxnet ####
+# Prepare data for maxnet model
+sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
                        spat_variables = var, mask = NULL,
                        categorical_variables = NULL,
@@ -199,7 +199,7 @@ sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        write_file = FALSE, file_name = NULL,
                        seed = 1)
 
-# Calibrate glmnet models
+# Calibrate maxnet models
 m <- calibration2(data = sp_swd,
                   test_concave = TRUE,
                   extrapolation_factor = 0.1,
@@ -226,7 +226,7 @@ m
 
 #### GLM ####
 # Prepare data for glm model
-sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
+sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            species = occ_data[1, 1], x = "x", y = "y",
                            spat_variables = var, mask = NULL,
                            categorical_variables = NULL,

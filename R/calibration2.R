@@ -2,20 +2,20 @@
 #'
 #' @description
 #' This function fits and validates candidate models using the data and grid of
-#' formulas prepared with \code{\link{prepare_data}}(). It supports both `glm` and `glmnet`
+#' formulas prepared with \code{\link{prepare_data}}(). It supports both `glm` and `maxnet`
 #' model types. The function then selects the best models based on concave
 #' curves (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
 #' calibration2(data, test_concave = TRUE, extrapolation_factor = 0.1,
-#'            var_limits = NULL, averages_from = "pr" ,
-#'            addsamplestobackground = TRUE,
-#'            use_weights = FALSE, parallel = TRUE, ncores = 4,
-#'            parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
-#'            out_dir = NULL, skip_existing_models = FALSE,
-#'            return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
-#'            AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
-#'            tolerance = 0.01, verbose = TRUE)
+#'              var_limits = NULL, averages_from = "pr" ,
+#'              addsamplestobackground = TRUE,
+#'              use_weights = FALSE, parallel = TRUE, ncores = 4,
+#'              parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
+#'              out_dir = NULL, skip_existing_models = FALSE,
+#'              return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
+#'              AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
+#'              tolerance = 0.01, verbose = TRUE)
 #'
 #' @param data an object of class `prepare_data` returned by the
 #' \code{\link{prepare_data()}} function. It contains the calibration data,
@@ -108,7 +108,7 @@
 #' - weights: a numeric vector specifying weights for data_xy (if used).
 #' - pca: if a principal component analysis was performed with variables, a list
 #' of class "prcomp". See ?stats::prcomp() for details.
-#' - model_type: the model type (glm or glmnet)
+#' - algorithm: the model type (glm or maxnet)
 #' - calibration_results: a list containing a data frame with all evaluation
 #' metrics for all replicates (if `return_replicate = TRUE`) and a summary of
 #' the evaluation metrics for each candidate model.
@@ -172,9 +172,9 @@
 #' #Remove categorical variable
 #' var <- var[[1:4]]
 #'
-#' #### GLMNET ####
-#' # Prepare data for glmnet model
-#' sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+#' #### maxnet ####
+#' # Prepare data for maxnet model
+#' sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
 #'                        spat_variables = var, mask = NULL,
 #'                        categorical_variables = NULL,
@@ -189,7 +189,7 @@
 #'                        write_file = FALSE, file_name = NULL,
 #'                        seed = 1)
 #'
-#' # Calibrate glmnet models
+#' # Calibrate maxnet models
 #' m <- calibration2(data = sp_swd,
 #'                   test_concave = TRUE,
 #'                   extrapolation_factor = 0.1,
@@ -216,7 +216,7 @@
 #'
 #' #### GLM ####
 #' # Prepare data for glm model
-#' sp_swd_glm <- prepare_data(model_type = "glm", occ = occ_data,
+#' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
 #'                            species = occ_data[1, 1], x = "x", y = "y",
 #'                            spat_variables = var, mask = NULL,
 #'                            categorical_variables = NULL,
@@ -290,7 +290,7 @@ calibration2 <- function(data,
   }
 
   # Define global vars
-  model_type <- data$model_type
+  algorithm <- data$algorithm
   formula_grid <- data$formula_grid
   weights <- data$weights
 
@@ -368,7 +368,7 @@ calibration2 <- function(data,
       if(parallel){
         results_concave <- foreach::foreach(
           x = 1:n_tot,
-          .packages = c("glmnet", "enmpa"),
+          .packages = c("maxnet", "enmpa"),
           .options.snow = opts) %dopar% {
             kuenm2:::fit_eval_concave2(x = x, q_grids, data, formula_grid,
                              omission_rate = omission_rate,
@@ -377,7 +377,7 @@ calibration2 <- function(data,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             model_type = model_type, AIC = AIC,
+                             algorithm = algorithm, AIC = AIC,
                              extrapolation_factor = extrapolation_factor,
                              var_limits = var_limits,
                              averages_from = averages_from)
@@ -393,7 +393,7 @@ calibration2 <- function(data,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             model_type = model_type, AIC = AIC,
+                             algorithm = algorithm, AIC = AIC,
                              extrapolation_factor = extrapolation_factor,
                              var_limits = var_limits,
                              averages_from = averages_from, ...
@@ -455,7 +455,7 @@ calibration2 <- function(data,
     if(parallel){
       results <- foreach(
         x = 1:n_tot,
-        .packages = c("glmnet", "enmpa"),
+        .packages = c("maxnet", "enmpa"),
         .options.snow = opts ) %dopar% {
           fit_eval_models2(x, formula_grid, data,
                           omission_rate = omission_rate,
@@ -464,7 +464,7 @@ calibration2 <- function(data,
                           addsamplestobackground = addsamplestobackground,
                           weights = weights,
                           return_replicate = return_replicate, AIC = AIC,
-                          model_type = model_type,
+                          algorithm = algorithm,
                           extrapolation_factor = extrapolation_factor,
                           var_limits = var_limits,
                           averages_from = averages_from)
@@ -478,7 +478,7 @@ calibration2 <- function(data,
                           omrat_thr = omrat_threshold,
                           addsamplestobackground =  addsamplestobackground,
                           weights = weights, write_summary,
-                          return_replicate, AIC = AIC, model_type = model_type,
+                          return_replicate, AIC = AIC, algorithm = algorithm,
                           extrapolation_factor = extrapolation_factor,
                           var_limits = var_limits,
                           averages_from = averages_from)
@@ -517,7 +517,7 @@ calibration2 <- function(data,
                         tolerance = tolerance, AIC = AIC,
                         significance = 0.05, verbose = verbose,
                         delta_aic = delta_aic,
-                        model_type = model_type)
+                        algorithm = algorithm)
 
   # Concatenate final results
   fm <- c(data, calibration_results = list(res_final),
@@ -533,7 +533,7 @@ calibration2 <- function(data,
 
 fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omrat_thr,
                              write_summary, addsamplestobackground, weights,
-                             return_replicate, model_type,
+                             return_replicate, algorithm,
                              AIC, extrapolation_factor, var_limits,
                              averages_from = "pr", ...) {
 
@@ -547,13 +547,13 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
   # addsamplestobackground: Add samples to background?
   # weights: Add weights
   # return_replicate: Return results of replicates
-  # model_type: Type of model, either glmnet or glm
-  # AIC: AIC for glmnet (can be ws or nk)
+  # algorithm: Type of model, either maxnet or glm
+  # AIC: AIC for maxnet (can be ws or nk)
 
   grid_x <- q_grids[x, ]
 
-  if (model_type == "glmnet") {
-    # For glmnet model
+  if (algorithm == "maxnet") {
+    # For maxnet model
     formula_x <- as.formula(grid_x$Formulas)
     reg_x <- grid_x$regm
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
@@ -565,14 +565,14 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
                            AIC = AIC),
                  silent = TRUE)
 
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     # For glm model
     formula_x <- as.formula(paste("pr_bg ", grid_x$Formulas))
     m_aic <- glm_mx(formula = formula_x, family = binomial(link = "cloglog"),
                     data = data$calibration_data, weights = weights)
 
   } else {
-    stop("Unsupported model type. Please use 'glmnet' or 'glm'.")
+    stop("Unsupported model type. Please use 'maxnet' or 'glm'.")
   }
 
   if (any(class(m_aic) == "try-error")) {
@@ -583,13 +583,13 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
     class(mods) <- "try-error"
   } else {
     # Get number of parameters
-    npar <- if (model_type == "glmnet") {
+    npar <- if (algorithm == "maxnet") {
       length(m_aic$betas)
     } else{
       length(m_aic$coefficients[-1])
     }
 
-    if (model_type == "glmnet") {
+    if (algorithm == "maxnet") {
       vals <- predict.glmnet_mx(object = m_aic,
                                 newdata = data$calibration_data[
                                   data$calibration_data$pr_bg == 1, ],
@@ -609,7 +609,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
   # Handle concave results
   if (isTRUE(is_c) | is.na(is_c)) {
     # If concave, return grid
-    grid_q <- if (model_type == "glmnet") {
+    grid_q <- if (algorithm == "maxnet") {
       all_reg <- formula_grid$regm[formula_grid$Formulas == grid_x$Formulas &
                                      formula_grid$Features == grid_x$Features]
       do.call("rbind", lapply(seq_along(all_reg), function(k) {
@@ -627,10 +627,10 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
                                   n_row = nrow(grid_q) * length(data$kfolds),
                                   replicates = names(data$kfolds),
                                   is_c = is_c,
-                                  model_type = model_type)
+                                  algorithm = algorithm)
     df_eval_q2 <- cbind(grid_q, df_eval_q)
     eval_final_q <- empty_summary(omission_rate = omission_rate, is_c = is_c,
-                                  model_type = model_type)
+                                  algorithm = algorithm)
     eval_final_q_summary <- reorder_stats_columns(cbind(grid_q, eval_final_q),
                                                   omission_rate)
 
@@ -647,21 +647,21 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
         weights_i <- NULL
       }
 
-      if (model_type == "glmnet") {
+      if (algorithm == "maxnet") {
         mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
                            weights = weights_i, calculate_AIC = FALSE)
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         mod_i <- glm_mx(formula = formula_x, family = binomial(link = "cloglog"),
                         data = data_i, weights = weights_i)
       }
 
-      pred_i <- if (model_type == "glmnet") {
+      pred_i <- if (algorithm == "maxnet") {
         as.numeric(predict.glmnet_mx(object = mod_i,
                                      newdata = data$calibration_data,
                                      clamp = FALSE, type = "cloglog"))
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         enmpa::predict_glm(model = mod_i, newdata = data$calibration_data,
                            type = "response")
       }
@@ -682,7 +682,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
       })
       proc_i <- unlist(proc_i)
 
-      df_eval_q <-  if (model_type == "glmnet") {
+      df_eval_q <-  if (algorithm == "maxnet") {
         data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
@@ -706,7 +706,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
     eval_final_q <- do.call("rbind", mods)
     eval_final_q_summary <- reorder_stats_columns(eval_stats(eval_final_q,
                                                              omission_rate,
-                                                             model_type),
+                                                             algorithm),
                                                   omission_rate = omission_rate)
   }
 
@@ -726,7 +726,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
 
 fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
                             write_summary, addsamplestobackground, weights,
-                            return_replicate, model_type, AIC,
+                            return_replicate, algorithm, AIC,
                             extrapolation_factor,
                             var_limits, averages_from) {
   # Arguments:
@@ -738,14 +738,14 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
   # addsamplestobackground: Add samples to background?
   # weights: Add weights
   # return_replicate: Return results of replicates
-  # model_type: Type of model, either glmnet or glm
-  # AIC: AIC for glmnet (can be ws or nk)
+  # algorithm: Type of model, either maxnet or glm
+  # AIC: AIC for maxnet (can be ws or nk)
 
   grid_x <- formula_grid[x,] # Get i candidate model
 
-  if (model_type == "glmnet") {
-    # Fit glmnet model
-    reg_x <- grid_x$regm # Get regularization multiplier for glmnet
+  if (algorithm == "maxnet") {
+    # Fit maxnet model
+    reg_x <- grid_x$regm # Get regularization multiplier for maxnet
     formula_x <- as.formula(grid_x$Formulas) # Get formula from grid x
 
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
@@ -755,7 +755,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
                            weights = weights, calculate_AIC = TRUE, AIC = AIC
     ),
     silent = TRUE)
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     # Fit glm model
     formula_x <- as.formula(paste("pr_bg", grid_x$Formulas))
     m_aic <- glm_mx(formula = formula_x,
@@ -763,7 +763,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
                     data = data$calibration_data,
                     weights = weights)
   } else {
-    stop("Unsupported model type. Please use 'glmnet' or 'glm'.")
+    stop("Unsupported model type. Please use 'maxnet' or 'glm'.")
   }
 
   # Handle errors during model fitting
@@ -775,14 +775,14 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
     class(mods) <- "try-error"
   } else {
     # Get number of parameters
-    npar <- if (model_type == "glmnet") {
+    npar <- if (algorithm == "maxnet") {
       length(m_aic$betas)
     } else{
       length(m_aic$coefficients[-1])
     }
 
-    # Calculate AIC for glmnet or glm
-    AICc <- if (model_type == "glmnet") {
+    # Calculate AIC for maxnet or glm
+    AICc <- if (algorithm == "maxnet") {
       vals <- predict.glmnet_mx(object = m_aic,
                                 newdata = data$calibration_data[
                                   data$calibration_data$pr_bg == 1, ],
@@ -799,7 +799,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
     is_c <- any(sapply(is_c, function(x) x$is_concave))
 
     # # Check for concave curves (quadratic terms)
-    # q_betas <- if (model_type == "glmnet") {
+    # q_betas <- if (algorithm == "maxnet") {
     #   m_aic$betas[grepl("\\^2", names(m_aic$betas))]
     # } else {
     #   m_aic$coefficients[-1][grepl("\\^2", names(m_aic$coefficients[-1]))]
@@ -822,8 +822,8 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
         weights_i <- NULL
       }
 
-      if (model_type == "glmnet") {
-        # Run glmnet model
+      if (algorithm == "maxnet") {
+        # Run maxnet model
         mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
@@ -836,11 +836,11 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
       }
 
       # Predict model
-      pred_i <- if (model_type == "glmnet") {
+      pred_i <- if (algorithm == "maxnet") {
         as.numeric(predict.glmnet_mx(object = mod_i,
                                      newdata = data$calibration_data,
                                      clamp = FALSE, type = "cloglog"))
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         enmpa::predict_glm(model = mod_i,
                            newdata = data$calibration_data,
                            type = "response")
@@ -866,7 +866,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
 
       # Save metrics in a dataframe
-      df_eval <-  if (model_type == "glmnet") {
+      df_eval <-  if (algorithm == "maxnet") {
         data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
@@ -875,7 +875,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
                    npar = npar,
                    is_concave = is_c,
                    row.names = NULL)
-      } else if (model_type == "glm") {
+      } else if (algorithm == "glm") {
         data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
@@ -894,7 +894,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
                         empty_replicates(omission_rate = omission_rate,
                                          n_row = length(data$kfolds),
                                          replicates = names(data$kfolds),
-                                         is_c = is_c, model_type = model_type))
+                                         is_c = is_c, algorithm = algorithm))
   } else {
     # Combine evaluation results
     names(mods) <- names(data$kfolds)
@@ -904,10 +904,10 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
   # Summarize results using eval_stats
   eval_final_summary <- if (class(mods) == "try-error") {
     reorder_stats_columns(cbind(grid_x, empty_summary(omission_rate, is_c,
-                                                      model_type)),
+                                                      algorithm)),
                           omission_rate = omission_rate)
   } else {
-    reorder_stats_columns(eval_stats(eval_final, omission_rate, model_type),
+    reorder_stats_columns(eval_stats(eval_final, omission_rate, algorithm),
                           omission_rate = omission_rate)
   }
 
