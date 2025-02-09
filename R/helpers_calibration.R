@@ -166,7 +166,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     # For maxnet model
     formula_x <- as.formula(grid_x$Formulas)
     reg_x <- grid_x$reg_mult
-    m_aic <- try(maxnet_mx(p = data$calibration_data$pr_bg,
+    m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                            data = data$calibration_data,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
@@ -200,7 +200,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     }
 
     if (algorithm == "maxnet") {
-      vals <- predict.maxnet_mx(object = m_aic,
+      vals <- predict.glmnet_mx(object = m_aic,
                                 newdata = data$calibration_data[
                                   data$calibration_data$pr_bg == 1, ],
                                 type = "exponential")
