@@ -4,7 +4,7 @@
 \alias{prepare_user_data}
 \title{Prepare data for model calibration with user-prepared calibration data}
 \usage{
-prepare_user_data(algorithm, user_data, pr_bg = "pr_bg", species = NULL,
+prepare_user_data(algorithm, user_data, pr_bg, species = NULL,
                   x = NULL,y = NULL, categorical_variables = NULL,
                   do_pca = FALSE, exclude_from_pca = NULL,
                   variance_explained = 95, min_explained = 5, center = TRUE,
@@ -16,7 +16,7 @@ prepare_user_data(algorithm, user_data, pr_bg = "pr_bg", species = NULL,
                   write_file = FALSE, file_name = NULL, seed = 1)
 }
 \arguments{
-\item{algorithm}{(character) type algorithm, either "glm" or "glmnet".}
+\item{algorithm}{(character) type algorithm, either "glm" or "maxnet".}
 
 \item{user_data}{(data frame) A data.frame with columns indicating presence (1)
 and background (0) data, as well as the corresponding predictor values. For
@@ -28,10 +28,10 @@ user_data that contains the presence/background.}
 \item{species}{(character) string specifying the species name (optional).
 Default is NULL.}
 
-\item{x}{(character) a string specifying the name of the column in \code{occ} that
+\item{x}{(character) a string specifying the name of the column in \code{user_data} that
 contains the longitude values.}
 
-\item{y}{(character) a string specifying the name of the column in \code{occ} that
+\item{y}{(character) a string specifying the name of the column in \code{user_data} that
 contains the latitude values.}
 
 \item{categorical_variables}{(character) names of the variables that are
@@ -81,7 +81,7 @@ required in a combination. Default is NULL.}
 \item{features}{(character) a vector of feature classes. Default is c("q",
 "lq", "lp", "qp", "lqp").}
 
-\item{reg_mult}{(numeric) a vector of regularization parameters for glmnet.
+\item{reg_mult}{(numeric) a vector of regularization parameters for maxnet.
 Default is c(0.1, 1, 2, 3, 5).}
 
 \item{include_xy}{(logical) whether to include the coordinates (longitude and
@@ -113,16 +113,17 @@ environmental variables.
 \examples{
 # Import user-prepared calibration data
 data("user_data", package = "kuenm2")
-# Prepare data for glmnet model
-glmnet_swd_user <- prepare_user_data(algorithm = "glmnet", user_data = user_data,
+# Prepare data for maxnet model
+maxnet_swd_user <- prepare_user_data(algorithm = "maxnet", user_data = user_data, pr_bg = "pr_bg",
                                      species = "Myrcia hatschbachii",
                                      categorical_variables = "SoilType",
                                      features = c("l", "q", "p", "lq", "lqp"),
                                      reg_mult = c(0.1, 1, 2, 3, 5))
-print(glmnet_swd_user)
+print(maxnet_swd_user)
 
 # Prepare data for glm model
 glm_swd_user <- prepare_user_data(algorithm = "glm", user_data = user_data,
+                                  pr_bg = "pr_bg",
                                   species = "Myrcia hatschbachii",
                                   categorical_variables = "SoilType",
                                   features = c("l", "q", "p", "lq", "lqp"),

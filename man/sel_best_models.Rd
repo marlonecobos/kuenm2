@@ -5,7 +5,7 @@
 \title{Select models that perform the best among all candidates}
 \usage{
 sel_best_models(calibration_results = NULL, cand_models = NULL,
-                algorithm = c("glmnet", "glm"), test_concave = TRUE,
+                algorithm = c("maxnet", "glm"), test_concave = TRUE,
                 omrat_threshold = 10, allow_tolerance = TRUE,
                 tolerance = 0.01, AIC_option = "ws", significance = 0.05,
                 delta_aic = 2, verbose = TRUE)
@@ -18,7 +18,7 @@ by the \code{\link{calibration}}() function. Default is NULL.}
 candidate model. In the output of the \code{\link{calibration}}(), this
 data.frame is located in \verb{$calibration_results$Summary}. Default is NULL.}
 
-\item{algorithm}{(character) model type, either "glm" or "glmnet".}
+\item{algorithm}{(character) model type, either "glm" or "maxnet".}
 
 \item{test_concave}{(logical) whether to remove candidate models presenting
 concave curves. Default is TRUE.}
@@ -39,7 +39,7 @@ tolerance. Default is 0.01.}
 
 \item{AIC_option}{(character) the type of AIC to be calculated: "ws" for AIC
 proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-and Kawano (2016). This is only applicable if algorithm = "glmnet".
+and Kawano (2016). This is only applicable if algorithm = "maxnet".
 Default is "ws". See References for details.}
 
 \item{significance}{(numeric) the significance level to select models

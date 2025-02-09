@@ -99,7 +99,7 @@ formulas and parameters.
 \item weights: a numeric vector specifying weights for data_xy (if used).
 \item pca: if a principal component analysis was performed with variables, a list
 of class "prcomp". See ?stats::prcomp() for details.
-\item algorithm: the model type (glm or glmnet)
+\item algorithm: the model type (glm or maxnet)
 \item calibration_results: a list containing a data frame with all evaluation
 metrics for all replicates (if \code{return_replicate = TRUE}) and a summary of
 the evaluation metrics for each candidate model.
@@ -118,7 +118,7 @@ values above the threshold, and the selected models.
 \description{
 This function fits and evaluates candidate models using the data and grid of
 formulas prepared with \code{\link{prepare_data}}. It supports both
-algorithms \code{glm} and \code{glmnet}. The function then selects the best models
+algorithms \code{glm} and \code{maxnet}. The function then selects the best models
 based on unimodality (optional), partial ROC, omission rate, and AIC values.
 }
 \details{
@@ -144,16 +144,16 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 # Use only variables 1, 2 and 3
 var <- var[[1:3]]
 
-#### GLMNET ####
-# Prepare data for glmnet model
-sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
+#### maxnet ####
+# Prepare data for maxnet model
+sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
                        raster_variables = var,
                        n_background = 100,
                        features = c("l", "lq"),
                        reg_mult = 1)
 
-# Calibrate glmnet models
+# Calibrate maxnet models
 m <- calibration(data = sp_swd, omission_rate = c(5, 10))
 
 m

@@ -7,7 +7,7 @@
 #'
 #' @usage
 #' sel_best_models(calibration_results = NULL, cand_models = NULL,
-#'                 algorithm = c("glmnet", "glm"), test_concave = TRUE,
+#'                 algorithm = c("maxnet", "glm"), test_concave = TRUE,
 #'                 omrat_threshold = 10, allow_tolerance = TRUE,
 #'                 tolerance = 0.01, AIC_option = "ws", significance = 0.05,
 #'                 delta_aic = 2, verbose = TRUE)
@@ -17,7 +17,7 @@
 #' @param cand_models (data.frame) a summary of the evaluation metrics for each
 #' candidate model. In the output of the \code{\link{calibration}}(), this
 #' data.frame is located in `$calibration_results$Summary`. Default is NULL.
-#' @param algorithm (character) model type, either "glm" or "glmnet".
+#' @param algorithm (character) model type, either "glm" or "maxnet".
 #' @param test_concave (logical) whether to remove candidate models presenting
 #' concave curves. Default is TRUE.
 #' @param omrat_threshold (numeric) the maximum omission rate a candidate model
@@ -33,7 +33,7 @@
 #' tolerance. Default is 0.01.
 #' @param AIC_option (character) the type of AIC to be calculated: "ws" for AIC
 #' proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-#' and Kawano (2016). This is only applicable if algorithm = "glmnet".
+#' and Kawano (2016). This is only applicable if algorithm = "maxnet".
 #' Default is "ws". See References for details.
 #' @param significance (numeric) the significance level to select models
 #' based on the partial ROC (pROC). Default is 0.05. See Details.
@@ -87,7 +87,7 @@
 
 sel_best_models <- function(calibration_results = NULL,
                             cand_models = NULL,
-                            algorithm = c("glmnet", "glm"),
+                            algorithm = c("maxnet", "glm"),
                             test_concave = TRUE,
                             omrat_threshold = 10,
                             allow_tolerance = TRUE,
@@ -106,8 +106,8 @@ sel_best_models <- function(calibration_results = NULL,
   }
 
   # Adjust AIC column based on model type
-  if (algorithm == "glmnet") {
-    # Remove the unused AIC column in glmnet
+  if (algorithm == "maxnet") {
+    # Remove the unused AIC column in maxnet
     if (AIC_option == "nk") {
       AIC_option <- "AIC_nk"
       cand_models$AIC_ws <- NULL
@@ -120,7 +120,7 @@ sel_best_models <- function(calibration_results = NULL,
   } else if (algorithm == "glm") {
     AIC_option <- "AIC" # For glm models, we only use a single AIC column
   } else {
-    stop("Unsupported algorithm. Please use 'glmnet' or 'glm'.")
+    stop("Unsupported algorithm. Please use 'maxnet' or 'glm'.")
   }
 
   # Omission rate column name

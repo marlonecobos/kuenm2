@@ -18,7 +18,7 @@
 #'              reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
 #'              write_file = FALSE, file_name = NULL, seed = 1)
 #'
-#' @param algorithm (character) type algorithm, either "glm" or "glmnet".
+#' @param algorithm (character) type algorithm, either "glm" or "maxnet".
 #' @param occ (data frame) a data.frame containing the coordinates (longitude
 #' and latitude) of the occurrence records.
 #' @param species (character) string specifying the species name (optional).
@@ -67,7 +67,7 @@
 #' required in a combination. Default is NULL.
 #' @param features (character) a vector of feature classes. Default is c("q",
 #' "lq", "lp", "qp", "lqp").
-#' @param reg_mult (numeric) a vector of regularization parameters for glmnet.
+#' @param reg_mult (numeric) a vector of regularization parameters for maxnet.
 #' Default is c(0.1, 1, 2, 3, 5).
 #' @param include_xy (logical) whether to include the coordinates (longitude and
 #' latitude) in the results from preparing data. Default is TRUE.
@@ -100,8 +100,8 @@
 #' # Import occurrences
 #' data(occ_data, package = "kuenm2")
 #'
-#' # Prepare data for glmnet model
-#' sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
+#' # Prepare data for maxnet model
+#' sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
 #'                        raster_variables = var,
 #'                        categorical_variables = "SoilType",
@@ -150,10 +150,10 @@ prepare_data <- function(algorithm,
                          seed = 1) {
   #Check data
   if(length(algorithm) != 1) {
-    stop("'algorithm' must be a single value: either 'glm' or 'glmnet'")
+    stop("'algorithm' must be a single value: either 'glm' or 'maxnet'")
   } else {
-    if (!algorithm %in% c("glm", "glmnet")) {
-      stop("'algorithm' must be 'glm' or 'glmnet'")
+    if (!algorithm %in% c("glm", "maxnet")) {
+      stop("'algorithm' must be 'glm' or 'maxnet'")
     }
   }
 

@@ -16,7 +16,7 @@ prepare_data(algorithm, occ, species = NULL, x, y,
              write_file = FALSE, file_name = NULL, seed = 1)
 }
 \arguments{
-\item{algorithm}{(character) type algorithm, either "glm" or "glmnet".}
+\item{algorithm}{(character) type algorithm, either "glm" or "maxnet".}
 
 \item{occ}{(data frame) a data.frame containing the coordinates (longitude
 and latitude) of the occurrence records.}
@@ -87,7 +87,7 @@ required in a combination. Default is NULL.}
 \item{features}{(character) a vector of feature classes. Default is c("q",
 "lq", "lp", "qp", "lqp").}
 
-\item{reg_mult}{(numeric) a vector of regularization parameters for glmnet.
+\item{reg_mult}{(numeric) a vector of regularization parameters for maxnet.
 Default is c(0.1, 1, 2, 3, 5).}
 
 \item{include_xy}{(logical) whether to include the coordinates (longitude and
@@ -123,8 +123,8 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 # Import occurrences
 data(occ_data, package = "kuenm2")
 
-# Prepare data for glmnet model
-sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
+# Prepare data for maxnet model
+sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
                        raster_variables = var,
                        categorical_variables = "SoilType",

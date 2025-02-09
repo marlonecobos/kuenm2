@@ -19,7 +19,7 @@
 #'                   reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
 #'                   write_file = FALSE, file_name = NULL, seed = 1)
 #'
-#' @param algorithm (character) type algorithm, either "glm" or "glmnet".
+#' @param algorithm (character) type algorithm, either "glm" or "maxnet".
 #' @param user_data (data frame) A data.frame with columns indicating presence (1)
 #' and background (0) data, as well as the corresponding predictor values. For
 #' an example, see \code{data("user_data", package = "kuenm2")}.
@@ -64,7 +64,7 @@
 #' required in a combination. Default is NULL.
 #' @param features (character) a vector of feature classes. Default is c("q",
 #' "lq", "lp", "qp", "lqp").
-#' @param reg_mult (numeric) a vector of regularization parameters for glmnet.
+#' @param reg_mult (numeric) a vector of regularization parameters for maxnet.
 #' Default is c(0.1, 1, 2, 3, 5).
 #' @param include_xy (logical) whether to include the coordinates (longitude and
 #' latitude) in the results from preparing data. Default is TRUE.
@@ -93,13 +93,13 @@
 #' @examples
 #' # Import user-prepared calibration data
 #' data("user_data", package = "kuenm2")
-#' # Prepare data for glmnet model
-#' glmnet_swd_user <- prepare_user_data(algorithm = "glmnet", user_data = user_data, pr_bg = "pr_bg",
+#' # Prepare data for maxnet model
+#' maxnet_swd_user <- prepare_user_data(algorithm = "maxnet", user_data = user_data, pr_bg = "pr_bg",
 #'                                      species = "Myrcia hatschbachii",
 #'                                      categorical_variables = "SoilType",
 #'                                      features = c("l", "q", "p", "lq", "lqp"),
 #'                                      reg_mult = c(0.1, 1, 2, 3, 5))
-#' print(glmnet_swd_user)
+#' print(maxnet_swd_user)
 #'
 #' # Prepare data for glm model
 #' glm_swd_user <- prepare_user_data(algorithm = "glm", user_data = user_data,
@@ -125,10 +125,10 @@ prepare_user_data <- function(algorithm, user_data, pr_bg,
                          write_file = FALSE, file_name = NULL, seed = 1) {
   #Check data
   if(length(algorithm) != 1) {
-    stop("'algorithm' must be a single value: either 'glm' or 'glmnet'")
+    stop("'algorithm' must be a single value: either 'glm' or 'maxnet'")
   } else {
-    if (!algorithm %in% c("glm", "glmnet")) {
-      stop("'algorithm' must be 'glm' or 'glmnet'")
+    if (!algorithm %in% c("glm", "maxnet")) {
+      stop("'algorithm' must be 'glm' or 'maxnet'")
     }
   }
 

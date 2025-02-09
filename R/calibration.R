@@ -3,7 +3,7 @@
 #' @description
 #' This function fits and evaluates candidate models using the data and grid of
 #' formulas prepared with \code{\link{prepare_data}}. It supports both
-#' algorithms `glm` and `glmnet`. The function then selects the best models
+#' algorithms `glm` and `maxnet`. The function then selects the best models
 #' based on unimodality (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
@@ -92,7 +92,7 @@
 #' - weights: a numeric vector specifying weights for data_xy (if used).
 #' - pca: if a principal component analysis was performed with variables, a list
 #' of class "prcomp". See ?stats::prcomp() for details.
-#' - algorithm: the model type (glm or glmnet)
+#' - algorithm: the model type (glm or maxnet)
 #' - calibration_results: a list containing a data frame with all evaluation
 #' metrics for all replicates (if `return_replicate = TRUE`) and a summary of
 #' the evaluation metrics for each candidate model.
@@ -138,16 +138,16 @@
 #' # Use only variables 1, 2 and 3
 #' var <- var[[1:3]]
 #'
-#' #### GLMNET ####
-#' # Prepare data for glmnet model
-#' sp_swd <- prepare_data(algorithm = "glmnet", occ = occ_data,
+#' #### maxnet ####
+#' # Prepare data for maxnet model
+#' sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
 #'                        raster_variables = var,
 #'                        n_background = 100,
 #'                        features = c("l", "lq"),
 #'                        reg_mult = 1)
 #'
-#' # Calibrate glmnet models
+#' # Calibrate maxnet models
 #' m <- calibration(data = sp_swd, omission_rate = c(5, 10))
 #'
 #' m
@@ -275,7 +275,7 @@ calibration <- function(data,
       if(parallel){
         results_concave <- foreach::foreach(
           x = 1:n_tot,
-          .packages = c("glmnet", "enmpa"),
+          .packages = c("maxnet", "enmpa"),
           .options.snow = opts) %dopar% {
             fit_eval_concave(x = x, q_grids, data, formula_grid,
                              omission_rate = omission_rate,
@@ -357,7 +357,7 @@ calibration <- function(data,
     if (parallel) {
       results <- foreach(
         x = 1:n_tot,
-        .packages = c("glmnet", "enmpa"),
+        .packages = c("maxnet", "enmpa"),
         .options.snow = opts ) %dopar% {
           fit_eval_models(x, formula_grid, data,
                           omission_rate = omission_rate,
