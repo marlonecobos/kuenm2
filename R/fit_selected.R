@@ -71,7 +71,7 @@
 #'
 #' @examples
 #' # Import example of calibration results (output of calibration function)
-#' ## GLMNET
+#' ## maxnet
 #' data("calib_results_glmnet", package = "kuenm2")
 #'
 #' # Fit models using calibration results
@@ -119,7 +119,7 @@ fit_selected <- function(calibration_results, n_replicates = 5,
 
   # Extract model IDs from selected models
   m_ids <- calibration_results$selected_models$ID
-  model_type <- calibration_results$model_type
+  algorithm <- calibration_results$algorithm
 
   # Fitting models over multiple replicates_____________________________________
   if(n_replicates > 1){
@@ -178,13 +178,13 @@ fit_selected <- function(calibration_results, n_replicates = 5,
                                       .options.snow = opts
       ) %dopar% {
         fit_best_model(x, dfgrid, calibration_results, n_replicates,
-                       rep_data, model_type)
+                       rep_data, algorithm)
       }
     } else {
       best_models <- vector("list", length = n_tot)
       for (x in 1:n_tot) {
         best_models[[x]] <- fit_best_model(x, dfgrid, calibration_results,
-                                           n_replicates, rep_data, model_type)
+                                           n_replicates, rep_data, algorithm)
         if (progress_bar) utils::setTxtProgressBar(pb, x)
       }
     }
@@ -249,13 +249,13 @@ fit_selected <- function(calibration_results, n_replicates = 5,
                                     .options.snow = opts
     ) %dopar% {
       fit_best_model(x, dfgrid, calibration_results, n_replicates = 1, rep_data,
-                     model_type)
+                     algorithm)
     }
   } else {
     full_models <- vector("list", length = n_models)
     for (x in 1:n_models) {
       full_models[[x]] <- fit_best_model(x, dfgrid, calibration_results,
-                                         n_replicates = 1, rep_data, model_type)
+                                         n_replicates = 1, rep_data, algorithm)
       if (progress_bar) utils::setTxtProgressBar(pb, x)
     }
   }
@@ -282,11 +282,11 @@ fit_selected <- function(calibration_results, n_replicates = 5,
       m_x$Full_model <- NULL
     }
 
-    if (model_type == "glmnet") {
+    if (algorithm == "maxnet") {
       p_r <- sapply(m_x, function(i) predict.glmnet_mx(object = i,
                                                        newdata = occ,
                                                        type = "cloglog"))
-    } else if (model_type == "glm") {
+    } else if (algorithm == "glm") {
       p_r <- sapply(m_x, function(i) suppressWarnings(
         enmpa::predict_glm(model = i,
                            data = calibration_results$calibration_data,
@@ -327,7 +327,7 @@ fit_selected <- function(calibration_results, n_replicates = 5,
     addsamplestobackground = calibration_results$addsamplestobackground,
     omission_rate = calibration_results$summary$omission_rate_thr,
     thresholds = p_thr,
-    model_type = model_type
+    algorithm = algorithm
   )
 
   # Optionally save the fitted models

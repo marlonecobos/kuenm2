@@ -53,9 +53,9 @@ extrapolation).}
 Only applicable if \code{clamping = TRUE}. Default is \code{NULL}, meaning all
 variables will be clamped.}
 
-\item{type}{(character) the format of prediction values. For \code{glmnet} models,
+\item{type}{(character) the format of prediction values. For \code{maxnet} models,
 available options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"},
-with the default being \code{"cloglog"} for glmnet and \code{"response"} for glm.}
+with the default being \code{"cloglog"} for maxnet and \code{"response"} for glm.}
 
 \item{overwrite}{(logical) whether to overwrite SpatRasters if they already
 exist. Only applicable if \code{write_files = TRUE}. Default is FALSE.}
@@ -69,7 +69,7 @@ with the consensus results for each model and the overall general consensus.
 }
 \description{
 This function predicts selected models for a single environmental scenario
-using either \code{glmnet} or \code{glm} models. It provides options for saving the
+using either \code{maxnet} or \code{glm} models. It provides options for saving the
 output and calculating consensus measures (mean, median, etc.) across
 replicates and models.
 }
@@ -79,7 +79,7 @@ library(terra)
 # Import variables to predict
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
-##Example with glmnet
+##Example with maxnet
 # Import example of fitted_models (output of fit_selected())
 data("fitted_model_glmnet", package = "kuenm2")
 # Predict to single scenario
@@ -116,7 +116,7 @@ p_glm <- predict_selected(models = fitted_model_glm,
 #Compare
 plot(c(p$General_consensus$mean,
        p_glm$General_consensus$mean),
-     col = rev(terrain.colors(240)), main = c("GLMNET", "GLM"),
+     col = rev(terrain.colors(240)), main = c("MAXNET", "GLM"),
      zlim = c(0, 1))
 
 

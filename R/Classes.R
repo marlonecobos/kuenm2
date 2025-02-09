@@ -152,7 +152,7 @@ new_fitted_models <- function(species,
                               addsamplestobackground,
                               omission_rate,
                               thresholds,
-                              model_type){
+                              algorithm){
   data <- list(
     species = species,
     Models = Models,
@@ -165,7 +165,7 @@ new_fitted_models <- function(species,
     addsamplestobackground = addsamplestobackground,
     omission_rate = omission_rate,
     thresholds = thresholds,
-    model_type = model_type
+    algorithm = algorithm
   )
   class(data) <- "fitted_models"
   return(data)

@@ -77,7 +77,7 @@ model fitting.
 }
 \examples{
 # Import example of calibration results (output of calibration function)
-## GLMNET
+## maxnet
 data("calib_results_glmnet", package = "kuenm2")
 
 # Fit models using calibration results

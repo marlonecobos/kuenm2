@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function predicts selected models for a single environmental scenario
-#' using either `glmnet` or `glm` models. It provides options for saving the
+#' using either `maxnet` or `glm` models. It provides options for saving the
 #' output and calculating consensus measures (mean, median, etc.) across
 #' replicates and models.
 #'
@@ -35,9 +35,9 @@
 #' @param var_to_clamp (character) vector specifying which variables to clamp.
 #' Only applicable if `clamping = TRUE`. Default is `NULL`, meaning all
 #' variables will be clamped.
-#' @param type (character) the format of prediction values. For `glmnet` models,
+#' @param type (character) the format of prediction values. For `maxnet` models,
 #' available options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`,
-#' with the default being `"cloglog"` for glmnet and `"response"` for glm.
+#' with the default being `"cloglog"` for maxnet and `"response"` for glm.
 #' @param overwrite (logical) whether to overwrite SpatRasters if they already
 #' exist. Only applicable if `write_files = TRUE`. Default is FALSE.
 #' @param progress_bar (logical) whether to display a progress bar during
@@ -65,7 +65,7 @@
 #' # Import variables to predict
 #' var <- terra::rast(system.file("extdata", "Current_variables.tif",
 #'                                package = "kuenm2"))
-#' ##Example with glmnet
+#' ##Example with maxnet
 #' # Import example of fitted_models (output of fit_selected())
 #' data("fitted_model_glmnet", package = "kuenm2")
 #' # Predict to single scenario
@@ -102,7 +102,7 @@
 #' #Compare
 #' plot(c(p$General_consensus$mean,
 #'        p_glm$General_consensus$mean),
-#'      col = rev(terrain.colors(240)), main = c("GLMNET", "GLM"),
+#'      col = rev(terrain.colors(240)), main = c("MAXNET", "GLM"),
 #'      zlim = c(0, 1))
 #'
 #'
