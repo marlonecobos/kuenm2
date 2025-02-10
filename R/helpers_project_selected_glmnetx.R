@@ -18,7 +18,7 @@ multiple_projections <- function(i, res_path, raster_pattern, par_list){
 
   #Predict
   invisible(predict_selected(models = par_list$models,
-                                      spat_var = r_i,
+                                      raster_variables = r_i,
                                       write_replicates = par_list$write_replicates,
                                       out_dir = output_i,
                                       consensus_per_model = par_list$consensus_per_model,
