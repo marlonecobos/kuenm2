@@ -158,8 +158,7 @@ move_2closest_cell <- function(data, longitude_column, latitude_column,
 
   # preparing data
   xy <- data[, c(longitude_column, latitude_column)]
-  vals <- terra::extract(raster_layer, xy)
-
+  vals <- terra::extract(raster_layer, xy, ID = FALSE)
   tomove <- which(is.na(vals[, 1]))
 
   # finding pixels to move in
@@ -168,15 +167,16 @@ move_2closest_cell <- function(data, longitude_column, latitude_column,
 
     ## buffer from out
     limdist <- move_limit_distance * 1000
-
-    xyvec <- terra::vect(xyout, crs = "+proj=longlat")
+    xyvec <- terra::vect(xyout, crs = "+proj=longlat",
+                         geom = c(longitude_column, latitude_column))
     xyvec <- terra::buffer(xyvec, width = limdist)
 
     ## relevant pixels to move
     raster_layer <- terra::crop(raster_layer, xyvec, mask = TRUE)
 
-    xyras <-  as.data.frame(raster_layer, xy = TRUE)[, 1:2]
-    dists <- terra::distance(xyout, xyras, lonlat = TRUE)
+    xyras <- as.data.frame(raster_layer, xy = TRUE)[, 1:2]
+    dists <- terra::distance(xyout[, c(longitude_column, latitude_column)],
+                             xyras, lonlat = TRUE)
 
     condition <- rep("Correct", nrow(data))
     distss <- rep(0, nrow(data))
@@ -187,25 +187,24 @@ move_2closest_cell <- function(data, longitude_column, latitude_column,
     }
 
     no <- nrow(xyout)
-
     for (i in 1:no) {
       mindis <- min(dists[i, ])
-
       if (mindis <= limdist) {
         xyin <- xyras[dists[i, ] == mindis, ]
-
-        data[tomove[i], longitude_column] <- xyin[1, 1]
-        data[tomove[i], latitude_column] <- xyin[1, 2]
+        data[tomove[i], longitude_column] <- xyin[1,
+                                                  1]
+        data[tomove[i], latitude_column] <- xyin[1,
+                                                 2]
         condition[tomove[i]] <- "Moved"
-        distss[tomove[i]] <- mindis / 1000
+        distss[tomove[i]] <- mindis/1000
       } else {
         condition[tomove[i]] <- "Not_moved"
-        distss[tomove[i]] <- mindis / 1000
+        distss[tomove[i]] <- mindis/1000
       }
     }
     data <- data.frame(data, condition = condition, distance_km = distss,
                        initial_lon = xy[, 1], initial_lat = xy[, 2])
-  } else {
+    } else {
     if (verbose == TRUE) {
       message("All points are inside valid raster boundaries.")
     }
