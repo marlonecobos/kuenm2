@@ -203,7 +203,8 @@ calibration <- function(data,
 
   # Skip existing models if requested
   if (skip_existing_models && write_summary) {
-    ready_models <- list.files(path = output_directory, pattern = "summary", full.names = TRUE)
+    ready_models <- list.files(path = output_directory, pattern = "summary",
+                               full.names = TRUE)
     ready_models <- do.call("rbind", lapply(seq_along(ready_models), function(i) {
       read.csv(ready_models[i])
     }))

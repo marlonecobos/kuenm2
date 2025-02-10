@@ -380,7 +380,7 @@ calibration2 <- function(data,
                              algorithm = algorithm, AIC = AIC,
                              extrapolation_factor = extrapolation_factor,
                              var_limits = var_limits,
-                             averages_from = averages_from)
+                             averages_from = averages_from, ...)
           }
       } else {
         results_concave <- vector("list", length = n_tot)
@@ -467,7 +467,7 @@ calibration2 <- function(data,
                           algorithm = algorithm,
                           extrapolation_factor = extrapolation_factor,
                           var_limits = var_limits,
-                          averages_from = averages_from)
+                          averages_from = averages_from, ...)
         }
     } else {
       results <- vector("list", length = n_tot)
@@ -481,7 +481,7 @@ calibration2 <- function(data,
                           return_replicate, AIC = AIC, algorithm = algorithm,
                           extrapolation_factor = extrapolation_factor,
                           var_limits = var_limits,
-                          averages_from = averages_from)
+                          averages_from = averages_from, ...)
 
         if(progress_bar) setTxtProgressBar(pb, x)
       }
@@ -728,7 +728,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
                             write_summary, addsamplestobackground, weights,
                             return_replicate, algorithm, AIC,
                             extrapolation_factor,
-                            var_limits, averages_from) {
+                            var_limits, averages_from, ...) {
   # Arguments:
   # x: Each line of the formula grid
   # formula_grid: Formula grid (output of calibration_grid)
