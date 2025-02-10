@@ -34,14 +34,14 @@
 #' @importFrom foreach foreach `%dopar%`
 #'
 #' @examples
-#' ##Example with glmnet
+#' ##Example with maxnet
 #' # Import example of fitted_models (output of fit_selected())
 #' data("fitted_model_glmnet", package = "kuenm2")
 #'
 #' # Variable importance
-#' imp_glmnet <- var_importance(models = fitted_model_glmnet)
+#' imp_maxnet <- var_importance(models = fitted_model_glmnet)
 #' # Plot using enmpa package
-#' enmpa::plot_importance(imp_glmnet)
+#' enmpa::plot_importance(imp_maxnet)
 #'
 #' ##Example with glm
 #' # Import example of fitted_models (output of fit_selected())
@@ -66,7 +66,7 @@ var_importance <- function(models, modelID = NULL,
   list_models <- models[["Models"]]
   model_info  <- models[["selected_models"]]
   data        <- models[["calibration_data"]]
-  model_type  <- models[["model_type"]]
+  algorithm  <- models[["algorithm"]]
 
   if (is.null(modelID)){
     models <- names(list_models)
@@ -80,8 +80,8 @@ var_importance <- function(models, modelID = NULL,
         p = data$pr_bg,
         data = data,
         f = model_info[model_info$ID == gsub("Model_", "", models[y]), "Formulas"],
-        rm = model_info[model_info$ID == gsub("Model_", "", models[y]), "regm"],
-        model_type = model_type,
+        rm = model_info[model_info$ID == gsub("Model_", "", models[y]), "reg_mult"],
+        algorithm = algorithm,
         parallel = parallel,
         ncores = ncores,
         parallelType = parallelType,
@@ -101,7 +101,7 @@ var_importance <- function(models, modelID = NULL,
       data = data,
       f = model_info[model_info$ID == gsub("Model_", "", modelID), "Formulas"],
       rm = model_info[model_info$ID == gsub("Model_", "", modelID), "regm"],
-      model_type = model_type,
+      algorithm = algorithm,
       parallel = parallel,
       ncores = ncores,
       parallelType = parallelType,
@@ -118,8 +118,8 @@ var_importance <- function(models, modelID = NULL,
 #
 
 #to get deviance of a model after excluding predictors
-get_red_devmx <- function(reduce_var, p, data, f, rm, model_type) {
-  if (model_type == "glmnet") {
+get_red_devmx <- function(reduce_var, p, data, f, rm, algorithm) {
+  if (algorithm == "maxnet") {
     reduce_model <- glmnet_mx(
       p = p, data = data, regmult = rm,
       f = as.formula(paste(f, " - ", reduce_var)),
@@ -128,7 +128,7 @@ get_red_devmx <- function(reduce_var, p, data, f, rm, model_type) {
     )
     return(deviance(reduce_model)[200])
 
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     reduce_model <-
       glm_mx(formula = as.formula(paste("pr_bg", f, " - ", reduce_var)),
              data = data)
@@ -138,7 +138,7 @@ get_red_devmx <- function(reduce_var, p, data, f, rm, model_type) {
 
 
 # get variable contribution for an individual model
-var_importance_indmx <- function(model, p, data, f, rm, model_type,
+var_importance_indmx <- function(model, p, data, f, rm, algorithm,
                                  parallel,
                                  ncores,
                                  parallelType,
@@ -151,15 +151,15 @@ var_importance_indmx <- function(model, p, data, f, rm, model_type,
   }
 
   # deviance of the full model
-  dev_full <- if (model_type == "glmnet") {
+  dev_full <- if (algorithm == "maxnet") {
     deviance(model)[200]
   } else {
     deviance(model)
   }
 
-  coefs <- if (model_type == "glmnet") {
+  coefs <- if (algorithm == "maxnet") {
     names(model$betas)
-  } else if (model_type == "glm") {
+  } else if (algorithm == "glm") {
     names(coef(model)[-1])
   }
 
@@ -201,13 +201,13 @@ var_importance_indmx <- function(model, p, data, f, rm, model_type,
                                       .options.snow = opts,
                                       .combine = 'c'
     ) %dopar% {
-      dev_full - kuenm2:::get_red_devmx(coefs[x], p, data, f, rm, model_type)
+      dev_full - get_red_devmx(coefs[x], p, data, f, rm, algorithm)
     }
   } else {
     dev_reduction <- c()
     for (x in 1:length(coefs)) {
       dev_reduction[x] <- dev_full - kuenm2:::get_red_devmx(coefs[x], p, data,
-                                                            f, rm, model_type)
+                                                            f, rm, algorithm)
       if (progress_bar) utils::setTxtProgressBar(pb, x)
     }
   }
@@ -220,7 +220,7 @@ var_importance_indmx <- function(model, p, data, f, rm, model_type,
   # dev_reduction <- sapply(coefs, function(variable) {
   #
   #   #abs(dev_full - get_red_devmx(variable, p, data, f, rm)) # negative values?
-  #   dev_full - get_red_devmx(variable, p, data, f, rm, model_type)
+  #   dev_full - get_red_devmx(variable, p, data, f, rm, algorithm)
   # })
 
   deviance_importance <- dev_reduction / sum(dev_reduction)

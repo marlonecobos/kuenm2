@@ -38,14 +38,14 @@ models.
 Variable importance
 }
 \examples{
-##Example with glmnet
+##Example with maxnet
 # Import example of fitted_models (output of fit_selected())
 data("fitted_model_glmnet", package = "kuenm2")
 
 # Variable importance
-imp_glmnet <- var_importance(models = fitted_model_glmnet)
+imp_maxnet <- var_importance(models = fitted_model_glmnet)
 # Plot using enmpa package
-enmpa::plot_importance(imp_glmnet)
+enmpa::plot_importance(imp_maxnet)
 
 ##Example with glm
 # Import example of fitted_models (output of fit_selected())
