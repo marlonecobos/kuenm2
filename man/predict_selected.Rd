@@ -4,7 +4,7 @@
 \alias{predict_selected}
 \title{Predict selected models for a single scenario}
 \usage{
-predict_selected(models, spat_var, write_files = FALSE,
+predict_selected(models, raster_variables, write_files = FALSE,
                         write_replicates = FALSE, out_dir = NULL,
                         consensus_per_model = TRUE, consensus_general = TRUE,
                         consensus = c("median", "range", "mean", "stdev"),
@@ -16,7 +16,7 @@ predict_selected(models, spat_var, write_files = FALSE,
 \item{models}{an object of class \code{fitted_models} returned by the
 \code{\link{fit_selected}}() function.}
 
-\item{spat_var}{a SpatRaster or data.frame of predictor variables. The names
+\item{raster_variables}{a SpatRaster or data.frame of predictor variables. The names
 of these variables must match those used to calibrate the models or those
 used to run PCA if \code{do_pca = TRUE} in the \code{\link{prepare_data}}()
 function.}
@@ -84,7 +84,7 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 data("fitted_model_glmnet", package = "kuenm2")
 # Predict to single scenario
 p <- predict_selected(models = fitted_model_glmnet,
-                      spat_var = var,
+                      raster_variables = var,
                       write_files = FALSE,
                       write_replicates = FALSE,
                       out_dir = NULL,
@@ -101,7 +101,7 @@ p <- predict_selected(models = fitted_model_glmnet,
 data("fitted_model_glm", package = "kuenm2")
 # Predict to single scenario
 p_glm <- predict_selected(models = fitted_model_glm,
-                          spat_var = var,
+                          raster_variables = var,
                           write_files = FALSE,
                           write_replicates = FALSE,
                           out_dir = NULL,

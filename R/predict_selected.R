@@ -6,9 +6,17 @@
 #' output and calculating consensus measures (mean, median, etc.) across
 #' replicates and models.
 #'
+#' @usage predict_selected(models, raster_variables, write_files = FALSE,
+#'                         write_replicates = FALSE, out_dir = NULL,
+#'                         consensus_per_model = TRUE, consensus_general = TRUE,
+#'                         consensus = c("median", "range", "mean", "stdev"),
+#'                         clamping = FALSE, var_to_clamp = NULL,
+#'                         type = "cloglog", overwrite = FALSE,
+#'                         progress_bar = TRUE)
+#'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
-#' @param spat_var a SpatRaster or data.frame of predictor variables. The names
+#' @param raster_variables a SpatRaster or data.frame of predictor variables. The names
 #' of these variables must match those used to calibrate the models or those
 #' used to run PCA if `do_pca = TRUE` in the \code{\link{prepare_data}}()
 #' function.
@@ -51,14 +59,6 @@
 #' @importFrom stats glm
 #' @export
 #'
-#' @usage predict_selected(models, spat_var, write_files = FALSE,
-#'                         write_replicates = FALSE, out_dir = NULL,
-#'                         consensus_per_model = TRUE, consensus_general = TRUE,
-#'                         consensus = c("median", "range", "mean", "stdev"),
-#'                         clamping = FALSE, var_to_clamp = NULL,
-#'                         type = "cloglog", overwrite = FALSE,
-#'                         progress_bar = TRUE)
-#'
 #' @examples
 #' #Load package
 #' library(terra)
@@ -70,7 +70,7 @@
 #' data("fitted_model_glmnet", package = "kuenm2")
 #' # Predict to single scenario
 #' p <- predict_selected(models = fitted_model_glmnet,
-#'                       spat_var = var,
+#'                       raster_variables = var,
 #'                       write_files = FALSE,
 #'                       write_replicates = FALSE,
 #'                       out_dir = NULL,
@@ -87,7 +87,7 @@
 #' data("fitted_model_glm", package = "kuenm2")
 #' # Predict to single scenario
 #' p_glm <- predict_selected(models = fitted_model_glm,
-#'                           spat_var = var,
+#'                           raster_variables = var,
 #'                           write_files = FALSE,
 #'                           write_replicates = FALSE,
 #'                           out_dir = NULL,
@@ -108,7 +108,7 @@
 #'
 
 predict_selected <- function(models,
-                             spat_var,
+                             raster_variables,
                              mask = NULL,
                              write_files = FALSE,
                              write_replicates = FALSE,
@@ -127,9 +127,9 @@ predict_selected <- function(models,
     stop(paste0("Argument models must be a fitted_models object, not ",
                 class(models)))
   }
-  if (!inherits(spat_var, "SpatRaster")) {
-    stop(paste0("Argument spat_var must be a SpatRaster, not ",
-                class(spat_var)))
+  if (!inherits(raster_variables, "SpatRaster")) {
+    stop(paste0("Argument raster_variables must be a SpatRaster, not ",
+                class(raster_variables)))
   }
 
   if(!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
@@ -194,15 +194,15 @@ predict_selected <- function(models,
                 class(progress_bar)))}
 
   if(!is.null(mask)){
-    spat_var <- terra::crop(spat_var, mask, mask = TRUE)
+    raster_variables <- terra::crop(raster_variables, mask, mask = TRUE)
   }
 
   if(!is.null(models$pca)){
     if(!("vars_out" %in% names(models$pca))) {
-      spat_var <- terra::predict(spat_var[[models$pca$vars_in]], models$pca)
+      raster_variables <- terra::predict(raster_variables[[models$pca$vars_in]], models$pca)
     } else {
-      spat_var <- c(terra::predict(spat_var[[models$pca$vars_in]], models$pca),
-                    spat_var[[models$pca$vars_out]])
+      raster_variables <- c(terra::predict(raster_variables[[models$pca$vars_in]], models$pca),
+                    raster_variables[[models$pca$vars_out]])
     }
   }
 
@@ -240,9 +240,9 @@ predict_selected <- function(models,
       var_to_clamp <- setdiff(names(varmin), c("pr_bg", "fold"))
     }
     clamped_variables <- terra::rast(lapply(var_to_clamp, function(i) {
-      terra::clamp(spat_var[[i]], lower = varmin[i], upper = varmax[i], values = TRUE)
+      terra::clamp(raster_variables[[i]], lower = varmin[i], upper = varmax[i], values = TRUE)
     }))
-    spat_var[[names(clamped_variables)]] <- clamped_variables
+    raster_variables[[names(clamped_variables)]] <- clamped_variables
   }
 
   # Prepare progress bar
@@ -260,13 +260,13 @@ predict_selected <- function(models,
 
     for (x in models[[i]]) {
 
-      if (inherits(spat_var, "SpatRaster")) {
+      if (inherits(raster_variables, "SpatRaster")) {
 
         #  Convert Layers to Factors in SpatRaster
         if (!is.null(categorical_layers) && length(categorical_layers) > 0) {
           for (layer in categorical_layers) {
-            if (layer %in% names(spat_var)) {  # Check if the layer exists
-              spat_var[[layer]] <- terra::as.factor(spat_var[[layer]])
+            if (layer %in% names(raster_variables)) {  # Check if the layer exists
+              raster_variables[[layer]] <- terra::as.factor(raster_variables[[layer]])
             } else {
               warning(paste("Layer", layer, "not found in the SpatRaster."))
             }
@@ -274,27 +274,27 @@ predict_selected <- function(models,
         }
 
         if (inherits(x, "glmnet")) {
-          prediction <- terra::predict(spat_var, x, na.rm = TRUE,
+          prediction <- terra::predict(raster_variables, x, na.rm = TRUE,
                                        type = type, fun = predict.glmnet_mx)
         } else if (inherits(x, "glm")) {
-          prediction <- terra::predict(spat_var, x, na.rm = TRUE,
+          prediction <- terra::predict(raster_variables, x, na.rm = TRUE,
                                        type = "response")
         }
-      } else if (inherits(spat_var, "data.frame")) {
+      } else if (inherits(raster_variables, "data.frame")) {
         if (inherits(x, "glmnet")) {
-          prediction <- as.numeric(predict.glmnet_mx(x, newdata = spat_var,
+          prediction <- as.numeric(predict.glmnet_mx(x, newdata = raster_variables,
                                                      type = type))
         } else if (inherits(x, "glm")) {
-          prediction <- as.numeric(predict(x, newdata = spat_var,
+          prediction <- as.numeric(predict(x, newdata = raster_variables,
                                            type = "response"))
         }
       }
       inner_list[[length(inner_list) + 1]] <- prediction
     }
 
-    if (inherits(spat_var, "SpatRaster")) {
+    if (inherits(raster_variables, "SpatRaster")) {
       p_models[[length(p_models) + 1]] <- terra::rast(inner_list)
-    } else if (inherits(spat_var, "data.frame")) {
+    } else if (inherits(raster_variables, "data.frame")) {
       p_models[[length(p_models) + 1]] <- inner_list
     }
 
@@ -313,8 +313,8 @@ predict_selected <- function(models,
   # Create an empty list to store results
   res <- list()
 
-  # Get consensus by model if spat_var is a SpatRaster
-  if (inherits(spat_var, "SpatRaster")) {
+  # Get consensus by model if raster_variables is a SpatRaster
+  if (inherits(raster_variables, "SpatRaster")) {
     rep <- unlist(p_models)
 
     if (consensus_per_model) {
