@@ -258,7 +258,7 @@ calibration <- function(data,
       if (progress_bar) {
         pb <- txtProgressBar(min = 0, max = n_tot, style = 3)
         progress <- function(n) setTxtProgressBar(pb, n)
-        opts <- list(progress = progress)}
+        opts <- list(progress = progress)} else {opts <- NULL}
 
       if (parallel & parallel_option == "doParallel") {
         doParallel::registerDoParallel(cl)
