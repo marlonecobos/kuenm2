@@ -92,7 +92,7 @@ plot(pca_var$env)
 # First, organize and prepare future variables
 # Set the input directory containing the raw future climate variables
 # For this example, the data is located in the "inst/extdata" folder.
-in_dir <- "inst/extdata/"
+in_dir <- system.file("extdata", package = "kuenm2")
 # Create a "Future_raw" folder in a temporary directory and copy the raw variables there.
 out_dir_future <- file.path(tempdir(), "Future_raw")
 # Organize and rename the future climate data, structuring it by year and GCM.

@@ -151,7 +151,7 @@
 #'
 #' # Set the input directory containing the raw future climate variables.
 #' # For this example, the data is located in the "inst/extdata" folder.
-#' in_dir <- "inst/extdata/"
+#' in_dir <- system.file("extdata", package = "kuenm2")
 #' # Create a "Future_raw" folder in a temporary directory and copy the raw variables there.
 #' out_dir_future <- file.path(tempdir(), "Future_raw")
 #' # Organize and rename the future climate data, structuring it by year and GCM.
@@ -207,7 +207,7 @@ kuenm_mop <- function(data,
                       parallel = FALSE, n_cores = 1, progress_bar = FALSE,
                       overwrite = FALSE){
   #Check data
-  if (!inherits(data, "prepare_data")) {
+  if (!inherits(data, "prepared_data")) {
     stop(paste0("Argument data must be a prepare_data object, not ",
                 class(data)))
   }
