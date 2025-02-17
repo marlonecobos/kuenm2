@@ -41,7 +41,7 @@
 #'                                package = "kuenm2"))
 #' # Set the input directory containing the raw future climate variables.
 #' # For this example, the data is located in the "inst/extdata" folder.
-#' in_dir <- "inst/extdata/"
+#' in_dir <- system.file("extdata", package = "kuenm2")
 #' # Create a "Future_raw" folder in a temporary directory and copy the raw variables there.
 #' out_dir <- file.path(tempdir(), "Future_raw")
 #' # Organize and rename the future climate data, structuring it by year and GCM.
@@ -72,8 +72,8 @@ organize_future_worldclim <- function(input_dir, output_dir,
   if(length(name_format) != 1){
     stop("'name_format' must be a single value: 'bio_', 'Bio_', 'bio_0', or 'Bio_0'")
   }
-  if (!name_format %in% c("bio_", "Bio_", "bio_0", "Bio_0")) {
-    stop("'name_format' must be 'bio_', 'Bio_', 'bio_0', or 'Bio_0'")
+  if (!name_format %in% c("bio_", "Bio_", "bio_0", "Bio_0", "bio", "Bio")) {
+    stop("'name_format' must be 'bio_', 'Bio_', 'bio_0', ,'Bio_0', 'bio', or Bio")
   }
 
   if(!is.null(variables) & !inherits(variables, "character")){
@@ -127,7 +127,9 @@ organize_future_worldclim <- function(input_dir, output_dir,
     #Read file
     var_x <- terra::rast(file.path(input_dir, lf[x]))
     #Rename variables
-    vnumber <- as.numeric(gsub("[^0-9]", "", names(var_x)))
+    #vnumber <- as.numeric(gsub("[^0-9]", "", names(var_x)))
+    #or
+    vnumber <- as.integer(sub(".*?(\\d+)$", "\\1", names(var_x))) #Work with geodata
     if(name_format %in% c("bio_0", "bio0", "Bio_0", "Bio0")){
       vnumber[vnumber < 10] <- paste0(0, vnumber[vnumber < 10])
     }
