@@ -169,14 +169,14 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                 class(col)))
   }
 
-  if (!is.null(models$categorical_variables)) {
-    if (variable %in% models$categorical_variables) {
-      stop(paste0("Response curves for categorical variables are not yet",
-                  " implemented. We're actively working on it."))
-    }
-  }
+  # if (!is.null(models$categorical_variables)) {
+  #   if (variable %in% models$categorical_variables) {
+  #     stop(paste0("Response curves for categorical variables are not yet",
+  #                 " implemented. We're actively working on it."))
+  #   }
+  # }
 
-  # if data is not defined it is extratec from the models kuenm2 object
+  # if data is not defined it is extrated from the models kuenm2 object
   if (is.null(data)){
     data <- models$calibration_data
   }
@@ -207,8 +207,10 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
       c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
       c2 <- any(grepl(paste0(variable, ":"), coefs))
       c3 <- any(grepl(paste0(":", variable,"$"), coefs))
+      c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T)
 
-      if (any(c1, c2, c3) == FALSE){
+
+      if (any(c1, c2, c3, c4) == FALSE){
         stop("Defined 'variable' is not present in the models model.")
       }
     } else {
@@ -274,8 +276,10 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs) # check linear or quadratic term
     c2 <- any(grepl(paste0(variable, ":"), coefs))                   # check product terms 1st position
     c3 <- any(grepl(paste0(":", variable,"$"), coefs))               # check product terms 2nd position
+    c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T) # check categorical variables
 
-    if (any(c1, c2, c3) == FALSE){
+
+    if (any(c1, c2, c3, c4) == FALSE){
       stop("Defined 'variable' is not present in the models model.")
     }
 
@@ -288,31 +292,53 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                              averages_from = averages_from,
                              l_limit = l_limit, u_limit = u_limit)
 
-    limits <- range(data[,variable])
 
-    ## Plotting curve
-    if (is.null(xlab)) {xlab <- variable}
-    if (is.null(ylab)) {ylab <- "Suitability"}
+    if(!is.null(categorical_variables) && variable %in% categorical_variables){
+      # Plot response for categorical variable for a single model
 
-    plotcurve_args <- list(x = response_out[, variable],
-                           y = response_out$predicted,
-                           type = "l",
-                           xlab= xlab,
-                           ylab = ylab,
-                           col = col,
-                           ...)
+      x <- response_out[, variable]
+      y <- c(response_out$predicted)
 
-    # plot using do.call()
-    do.call(plot, plotcurve_args)
+      if (is.null(xlab)) {xlab <- variable}
+      if (is.null(ylab)) {ylab <- "Suitability"}
 
-    abline(v = limits,
-           col = c("black", "black"),
-           lty = c(2, 2),
-           lwd = c(1, 1)
-    )
+      # Create a list of arguments to pass to the plot function
+      plotcurve_args <- list(height = y, names.arg = x, col = "lightblue",
+                             xlab= xlab, ylab = ylab, ...)
+
+      # plot using do.call()
+      do.call(barplot, plotcurve_args)
+
+
+    } else {
+      # Plot response for continuous variable for a single model
+
+      limits <- range(data[,variable])
+
+      ## Plotting curve
+      if (is.null(xlab)) {xlab <- variable}
+      if (is.null(ylab)) {ylab <- "Suitability"}
+
+      plotcurve_args <- list(x = response_out[, variable],
+                             y = response_out$predicted,
+                             type = "l",
+                             xlab= xlab,
+                             ylab = ylab,
+                             col = col,
+                             ...)
+
+      # plot using do.call()
+      do.call(plot, plotcurve_args)
+
+      abline(v = limits,
+             col = c("black", "black"),
+             lty = c(2, 2),
+             lwd = c(1, 1)
+      )
+    }
 
   } else {
-    # for multiple models in  model_list
+    # for multiple models in model_list
 
     # extract the response of the variable for each models
     response_out <- lapply(model_list, function(x) {
@@ -325,8 +351,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
       c2 <- any(grepl(paste0("^", variable, ":"), coefs))
       c3 <- any(grepl(paste0(":", variable, "$"), coefs))
+      c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T)
 
-      if (any(c1, c2, c3)){
+      if (any(c1, c2, c3, c4)){
 
         out <- response(x, data, variable, new_data = new_data,
                         extrapolate = extrapolate,
@@ -342,52 +369,101 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     })
 
     response_out <- do.call(rbind, response_out)
-    limits <- range(data[, variable])
 
 
-    x <- response_out[, variable]
-    y <- response_out$predicted
+    if(!is.null(categorical_variables) && variable %in% categorical_variables){
+      # Plot response for categorical variable for multiple models
 
-    # Fit GAM model
-    fitting <- mgcv::gam(y ~ s(x, bs = "cs"))
+      # Function to calculate mean and standard error
+      calc_stats <- function(x) {
+        n <- length(x)  # Number of observations
+        mean_x <- mean(x)  # Mean
+        sd_x <- sd(x)  # Standard deviation
+        se_x <- sd(x) / sqrt(n)  # Standard error
+        return(c(mean = mean_x, sd = sd_x, se = se_x))
+      }
 
-    # Generate predicted values and standard error.
-    x_seq <- seq(min(x), max(x), length.out = 100)
-    pred <- predict(fitting, newdata = data.frame(x = x_seq), se = T)
+      # Compute statistics: mean and standard error
+      stats <- aggregate(as.formula(paste("predicted ~", variable)),
+                         data = response_out,
+                         FUN = calc_stats)
+      stats <- do.call(data.frame, stats)
+      stats <- stats[order(as.numeric(levels(stats[, variable]))), ]
 
-    # Extract predicted values, confidence intervals (95%), and standard errors
-    y_pred <- pred$fit
-    lower_ci <- y_pred - 1.96 * pred$se.fit
-    upper_ci <- y_pred + 1.96 * pred$se.fit
+      x <- stats[, variable]
+      y <- stats$V1.mean
+      z <- stats$V1.se
+
+      if (is.null(xlab)) {xlab <- variable}
+      if (is.null(ylab)) {ylab <- "Suitability"}
+
+      # Create a list of arguments to pass to the plot function
+      plotcurve_args <- list(height = y, names.arg = x, col = "lightblue",
+                             xlab= xlab, ylab = ylab,
+                             ...)
+
+      # plot using do.call()
+      bar_positions <- do.call(barplot, plotcurve_args)
+
+      # Add error bars
+      error_args <- list(x0 = bar_positions, y0 = y - z,
+                         x1 = bar_positions, y1 = y + z,
+                         angle = 90, code = 3, length = 0.05, col = "red",
+                         lwd = 1.5)
+
+      do.call(arrows, error_args)
 
 
-    ## Plotting curve
-    if (is.null(xlab)) {xlab <- variable}
-    if (is.null(ylab)) {ylab <- "Suitability"}
+    } else {
+      # Plot response for continuous variable for multiple models
 
-    # Create a list of arguments to pass to the plot function
-    plotcurve_args <- list(x = x, y = y, type = "n", xlab= xlab, ylab = ylab,
-                           ...)
+      limits <- range(data[, variable])
 
-    # plot using do.call()
-    do.call(plot, plotcurve_args)
+      x <- response_out[, variable]
+      y <- response_out$predicted
 
-    # Create shading interval using polygon
-    x_polygon <- c(x_seq, rev(x_seq))
-    y_polygon <- c(lower_ci, rev(upper_ci))
-    polygon(x_polygon, y_polygon, col = "lightgrey", border = NA)
+      # Fit GAM model
+      fitting <- mgcv::gam(y ~ s(x, bs = "cs"))
 
-    # Add the regression curve
-    lines(x_seq, y_pred, col = col)
+      # Generate predicted values and standard error.
+      x_seq <- seq(min(x), max(x), length.out = 100)
+      pred <- predict(fitting, newdata = data.frame(x = x_seq), se = T)
 
-    # It adds the calibration limits
-    abline(v = limits,
-           col = c("black", "black"),
-           lty = c(2, 2),
-           lwd = c(1, 1)
-    )
+      # Extract predicted values, confidence intervals (95%), and standard errors
+      y_pred <- pred$fit
+      lower_ci <- y_pred - 1.96 * pred$se.fit
+      upper_ci <- y_pred + 1.96 * pred$se.fit
+
+
+      ## Plotting curve
+      if (is.null(xlab)) {xlab <- variable}
+      if (is.null(ylab)) {ylab <- "Suitability"}
+
+      # Create a list of arguments to pass to the plot function
+      plotcurve_args <- list(x = x, y = y, type = "n", xlab= xlab, ylab = ylab,
+                             ...)
+
+      # plot using do.call()
+      do.call(plot, plotcurve_args)
+
+      # Create shading interval using polygon
+      x_polygon <- c(x_seq, rev(x_seq))
+      y_polygon <- c(lower_ci, rev(upper_ci))
+      polygon(x_polygon, y_polygon, col = "lightgrey", border = NA)
+
+      # Add the regression curve
+      lines(x_seq, y_pred, col = col)
+
+      # It adds the calibration limits
+      abline(v = limits,
+             col = c("black", "black"),
+             lty = c(2, 2),
+             lwd = c(1, 1)
+      )
+    }
   }
 }
+
 
 # It gets the response from an individual model
 response <- function(model, data, variable, type = "cloglog", n = 100,
@@ -415,15 +491,16 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
     colSums(sapply(colnames(data), grepl, names(coef(model)))) > 0
   }
 
+
   if (any(!variable %in% names(vnames))) {
     stop("The name of the 'variable' was not defined correctly.")
   }
 
   # Extract calibration data from the model object
   if(averages_from == "pr"){
-  cal_data <- data[, vnames, drop = FALSE] } else if (averages_from == "pr_bg"){
-    cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
-  }
+    cal_data <- data[, vnames, drop = FALSE] } else if (averages_from == "pr_bg"){
+      cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
+    }
 
   # Extract the limits of the calibration data
   cal_maxs <-  apply(cal_data, 2, FUN = max)
@@ -431,7 +508,7 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   # Get the average of all variables
 
-  ####Check - For deal with categorical variables####
+  # Dealing with categorical variables
   means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
   if(!is.null(categorical_variables) && vnames[categorical_variables]){
     mode_cat <- sapply(categorical_variables, function(x){
@@ -439,18 +516,17 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
     })
     means <- c(means, mode_cat)
   }
-  #########################################
 
   if (is.null(new_data)) {
-    if (extrapolate) {
+    if (extrapolate && !variable %in% categorical_variables) {
 
       rr <- range(cal_data[, variable]) # range of the calibration data
       extension <- extrapolation_factor * diff(rr)
 
       if(is.null(l_limit))
-      l_limit <- rr[1] - extension
+        l_limit <- rr[1] - extension
       if(is.null(u_limit))
-      u_limit <- rr[2] + extension
+        u_limit <- rr[2] + extension
 
       rangev <- c(l_limit, u_limit)
 
@@ -468,9 +544,14 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   }
 
-  newvar <- seq(rangev[1], rangev[2], length = n)
+  if(variable %in% categorical_variables){
+    newvar <- factor(levels(data[[variable]]))
+  } else {
+    newvar <- seq(rangev[1], rangev[2], length = n)
+  }
 
-  m <- data.frame(matrix(means, n, length(means), byrow = T))
+
+  m <- data.frame(matrix(means, length(newvar), length(means), byrow = T))
   colnames(m) <- names(means)
 
   m[, variable] <- newvar
