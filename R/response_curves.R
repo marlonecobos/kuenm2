@@ -1,4 +1,4 @@
-#' Variable response curves
+#' Generate Variable Response Curves from Fitted Models
 #'
 #' @description
 #' A view of variable responses in fitted models. Responses based on single or multiple
@@ -14,7 +14,7 @@
 #
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
-#' @param variable (character) name of the variables to be plotted.
+#' @param variable (character) name of the variable to be plotted.
 #' @param data data.frame or matrix of data used in the model calibration step.
 #' Default = NULL.
 #' @param modelID (character) vector of ModelID(s) to be considered in the
@@ -56,6 +56,8 @@
 #' presence localities (if averages_from = "pr") or from the combined set of
 #' presence and background localities (if averages_from = "pr_bg").
 #'
+#' For categorical variables, a bar plot is generated with error bars showing
+#' variability across models (if multiple models are included).
 #'
 #' @return
 #' A plot with the response curve for a `variable`.
@@ -169,12 +171,6 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                 class(col)))
   }
 
-  # if (!is.null(models$categorical_variables)) {
-  #   if (variable %in% models$categorical_variables) {
-  #     stop(paste0("Response curves for categorical variables are not yet",
-  #                 " implemented. We're actively working on it."))
-  #   }
-  # }
 
   # if data is not defined it is extrated from the models kuenm2 object
   if (is.null(data)){
@@ -351,7 +347,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
       c2 <- any(grepl(paste0("^", variable, ":"), coefs))
       c3 <- any(grepl(paste0(":", variable, "$"), coefs))
-      c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T)
+      c4 <- any(grepl(paste0("^categorical\\(", variable, "\\)"), coefs))
 
       if (any(c1, c2, c3, c4)){
 
@@ -390,9 +386,10 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       stats <- do.call(data.frame, stats)
       stats <- stats[order(as.numeric(levels(stats[, variable]))), ]
 
-      x <- stats[, variable]
-      y <- stats$V1.mean
-      z <- stats$V1.se
+      x <- stats[, variable] # Variable
+      y <- stats[, 2] # Mean
+      z <- stats[, 3] # Standard deviation
+      #z <- stats[, 4] # Standard error
 
       if (is.null(xlab)) {xlab <- variable}
       if (is.null(ylab)) {ylab <- "Suitability"}
@@ -408,7 +405,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       # Add error bars
       error_args <- list(x0 = bar_positions, y0 = y - z,
                          x1 = bar_positions, y1 = y + z,
-                         angle = 90, code = 3, length = 0.05, col = "red",
+                         angle = 90, code = 3, length = 0.05, col = "black",
                          lwd = 1.5)
 
       do.call(arrows, error_args)
