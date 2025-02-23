@@ -63,6 +63,16 @@ var_importance <- function(models, modelID = NULL,
     stop("Argument 'model' must be defined.")
   }
 
+  if (!is.null(modelID)){
+    if (!modelID %in% names(models[["Models"]])){
+      stop(paste0(
+        "The 'ModelID' is not correct, check the following: [",
+        paste(names(models[["Models"]]), collapse = ", ")),
+        "]"
+      )
+    }
+  }
+
   list_models <- models[["Models"]]
   model_info  <- models[["selected_models"]]
   data        <- models[["calibration_data"]]
@@ -100,7 +110,7 @@ var_importance <- function(models, modelID = NULL,
       p = data$pr_bg,
       data = data,
       f = model_info[model_info$ID == gsub("Model_", "", modelID), "Formulas"],
-      rm = model_info[model_info$ID == gsub("Model_", "", modelID), "regm"],
+      rm = model_info[model_info$ID == gsub("Model_", "", modelID), "reg_mult"],
       algorithm = algorithm,
       parallel = parallel,
       ncores = ncores,
