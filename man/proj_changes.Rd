@@ -83,21 +83,21 @@ Specific projections can be included or excluded from the analysis using the \co
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
 # Create a "Current_raw" folder in a temporary directory and copy the raw variables there.
-out_dir_current <- file.path(tempdir(), "Current_raw")
-dir.create(out_dir_current, recursive = TRUE)
+output_dir_current <- file.path(tempdir(), "Current_raw")
+dir.create(output_dir_current, recursive = TRUE)
 # Save current variables in temporary directory
-writeRaster(var, file.path(out_dir_current, "Variables.tif"))
+writeRaster(var, file.path(output_dir_current, "Variables.tif"))
 
 # Set the input directory containing the raw future climate variables.
 # For this example, the data is located in the "inst/extdata" folder.
 in_dir <- system.file("extdata", package = "kuenm2")
 # Create a "Future_raw" folder in a temporary directory and copy the raw variables there.
-out_dir_future <- file.path(tempdir(), "Future_raw")
+output_dir_future <- file.path(tempdir(), "Future_raw")
 # Organize and rename the future climate data, structuring it by year and GCM.
 # The 'SoilType' variable will be appended as a static variable in each scenario.
 # The files will be renamed following the "bio_" format
 organize_future_worldclim(input_dir = in_dir,
-                          output_dir = out_dir_future,
+                          output_dir = output_dir_future,
                           name_format = "bio_", variables = NULL,
                           fixed_variables = var$SoilType, mask = NULL,
                           overwrite = TRUE)
@@ -108,11 +108,11 @@ data("fitted_model_glmnet", package = "kuenm2")
 
 # Prepare projections using fitted models to check variables
 pr <- prepare_proj(models = fitted_model_glmnet,
-                   present_dir = out_dir_current,
+                   present_dir = output_dir_current,
                    past_dir = NULL,
                    past_period = NULL,
                    past_gcm = NULL,
-                   future_dir = out_dir_future,
+                   future_dir = output_dir_future,
                    future_period = c("2041-2060", "2081-2100"),
                    future_pscen = c("ssp126", "ssp585"),
                    future_gcm = c("ACCESS-CM2", "MIROC6"),
@@ -121,13 +121,13 @@ pr <- prepare_proj(models = fitted_model_glmnet,
                    raster_pattern = ".tif*")
 
 #Create folder to save projection results
-out_dir <- file.path(tempdir(), "Projection_results/glmnet")
-dir.create(out_dir, recursive = TRUE)
+output_dir <- file.path(tempdir(), "Projection_results/glmnet")
+dir.create(output_dir, recursive = TRUE)
 
 # Project selected models for multiple scenarios
 p <- project_selected(models = fitted_model_glmnet,
                       projection_data = pr,
-                      out_dir = out_dir,
+                      output_dir = output_dir,
                       consensus_per_model = TRUE,
                       consensus_general = TRUE,
                       consensus = c("median", "range", "mean", "stdev"),
