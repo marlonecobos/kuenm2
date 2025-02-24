@@ -249,3 +249,14 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
 }
 
 
+#' Summary plot for variable importance in models
+#'
+#' @description
+#' See detailes in \code{\link[enmpa]{plot_importance}}
+#'
+#' @usage
+#' plot_importance(x, xlab = NULL, ylab = "Relative contribution",
+#'                 main = "Variable importance", extra_info = TRUE, ...)
+#' @export
+
+plot_importance <- enmpa::plot_importance
