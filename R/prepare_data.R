@@ -12,7 +12,8 @@
 #'              do_pca = FALSE, exclude_from_pca = NULL, variance_explained = 95,
 #'              min_explained = 5, center = TRUE, scale = FALSE,
 #'              write_pca = FALSE, pca_directory = NULL,
-#'              n_background = 10000, kfolds = 4, weights = NULL,
+#'              n_background = 10000, bias_file = NULL, bias_effect = "direct",
+#'              kfolds = 4, weights = NULL,
 #'              min_number = 2, min_continuous = NULL,
 #'              features = c("q", "lq", "lp", "qp", "lqp"),
 #'              reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
@@ -57,6 +58,14 @@
 #' Default is NULL.
 #' @param n_background (numeric) number of points to represent the background
 #' for the model. Default is 10000.
+#' @param bias_file (SpatRaster) a raster containing bias values (probability
+#' weights) that influence the selection of background points. It must have the
+#' same extent, resolution, and number of cells as the raster variables, unless
+#' a mask is provided. Default is NULL.
+#' #' @param bias_effect (character) a string specifying how the values in the
+#' `bias_file` should be interpreted. If "direct", higher values in the bias
+#' file increase the likelihood of selecting background points. If "inverse",
+#' higher values decrease the likelihood. Default is "direct".
 #' @param kfolds (numeric) the number of groups (folds) the occurrence
 #' data will be split into for cross-validation. Default is 4.
 #' @param weights (numeric) a numeric vector specifying weights for the
@@ -100,23 +109,27 @@
 #' # Import occurrences
 #' data(occ_data, package = "kuenm2")
 #'
+#' # Import a bias file
+#' bias <- terra::rast(system.file("extdata", "bias_file.tif",
+#'                                 package = "kuenm2"))
+#'
 #' # Prepare data for maxnet model
 #' sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
 #'                        raster_variables = var,
 #'                        categorical_variables = "SoilType",
-#'                        n_background = 500,
+#'                        n_background = 500, bias_file = bias,
 #'                        features = c("l", "q", "p", "lq", "lqp"),
 #'                        reg_mult = c(0.1, 1, 2, 3, 5))
 #' print(sp_swd)
 #'
 #' # Prepare data for glm model
 #' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
-#'                        species = occ_data[1, 1], x = "x", y = "y",
-#'                        raster_variables = var,
-#'                        categorical_variables = "SoilType",
-#'                        n_background = 500,
-#'                        features = c("l", "q", "p", "lq", "lqp"))
+#'                            species = occ_data[1, 1], x = "x", y = "y",
+#'                            raster_variables = var,
+#'                            categorical_variables = "SoilType",
+#'                            n_background = 500, bias_file = bias,
+#'                            features = c("l", "q", "p", "lq", "lqp"))
 #' print(sp_swd_glm)
 
 
@@ -138,6 +151,8 @@ prepare_data <- function(algorithm,
                          pca_directory = NULL,
                          exclude_from_pca = NULL,
                          n_background = 10000,
+                         bias_file = NULL,
+                         bias_effect = "direct",
                          kfolds = 4,
                          weights = NULL,
                          min_number = 2,
@@ -243,10 +258,25 @@ prepare_data <- function(algorithm,
     continuous_variable_names <- names(raster_variables)
   }
 
+  if(!is.null(bias_file)){
+    if(!inherits(bias_file, "SpatRaster")){
+      stop("Argument bias_file must be a SpatRaster, not ", class(bias_file))
+    }
+    if(!inherits(bias_effect, "character")){
+      stop("Argument bias_effect must be a character, not ", class(bias_file))
+    }
+    if(!(bias_effect %in% c("direct", "inverse")) | length(bias_effect) > 1) {
+      stop("Argument bias_effect must be 'direct' or 'inverse'")
+    }
+    }
+
   sp_name <- species
 
   if (!is.null(mask)) {
     raster_variables <- terra::crop(raster_variables, mask, mask = TRUE)
+    if(!is.null(bias_file)){
+      bias_file <- terra::crop(bias_file, mask, mask = TRUE)
+    }
   }
 
   if (do_pca) {
@@ -272,7 +302,7 @@ prepare_data <- function(algorithm,
 
   occ_var <- extract_occurrence_variables(occ, x, y, raster_variables)
   bg_var <- generate_background_variables(raster_variables, n_background,
-                                          seed = seed)
+                                          bias_file, bias_effect, seed = seed)
 
   # combine occurrence and background data
   occ_bg <- rbind(occ_var, bg_var)
