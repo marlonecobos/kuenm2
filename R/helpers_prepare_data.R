@@ -9,12 +9,38 @@ extract_occurrence_variables <- function(occ, x, y, env) {
 }
 
 # Helper function to generate background variables
-generate_background_variables <- function(env, nbg, seed = 1) {
-  cell_samp <- terra::as.data.frame(env[[1]], na.rm = TRUE, cells = TRUE)[, "cell"]
+generate_background_variables <- function(env, nbg, bias_file = NULL,
+                                          bias_effect = "direct",
+                                          seed = 1) {
+
+
+  if(!is.null(bias_file)){
+
+    #Check extension and resolution of bias_file
+    same_ext <- ext(bias_file) == ext(env[[1]])
+    same_res <- all(res(bias_file) == res(env[[1]]))
+    same_ncell <- ncell(bias_file) == ncell(env[[1]])
+    if(!same_ext | !same_res | !same_ncell) {
+      stop("bias_file and raster_variables must have the same extension, resolution, and number of cells")
+    }
+
+    names(bias_file) <- "bias_value"
+    bias_file <- c(bias_file, env[[1]])
+    cell_samp <- terra::as.data.frame(bias_file, na.rm = TRUE, cells = TRUE)
+    bias_value <- cell_samp$bias_value
+    cell_samp <- cell_samp$cell
+    if (bias_effect == "inverse"){
+      bias_value <- max(bias_value) - bias_value}
+    } else {
+    cell_samp <- terra::as.data.frame(env[[1]], na.rm = TRUE, cells = TRUE)[, "cell"]
+    bias_value = NULL
+  }
 
   if (length(cell_samp) > nbg) {
     set.seed(seed)
-    cell_samp <- sample(cell_samp, size = nbg, replace = FALSE)
+    cell_samp <- sample(cell_samp, size = nbg, replace = FALSE, prob = bias_value)
+  } else {
+    message("'n_background' >= initial number of points, using all points")
   }
 
   bg_var <- terra::extract(x = env, y = cell_samp, xy = TRUE)
