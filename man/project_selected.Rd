@@ -13,7 +13,7 @@ project_selected(models, projection_data,
                                write_replicates = FALSE, clamping = FALSE,
                                var_to_clamp = NULL, type = "cloglog",
                                overwrite = FALSE, parallel = FALSE,
-                               ncores = 1, parallelType = "doSNOW",
+                               ncores = 1, parallel_option = "doSNOW",
                                progress_bar = TRUE, verbose = TRUE)
 }
 \arguments{
@@ -49,7 +49,7 @@ Default is FALSE.}
 \item{ncores}{(numeric) number of cores to use for parallel processing.
 Default is 1. This is only applicable if \code{parallel = TRUE}.}
 
-\item{parallelType}{(character) the package to use for parallel processing:
+\item{parallel_option}{(character) the package to use for parallel processing:
 "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 \code{parallel = TRUE}.}
 
@@ -125,7 +125,7 @@ p <- project_selected(models = fitted_model_glmnet,
                       overwrite = TRUE,
                       parallel = FALSE,
                       ncores = 1,
-                      parallelType = "doSNOW",
+                      parallel_option = "doSNOW",
                       progress_bar = TRUE,
                       verbose = TRUE)
 
@@ -165,7 +165,7 @@ p_glm <- project_selected(models = fitted_model_glm,
                           overwrite = TRUE,
                           parallel = FALSE,
                           ncores = 1,
-                          parallelType = "doSNOW",
+                          parallel_option = "doSNOW",
                           progress_bar = TRUE,
                           verbose = TRUE)
 

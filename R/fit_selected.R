@@ -23,7 +23,7 @@
 #' is FALSE.
 #' @param ncores (numeric) the number of cores to use for parallel processing.
 #' Default is 2. This is only applicable if `parallel = TRUE`.
-#' @param parallelType (character) the parallelization package to use:
+#' @param parallel_option (character) the parallelization package to use:
 #' either "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable
 #' if `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during processing.
@@ -66,7 +66,7 @@
 #'
 #' @usage fit_selected(calibration_results, n_replicates = 5, rep_type = "kfold",
 #'                     train_portion = 0.7, write_models = FALSE, file_name = NULL,
-#'                     parallel = FALSE, ncores = 2, parallelType = "doSNOW",
+#'                     parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
 #'                     progress_bar = TRUE, verbose = TRUE, seed = 42)
 #'
 #' @examples
@@ -83,7 +83,7 @@
 #'                    file_name = NULL,
 #'                    parallel = FALSE,
 #'                    ncores = 1,
-#'                    parallelType = "doSNOW",
+#'                    parallel_option = "doSNOW",
 #'                    progress_bar = TRUE,
 #'                    verbose = TRUE,
 #'                    seed = 42)
@@ -103,7 +103,7 @@
 #'                        file_name = NULL,
 #'                        parallel = FALSE,
 #'                        ncores = 1,
-#'                        parallelType = "doSNOW",
+#'                        parallel_option = "doSNOW",
 #'                        progress_bar = TRUE,
 #'                        verbose = TRUE,
 #'                        seed = 42)
@@ -114,7 +114,7 @@
 fit_selected <- function(calibration_results, n_replicates = 5,
                          rep_type = "kfold", train_portion = 0.7,
                          write_models = FALSE, file_name = NULL,
-                         parallel = FALSE, ncores = 2, parallelType = "doSNOW",
+                         parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
                          progress_bar = TRUE, verbose = TRUE, seed = 42) {
 
   # Extract model IDs from selected models
@@ -160,10 +160,10 @@ fit_selected <- function(calibration_results, n_replicates = 5,
     # Setup parallel cluster
     if (parallel) {
       cl <- parallel::makeCluster(ncores)
-      if (parallelType == "doParallel") {
+      if (parallel_option == "doParallel") {
         doParallel::registerDoParallel(cl)
         opts <- NULL
-      } else if (parallelType == "doSNOW") {
+      } else if (parallel_option == "doSNOW") {
         doSNOW::registerDoSNOW(cl)
         opts <- if (progress_bar) list(progress = progress) else NULL
       }
@@ -231,10 +231,10 @@ fit_selected <- function(calibration_results, n_replicates = 5,
   # Parallel cluster setup for full models
   if (parallel) {
     cl <- parallel::makeCluster(ncores)
-    if (parallelType == "doParallel") {
+    if (parallel_option == "doParallel") {
       doParallel::registerDoParallel(cl)
       opts <- NULL
-    } else if (parallelType == "doSNOW") {
+    } else if (parallel_option == "doSNOW") {
       doSNOW::registerDoSNOW(cl)
       opts <- if (progress_bar) list(progress = progress) else NULL
     }

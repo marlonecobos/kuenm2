@@ -6,7 +6,7 @@
 \usage{
 fit_selected(calibration_results, n_replicates = 5, rep_type = "kfold",
                     train_portion = 0.7, write_models = FALSE, file_name = NULL,
-                    parallel = FALSE, ncores = 2, parallelType = "doSNOW",
+                    parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
                     progress_bar = TRUE, verbose = TRUE, seed = 42)
 }
 \arguments{
@@ -34,7 +34,7 @@ is FALSE.}
 \item{ncores}{(numeric) the number of cores to use for parallel processing.
 Default is 2. This is only applicable if \code{parallel = TRUE}.}
 
-\item{parallelType}{(character) the parallelization package to use:
+\item{parallel_option}{(character) the parallelization package to use:
 either "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable
 if \code{parallel = TRUE}.}
 
@@ -89,7 +89,7 @@ fm <- fit_selected(calibration_results = calib_results_glmnet,
                    file_name = NULL,
                    parallel = FALSE,
                    ncores = 1,
-                   parallelType = "doSNOW",
+                   parallel_option = "doSNOW",
                    progress_bar = TRUE,
                    verbose = TRUE,
                    seed = 42)
@@ -109,7 +109,7 @@ fm_glm <- fit_selected(calibration_results = calib_results_glm,
                        file_name = NULL,
                        parallel = FALSE,
                        ncores = 1,
-                       parallelType = "doSNOW",
+                       parallel_option = "doSNOW",
                        progress_bar = TRUE,
                        verbose = TRUE,
                        seed = 42)

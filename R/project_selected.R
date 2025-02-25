@@ -21,7 +21,7 @@
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
 #' Default is 1. This is only applicable if `parallel = TRUE`.
-#' @param parallelType (character) the package to use for parallel processing:
+#' @param parallel_option (character) the package to use for parallel processing:
 #' "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during processing. Default is TRUE.
@@ -46,7 +46,7 @@
 #'                                write_replicates = FALSE, clamping = FALSE,
 #'                                var_to_clamp = NULL, type = "cloglog",
 #'                                overwrite = FALSE, parallel = FALSE,
-#'                                ncores = 1, parallelType = "doSNOW",
+#'                                ncores = 1, parallel_option = "doSNOW",
 #'                                progress_bar = TRUE, verbose = TRUE)
 #'
 #' @examples
@@ -111,7 +111,7 @@
 #'                       overwrite = TRUE,
 #'                       parallel = FALSE,
 #'                       ncores = 1,
-#'                       parallelType = "doSNOW",
+#'                       parallel_option = "doSNOW",
 #'                       progress_bar = TRUE,
 #'                       verbose = TRUE)
 #'
@@ -151,7 +151,7 @@
 #'                           overwrite = TRUE,
 #'                           parallel = FALSE,
 #'                           ncores = 1,
-#'                           parallelType = "doSNOW",
+#'                           parallel_option = "doSNOW",
 #'                           progress_bar = TRUE,
 #'                           verbose = TRUE)
 #'
@@ -169,7 +169,7 @@ project_selected <- function(models,
                              overwrite = FALSE,
                              parallel = FALSE,
                              ncores = 1,
-                             parallelType = "doSNOW",
+                             parallel_option = "doSNOW",
                              progress_bar = TRUE,
                              verbose = TRUE){
   #Check data
@@ -241,12 +241,12 @@ project_selected <- function(models,
   if (!inherits(ncores, "numeric")) {
     stop(paste0("Argument ncores must be numeric, not ",
                 class(ncores)))}
-  if (!inherits(parallelType, "character")) {
-    stop(paste0("Argument parallelType must be character, not ",
+  if (!inherits(parallel_option, "character")) {
+    stop(paste0("Argument parallel_option must be character, not ",
                 class(type)))
   }
-  if(!any(c("doParallel", "doSNOW") %in% parallelType)){
-    stop("Invalid parallelType provided. The available options are: 'doParallel' or 'doSNOW'")
+  if(!any(c("doParallel", "doSNOW") %in% parallel_option)){
+    stop("Invalid parallel_option provided. The available options are: 'doParallel' or 'doSNOW'")
   }
   if (!inherits(progress_bar, "logical")) {
     stop(paste0("Argument progress_bar must be logical, not ",
@@ -396,12 +396,12 @@ project_selected <- function(models,
     #Make cluster
     cl <- parallel::makeCluster(ncores)
 
-    if (parallelType == "doParallel") {
+    if (parallel_option == "doParallel") {
       doParallel::registerDoParallel(cl)
       opts <- NULL
     }
 
-    if (parallelType == "doSNOW") {
+    if (parallel_option == "doSNOW") {
       doSNOW::registerDoSNOW(cl)
       if (progress_bar)
         opts <- list(progress = progress)
@@ -446,23 +446,4 @@ project_selected <- function(models,
   #Save
   saveRDS(res_final, file.path(out_dir, "Projection_paths.RDS"))
   return(res_final)
-} #End of function
-
-# #Test function internally
-# models = fm
-# projection_data = pr
-# out_dir = out_dir
-# #write_path = TRUE
-# consensus_per_model = TRUE
-# consensus_general = TRUE
-# consensus = c("median", "range", "mean", "stdev") #weighted mean
-# write_replicates = FALSE
-# clamping = FALSE
-# var_to_clamp = NULL
-# type = "cloglog"
-# overwrite = TRUE
-# parallel = TRUE
-# ncores = 8
-# parallelType = "doSNOW"
-# progress_bar = TRUE
-# verbose = TRUE
+}
