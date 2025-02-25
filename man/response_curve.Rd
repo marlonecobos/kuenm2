@@ -2,7 +2,7 @@
 % Please edit documentation in R/response_curves.R
 \name{response_curve}
 \alias{response_curve}
-\title{Variable response curves}
+\title{Generate Variable Response Curves from Fitted Models}
 \usage{
 response_curve(models, variable, modelID = NULL, n = 100,
                      by_replicates = FALSE, data = NULL, new_data = NULL,
@@ -16,7 +16,7 @@ response_curve(models, variable, modelID = NULL, n = 100,
 \item{models}{an object of class \code{fitted_models} returned by the
 \code{\link{fit_selected}}() function.}
 
-\item{variable}{(character) name of the variables to be plotted.}
+\item{variable}{(character) name of the variable to be plotted.}
 
 \item{modelID}{(character) vector of ModelID(s) to be considered in the
 models object. By default all models are included.Default = NULL.}
@@ -78,6 +78,9 @@ The response curves are generated with all other variables set to their mean
 values (or mode for categorical variables), calculated either from the
 presence localities (if averages_from = "pr") or from the combined set of
 presence and background localities (if averages_from = "pr_bg").
+
+For categorical variables, a bar plot is generated with error bars showing
+variability across models (if multiple models are included).
 }
 \examples{
 ##Example with glmnet
