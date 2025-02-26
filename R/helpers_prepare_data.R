@@ -17,9 +17,9 @@ generate_background_variables <- function(env, nbg, bias_file = NULL,
   if(!is.null(bias_file)){
 
     #Check extension and resolution of bias_file
-    same_ext <- ext(bias_file) == ext(env[[1]])
-    same_res <- all(res(bias_file) == res(env[[1]]))
-    same_ncell <- ncell(bias_file) == ncell(env[[1]])
+    same_ext <- terra::ext(bias_file) == terra::ext(env[[1]])
+    same_res <- all(terra::res(bias_file) == terra::res(env[[1]]))
+    same_ncell <- terra::ncell(bias_file) == terra::ncell(env[[1]])
     if(!same_ext | !same_res | !same_ncell) {
       stop("bias_file and raster_variables must have the same extension, resolution, and number of cells")
     }
