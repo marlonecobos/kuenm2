@@ -4,19 +4,37 @@
 \alias{sel_best_models}
 \title{Select models that perform the best among all candidates}
 \usage{
-sel_best_models(calibration_results = NULL, cand_models = NULL,
-                algorithm = c("maxnet", "glm"), test_concave = TRUE,
-                omrat_threshold = 10, allow_tolerance = TRUE,
-                tolerance = 0.01, AIC_option = "ws", significance = 0.05,
-                delta_aic = 2, verbose = TRUE)
+sel_best_models(calibration_results = NULL, cand_models = NULL, data = NULL,
+                calc_proc = FALSE, addsamplestobackground = TRUE,
+                weights = NULL, algorithm = c("maxnet", "glm"),
+                test_concave = TRUE, omrat_threshold = 10,
+                allow_tolerance = TRUE, tolerance = 0.01, AIC_option = "ws",
+                significance = 0.05, delta_aic = 2, verbose = TRUE)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
 by the \code{\link{calibration}}() function. Default is NULL.}
 
 \item{cand_models}{(data.frame) a summary of the evaluation metrics for each
-candidate model. In the output of the \code{\link{calibration}}(), this
-data.frame is located in \verb{$calibration_results$Summary}. Default is NULL.}
+candidate model. Required only if \code{calibration_results} is NULL. In the
+output of the \code{\link{calibration}}(), this data.frame is located in
+\verb{$calibration_results$Summary}. Default is NULL.}
+
+\item{data}{an object of class \code{prepared_data} returned by the
+\code{\link{prepare_data()}} function. Required only if \code{calibration_results}
+is NULL and \code{calc_proc} is TRUE.}
+
+\item{calc_proc}{(logical) whether to compute partial ROC tests for the
+selected models. This is required when partial ROC is not calculated for all
+candidate models during calibration. Default is FALSE.}
+
+\item{addsamplestobackground}{(logical) whether to add to the background any
+presence sample that is not already there. Required only if \code{calc_proc} is
+TRUE and \code{calibration_results} is NULL.Default is TRUE.}
+
+\item{weights}{(numeric) a numeric vector specifying weights for the
+occurrence records. Required only if \code{calc_proc} is TRUE and
+\code{calibration_results} is NULL. Default is NULL.}
 
 \item{algorithm}{(character) model type, either "glm" or "maxnet".}
 
@@ -47,6 +65,16 @@ based on the partial ROC (pROC). Default is 0.05. See Details.}
 
 \item{delta_aic}{(numeric) the value of delta AIC used as a threshold to
 select models. Default is 2.}
+
+\item{parallel}{(logical) whether to calculate the PROC of the candidate
+models in parallel. Default is FALSE.}
+
+\item{ncores}{(numeric) number of cores to use for parallel processing.
+Default is 1. This is only applicable if \code{parallel = TRUE}.}
+
+\item{parallel_type}{(character) the package to use for parallel processing:
+"doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
+\code{parallel = TRUE}.}
 
 \item{verbose}{(logical) whether to display messages during processing.
 Default is TRUE.}

@@ -71,7 +71,7 @@ eval_stats <- function(cal_res, omission_rate, algorithm) {
   stats_AICS <- cal_res[!duplicated(cal_res[, to_keep]), ][, to_keep]
   stats_final <- merge(stats, stats_AICS, by = agg_by)
 
-  colnames(stats_final) <- gsub("\\.", "_", colnames(stats_final))
+  #colnames(stats_final) <- gsub("\\.", "_", colnames(stats_final))
 
   return(stats_final)
 }
@@ -93,17 +93,13 @@ empty_replicates <- function(omission_rate, n_row, replicates,
     stop("Argument omission_rate must be numeric, not ", class(omission_rate))
   }
 
-  if(!inherits(n_row, "numeric")){
-    stop("Argument n_row must be numeric, not ", class(n_row))
-  }
-
-  if(!inherits(replicates, "numeric|character")){
-    stop("Argument n_row must be numeric or character, not ", class(n_row))
+  if(all(!inherits(replicates, "numeric") & !inherits(replicates, "character"))){
+    stop("Argument replicates must be numeric or character, not ", class(replicates))
   }
 
   if(!is.na(is_c)){
     if(!inherits(is_c, "logical")){
-    stop("Argument n_row must be NA or logical, not ", class(is_c))}
+    stop("Argument is_c must be NA or logical, not ", class(is_c))}
   }
 
   if(!inherits(algorithm, "character")){
@@ -160,7 +156,7 @@ empty_summary <- function(omission_rate, is_c, algorithm) {
 
   if(!is.na(is_c)){
     if(!inherits(is_c, "logical")){
-      stop("Argument n_row must be NA or logical, not ", class(is_c))}
+      stop("Argument is_c must be NA or logical, not ", class(is_c))}
   }
 
   if(!inherits(algorithm, "character")){
@@ -173,14 +169,14 @@ empty_summary <- function(omission_rate, is_c, algorithm) {
   ####
 
   # Omission rates column names
-  om_means <- paste0("Omission_rate_at_", omission_rate, "_mean")
-  om_sd <- paste0("Omission_rate_at_", omission_rate, "_sd")
+  om_means <- paste0("Omission_rate_at_", omission_rate, ".mean")
+  om_sd <- paste0("Omission_rate_at_", omission_rate, ".sd")
 
   #Proc columns names
-  auc_means <- paste0("Mean_AUC_ratio_at_", omission_rate, "_mean")
-  auc_sd <- paste0("Mean_AUC_ratio_at_", omission_rate, "_sd")
-  pval_means <- paste0("pval_pROC_at_", omission_rate, "_mean")
-  pval_sd <- paste0("pval_pROC_at_", omission_rate, "_sd")
+  auc_means <- paste0("Mean_AUC_ratio_at_", omission_rate, ".mean")
+  auc_sd <- paste0("Mean_AUC_ratio_at_", omission_rate, ".sd")
+  pval_means <- paste0("pval_pROC_at_", omission_rate, ".mean")
+  pval_sd <- paste0("pval_pROC_at_", omission_rate, ".sd")
 
   # Base column names depending on the model type
   if (algorithm == "maxnet") {
@@ -824,17 +820,144 @@ reorder_stats_columns <- function(stats_final, omission_rate){
 
   first_cols<- intersect(c("ID", "Formulas", "reg_mult", "Features"),
                          colnames(stats_final))
-  metric_cols <- c(paste0("Omission_rate_at_", omission_rate, "_mean"),
-                   paste0("Omission_rate_at_", omission_rate, "_sd"),
+  metric_cols <- c(paste0("Omission_rate_at_", omission_rate, ".mean"),
+                   paste0("Omission_rate_at_", omission_rate, ".sd"),
                    #Proc columns names
-                   paste0("Mean_AUC_ratio_at_", omission_rate, "_mean"),
-                   paste0("Mean_AUC_ratio_at_", omission_rate, "_sd"),
-                   paste0("pval_pROC_at_", omission_rate, "_mean"),
-                   paste0("pval_pROC_at_", omission_rate, "_sd"))
+                   paste0("Mean_AUC_ratio_at_", omission_rate, ".mean"),
+                   paste0("Mean_AUC_ratio_at_", omission_rate, ".sd"),
+                   paste0("pval_pROC_at_", omission_rate, ".mean"),
+                   paste0("pval_pROC_at_", omission_rate, ".sd"))
   ordered_metric_cols <- unlist(lapply(omission_rate, function(rate) {
-    grep(paste0("_", rate, "_"), metric_cols, value = TRUE)
+    grep(paste0("_", rate, "."), metric_cols, value = TRUE)
   }))
   last_cols <- setdiff(colnames(stats_final), c(first_cols, metric_cols))
   orders_cols <- c(first_cols, ordered_metric_cols, last_cols)
   return(stats_final[,orders_cols])
+}
+
+#### PROC ####
+proc <- function(x, formula_grid, data, omission_rate = 10,
+                 addsamplestobackground = TRUE, weights = NULL,
+                 algorithm){
+
+  #Check arguments
+  if(!inherits(formula_grid, "data.frame")){
+    stop("Argument formula_grid must be a data.frame, not ", class(formula_grid))
+  }
+
+  if(!inherits(omission_rate, "numeric")){
+    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  }
+
+  if(!inherits(addsamplestobackground, "logical")){
+    stop("Argument addsamplestobackground must be logical, not ", class(addsamplestobackground))
+  }
+
+  if(!is.null(weights)){
+    if(!inherits(weights, "numeric")){
+      stop("Argument weights must be NULL or numeric, not ", class(weights))
+    }}
+
+  if(!inherits(algorithm, "character")){
+    stop("Argument algorithm must be a character, not ", class(algorithm))
+  }
+
+  if(!(algorithm %in% c("glm", "maxnet"))){
+    stop("Argument algorithm must be 'glm' or 'maxnet'")
+  }
+  ####
+
+  grid_x <- formula_grid[x,] # Get i candidate model
+  #Get formula and reg
+  formula_x <- as.formula(grid_x$Formulas)
+  reg_x <- grid_x$reg_mult
+
+  if(algorithm == "glm"){
+    formula_x <- as.formula(paste("pr_bg ", grid_x$Formulas))
+  }
+
+  # Get background index
+  bgind <- which(data$calibration_data$pr_bg == 0)
+
+  # Fit models using k-fold cross-validation
+  mods <- try(lapply(1:length(data$kfolds), function(i) {
+    notrain <- -data$kfolds[[i]]
+    data_i <- data$calibration_data[notrain,]
+
+    # Set weights per k-fold
+    if (!is.null(weights)){
+      weights_i <- weights[notrain]
+    } else {
+      weights_i <- NULL
+    }
+
+    if (algorithm == "maxnet") {
+      # Run glmnet model
+      mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
+                         f = formula_x, regmult = reg_x,
+                         addsamplestobackground = addsamplestobackground,
+                         weights = weights_i, calculate_AIC = FALSE)
+    } else {
+      # Run glm model
+      mod_i <- glm_mx(formula = formula_x,
+                      family = binomial(link = "cloglog"),
+                      data = data_i, weights = weights_i)
+    }
+
+    # Predict model
+    pred_i <- if (algorithm == "maxnet") {
+      as.numeric(predict.glmnet_mx(object = mod_i,
+                                   newdata = data$calibration_data,
+                                   clamp = FALSE, type = "cloglog"))
+    } else if (algorithm == "glm") {
+      enmpa::predict_glm(model = mod_i,
+                         newdata = data$calibration_data,
+                         type = "response")
+    }
+
+    # Extract suitability in train and test points
+    suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
+    suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
+
+    #Proc
+    proc_i <- lapply(omission_rate, function(omr){
+      proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+                                  prediction = pred_i,
+                                  threshold = omr)$pROC_summary
+      names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+                           paste0("pval_pROC_at_", omr))
+      return(proc_omr)
+    })
+    proc_i <- unlist(proc_i)
+
+    # Save metrics in a dataframe
+    df_proc <-  if (algorithm == "maxnet") {
+      data.frame(Replicate = i,
+                 t(proc_i),
+                 row.names = NULL)
+    } else if (algorithm == "glm") {
+      data.frame(Replicate = i,
+                 t(proc_i),
+                 row.names = NULL)
+    }
+    return(df_proc)
+  }), silent = TRUE)
+  #Get summary
+  proc_df <- do.call("rbind", mods)
+
+  #Get means and sd
+  means <- sapply(proc_df[, -1], mean)  # Excluindo a coluna Replicate
+  sds <- sapply(proc_df[, -1], sd)
+
+  #Create new dataframe
+  proc_df <- data.frame(
+    t(c(means, sds))
+  )
+  #Rename
+  names(proc_df) <- c(paste0(names(means), ".mean"), paste0(names(sds), ".sd"))
+
+  #Append model ID
+  proc_df$ID <- grid_x$ID
+
+  return(proc_df)
 }

@@ -4,23 +4,29 @@
 \alias{calibration2}
 \title{Calibration, evaluation, and selection of candidate models}
 \usage{
-calibration2(data, test_concave = TRUE, extrapolation_factor = 0.1,
+calibration2(data, test_concave = TRUE, proc_for_all = FALSE,
+             extrapolation_factor = 0.1,
              var_limits = NULL, averages_from = "pr" ,
              addsamplestobackground = TRUE,
              use_weights = FALSE, parallel = TRUE, ncores = 4,
-             parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
+             parallel_type = "doSNOW", progress_bar = TRUE,
+             write_summary = FALSE,
              out_dir = NULL, skip_existing_models = FALSE,
              return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
              AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
              tolerance = 0.01, verbose = TRUE)
 }
 \arguments{
-\item{data}{an object of class \code{prepare_data} returned by the
+\item{data}{an object of class \code{prepared_data} returned by the
 \code{\link{prepare_data()}} function. It contains the calibration data,
 formulas grid, kfolds, and model type.}
 
 \item{test_concave}{(logical) whether to test for and remove candidate models
 presenting concave curves. Default is TRUE.}
+
+\item{proc_for_all}{(logical) whether to apply partial ROC tests to all
+candidate models or only to the selected models. Default is FALSE, meaning
+that tests are applied only to the selected models.}
 
 \item{extrapolation_factor}{(numeric) a multiplier used to calculate the
 extrapolation range for each variable when detecting concave curves. Larger
@@ -186,22 +192,16 @@ var <- var[[1:4]]
 # Prepare data for maxnet model
 sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
-                       spat_variables = var, mask = NULL,
-                       categorical_variables = NULL,
-                       do_pca = FALSE, deviance_explained = 95,
-                       min_explained = 5, center = TRUE, scale = TRUE,
-                       write_pca = FALSE, output_pca = NULL, nbg = 100,
-                       kfolds = 4, weights = NULL, min_number = 3,
-                       min_continuous = NULL,
+                       raster_variables = var,
+                       n_background = 100,
                        features = c("l", "lq"),
-                       regm = 1,
-                       include_xy = TRUE,
-                       write_file = FALSE, file_name = NULL,
-                       seed = 1)
+                       reg_mult = 1)
+
 
 # Calibrate maxnet models
 m <- calibration2(data = sp_swd,
                   test_concave = TRUE,
+                  proc_for_all = FALSE,
                   extrapolation_factor = 0.1,
                   var_limits = list("bio_7" = c(0, NA),
                                     "bio_12" = c(0, NA),
@@ -228,22 +228,14 @@ m
 # Prepare data for glm model
 sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            species = occ_data[1, 1], x = "x", y = "y",
-                           spat_variables = var, mask = NULL,
-                           categorical_variables = NULL,
-                           do_pca = FALSE, deviance_explained = 95,
-                           min_explained = 5, center = TRUE, scale = TRUE,
-                           write_pca = FALSE, output_pca = NULL, nbg = 100,
-                           kfolds = 4, weights = NULL, min_number = 3,
-                           min_continuous = NULL,
-                           features = c("l", "lq"),
-                           regm = 1,
-                           include_xy = TRUE,
-                           write_file = FALSE, file_name = NULL,
-                           seed = 1)
+                           raster_variables = var,
+                           n_background = 100,
+                           features = c("l", "lq"))
 
 # Calibrate glm models
 m_glm <- calibration2(data = sp_swd_glm,
                       test_concave = TRUE,
+                      proc_for_all = FALSE,
                       extrapolation_factor = 0.1,
                       var_limits = list("bio_7" = c(0, NA),
                                         "bio_12" = c(0, NA),
