@@ -96,7 +96,7 @@
 #' results from PCA, and modeling algorithm.
 #'
 #' @importFrom enmpa kfold_partition aux_var_comb
-#' @importFrom terra crop prcomp extract as.data.frame nlyr
+#' @importFrom terra crop prcomp extract as.data.frame nlyr ncell ext res
 #' @importFrom utils combn
 #'
 #' @export

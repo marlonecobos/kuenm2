@@ -7,21 +7,26 @@
 #' curves (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
-#' calibration2(data, test_concave = TRUE, extrapolation_factor = 0.1,
+#' calibration2(data, test_concave = TRUE, proc_for_all = FALSE,
+#'              extrapolation_factor = 0.1,
 #'              var_limits = NULL, averages_from = "pr" ,
 #'              addsamplestobackground = TRUE,
 #'              use_weights = FALSE, parallel = TRUE, ncores = 4,
-#'              parallel_type = "doSNOW", progress_bar = TRUE, write_summary = FALSE,
+#'              parallel_type = "doSNOW", progress_bar = TRUE,
+#'              write_summary = FALSE,
 #'              out_dir = NULL, skip_existing_models = FALSE,
 #'              return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
 #'              AIC = "ws", delta_aic = 2, allow_tolerance = TRUE,
 #'              tolerance = 0.01, verbose = TRUE)
 #'
-#' @param data an object of class `prepare_data` returned by the
+#' @param data an object of class `prepared_data` returned by the
 #' \code{\link{prepare_data()}} function. It contains the calibration data,
 #' formulas grid, kfolds, and model type.
 #' @param test_concave (logical) whether to test for and remove candidate models
 #' presenting concave curves. Default is TRUE.
+#' @param proc_for_all (logical) whether to apply partial ROC tests to all
+#' candidate models or only to the selected models. Default is FALSE, meaning
+#' that tests are applied only to the selected models.
 #' @param extrapolation_factor (numeric) a multiplier used to calculate the
 #' extrapolation range for each variable when detecting concave curves. Larger
 #' values allow broader extrapolation beyond the observed data range, while
@@ -176,22 +181,16 @@
 #' # Prepare data for maxnet model
 #' sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
 #'                        species = occ_data[1, 1], x = "x", y = "y",
-#'                        spat_variables = var, mask = NULL,
-#'                        categorical_variables = NULL,
-#'                        do_pca = FALSE, deviance_explained = 95,
-#'                        min_explained = 5, center = TRUE, scale = TRUE,
-#'                        write_pca = FALSE, output_pca = NULL, nbg = 100,
-#'                        kfolds = 4, weights = NULL, min_number = 3,
-#'                        min_continuous = NULL,
+#'                        raster_variables = var,
+#'                        n_background = 100,
 #'                        features = c("l", "lq"),
-#'                        regm = 1,
-#'                        include_xy = TRUE,
-#'                        write_file = FALSE, file_name = NULL,
-#'                        seed = 1)
+#'                        reg_mult = 1)
+#'
 #'
 #' # Calibrate maxnet models
 #' m <- calibration2(data = sp_swd,
 #'                   test_concave = TRUE,
+#'                   proc_for_all = FALSE,
 #'                   extrapolation_factor = 0.1,
 #'                   var_limits = list("bio_7" = c(0, NA),
 #'                                     "bio_12" = c(0, NA),
@@ -218,22 +217,14 @@
 #' # Prepare data for glm model
 #' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
 #'                            species = occ_data[1, 1], x = "x", y = "y",
-#'                            spat_variables = var, mask = NULL,
-#'                            categorical_variables = NULL,
-#'                            do_pca = FALSE, deviance_explained = 95,
-#'                            min_explained = 5, center = TRUE, scale = TRUE,
-#'                            write_pca = FALSE, output_pca = NULL, nbg = 100,
-#'                            kfolds = 4, weights = NULL, min_number = 3,
-#'                            min_continuous = NULL,
-#'                            features = c("l", "lq"),
-#'                            regm = 1,
-#'                            include_xy = TRUE,
-#'                            write_file = FALSE, file_name = NULL,
-#'                            seed = 1)
+#'                            raster_variables = var,
+#'                            n_background = 100,
+#'                            features = c("l", "lq"))
 #'
 #' # Calibrate glm models
 #' m_glm <- calibration2(data = sp_swd_glm,
 #'                       test_concave = TRUE,
+#'                       proc_for_all = FALSE,
 #'                       extrapolation_factor = 0.1,
 #'                       var_limits = list("bio_7" = c(0, NA),
 #'                                         "bio_12" = c(0, NA),
@@ -258,6 +249,7 @@
 #'
 calibration2 <- function(data,
                         test_concave = TRUE,
+                        proc_for_all = FALSE,
                         extrapolation_factor = 0.1,
                         var_limits = NULL,
                         averages_from = "pr",
@@ -342,7 +334,7 @@ calibration2 <- function(data,
     }
 
     q_grids <- formula_grid[grepl("q", formula_grid$Features), ]
-    n_tot <- nrow(q_grids)
+    n_tot <- as.numeric(nrow(q_grids))
 
     if(n_tot == 0) {
       warning("All quadratic models have been already tested")
@@ -380,7 +372,7 @@ calibration2 <- function(data,
                              algorithm = algorithm, AIC = AIC,
                              extrapolation_factor = extrapolation_factor,
                              var_limits = var_limits,
-                             averages_from = averages_from, ...)
+                             averages_from = averages_from, proc_for_all)
           }
       } else {
         results_concave <- vector("list", length = n_tot)
@@ -396,8 +388,8 @@ calibration2 <- function(data,
                              algorithm = algorithm, AIC = AIC,
                              extrapolation_factor = extrapolation_factor,
                              var_limits = var_limits,
-                             averages_from = averages_from, ...
-            )
+                             averages_from = averages_from,
+                             proc_for_all)
           # Sets the progress bar to the current state
           if(progress_bar) setTxtProgressBar(pb, x)
         }
@@ -467,7 +459,7 @@ calibration2 <- function(data,
                           algorithm = algorithm,
                           extrapolation_factor = extrapolation_factor,
                           var_limits = var_limits,
-                          averages_from = averages_from, ...)
+                          averages_from = averages_from, proc_for_all)
         }
     } else {
       results <- vector("list", length = n_tot)
@@ -481,7 +473,7 @@ calibration2 <- function(data,
                           return_replicate, AIC = AIC, algorithm = algorithm,
                           extrapolation_factor = extrapolation_factor,
                           var_limits = var_limits,
-                          averages_from = averages_from, ...)
+                          averages_from = averages_from, proc_for_all)
 
         if(progress_bar) setTxtProgressBar(pb, x)
       }
@@ -512,12 +504,17 @@ calibration2 <- function(data,
   # Select the best models
   bm <- sel_best_models(cand_models = res_final$Summary,
                         test_concave = test_concave,
+                        calc_proc = !proc_for_all,
+                        data = data,
                         omrat_threshold = omrat_threshold,
                         allow_tolerance = allow_tolerance,
-                        tolerance = tolerance, AIC = AIC,
+                        tolerance = tolerance, AIC_option = AIC,
                         significance = 0.05, verbose = verbose,
                         delta_aic = delta_aic,
-                        algorithm = algorithm)
+                        algorithm = algorithm,
+                        parallel = parallel, ncores = ncores,
+                        parallel_type = parallel_type,
+                        progress_bar = progress_bar)
 
   # Concatenate final results
   fm <- c(data, calibration_results = list(res_final),
@@ -535,7 +532,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
                              write_summary, addsamplestobackground, weights,
                              return_replicate, algorithm,
                              AIC, extrapolation_factor, var_limits,
-                             averages_from = "pr", ...) {
+                             averages_from = "pr", proc_for_all, ...) {
 
   # Arguments:
   # x: Each line of the formula grid
@@ -555,7 +552,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
   if (algorithm == "maxnet") {
     # For maxnet model
     formula_x <- as.formula(grid_x$Formulas)
-    reg_x <- grid_x$regm
+    reg_x <- grid_x$reg_mult
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                            data = data$calibration_data,
                            f = formula_x, regmult = reg_x,
@@ -610,13 +607,13 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
   if (isTRUE(is_c) | is.na(is_c)) {
     # If concave, return grid
     grid_q <- if (algorithm == "maxnet") {
-      all_reg <- formula_grid$regm[formula_grid$Formulas == grid_x$Formulas &
+      all_reg <- formula_grid$reg_mult[formula_grid$Formulas == grid_x$Formulas &
                                      formula_grid$Features == grid_x$Features]
       do.call("rbind", lapply(seq_along(all_reg), function(k) {
         grid_x_i <- grid_x
-        grid_x_i$regm <- all_reg[k]
+        grid_x_i$reg_mult <- all_reg[k]
         grid_x_i$ID <- formula_grid[formula_grid$Formulas == grid_x$Formulas &
-                                      formula_grid$regm == all_reg[k], "ID"]
+                                      formula_grid$reg_mult == all_reg[k], "ID"]
         return(grid_x_i)
       }))
     } else {
@@ -624,7 +621,7 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
     }
 
     df_eval_q <- empty_replicates(omission_rate = omission_rate,
-                                  n_row = nrow(grid_q) * length(data$kfolds),
+                                  n_row = as.numeric(nrow(grid_q) * length(data$kfolds)),
                                   replicates = names(data$kfolds),
                                   is_c = is_c,
                                   algorithm = algorithm)
@@ -671,8 +668,11 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
       om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
-      #Proc
-      proc_i <- lapply(omission_rate, function(omr){
+
+
+      #Calculate PROC? ...
+      if(proc_for_all){
+        proc_i <- lapply(omission_rate, function(omr){
         proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                     prediction = pred_i,
                                     threshold = omr, ...)$pROC_summary
@@ -680,7 +680,12 @@ fit_eval_concave2 <- function(x, q_grids, data, formula_grid, omission_rate, omr
                              paste0("pval_pROC_at_", omr))
         return(proc_omr)
       })
-      proc_i <- unlist(proc_i)
+      proc_i <- unlist(proc_i)} else {
+        #Or fill PROC with NA
+        proc_i <- rep(NA, length(omission_rate) * 2)
+        names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", omission_rate),
+                           paste0("pval_pROC_at_", omission_rate))
+      }
 
       df_eval_q <-  if (algorithm == "maxnet") {
         data.frame(Replicate = i,
@@ -728,7 +733,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
                             write_summary, addsamplestobackground, weights,
                             return_replicate, algorithm, AIC,
                             extrapolation_factor,
-                            var_limits, averages_from, ...) {
+                            var_limits, averages_from, proc_for_all, ...) {
   # Arguments:
   # x: Each line of the formula grid
   # formula_grid: Formula grid (output of calibration_grid)
@@ -745,7 +750,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
   if (algorithm == "maxnet") {
     # Fit maxnet model
-    reg_x <- grid_x$regm # Get regularization multiplier for maxnet
+    reg_x <- grid_x$reg_mult # Get regularization multiplier for maxnet
     formula_x <- as.formula(grid_x$Formulas) # Get formula from grid x
 
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
@@ -854,16 +859,32 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
       om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
       #Proc
-      proc_i <- lapply(omission_rate, function(omr){
-        proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                    prediction = pred_i,
-                                    threshold = omr, ...)$pROC_summary
-        names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
-                             paste0("pval_pROC_at_", omr))
-        return(proc_omr)
-      })
-      proc_i <- unlist(proc_i)
+      # proc_i <- lapply(omission_rate, function(omr){
+      #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+      #                               prediction = pred_i,
+      #                               threshold = omr, ...)$pROC_summary
+      #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+      #                        paste0("pval_pROC_at_", omr))
+      #   return(proc_omr)
+      # })
+      # proc_i <- unlist(proc_i)
 
+      #Calculate PROC? ...
+      if(proc_for_all){
+        proc_i <- lapply(omission_rate, function(omr){
+          proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+                                      prediction = pred_i,
+                                      threshold = omr, ...)$pROC_summary
+          names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+                               paste0("pval_pROC_at_", omr))
+          return(proc_omr)
+        })
+        proc_i <- unlist(proc_i)} else {
+          #Or fill PROC with NA
+          proc_i <- rep(NA, length(omission_rate) * 2)
+          names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", omission_rate),
+                             paste0("pval_pROC_at_", omission_rate))
+        }
 
       # Save metrics in a dataframe
       df_eval <-  if (algorithm == "maxnet") {
@@ -892,7 +913,7 @@ fit_eval_models2 <- function(x, formula_grid, data, omission_rate, omrat_thr,
   if (class(mods) == "try-error") {
     eval_final <- cbind(grid_x,
                         empty_replicates(omission_rate = omission_rate,
-                                         n_row = length(data$kfolds),
+                                         n_row = as.numeric(length(data$kfolds)),
                                          replicates = names(data$kfolds),
                                          is_c = is_c, algorithm = algorithm))
   } else {
