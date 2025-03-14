@@ -89,6 +89,10 @@ glmnet_mx <- function(p,
   }
 
   mm <- model.matrix(f, data)
+  if (ncol(mm) < 2) {
+    # Add all-zero dummy column to fix single-predictor model fitting
+    mm <- cbind(0, mm)
+  }
 
   reg <- regfun(p, mm) * regmult
   lambdas <- 10^(seq(4, 0, length.out = 200)) * sum(reg) / length(reg) *
