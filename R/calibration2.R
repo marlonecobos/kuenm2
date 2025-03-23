@@ -12,7 +12,7 @@
 #'              var_limits = NULL, averages_from = "pr" ,
 #'              addsamplestobackground = TRUE,
 #'              use_weights = FALSE, parallel = TRUE, ncores = 4,
-#'              parallel_type = "doSNOW", progress_bar = TRUE,
+#'              parallel_option = "doSNOW", progress_bar = TRUE,
 #'              write_summary = FALSE,
 #'              out_dir = NULL, skip_existing_models = FALSE,
 #'              return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
@@ -48,7 +48,7 @@
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
 #' Default is 1. This is only applicable if `parallel = TRUE`.
-#' @param parallel_type (character) the package to use for parallel processing:
+#' @param parallel_option (character) the package to use for parallel processing:
 #' "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
@@ -201,7 +201,7 @@
 #'                   progress_bar = TRUE,
 #'                   write_summary = FALSE,
 #'                   out_dir = NULL,
-#'                   parallel_type = "doSNOW",
+#'                   parallel_option = "doSNOW",
 #'                   return_replicate = TRUE,
 #'                   omission_rate = c(5, 10),
 #'                   omrat_threshold = 10,
@@ -235,7 +235,7 @@
 #'                       progress_bar = TRUE,
 #'                       write_summary = FALSE,
 #'                       out_dir = NULL,
-#'                       parallel_type = "doSNOW",
+#'                       parallel_option = "doSNOW",
 #'                       return_replicate = TRUE,
 #'                       omission_rate = c(5, 10),
 #'                       omrat_threshold = 10,
@@ -257,7 +257,7 @@ calibration2 <- function(data,
                         use_weights = FALSE,
                         parallel = TRUE,
                         ncores = 4,
-                        parallel_type = "doSNOW",
+                        parallel_option = "doSNOW",
                         progress_bar = TRUE,
                         write_summary = FALSE,
                         out_dir = NULL,
@@ -270,6 +270,11 @@ calibration2 <- function(data,
                         allow_tolerance = TRUE,
                         tolerance = 0.01,
                         verbose = TRUE, ...) {
+
+  #Check data
+  if(!inherits(data, "prepared_data")){
+    stop("'data' must be a 'prepared_data' object, not ", class(data))
+  }
 
   # Convert calibration data to dataframe if necessary
   if (is.matrix(data$calibration_data) || is.array(data$calibration_data)) {
@@ -319,8 +324,8 @@ calibration2 <- function(data,
 
   # Parallelization setup
   if (parallel) {
-    if (!(parallel_type %in% c("doSNOW", "doParallel"))) {
-      stop("Invalid parallel_type. Use 'doSNOW' or 'doParallel'.")
+    if (!(parallel_option %in% c("doSNOW", "doParallel"))) {
+      stop("Invalid parallel_option. Use 'doSNOW' or 'doParallel'.")
     }
     cl <- parallel::makeCluster(ncores)
   }
@@ -344,12 +349,12 @@ calibration2 <- function(data,
         progress <- function(n) setTxtProgressBar(pb, n)
         opts <- list(progress = progress)} else {opts <- NULL}
 
-      if (parallel & parallel_type == "doParallel") {
+      if (parallel & parallel_option == "doParallel") {
         doParallel::registerDoParallel(cl)
         opts <- NULL # Progress bar does not work with doParallel
       }
 
-      if (parallel & parallel_type == "doSNOW") {
+      if (parallel & parallel_option == "doSNOW") {
         doSNOW::registerDoSNOW(cl)
         if (isTRUE(progress_bar))
           opts <- list(progress = progress)
@@ -423,12 +428,12 @@ calibration2 <- function(data,
       pb <- txtProgressBar(0, n_tot, style = 3)
       progress <- function(n) setTxtProgressBar(pb, n) }
 
-    if (parallel_type == "doParallel") {
+    if (parallel_option == "doParallel") {
       doParallel::registerDoParallel(cl)
       opts <- NULL
     }
 
-    if (parallel_type == "doSNOW") {
+    if (parallel_option == "doSNOW") {
       doSNOW::registerDoSNOW(cl)
       if (isTRUE(progress_bar))
         opts <- list(progress = progress)
@@ -513,7 +518,7 @@ calibration2 <- function(data,
                         delta_aic = delta_aic,
                         algorithm = algorithm,
                         parallel = parallel, ncores = ncores,
-                        parallel_type = parallel_type,
+                        parallel_option = parallel_option,
                         progress_bar = progress_bar)
 
   # Concatenate final results

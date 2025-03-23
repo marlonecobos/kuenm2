@@ -6,7 +6,7 @@
 #' @usage partial_roc(formula_grid, data, omission_rate = 10,
 #'                    addsamplestobackground = TRUE, weights = NULL,
 #'                    algorithm = maxnet, parallel = FALSE, ncores = 1,
-#'                    parallel_type = "doSNOW", progress_bar = TRUE)
+#'                    parallel_option = "doSNOW", progress_bar = TRUE)
 #' @param formula_grid (data.frame) the formula grid of the candidate models
 #' to test.
 #' @param data an object of class `prepared_data` returned by the
@@ -26,7 +26,7 @@
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
 #' Default is 1. This is only applicable if `parallel = TRUE`.
-#' @param parallel_type (character) the package to use for parallel processing:
+#' @param parallel_option (character) the package to use for parallel processing:
 #' "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
@@ -73,14 +73,14 @@
 partial_roc <- function(formula_grid, data, omission_rate = 10,
                         addsamplestobackground = TRUE, weights = NULL,
                         algorithm = "maxnet", parallel = FALSE, ncores = 1,
-                        parallel_type = "doSNOW", progress_bar = TRUE) {
+                        parallel_option = "doSNOW", progress_bar = TRUE) {
 
   # Parallelization setup
   n_tot <- nrow(formula_grid)
 
   if (parallel) {
-    if (!(parallel_type %in% c("doSNOW", "doParallel"))) {
-      stop("Invalid parallel_type. Use 'doSNOW' or 'doParallel'.")
+    if (!(parallel_option %in% c("doSNOW", "doParallel"))) {
+      stop("Invalid parallel_option. Use 'doSNOW' or 'doParallel'.")
     }
 
     if(ncores > n_tot){
@@ -97,12 +97,12 @@ partial_roc <- function(formula_grid, data, omission_rate = 10,
     progress <- function(n) utils::setTxtProgressBar(pb, n)
     opts <- list(progress = progress)} else {opts <- NULL}
 
-  if (parallel & parallel_type == "doParallel") {
+  if (parallel & parallel_option == "doParallel") {
     doParallel::registerDoParallel(cl)
     opts <- NULL # Progress bar does not work with doParallel
   }
 
-  if (parallel & parallel_type == "doSNOW") {
+  if (parallel & parallel_option == "doSNOW") {
     doSNOW::registerDoSNOW(cl)
     if (isTRUE(progress_bar))
       opts <- list(progress = progress)
