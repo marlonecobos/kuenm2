@@ -8,5 +8,5 @@ plot_importance(x, xlab = NULL, ylab = "Relative contribution",
                 main = "Variable importance", extra_info = TRUE, ...)
 }
 \description{
-See detailes in \code{\link[enmpa]{plot_importance}}
+See details in \code{\link[enmpa]{plot_importance}}
 }

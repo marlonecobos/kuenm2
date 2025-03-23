@@ -4,13 +4,13 @@
 \alias{explore_calibration_geo}
 \title{Explore the spatial distribution of occurrence and background points}
 \usage{
-explore_calibration_geo(data, spat_variables, plot = TRUE)
+explore_calibration_geo(data, raster_variables, plot = TRUE)
 }
 \arguments{
 \item{data}{an object of class \code{prepare_data} returned by the
 \code{\link{prepare_data}}() function.}
 
-\item{spat_variables}{(SpatRaster) predictor variables used for model calibration.}
+\item{raster_variables}{(SpatRaster) predictor variables used for model calibration.}
 
 \item{plot}{(logical) wheter to plot the SpatRaster. Default is TRUE.}
 }
@@ -35,7 +35,7 @@ data(occ_data, package = "kuenm2")
 #Prepare data
 sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
-                       spat_variables = var, mask = NULL,
+                       raster_variables = var, mask = NULL,
                        categorical_variables = "SoilType",
                        do_pca = FALSE, deviance_explained = 95,
                        min_explained = 5, center = TRUE, scale = TRUE,
@@ -48,7 +48,6 @@ sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
                        write_file = FALSE, file_name = NULL,
                        seed = 1)
 #Explore calibration data
-pbg <- explore_calibration_geo(data = sp_swd, spat_variables = var[[1]],
+pbg <- explore_calibration_geo(data = sp_swd, raster_variables = var[[1]],
                                plot = FALSE)
-
 }

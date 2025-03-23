@@ -4,35 +4,33 @@
 \alias{explore_calibration_hist}
 \title{Explore variable distribution for occurrence and background points}
 \usage{
-explore_calibration_hist(data, color_background = "#0000FF80",
-                             color_presence = "#FF000080",
-                             mfrow = c(1, 1), plot_median = TRUE, ...)
+explore_calibration_hist(data, include_m = FALSE,
+                                raster_variables = NULL,
+                                magnify_occurrences = 2,
+                                breaks = 15)
 }
 \arguments{
 \item{data}{an object of class \code{prepare_data} returned by the
 \code{\link{prepare_data}}() function.}
 
-\item{color_background}{(character) color used to fill the histogram bars for
-background data. Default is "#0000FF80".}
+\item{include_m}{(logical) whether to include data for plotting the histogram
+of the entire area from which background points were sampled. Default is
+FALSE, meaning only background and presence information will be plotted.}
 
-\item{color_presence}{(character) color used to fill the histogram bars for
-presence data. Default is "#FF000080".}
+\item{raster_variables}{(SpatRaster) predictor variables used to prepared the
+data with \code{prepare_data}. Only applicable if \code{include_m} is TRUE.}
 
-\item{mfrow}{(numeric) a vector specifying the number of rows and columns in
-the plot layout, e.g., c(rows, columns). Default is c(1, 1), meaning
-one plot per variable.}
+\item{magnify_occurrences}{(numeric) factor by which the frequency of
+occurrences is magnified for better visualization. Default is 2, meaning
+occurrence frequencies in the plot will be doubled.}
 
-\item{plot_median}{(logical) whether to plot a vertical dashed line
-representing the median of the presence points on the histogram.
-Default is TRUE.}
-
-\item{...}{further arguments and graphical parameters passed to
-\code{\link{hist}}(), allowing customization of titles, axes, and
-other elements.}
+\item{breaks}{(numeric) a single number giving the desired number of
+intervals in the histogram.}
 }
 \description{
-This function generates overlaid histograms to visualize the distribution of
-predictor variables for occurrence (presence) and background points.
+This function prepares data to generate overlaid histograms to visualize the
+distribution of predictor variables for occurrence (presence) and background
+points.
 }
 \examples{
 #Import raster layers
@@ -41,25 +39,15 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 #Import occurrences
 data(occ_data, package = "kuenm2")
 #Prepare data for glmnet model
-sp_swd <- prepare_data(model_type = "glmnet", occ = occ_data,
+sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        species = occ_data[1, 1], x = "x", y = "y",
-                       spat_variables = var, mask = NULL,
+                       raster_variables = var,
                        categorical_variables = "SoilType",
-                       do_pca = FALSE, deviance_explained = 95,
-                       min_explained = 5, center = TRUE, scale = TRUE,
-                       write_pca = FALSE, output_pca = NULL, nbg = 2000,
-                       kfolds = 4, weights = NULL, min_number = 2,
-                       min_continuous = NULL,
-                       features = c("l", "q", "p", "lq", "lqp"),
-                       regm = c(0.1, 1, 2, 3, 5),
-                       include_xy = TRUE,
-                       write_file = FALSE, file_name = NULL,
-                       seed = 1)
+                       n_background = 500)
 #Explore calibration data
-explore_calibration_hist(data = sp_swd,
-                         color_background = "#0000FF80",
-                         color_presence = "#FF000080",
-                         mfrow = c(2, 3), plot_median = TRUE,
-                         breaks = "Scott")
-
+calib_hist <- explore_calibration_hist(data = sp_swd, raster_variables = var,
+                                       include_m = TRUE,
+                                       magnify_occurrences = 2)
+#Plot histograms
+plot_explore_calibration(explore_calibration = calib_hist, mfrow = c(2,3))
 }

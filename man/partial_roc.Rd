@@ -7,7 +7,7 @@
 partial_roc(formula_grid, data, omission_rate = 10,
                    addsamplestobackground = TRUE, weights = NULL,
                    algorithm = maxnet, parallel = FALSE, ncores = 1,
-                   parallel_type = "doSNOW", progress_bar = TRUE)
+                   parallel_option = "doSNOW", progress_bar = TRUE)
 }
 \arguments{
 \item{formula_grid}{(data.frame) the formula grid of the candidate models
@@ -37,7 +37,7 @@ Default is FALSE.}
 \item{ncores}{(numeric) number of cores to use for parallel processing.
 Default is 1. This is only applicable if \code{parallel = TRUE}.}
 
-\item{parallel_type}{(character) the package to use for parallel processing:
+\item{parallel_option}{(character) the package to use for parallel processing:
 "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 \code{parallel = TRUE}.}
 

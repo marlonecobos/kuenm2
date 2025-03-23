@@ -57,7 +57,7 @@
 #' models in parallel. Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
 #' Default is 1. This is only applicable if `parallel = TRUE`.
-#' @param parallel_type (character) the package to use for parallel processing:
+#' @param parallel_option (character) the package to use for parallel processing:
 #' "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 #' `parallel = TRUE`.
 #' @param verbose (logical) whether to display messages during processing.
@@ -122,7 +122,7 @@ sel_best_models <- function(calibration_results = NULL,
                             delta_aic = 2,
                             parallel = FALSE,
                             ncores = 1,
-                            parallel_type = "doSNOW",
+                            parallel_option = "doSNOW",
                             progress_bar = FALSE,
                             verbose = TRUE) {
   #Check data
@@ -243,9 +243,10 @@ sel_best_models <- function(calibration_results = NULL,
       }
 
       # Calculate delta AIC and select models based on delta AIC
-      cand_om$dAIC <- cand_om[, AIC_option] - min(cand_om[, AIC_option])
-      high_aic <- cand_om[cand_om$dAIC > delta_aic, "ID"]
-      cand_final <- cand_om[cand_om$dAIC <= delta_aic, ]
+      cand_om$dAIC <- cand_om[, AIC_option] - min(cand_om[, AIC_option],
+                                                  na.rm = TRUE)
+      high_aic <- cand_om[cand_om$dAIC > delta_aic | is.na(cand_om$dAIC), "ID"]
+      cand_final <- cand_om[cand_om$dAIC <= delta_aic & !is.na(cand_om$dAIC), ]
 
       if (verbose) {
         message("Selecting ", nrow(cand_final), " final model(s) with delta AIC <", delta_aic)
@@ -264,7 +265,8 @@ sel_best_models <- function(calibration_results = NULL,
                                  omission_rate = omrat_threshold,
                                  addsamplestobackground, weights,
                                  algorithm, parallel, ncores,
-                                 parallel_type, progress_bar)
+                                 parallel_option, progress_bar)
+
       # Create a copy of cand_final to keep the original data unchanged
       cand_final_updated <- cand_final
 
@@ -280,9 +282,10 @@ sel_best_models <- function(calibration_results = NULL,
       # Check if p_value is non-significative
       p_value_omr <- cand_final_updated[,paste0("pval_pROC_at_",
                                                 omrat_threshold, ".mean")]
-      any_bad <- any(p_value_omr > significance)
+      any_bad <- any(p_value_omr > significance | is.na(p_value_omr))
       #Get models to remove, if necessary
-      id_to_remove <- cand_final_updated$ID[p_value_omr > significance]
+      id_to_remove <- cand_final_updated$ID[p_value_omr > significance |
+                                              is.na(p_value_omr)]
 
       if(any_bad & verbose){
         message("\nModels with non-significant pROC values were identified. Re-selecting models...")

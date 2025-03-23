@@ -62,7 +62,7 @@
 #' weights) that influence the selection of background points. It must have the
 #' same extent, resolution, and number of cells as the raster variables, unless
 #' a mask is provided. Default is NULL.
-#' #' @param bias_effect (character) a string specifying how the values in the
+#' @param bias_effect (character) a string specifying how the values in the
 #' `bias_file` should be interpreted. If "direct", higher values in the bias
 #' file increase the likelihood of selecting background points. If "inverse",
 #' higher values decrease the likelihood. Default is "direct".

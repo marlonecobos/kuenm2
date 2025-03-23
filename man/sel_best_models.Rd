@@ -72,7 +72,7 @@ models in parallel. Default is FALSE.}
 \item{ncores}{(numeric) number of cores to use for parallel processing.
 Default is 1. This is only applicable if \code{parallel = TRUE}.}
 
-\item{parallel_type}{(character) the package to use for parallel processing:
+\item{parallel_option}{(character) the package to use for parallel processing:
 "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 \code{parallel = TRUE}.}
 

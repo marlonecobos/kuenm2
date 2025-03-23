@@ -9,7 +9,7 @@ calibration2(data, test_concave = TRUE, proc_for_all = FALSE,
              var_limits = NULL, averages_from = "pr" ,
              addsamplestobackground = TRUE,
              use_weights = FALSE, parallel = TRUE, ncores = 4,
-             parallel_type = "doSNOW", progress_bar = TRUE,
+             parallel_option = "doSNOW", progress_bar = TRUE,
              write_summary = FALSE,
              out_dir = NULL, skip_existing_models = FALSE,
              return_replicate = TRUE, omission_rate= 10, omrat_threshold = 10,
@@ -56,7 +56,7 @@ Default is FALSE.}
 \item{ncores}{(numeric) number of cores to use for parallel processing.
 Default is 1. This is only applicable if \code{parallel = TRUE}.}
 
-\item{parallel_type}{(character) the package to use for parallel processing:
+\item{parallel_option}{(character) the package to use for parallel processing:
 "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
 \code{parallel = TRUE}.}
 
@@ -212,7 +212,7 @@ m <- calibration2(data = sp_swd,
                   progress_bar = TRUE,
                   write_summary = FALSE,
                   out_dir = NULL,
-                  parallel_type = "doSNOW",
+                  parallel_option = "doSNOW",
                   return_replicate = TRUE,
                   omission_rate = c(5, 10),
                   omrat_threshold = 10,
@@ -246,7 +246,7 @@ m_glm <- calibration2(data = sp_swd_glm,
                       progress_bar = TRUE,
                       write_summary = FALSE,
                       out_dir = NULL,
-                      parallel_type = "doSNOW",
+                      parallel_option = "doSNOW",
                       return_replicate = TRUE,
                       omission_rate = c(5, 10),
                       omrat_threshold = 10,

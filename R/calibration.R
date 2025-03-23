@@ -7,18 +7,21 @@
 #' based on unimodality (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
-#' calibration(data, addsamplestobackground = TRUE,use_weights = FALSE,
-#'             parallel = FALSE, ncores = 4, parallel_option = "doSNOW",
-#'             progress_bar = TRUE, write_summary = FALSE,
-#'             output_directory = NULL, skip_existing_models = FALSE,
-#'             return_replicate = TRUE, test_concave = FALSE,
-#'             omission_rate = 10, omrat_threshold = 10,
+#' calibration(data, proc_for_all = FALSE, addsamplestobackground = TRUE,
+#'             use_weights = FALSE, parallel = FALSE, ncores = 4,
+#'             parallel_option = "doSNOW", progress_bar = TRUE,
+#'             write_summary = FALSE, output_directory = NULL,
+#'             skip_existing_models = FALSE, return_replicate = TRUE,
+#'             test_concave = FALSE, omission_rate = 10, omrat_threshold = 10,
 #'             AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
 #'             tolerance = 0.01, verbose = TRUE)
 #'
 #' @param data an object of class `prepared_data` returned by the
 #' \code{\link{prepare_data()}} function. It contains the calibration data,
 #' formulas grid, kfolds, and model type.
+#' @param proc_for_all (logical) whether to apply partial ROC tests to all
+#' candidate models or only to the selected models. Default is FALSE, meaning
+#' that tests are applied only to the selected models.
 #' @param test_concave (logical) whether to test for and remove candidate models
 #' presenting concave curves. Default is FALSE.
 #' @param addsamplestobackground (logical) whether to add to the background any
@@ -167,6 +170,7 @@
 
 
 calibration <- function(data,
+                        proc_for_all = FALSE,
                         addsamplestobackground = TRUE,
                         use_weights = FALSE,
                         parallel = FALSE,
@@ -186,7 +190,13 @@ calibration <- function(data,
                         tolerance = 0.01,
                         verbose = TRUE) {
 
-  # Convert calibration data to dataframe if necessary
+  #Check data
+  if(!inherits(data, "prepared_data")){
+    stop("'data' must be a 'prepared_data' object, not ", class(data))
+  }
+
+
+   # Convert calibration data to dataframe if necessary
   if (is.matrix(data$calibration_data) || is.array(data$calibration_data)) {
     data$calibration_data <- as.data.frame(data$calibration_data)
   }
@@ -285,20 +295,22 @@ calibration <- function(data,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             algorithm = algorithm, AIC_option = AIC_option)
+                             algorithm = algorithm, AIC_option = AIC_option,
+                             proc_for_all = proc_for_all)
           }
       } else {
         results_concave <- vector("list", length = n_tot)
         for (x in 1:n_tot) {
           results_concave[[x]] <-
-            fit_eval_concave(x = x, q_grids, data, formula_grid,
+            kuenm2:::fit_eval_concave(x = x, q_grids, data, formula_grid,
                              omission_rate = omission_rate,
                              omrat_thr = omrat_threshold,
                              write_summary = write_summary,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
                              return_replicate = return_replicate,
-                             algorithm = algorithm, AIC_option = AIC_option
+                             algorithm = algorithm, AIC_option = AIC_option,
+                             proc_for_all = proc_for_all
             )
           # Sets the progress bar to the current state
           if(progress_bar) setTxtProgressBar(pb, x)
@@ -367,7 +379,7 @@ calibration <- function(data,
                           addsamplestobackground = addsamplestobackground,
                           weights = weights,
                           return_replicate = return_replicate, AIC_option = AIC_option,
-                          algorithm = algorithm)
+                          algorithm = algorithm, proc_for_all)
         }
     } else {
       results <- vector("list", length = n_tot)
@@ -379,7 +391,7 @@ calibration <- function(data,
                           addsamplestobackground =  addsamplestobackground,
                           weights = weights, write_summary,
                           return_replicate, AIC_option = AIC_option,
-                          algorithm = algorithm)
+                          algorithm = algorithm, proc_for_all = proc_for_all)
 
         if (progress_bar) {
           setTxtProgressBar(pb, x)
@@ -419,12 +431,17 @@ calibration <- function(data,
 
   bm <- sel_best_models(cand_models = res_final$Summary,
                         test_concave = test_concave,
+                        calc_proc = !proc_for_all,
+                        data = data,
                         omrat_threshold = omrat_threshold,
                         allow_tolerance = allow_tolerance,
                         tolerance = tolerance, AIC_option = AIC_option,
                         significance = 0.05, verbose = verbose,
                         delta_aic = delta_aic,
-                        algorithm = algorithm)
+                        algorithm = algorithm,
+                        parallel = parallel, ncores = ncores,
+                        parallel_option = parallel_option,
+                        progress_bar = progress_bar)
 
   # Concatenate final results
   fm <- new_calibration_results(
