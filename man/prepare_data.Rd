@@ -76,8 +76,9 @@ for the model. Default is 10000.}
 \item{bias_file}{(SpatRaster) a raster containing bias values (probability
 weights) that influence the selection of background points. It must have the
 same extent, resolution, and number of cells as the raster variables, unless
-a mask is provided. Default is NULL.
-#' @param bias_effect (character) a string specifying how the values in the
+a mask is provided. Default is NULL.}
+
+\item{bias_effect}{(character) a string specifying how the values in the
 \code{bias_file} should be interpreted. If "direct", higher values in the bias
 file increase the likelihood of selecting background points. If "inverse",
 higher values decrease the likelihood. Default is "direct".}

@@ -4,12 +4,12 @@
 \alias{calibration}
 \title{Fitting and evaluation of models, and selection of the best ones}
 \usage{
-calibration(data, addsamplestobackground = TRUE,use_weights = FALSE,
-            parallel = FALSE, ncores = 4, parallel_option = "doSNOW",
-            progress_bar = TRUE, write_summary = FALSE,
-            output_directory = NULL, skip_existing_models = FALSE,
-            return_replicate = TRUE, test_concave = FALSE,
-            omission_rate = 10, omrat_threshold = 10,
+calibration(data, proc_for_all = FALSE, addsamplestobackground = TRUE,
+            use_weights = FALSE, parallel = FALSE, ncores = 4,
+            parallel_option = "doSNOW", progress_bar = TRUE,
+            write_summary = FALSE, output_directory = NULL,
+            skip_existing_models = FALSE, return_replicate = TRUE,
+            test_concave = FALSE, omission_rate = 10, omrat_threshold = 10,
             AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
             tolerance = 0.01, verbose = TRUE)
 }
@@ -17,6 +17,10 @@ calibration(data, addsamplestobackground = TRUE,use_weights = FALSE,
 \item{data}{an object of class \code{prepared_data} returned by the
 \code{\link{prepare_data()}} function. It contains the calibration data,
 formulas grid, kfolds, and model type.}
+
+\item{proc_for_all}{(logical) whether to apply partial ROC tests to all
+candidate models or only to the selected models. Default is FALSE, meaning
+that tests are applied only to the selected models.}
 
 \item{addsamplestobackground}{(logical) whether to add to the background any
 presence sample that is not already there. Default is TRUE.}
