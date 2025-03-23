@@ -205,7 +205,8 @@ empty_summary <- function(omission_rate, is_c, algorithm) {
 
 fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omrat_thr,
                              write_summary, addsamplestobackground, weights = NULL,
-                             return_replicate, algorithm, AIC_option) {
+                             return_replicate, algorithm, AIC_option,
+                             proc_for_all) {
 
   # Arguments:
   # x: Each line of the formula grid
@@ -274,6 +275,11 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   if(!(AIC_option %in% c("ws", "nk"))){
     stop("Argument AIC_option must be 'ws' or 'nk'")
   }
+
+  if(!inherits(proc_for_all, "logical")){
+    stop("Argument proc_for_all must be logical, not ", class(proc_for_all))
+  }
+
   ####
 
   grid_x <- q_grids[x, ]
@@ -395,17 +401,36 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
       # Calculate metrics (omission rate, pROC)
       suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
-      om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
+      om_rate <- kuenm2:::omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
-      #Proc
-      proc_i <- lapply(omission_rate, function(omr){
-        proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                        prediction = pred_i, threshold = omr)$pROC_summary
-        names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
-                             paste0("pval_pROC_at_", omr))
-        return(proc_omr)
-      })
-      proc_i <- unlist(proc_i)
+
+      #Calculate PROC? ...
+      if(proc_for_all){
+        proc_i <- lapply(omission_rate, function(omr){
+          proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+                                      prediction = pred_i,
+                                      threshold = omr)$pROC_summary
+          names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+                               paste0("pval_pROC_at_", omr))
+          return(proc_omr)
+        })
+        proc_i <- unlist(proc_i)} else {
+          #Or fill PROC with NA
+          proc_i <- rep(NA, length(omission_rate) * 2)
+          names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", omission_rate),
+                             paste0("pval_pROC_at_", omission_rate))
+        }
+
+
+      # #Proc
+      # proc_i <- lapply(omission_rate, function(omr){
+      #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+      #                   prediction = pred_i, threshold = omr)$pROC_summary
+      #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+      #                        paste0("pval_pROC_at_", omr))
+      #   return(proc_omr)
+      # })
+      # proc_i <- unlist(proc_i)
 
 
       df_eval_q <-  if (algorithm == "maxnet") {
@@ -454,7 +479,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
 
 fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
                             write_summary, addsamplestobackground, weights = NULL,
-                            return_replicate, algorithm, AIC_option) {
+                            return_replicate, algorithm, AIC_option,
+                            proc_for_all) {
 
   # Arguments:
   # x: Each line of the formula grid
@@ -517,6 +543,10 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
   if(!(AIC_option %in% c("ws", "nk"))){
     stop("Argument AIC_option must be 'ws' or 'nk'")
+  }
+
+  if(!inherits(proc_for_all, "logical")){
+    stop("Argument proc_for_all must be logical, not ", class(proc_for_all))
   }
   ####
 
@@ -625,15 +655,33 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
       # Calculate omission rate and pROC
       om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
-      #Proc
-      proc_i <- lapply(omission_rate, function(omr){
-        proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                    prediction = pred_i, threshold = omr)$pROC_summary
-        names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
-                             paste0("pval_pROC_at_", omr))
-        return(proc_omr)
-      })
-      proc_i <- unlist(proc_i)
+
+      #Calculate PROC? ...
+      if(proc_for_all){
+        proc_i <- lapply(omission_rate, function(omr){
+          proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+                                      prediction = pred_i,
+                                      threshold = omr, ...)$pROC_summary
+          names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+                               paste0("pval_pROC_at_", omr))
+          return(proc_omr)
+        })
+        proc_i <- unlist(proc_i)} else {
+          #Or fill PROC with NA
+          proc_i <- rep(NA, length(omission_rate) * 2)
+          names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", omission_rate),
+                             paste0("pval_pROC_at_", omission_rate))
+        }
+
+      # #Proc
+      # proc_i <- lapply(omission_rate, function(omr){
+      #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+      #                               prediction = pred_i, threshold = omr)$pROC_summary
+      #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+      #                        paste0("pval_pROC_at_", omr))
+      #   return(proc_omr)
+      # })
+      # proc_i <- unlist(proc_i)
 
 
       # Save metrics in a dataframe
