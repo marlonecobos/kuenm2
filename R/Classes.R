@@ -1,23 +1,27 @@
-new_explore_back <- function(hist_m, hist_b, hist_o, mean_m, mean_b, mean_o,
-                             cl_m, cl_b, cl_o, range_m, range_b, range_o) {
+new_explore_back <- function(hist_m, hist_bg, hist_pr, mean_m, mean_bg, mean_pr,
+                             cl_m, cl_bg, cl_pr, range_m, range_bg, range_pr) {
   # error checking
 
-  val <- list(hist_m = hist_m, hist_b = hist_b, hist_o = hist_o,
-              mean_m = mean_m, mean_b = mean_b, mean_o = mean_o,
-              cl_m = cl_m, cl_b = cl_b, cl_o = cl_o, range_m = range_m,
-              range_b = range_b, range_o = range_o)
+  val <- list(hist_m = hist_m, hist_bg = hist_bg, hist_pr = hist_pr,
+              mean_m = mean_m, mean_bg = mean_bg, mean_pr = mean_pr,
+              cl_m = cl_m, cl_bg = cl_bg, cl_pr = cl_pr, range_m = range_m,
+              range_bg = range_bg, range_pr = range_pr)
 
   class(val) <- "explore_back"
   return(val)
 }
 
 
-new_explore_list <- function(summary, exploration_stats) {
+new_explore_list <- function(summary, exploration_stats,
+                             continuous_variables,
+                             categorical_variables) {
   # error checking
 
-  val <- list(summary = summary, exploration_stats = exploration_stats)
+  val <- list(summary = summary, exploration_stats = exploration_stats,
+              continuous_variables = continuous_variables,
+              categorical_variables = categorical_variables)
 
-  class(val) <- "explore_list"
+  class(val) <- "explore_calibration"
   return(val)
 }
 
