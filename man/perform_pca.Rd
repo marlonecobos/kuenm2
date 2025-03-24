@@ -4,17 +4,17 @@
 \alias{perform_pca}
 \title{Transform variables using Principal Component analysis (PCA)}
 \usage{
-perform_pca(spat_variables, exclude_from_pca = NULL, project = FALSE,
+perform_pca(raster_variables, exclude_from_pca = NULL, project = FALSE,
             projection_data = NULL, out_dir = NULL, overwrite = FALSE,
             progress_bar = FALSE, center = TRUE, scale = FALSE,
             variance_explained = 95, min_explained = 5)
 }
 \arguments{
-\item{spat_variables}{(SpatRaster) set of predictor variables that the
+\item{raster_variables}{(SpatRaster) set of predictor variables that the
 function will summarize into a set of orthogonal, uncorrelated
 components based on PCA.}
 
-\item{exclude_from_pca}{(character) variable names within spat_variables that
+\item{exclude_from_pca}{(character) variable names within raster_variables that
 should not be included in the PCA transformation. Instead, these
 variables will be added directly to the final set of output variables
 without being modified. The default is NULL, meaning all variables
@@ -83,7 +83,7 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
 
 #PCA
-pca_var <- perform_pca(spat_variables = var, exclude_from_pca = "SoilType",
+pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                        center = TRUE, scale = TRUE, variance_explained = 95,
                        min_explained = 5)
 plot(pca_var$env)
@@ -124,7 +124,7 @@ out_dir <- file.path(tempdir(), "PCA_projections")
 dir.create(out_dir, recursive = TRUE)
 
 #Perform and project PCA for new scenarios (future)
-proj_pca <- perform_pca(spat_variables = var, exclude_from_pca = "SoilType",
+proj_pca <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                         project = TRUE, projection_data = pr, out_dir = out_dir,
                         overwrite = TRUE, progress_bar = FALSE,
                         center = TRUE, scale = TRUE,
