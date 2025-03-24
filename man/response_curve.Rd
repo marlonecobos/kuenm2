@@ -85,16 +85,16 @@ variability across models (if multiple models are included).
 \examples{
 ##Example with glmnet
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_glmnet", package = "kuenm2")
+data("fitted_model_maxnet", package = "kuenm2")
 
 #Response curves
-response_curve(models = fitted_model_glmnet,
+response_curve(models = fitted_model_maxnet,
                variable = "bio_1", by_replicates = T)
-response_curve(models = fitted_model_glmnet,
+response_curve(models = fitted_model_maxnet,
                variable = "bio_7", by_replicates = T)
-response_curve(models = fitted_model_glmnet, variable = "bio_1",
+response_curve(models = fitted_model_maxnet, variable = "bio_1",
                modelID = "Model_13", by_replicates = T)
-response_curve(models = fitted_model_glmnet, variable = "bio_1",
+response_curve(models = fitted_model_maxnet, variable = "bio_1",
                modelID = "Model_1", by_replicates = T)
 
 ##Example with glm

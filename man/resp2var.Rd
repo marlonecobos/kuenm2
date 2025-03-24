@@ -58,14 +58,14 @@ environmental space.
 \examples{
 ##Example with glmnet
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_glmnet", package = "kuenm2")
+data("fitted_model_maxnet", package = "kuenm2")
 
 #Response curves (products)
-resp2var(models = fitted_model_glmnet, modelID = "Model_1",
+resp2var(models = fitted_model_maxnet, modelID = "Model_1",
          variable1 = "bio_1", variable2 = "bio_7")
-resp2var(models = fitted_model_glmnet, modelID = "Model_13",
+resp2var(models = fitted_model_maxnet, modelID = "Model_13",
          variable1 = "bio_1", variable2 = "bio_12")
-resp2var(models = fitted_model_glmnet, modelID = "Model_13",
+resp2var(models = fitted_model_maxnet, modelID = "Model_13",
          variable1 = "bio_7", variable2 = "bio_12")
 
 ##Example with glm

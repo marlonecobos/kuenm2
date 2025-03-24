@@ -72,10 +72,10 @@
 #' @examples
 #' # Import example of calibration results (output of calibration function)
 #' ## maxnet
-#' data("calib_results_glmnet", package = "kuenm2")
+#' data("calib_results_maxnet", package = "kuenm2")
 #'
 #' # Fit models using calibration results
-#' fm <- fit_selected(calibration_results = calib_results_glmnet,
+#' fm <- fit_selected(calibration_results = calib_results_maxnet,
 #'                    n_replicates = 2,
 #'                    rep_type = "kfold",
 #'                    train_portion = 0.7,

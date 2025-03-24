@@ -48,10 +48,10 @@
 #'
 #' #Example with GLMNET
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_glmnet", package = "kuenm2")
+#' data("fitted_model_maxnet", package = "kuenm2")
 #'
 #' # Prepare projections using fitted models to check variables
-#' pr <- prepare_proj(models = fitted_model_glmnet,
+#' pr <- prepare_proj(models = fitted_model_maxnet,
 #'                    present_dir = out_dir_current,
 #'                    past_dir = NULL,
 #'                    past_period = NULL,
@@ -70,7 +70,7 @@
 #'
 #' # Project selected models for multiple scenarios
 #' #Set write_replicates = TRUE to compute variance coming from replicates
-#' p <- project_selected(models = fitted_model_glmnet,
+#' p <- project_selected(models = fitted_model_maxnet,
 #'                       projection_data = pr,
 #'                       out_dir = out_dir,
 #'                       consensus_per_model = TRUE,
@@ -301,7 +301,7 @@ modvar <- function(model_projections,
 # overwrite = TRUE
 #
 # #Test function
-# v <- modvar(model_projections =model_projections, #output of project_selected_glmnetx
+# v <- modvar(model_projections =model_projections, #output of project_selected()
 #             by_replicate = TRUE,
 #             by_gcm = FALSE,
 #             by_model = TRUE,

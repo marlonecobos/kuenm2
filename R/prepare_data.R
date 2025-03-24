@@ -286,9 +286,10 @@ prepare_data <- function(algorithm,
       exclude_from_pca <- exclude_from_pca
     }
 
-    pca <- perform_pca(raster_variables, exclude_from_pca = exclude_from_pca,
+    pca <- perform_pca(raster_variables = raster_variables,
+                       exclude_from_pca = exclude_from_pca,
                        project = FALSE, projection_data = NULL,
-                       out_dir = ifelse(write_pca, pca_directory, NULL),
+                       out_dir = pca_directory,
                        overwrite = FALSE, progress_bar = FALSE,
                        center = center, scale = scale,
                        variance_explained = variance_explained,

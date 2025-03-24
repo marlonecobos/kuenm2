@@ -30,7 +30,7 @@ proj_changes(
 
 \item{include_id}{(numeric) a vector containing the reference IDs to include when computing changes. Default is \code{NULL}, meaning all projections will be included. See the details section for further information.}
 
-\item{user_thr}{(numeric) an optional threshold for binarizing the predictions. Default is \code{NULL}, meaning the function will apply the thresholds stored in model_projections, which were calculated earlier using the omission rate from \code{calibration_glmnetmx()}.}
+\item{user_thr}{(numeric) an optional threshold for binarizing the predictions. Default is \code{NULL}, meaning the function will apply the thresholds stored in model_projections, which were calculated earlier using the omission rate from \code{calibration()}.}
 
 \item{by_gcm}{(logical) whether to compute changes across GCMs. Default is TRUE.}
 
@@ -104,10 +104,10 @@ organize_future_worldclim(input_dir = in_dir,
 
 #Example with GLMNET
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_glmnet", package = "kuenm2")
+data("fitted_model_maxnet", package = "kuenm2")
 
 # Prepare projections using fitted models to check variables
-pr <- prepare_proj(models = fitted_model_glmnet,
+pr <- prepare_proj(models = fitted_model_maxnet,
                    present_dir = output_dir_current,
                    past_dir = NULL,
                    past_period = NULL,
@@ -125,7 +125,7 @@ output_dir <- file.path(tempdir(), "Projection_results/glmnet")
 dir.create(output_dir, recursive = TRUE)
 
 # Project selected models for multiple scenarios
-p <- project_selected(models = fitted_model_glmnet,
+p <- project_selected(models = fitted_model_maxnet,
                       projection_data = pr,
                       output_dir = output_dir,
                       consensus_per_model = TRUE,

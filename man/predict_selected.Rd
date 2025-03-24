@@ -81,9 +81,9 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
 ##Example with maxnet
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_glmnet", package = "kuenm2")
+data("fitted_model_maxnet", package = "kuenm2")
 # Predict to single scenario
-p <- predict_selected(models = fitted_model_glmnet,
+p <- predict_selected(models = fitted_model_maxnet,
                       raster_variables = var,
                       write_files = FALSE,
                       write_replicates = FALSE,

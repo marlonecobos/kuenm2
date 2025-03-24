@@ -7,15 +7,15 @@
 #' to simplify data structure and reduce correlations.
 #'
 #' @usage
-#' perform_pca(spat_variables, exclude_from_pca = NULL, project = FALSE,
+#' perform_pca(raster_variables, exclude_from_pca = NULL, project = FALSE,
 #'             projection_data = NULL, out_dir = NULL, overwrite = FALSE,
 #'             progress_bar = FALSE, center = TRUE, scale = FALSE,
 #'             variance_explained = 95, min_explained = 5)
 #'
-#' @param spat_variables (SpatRaster) set of predictor variables that the
+#' @param raster_variables (SpatRaster) set of predictor variables that the
 #'        function will summarize into a set of orthogonal, uncorrelated
 #'        components based on PCA.
-#' @param exclude_from_pca (character) variable names within spat_variables that
+#' @param exclude_from_pca (character) variable names within raster_variables that
 #'        should not be included in the PCA transformation. Instead, these
 #'        variables will be added directly to the final set of output variables
 #'        without being modified. The default is NULL, meaning all variables
@@ -70,7 +70,7 @@
 #'                                package = "kuenm2"))
 #'
 #' #PCA
-#' pca_var <- perform_pca(spat_variables = var, exclude_from_pca = "SoilType",
+#' pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
 #'                        center = TRUE, scale = TRUE, variance_explained = 95,
 #'                        min_explained = 5)
 #' plot(pca_var$env)
@@ -111,7 +111,7 @@
 #' dir.create(out_dir, recursive = TRUE)
 #'
 #' #Perform and project PCA for new scenarios (future)
-#' proj_pca <- perform_pca(spat_variables = var, exclude_from_pca = "SoilType",
+#' proj_pca <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
 #'                         project = TRUE, projection_data = pr, out_dir = out_dir,
 #'                         overwrite = TRUE, progress_bar = FALSE,
 #'                         center = TRUE, scale = TRUE,
@@ -119,16 +119,16 @@
 #'                         min_explained = 5)
 #' proj_pca$projection_directory #Directory with projected PCA-variables
 #'
-perform_pca <- function(spat_variables, exclude_from_pca = NULL,
+perform_pca <- function(raster_variables, exclude_from_pca = NULL,
                        project = FALSE, projection_data = NULL, out_dir = NULL,
                        overwrite = FALSE, progress_bar = FALSE,
                        center = TRUE, scale = FALSE,
                        variance_explained = 95, min_explained = 5) {
 
-  #Check data
-  if (!inherits(spat_variables, "SpatRaster")) {
-    stop(paste0("Argument spat_variables must be a SpatRaster, not ",
-                class(spat_variables)))
+  #Check datas
+  if (!inherits(raster_variables, "SpatRaster")) {
+    stop(paste0("Argument raster_variables must be a SpatRaster, not ",
+                class(raster_variables)))
   }
   if (!is.null(exclude_from_pca) & !inherits(exclude_from_pca, "character")) {
     stop(paste0("Argument exclude_from_pca must be NULL or a character, not ",
@@ -176,22 +176,23 @@ perform_pca <- function(spat_variables, exclude_from_pca = NULL,
 
   #Check if variables are present in projection data
   if(project){
-  var_out <- setdiff(names(spat_variables), pr$variables)
+  var_out <- setdiff(names(raster_variables), pr$variables)
   if(length(var_out) > 0){
-    stop("One or more variables from spat_variables are missing in projection_data.
-Ensure that all variables specified in spat_variables are available in projection_data when project = TRUE")
+    stop("One or more variables from raster_variables are missing in projection_data.
+Ensure that all variables specified in raster_variables are available in projection_data when project = TRUE")
   }
   }
 
   #End of check data
 
   if (!is.null(exclude_from_pca)) {
-    var_to_pca <-  setdiff(names(spat_variables), exclude_from_pca)
+    var_to_pca <-  setdiff(names(raster_variables), exclude_from_pca)
   } else {
-    var_to_pca <- names(spat_variables)
+    var_to_pca <- names(raster_variables)
   }
 
-  pca <- terra::prcomp(spat_variables[[var_to_pca]], center = center, scale = scale)
+  pca <- terra::prcomp(raster_variables[[var_to_pca]], center = center,
+                       scale = scale)
   pca$x <- NULL
   pca$vars_in <- var_to_pca
   pca$vars_out <- exclude_from_pca
@@ -201,10 +202,10 @@ Ensure that all variables specified in spat_variables are available in projectio
 
   ind_exp <- if (max(d_exp) > variance_explained) min(which(d_exp >= variance_explained)) else length(d_exp)
 
-  env <- terra::predict(spat_variables[[var_to_pca]], pca, index = 1:ind_exp)
+  env <- terra::predict(raster_variables[[var_to_pca]], pca, index = 1:ind_exp)
 
   if (!is.null(exclude_from_pca)) {
-    env <- c(env, spat_variables[[exclude_from_pca]])
+    env <- c(env, raster_variables[[exclude_from_pca]])
   }
   names(d_exp) <- paste0("PC", 1:ind_exp)
 

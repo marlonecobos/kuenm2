@@ -77,10 +77,10 @@
 #'
 #' #Example with GLMNET
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_glmnet", package = "kuenm2")
+#' data("fitted_model_maxnet", package = "kuenm2")
 #'
 #' # Prepare projections using fitted models to check variables
-#' pr <- prepare_proj(models = fitted_model_glmnet,
+#' pr <- prepare_proj(models = fitted_model_maxnet,
 #'                    present_dir = out_dir_current,
 #'                    past_dir = NULL,
 #'                    past_period = NULL,
@@ -98,7 +98,7 @@
 #' dir.create(out_dir, recursive = TRUE)
 #'
 #' # Project selected models for multiple scenarios
-#' p <- project_selected(models = fitted_model_glmnet,
+#' p <- project_selected(models = fitted_model_maxnet,
 #'                       projection_data = pr,
 #'                       out_dir = out_dir,
 #'                       consensus_per_model = TRUE,

@@ -7,7 +7,7 @@
 #' @param reference_id (numeric) the reference ID for the projections corresponding to the current time in `model_projections`. Default is 1. See the details section for further information.
 #' @param consensus (character) the consensus measure to use for calculating changes. Available options are 'mean', 'median', 'range', and 'stdev' (standard deviation). Default is 'median'.
 #' @param include_id (numeric) a vector containing the reference IDs to include when computing changes. Default is `NULL`, meaning all projections will be included. See the details section for further information.
-#' @param user_thr (numeric) an optional threshold for binarizing the predictions. Default is `NULL`, meaning the function will apply the thresholds stored in model_projections, which were calculated earlier using the omission rate from `calibration_glmnetmx()`.
+#' @param user_thr (numeric) an optional threshold for binarizing the predictions. Default is `NULL`, meaning the function will apply the thresholds stored in model_projections, which were calculated earlier using the omission rate from `calibration()`.
 #' @param by_gcm (logical) whether to compute changes across GCMs. Default is TRUE.
 #' @param by_change (logical) whether to compute results separately for each change, identifying areas of gain, loss, and stability for each GCM. Default is TRUE.
 #' @param general_summary (logical) whether to generate a general summary, mapping how many GCMs project gain, loss, and stability for each scenario. Default is TRUE.
@@ -67,10 +67,10 @@
 #'
 #' #Example with GLMNET
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_glmnet", package = "kuenm2")
+#' data("fitted_model_maxnet", package = "kuenm2")
 #'
 #' # Prepare projections using fitted models to check variables
-#' pr <- prepare_proj(models = fitted_model_glmnet,
+#' pr <- prepare_proj(models = fitted_model_maxnet,
 #'                    present_dir = output_dir_current,
 #'                    past_dir = NULL,
 #'                    past_period = NULL,
@@ -88,7 +88,7 @@
 #' dir.create(output_dir, recursive = TRUE)
 #'
 #' # Project selected models for multiple scenarios
-#' p <- project_selected(models = fitted_model_glmnet,
+#' p <- project_selected(models = fitted_model_maxnet,
 #'                       projection_data = pr,
 #'                       output_dir = output_dir,
 #'                       consensus_per_model = TRUE,
