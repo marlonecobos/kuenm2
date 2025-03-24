@@ -13,7 +13,7 @@ prepare_proj(models = NULL, variable_names = NULL, present_dir = NULL,
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{\link{fit_selected_glmnetmx}}() function. Default is NULL.}
+\code{\link{fit_selected}}() function. Default is NULL.}
 
 \item{variable_names}{(character) names of the variables used to fit the model or do the PCA in the \code{\link{prepare_data}}() function. Only applicable if \code{models} argument is not provided. Default is NULL.}
 
@@ -53,7 +53,7 @@ This function prepared data for model projections to multiple scenarios, storing
 }
 \examples{
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_glmnet", package = "kuenm2")
+data("fitted_model_maxnet", package = "kuenm2")
 
 # Organize and structure future climate variables from WorldClim
 # Import the current variables used to fit the model.
@@ -80,7 +80,7 @@ organize_future_worldclim(input_dir = in_dir,
                           fixed_variables = var$SoilType, mask = NULL,
                           overwrite = TRUE)
 # Prepare projections using fitted models to check variables
-pr <- prepare_proj(models = fitted_model_glmnet,
+pr <- prepare_proj(models = fitted_model_maxnet,
                    present_dir = out_dir_current,
                    past_dir = NULL,
                    past_period = NULL,

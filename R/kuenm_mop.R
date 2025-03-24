@@ -136,7 +136,7 @@
 #' sp_swd
 #' #Example with GLMNET
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_glmnet", package = "kuenm2")
+#' data("fitted_model_maxnet", package = "kuenm2")
 #'
 #' # Organize and structure future climate variables from WorldClim
 #' # Import the current variables used to fit the model.
@@ -163,7 +163,7 @@
 #'                           fixed_variables = var$SoilType, mask = NULL,
 #'                           overwrite = TRUE)
 #' # Prepare projections
-#' pr <- prepare_proj(models = fitted_model_glmnet,
+#' pr <- prepare_proj(models = fitted_model_maxnet,
 #'                    present_dir = out_dir_current,
 #'                    past_dir = NULL,
 #'                    past_period = NULL,
@@ -184,7 +184,7 @@
 #' kmop <- kuenm_mop(data = sp_swd,
 #'                   subset_variables = TRUE,
 #'                   mask = NULL,
-#'                   fitted_models = fitted_model_glmnet,
+#'                   fitted_models = fitted_model_maxnet,
 #'                   projection_data = pr,
 #'                   out_dir = out_dir,
 #'                   type = "detailed", calculate_distance = FALSE,

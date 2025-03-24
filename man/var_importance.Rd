@@ -40,10 +40,10 @@ Variable importance
 \examples{
 ##Example with maxnet
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_glmnet", package = "kuenm2")
+data("fitted_model_maxnet", package = "kuenm2")
 
 # Variable importance
-imp_maxnet <- var_importance(models = fitted_model_glmnet)
+imp_maxnet <- var_importance(models = fitted_model_maxnet)
 # Plot using enmpa package
 enmpa::plot_importance(imp_maxnet)
 
