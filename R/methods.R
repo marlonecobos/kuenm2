@@ -143,8 +143,8 @@ print.prepared_data <- function(x, ...) {
 
   if (!is.null(x$pca)) {
     cat("PCA Information:\n")
-    cat("  - Variables included:", paste(x$pca$pca$vars_in, collapse = ", "), "\n")
-    cat("  - Number of PCA components:", length(x$pca$deviance_explained_cumsum), "\n")
+    cat("  - Variables included:", paste(x$pca$vars_in, collapse = ", "), "\n")
+    cat("  - Number of PCA components:", length(x$pca$sdev), "\n")
   } else {
     cat("PCA Information: PCA not performed\n")
   }
