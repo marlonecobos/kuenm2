@@ -4,16 +4,16 @@
 \alias{fit_selected}
 \title{Fit selected models}
 \usage{
-fit_selected(calibration_results, n_replicates = 5, rep_type = "kfold",
-                    train_portion = 0.7, write_models = FALSE, file_name = NULL,
-                    parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
-                    progress_bar = TRUE, verbose = TRUE, seed = 42)
+fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
+             train_portion = 0.7, write_models = FALSE, file_name = NULL,
+             parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
+             progress_bar = TRUE, verbose = TRUE, seed = 42)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
 by the \code{\link{calibration}}() function.}
 
-\item{n_replicates}{(numeric) the number of model replicates. Default is 5.}
+\item{n_replicates}{(numeric) the number of model replicates. Default is 1.}
 
 \item{rep_type}{(character) the replicate type. It can be: "kfold", "bootstrap",
 or "subsample". Default is "kfold".}

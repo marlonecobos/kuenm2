@@ -746,7 +746,8 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 }
 
 
-fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, algorithm) {
+fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
+                           rep_data = NULL, algorithm = "maxnet") {
 
   # Arguments:
   # x: index of the grid
@@ -757,6 +758,19 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, algorithm
   # algorithm: Type of model, either "maxnet" or "glm"
 
   # Check arguments
+  if (missing(x)) {
+    stop("Argumen 'x' must be defined")
+  }
+  if (missing(dfgrid)) {
+    stop("Argumen 'dfgrid' must be defined")
+  }
+  if (missing(cal_res)) {
+    stop("Argumen 'cal_res' must be defined")
+  }
+
+  if(is.integer(x)){
+    stop("Argument 'x' must be an integer number > 0")
+  }
   if(!inherits(dfgrid, "data.frame")){
     stop("Argument dfgrid must be a data.frame, not ", class(dfgrid))
   }
@@ -768,9 +782,10 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates, rep_data, algorithm
   if(!inherits(n_replicates, "numeric")){
     stop("Argument n_replicates must be numeric, not ", class(n_replicates))
   }
-
-  if(!inherits(rep_data, "list")){
-    stop("Argument rep_data must be a list, not ", class(rep_data))
+  if (n_replicates > 1) {
+    if(!inherits(rep_data, "list")){
+      stop("Argument rep_data must be a list, not ", class(rep_data))
+    }
   }
 
   if(!inherits(algorithm, "character")){

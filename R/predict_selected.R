@@ -199,10 +199,12 @@ predict_selected <- function(models,
 
   if(!is.null(models$pca)){
     if(!("vars_out" %in% names(models$pca))) {
-      raster_variables <- terra::predict(raster_variables[[models$pca$vars_in]], models$pca)
+      raster_variables <- terra::predict(raster_variables[[models$pca$vars_in]],
+                                         models$pca)
     } else {
-      raster_variables <- c(terra::predict(raster_variables[[models$pca$vars_in]], models$pca),
-                    raster_variables[[models$pca$vars_out]])
+      raster_variables <- c(terra::predict(raster_variables[[models$pca$vars_in]],
+                                           models$pca),
+                            raster_variables[[models$pca$vars_out]])
     }
   }
 

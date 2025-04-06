@@ -7,9 +7,15 @@
 #'  \code{\link{calibration}}().The function supports parallelization for faster
 #'  model fitting.
 #'
+#' @usage
+#' fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
+#'              train_portion = 0.7, write_models = FALSE, file_name = NULL,
+#'              parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
+#'              progress_bar = TRUE, verbose = TRUE, seed = 42)
+#'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the \code{\link{calibration}}() function.
-#' @param n_replicates (numeric) the number of model replicates. Default is 5.
+#' @param n_replicates (numeric) the number of model replicates. Default is 1.
 #' @param rep_type (character) the replicate type. It can be: "kfold", "bootstrap",
 #' or "subsample". Default is "kfold".
 #' @param train_portion (numeric) the proportion of occurrence records used to
@@ -64,11 +70,6 @@
 #' @importFrom glmnet glmnet.control glmnet
 #' @importFrom enmpa predict_glm
 #'
-#' @usage fit_selected(calibration_results, n_replicates = 5, rep_type = "kfold",
-#'                     train_portion = 0.7, write_models = FALSE, file_name = NULL,
-#'                     parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
-#'                     progress_bar = TRUE, verbose = TRUE, seed = 42)
-#'
 #' @examples
 #' # Import example of calibration results (output of calibration function)
 #' ## maxnet
@@ -111,7 +112,7 @@
 #' # Output the fitted models
 #' print(fm_glm)
 
-fit_selected <- function(calibration_results, n_replicates = 5,
+fit_selected <- function(calibration_results, n_replicates = 1,
                          rep_type = "kfold", train_portion = 0.7,
                          write_models = FALSE, file_name = NULL,
                          parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
@@ -122,7 +123,7 @@ fit_selected <- function(calibration_results, n_replicates = 5,
   algorithm <- calibration_results$algorithm
 
   # Fitting models over multiple replicates_____________________________________
-  if(n_replicates > 1){
+  if(n_replicates > 1) {
     if(verbose){
       message("Fitting replicates...")
     }
