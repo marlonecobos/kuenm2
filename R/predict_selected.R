@@ -212,6 +212,7 @@ predict_selected <- function(models,
   categorical_layers <- models[["categorical_variables"]]
   models <- models[["Models"]]
   nm <- names(models)
+  nrep <- length(models$Model_5)
 
   # Get names of the models (Replicates or full model)
   names_models <- unlist(unique(sapply(nm, function(i) {
@@ -319,37 +320,46 @@ predict_selected <- function(models,
   if (inherits(raster_variables, "SpatRaster")) {
     rep <- unlist(p_models)
 
-    if (consensus_per_model) {
-      if ("median" %in% consensus) {
-        res$Consensus_per_model$median <- terra::rast(lapply(p_models, terra::median))
-      }
-      if ("mean" %in% consensus) {
-        res$Consensus_per_model$mean <- terra::rast(lapply(p_models, terra::mean))
-      }
-      if ("stdev" %in% consensus) {
-        res$Consensus_per_model$stdev <- terra::rast(lapply(p_models, terra::stdev))
-      }
-      if ("range" %in% consensus) {
-        res$Consensus_per_model$range <- terra::rast(lapply(p_models, function(r) {
-          terra::diff(range(r))
-        }))
+    if (nrep == 1) {
+      res$Consensus_per_model$Full_model <- lapply(p_models, function(x) {x})
+    } else {
+      if (consensus_per_model) {
+        if ("median" %in% consensus) {
+          res$Consensus_per_model$median <- terra::rast(lapply(p_models, terra::median))
+        }
+        if ("mean" %in% consensus) {
+          res$Consensus_per_model$mean <- terra::rast(lapply(p_models, terra::mean))
+        }
+        if ("stdev" %in% consensus) {
+          res$Consensus_per_model$stdev <- terra::rast(lapply(p_models, terra::stdev))
+        }
+        if ("range" %in% consensus) {
+          res$Consensus_per_model$range <- terra::rast(lapply(p_models, function(r) {
+            terra::diff(range(r))
+          }))
+        }
       }
     }
 
     gen_res <- list()
     if (consensus_general && length(p_models) == 1 && consensus_per_model) {
-      if ("median" %in% consensus) {
-        gen_res$median <- res$Consensus_per_model$median
+      if (nrep == 1) {
+        gen_res$Full_model <- res$Consensus_per_model$Full_model
+      } else {
+        if ("median" %in% consensus) {
+          gen_res$median <- res$Consensus_per_model$median
+        }
+        if ("mean" %in% consensus) {
+          gen_res$mean <- res$Consensus_per_model$mean
+        }
+        if ("stdev" %in% consensus) {
+          gen_res$stdev <- res$Consensus_per_model$stdev
+        }
+        if ("range" %in% consensus) {
+          gen_res$range <- res$Consensus_per_model$range
+        }
       }
-      if ("mean" %in% consensus) {
-        gen_res$mean <- res$Consensus_per_model$mean
-      }
-      if ("stdev" %in% consensus) {
-        gen_res$stdev <- res$Consensus_per_model$stdev
-      }
-      if ("range" %in% consensus) {
-        gen_res$range <- res$Consensus_per_model$range
-      }
+
     } else if (consensus_general && length(p_models) > 1) {
       all_rep <- terra::rast(p_models)
 
@@ -368,12 +378,21 @@ predict_selected <- function(models,
     }
 
     res <- lapply(1:length(nm), function(x) {
-      mcs <- lapply(consensus, function(y) {
-        res$Consensus_per_model[[y]][[x]]
-      })
-      mcs <- terra::rast(mcs)
-      names(mcs) <- consensus
-      list(Replicates = rep[[x]], Model_consensus = mcs)
+      if (nrep == 1) {
+        mcs <- lapply("Full_model", function(y) {
+          res$Consensus_per_model[[y]][[x]]
+        })
+        mcs <- terra::rast(mcs)
+        names(mcs) <- "Full_model"
+        list(Model_consensus = mcs)
+      } else {
+        mcs <- lapply(consensus, function(y) {
+          res$Consensus_per_model[[y]][[x]]
+        })
+        mcs <- terra::rast(mcs)
+        names(mcs) <- consensus
+        list(Replicates = rep[[x]], Model_consensus = mcs)
+      }
     })
 
     names(res) <- nm
@@ -387,7 +406,7 @@ predict_selected <- function(models,
     }
 
     sapply(nm, function(i) {
-      if (write_replicates) {
+      if (write_replicates & nrep > 1) {
         terra::writeRaster(res[[i]]$Replicates,
                            file.path(out_dir, paste0(i, "_replicates.tiff")),
                            overwrite = overwrite)

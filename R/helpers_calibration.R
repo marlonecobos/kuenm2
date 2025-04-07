@@ -768,9 +768,6 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
     stop("Argumen 'cal_res' must be defined")
   }
 
-  if(is.integer(x)){
-    stop("Argument 'x' must be an integer number > 0")
-  }
   if(!inherits(dfgrid, "data.frame")){
     stop("Argument dfgrid must be a data.frame, not ", class(dfgrid))
   }
