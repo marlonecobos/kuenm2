@@ -626,38 +626,41 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
       if (algorithm == "maxnet") {
         # Run maxnet model
-        mod_i <- glmnet_mx(p = data_i$pr_bg, data = data_i,
+        mod_i <- try(glmnet_mx(p = data_i$pr_bg, data = data_i,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
-                           weights = weights_i, calculate_AIC = FALSE)
+                           weights = weights_i, calculate_AIC = FALSE))
       } else {
         # Run glm model
-        mod_i <- glm_mx(formula = formula_x,
+        mod_i <- try(glm_mx(formula = formula_x,
                         family = binomial(link = "cloglog"),
-                        data = data_i, weights = weights_i)
+                        data = data_i, weights = weights_i))
       }
 
       # Predict model
-      pred_i <- if (algorithm == "maxnet") {
+      pred_i <- if (algorithm == "maxnet" & inherits(mod_i, "glmnet_mx")) {
         as.numeric(predict.glmnet_mx(object = mod_i,
-                                     newdata = data$calibration_data,
-                                     clamp = FALSE, type = "cloglog"))
+                                     newdata = data$calibration_data, clamp = FALSE,
+                                     type = "cloglog"))
       } else if (algorithm == "glm") {
-        enmpa::predict_glm(model = mod_i,
-                           newdata = data$calibration_data,
+        enmpa::predict_glm(model = mod_i, newdata = data$calibration_data,
                            type = "response")
+      } else if (inherits(mod_i, "try-error")){
+        rep(NA, nrow(data$calibration_data))
       }
 
-      # Extract suitability in train and test points
-      suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
-      suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
-
-      # Calculate omission rate and pROC
-      om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
-                       pred_test = suit_val_eval)
+      # Calculate metrics (omission rate, pROC)
+      if(inherits(mod_i, "try-error")){
+        om_rate <- rep(NA, length(omission_rate))
+        names(om_rate) <- paste0("Omission_rate_at_", omission_rate)
+      } else {
+        suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
+        suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
+        om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
+                         pred_test = suit_val_eval)}
 
       #Calculate PROC? ...
-      if(proc_for_all){
+      if(proc_for_all & !inherits(mod_i, "try-error")){
         proc_i <- lapply(omission_rate, function(omr){
           proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                       prediction = pred_i,
