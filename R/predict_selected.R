@@ -212,7 +212,7 @@ predict_selected <- function(models,
   categorical_layers <- models[["categorical_variables"]]
   models <- models[["Models"]]
   nm <- names(models)
-  nrep <- length(models$Model_5)
+  nrep <- length(models[[1]])
 
   # Get names of the models (Replicates or full model)
   names_models <- unlist(unique(sapply(nm, function(i) {
