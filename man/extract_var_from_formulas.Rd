@@ -2,7 +2,7 @@
 % Please edit documentation in R/extract_var_from_formulas.R
 \name{extract_var_from_formulas}
 \alias{extract_var_from_formulas}
-\title{Extract Predictor Names from Formulas}
+\title{Extract predictor names from formulas}
 \usage{
 extract_var_from_formulas(formulas, ...)
 }
@@ -12,16 +12,16 @@ extract_var_from_formulas(formulas, ...)
 \item{...}{Arguments to pass to \code{\link[=all.vars]{all.vars()}}}
 }
 \value{
-A character vector or a list of the same length as the formulas,
-containing the variable names.
+A character vector or a list of the same length as \code{formulas},
+containing the names of the predictors each formula.
 }
 \description{
-Extract Predictor Names from Formulas
+Extract predictor names from formulas
 }
 \examples{
-# Extract variables from the formula grid
-# Import an example of calibration results (output from the calibration function)
-data("calib_results_glmnet", package = "kuenm2")
-extract_var_from_formulas(formulas = calib_results_glmnet$formula_grid$Formulas)
+# Import an example of calibration results
+data(calib_results_maxnet, package = "kuenm2")
 
+# Extract predictor names
+vars <- extract_var_from_formulas(calib_results_maxnet$formula_grid$Formulas)
 }
