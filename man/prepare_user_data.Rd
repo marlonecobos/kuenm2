@@ -10,29 +10,32 @@ prepare_user_data(algorithm, user_data, pr_bg, species = NULL,
                   variance_explained = 95, min_explained = 5, center = TRUE,
                   scale = FALSE, write_pca = FALSE, pca_directory = NULL,
                   kfolds = 4, weights = NULL, min_number = 2,
-                  min_continuous = NULL,
-                  features = c("q", "lq", "lp", "qp", "lqp"),
+                  min_continuous = NULL, features = c("lq", "lqp"),
                   reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
                   write_file = FALSE, file_name = NULL, seed = 1)
 }
 \arguments{
-\item{algorithm}{(character) type algorithm, either "glm" or "maxnet".}
+\item{algorithm}{(character) modeling algorithm, either "glm" or "maxnet".}
 
-\item{user_data}{(data frame) A data.frame with columns indicating presence (1)
-and background (0) data, as well as the corresponding predictor values. For
-an example, see \code{data("user_data", package = "kuenm2")}.}
+\item{user_data}{(data frame) A data.frame with a column with presence (1)
+and background (0) records, together with variable values (one variable per
+column). See an example with \code{data("user_data", package = "kuenm2")}.}
 
-\item{pr_bg}{(character) a string specifying the name of the column in
-user_data that contains the presence/background.}
+\item{pr_bg}{(character) the name of the column in \code{user_data} that contains
+the presence/background records.}
 
 \item{species}{(character) string specifying the species name (optional).
 Default is NULL.}
 
 \item{x}{(character) a string specifying the name of the column in \code{user_data}
-that contains the longitude values.}
+that contains the longitude values. Default is NULL. Must be defined if
+present in \code{user_data} otherwise it will be considered as another predictor
+variable.}
 
 \item{y}{(character) a string specifying the name of the column in \code{user_data}
-that contains the latitude values.}
+that contains the latitude values. Default is NULL. Must be defined if
+present in \code{user_data} otherwise it will be considered as another predictor
+variable.}
 
 \item{categorical_variables}{(character) names of the variables that are
 categorical. Default is NULL.}
@@ -111,8 +114,9 @@ multiplier values, various feature classes, and different sets of
 environmental variables.
 }
 \examples{
-# Import user-prepared calibration data
+# Import user-prepared data
 data("user_data", package = "kuenm2")
+
 # Prepare data for maxnet model
 maxnet_swd_user <- prepare_user_data(algorithm = "maxnet",
                                      user_data = user_data, pr_bg = "pr_bg",
@@ -120,14 +124,13 @@ maxnet_swd_user <- prepare_user_data(algorithm = "maxnet",
                                      categorical_variables = "SoilType",
                                      features = c("l", "q", "p", "lq", "lqp"),
                                      reg_mult = c(0.1, 1, 2, 3, 5))
-print(maxnet_swd_user)
+maxnet_swd_user
 
 # Prepare data for glm model
-glm_swd_user <- prepare_user_data(algorithm = "glm", user_data = user_data,
-                                  pr_bg = "pr_bg",
+glm_swd_user <- prepare_user_data(algorithm = "glm",
+                                  user_data = user_data, pr_bg = "pr_bg",
                                   species = "Myrcia hatschbachii",
                                   categorical_variables = "SoilType",
-                                  features = c("l", "q", "p", "lq", "lqp"),
-                                  reg_mult = c(0.1, 1, 2, 3, 5))
-print(glm_swd_user)
+                                  features = c("l", "q", "p", "lq", "lqp"))
+glm_swd_user
 }

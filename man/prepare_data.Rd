@@ -4,26 +4,22 @@
 \alias{prepare_data}
 \title{Prepare data for model calibration}
 \usage{
-prepare_data(algorithm, occ, species = NULL, x, y,
-             raster_variables, mask = NULL, categorical_variables = NULL,
-             do_pca = FALSE, exclude_from_pca = NULL, variance_explained = 95,
-             min_explained = 5, center = TRUE, scale = FALSE,
-             write_pca = FALSE, pca_directory = NULL,
-             n_background = 10000, bias_file = NULL, bias_effect = "direct",
-             kfolds = 4, weights = NULL,
+prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
+             mask = NULL, categorical_variables = NULL, do_pca = FALSE,
+             variance_explained = 95, min_explained = 5, center = TRUE,
+             scale = TRUE, write_pca = FALSE, pca_directory = NULL,
+             exclude_from_pca = NULL, n_background = 1000, bias_file = NULL,
+             bias_effect = "direct", kfolds = 4, weights = NULL,
              min_number = 2, min_continuous = NULL,
-             features = c("q", "lq", "lp", "qp", "lqp"),
-             reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
-             write_file = FALSE, file_name = NULL, seed = 1)
+             features = c("lq", "lqp"), reg_mult = c(0.1, 0.5, 1, 2, 3),
+             include_xy = TRUE, write_file = FALSE,
+             file_name = NULL, seed = 1)
 }
 \arguments{
-\item{algorithm}{(character) type algorithm, either "glm" or "maxnet".}
+\item{algorithm}{(character) modeling algorithm, either "glm" or "maxnet".}
 
 \item{occ}{(data frame) a data.frame containing the coordinates (longitude
 and latitude) of the occurrence records.}
-
-\item{species}{(character) string specifying the species name (optional).
-Default is NULL.}
 
 \item{x}{(character) a string specifying the name of the column in \code{occ} that
 contains the longitude values.}
@@ -34,9 +30,12 @@ contains the latitude values.}
 \item{raster_variables}{(SpatRaster) predictor variables used to calibrate the
 models.}
 
-\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
-mask the variables to the area where the model will be calibrated.
+\item{species}{(character) string specifying the species name (optional).
 Default is NULL.}
+
+\item{mask}{spatial object used to mask the variables to the area where the
+model will be calibrated. Mask must be of one of the following classes:
+\code{SpatRaster}, \code{SpatVector}, or \code{SpatExtent}. Default is NULL.}
 
 \item{categorical_variables}{(character) names of the variables that are
 categorical. Default is NULL.}
@@ -71,7 +70,7 @@ without being modified. The default is NULL, meaning all variables
 will be used unless specified otherwise.}
 
 \item{n_background}{(numeric) number of points to represent the background
-for the model. Default is 10000.}
+for the model. Default is 1000.}
 
 \item{bias_file}{(SpatRaster) a raster containing bias values (probability
 weights) that influence the selection of background points. It must have the
@@ -102,7 +101,8 @@ required in a combination. Default is NULL.}
 Default is c(0.1, 1, 2, 3, 5).}
 
 \item{include_xy}{(logical) whether to include the coordinates (longitude and
-latitude) in the results from preparing data. Default is TRUE.}
+latitude) in the results from preparing data. Columns containing coordinates
+will be renamed as "x" and "y". Default is TRUE.}
 
 \item{write_file}{(logical) whether to write the resulting prepared_data list
 in a local directory. Default is FALSE.}
@@ -123,16 +123,16 @@ results from PCA, and modeling algorithm.
 \description{
 This function prepares data for model calibration, including optional PCA,
 background point generation, k-fold partitioning, and the creation of a grid
-parameter combinations, including distinct regularization multiplier values,
-various feature classes, and different sets of environmental variables.
+of parameter combinations, including regularization multiplier values,
+feature classes, and sets of environmental variables.
 }
 \examples{
+# Import occurrences
+data(occ_data, package = "kuenm2")
+
 # Import raster layers
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
-
-# Import occurrences
-data(occ_data, package = "kuenm2")
 
 # Import a bias file
 bias <- terra::rast(system.file("extdata", "bias_file.tif",
@@ -140,8 +140,9 @@ bias <- terra::rast(system.file("extdata", "bias_file.tif",
 
 # Prepare data for maxnet model
 sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
-                       species = occ_data[1, 1], x = "x", y = "y",
+                       x = "x", y = "y",
                        raster_variables = var,
+                       species = occ_data[1, 1],
                        categorical_variables = "SoilType",
                        n_background = 500, bias_file = bias,
                        features = c("l", "q", "p", "lq", "lqp"),
@@ -150,8 +151,9 @@ print(sp_swd)
 
 # Prepare data for glm model
 sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
-                           species = occ_data[1, 1], x = "x", y = "y",
+                           x = "x", y = "y",
                            raster_variables = var,
+                           species = occ_data[1, 1],
                            categorical_variables = "SoilType",
                            n_background = 500, bias_file = bias,
                            features = c("l", "q", "p", "lq", "lqp"))

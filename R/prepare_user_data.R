@@ -14,23 +14,26 @@
 #'                   variance_explained = 95, min_explained = 5, center = TRUE,
 #'                   scale = FALSE, write_pca = FALSE, pca_directory = NULL,
 #'                   kfolds = 4, weights = NULL, min_number = 2,
-#'                   min_continuous = NULL,
-#'                   features = c("q", "lq", "lp", "qp", "lqp"),
+#'                   min_continuous = NULL, features = c("lq", "lqp"),
 #'                   reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
 #'                   write_file = FALSE, file_name = NULL, seed = 1)
 #'
-#' @param algorithm (character) type algorithm, either "glm" or "maxnet".
-#' @param user_data (data frame) A data.frame with columns indicating presence (1)
-#' and background (0) data, as well as the corresponding predictor values. For
-#' an example, see \code{data("user_data", package = "kuenm2")}.
-#' @param pr_bg (character) a string specifying the name of the column in
-#' user_data that contains the presence/background.
+#' @param algorithm (character) modeling algorithm, either "glm" or "maxnet".
+#' @param user_data (data frame) A data.frame with a column with presence (1)
+#' and background (0) records, together with variable values (one variable per
+#' column). See an example with \code{data("user_data", package = "kuenm2")}.
+#' @param pr_bg (character) the name of the column in `user_data` that contains
+#' the presence/background records.
 #' @param species (character) string specifying the species name (optional).
 #' Default is NULL.
 #' @param x (character) a string specifying the name of the column in `user_data`
-#' that contains the longitude values.
+#' that contains the longitude values. Default is NULL. Must be defined if
+#' present in `user_data` otherwise it will be considered as another predictor
+#' variable.
 #' @param y (character) a string specifying the name of the column in `user_data`
-#' that contains the latitude values.
+#' that contains the latitude values. Default is NULL. Must be defined if
+#' present in `user_data` otherwise it will be considered as another predictor
+#' variable.
 #' @param categorical_variables (character) names of the variables that are
 #' categorical. Default is NULL.
 #' @param do_pca (logical) whether to perform a principal component analysis
@@ -91,8 +94,9 @@
 #' @export
 #'
 #' @examples
-#' # Import user-prepared calibration data
+#' # Import user-prepared data
 #' data("user_data", package = "kuenm2")
+#'
 #' # Prepare data for maxnet model
 #' maxnet_swd_user <- prepare_user_data(algorithm = "maxnet",
 #'                                      user_data = user_data, pr_bg = "pr_bg",
@@ -100,18 +104,15 @@
 #'                                      categorical_variables = "SoilType",
 #'                                      features = c("l", "q", "p", "lq", "lqp"),
 #'                                      reg_mult = c(0.1, 1, 2, 3, 5))
-#' print(maxnet_swd_user)
+#' maxnet_swd_user
 #'
 #' # Prepare data for glm model
-#' glm_swd_user <- prepare_user_data(algorithm = "glm", user_data = user_data,
-#'                                   pr_bg = "pr_bg",
+#' glm_swd_user <- prepare_user_data(algorithm = "glm",
+#'                                   user_data = user_data, pr_bg = "pr_bg",
 #'                                   species = "Myrcia hatschbachii",
 #'                                   categorical_variables = "SoilType",
-#'                                   features = c("l", "q", "p", "lq", "lqp"),
-#'                                   reg_mult = c(0.1, 1, 2, 3, 5))
-#' print(glm_swd_user)
-
-
+#'                                   features = c("l", "q", "p", "lq", "lqp"))
+#' glm_swd_user
 
 prepare_user_data <- function(algorithm,
                               user_data,
@@ -132,74 +133,84 @@ prepare_user_data <- function(algorithm,
                               weights = NULL,
                               min_number = 2,
                               min_continuous = NULL,
-                              features = c("q", "lq", "lp", "qp", "lqp"),
+                              features = c("lq", "lqp"),
                               reg_mult = c(0.1, 0.5, 1, 2, 3),
                               include_xy = TRUE,
                               write_file = FALSE,
                               file_name = NULL,
                               seed = 1) {
   #Check data
-  if(length(algorithm) != 1) {
-    stop("'algorithm' must be a single value: either 'glm' or 'maxnet'")
+  if (missing(algorithm)) {
+    stop("Argument 'algorithm' must be defined.")
+  }
+  if (missing(user_data)) {
+    stop("Argument 'user_data' must be defined.")
+  }
+  if (missing(pr_bg)) {
+    stop("Argument 'pr_bg' must be defined.")
+  }
+
+  if (length(algorithm) != 1) {
+    stop("'algorithm' must be a single value: either 'glm' or 'maxnet'.")
   } else {
     if (!algorithm %in% c("glm", "maxnet")) {
-      stop("'algorithm' must be 'glm' or 'maxnet'")
+      stop("'algorithm' must be 'glm' or 'maxnet'.")
     }
   }
 
   if (!inherits(user_data, "data.frame")) {
-    stop("Argument 'user_data' must be a 'data.frame'")
+    stop("Argument 'user_data' must be a 'data.frame'.")
   }
 
   if (!is.null(species) & !inherits(species, "character")) {
-    stop("Argument 'species' must be a character")
+    stop("Argument 'species' must be a character.")
   }
 
-  if(!is.null(x) | !is.null(y)){
+  if (!is.null(x) | !is.null(y)) {
     if (!inherits(x, "character") | !inherits(y, "character")) {
-      stop("Arguments 'x' and 'y' must be of class character")
+      stop("Arguments 'x' and 'y' must be of class character.")
 
-    if(!x %in% colnames(occ) | !y %in% colnames(occ)) {
-        stop("'x' and/or 'y' are not column names in 'occ'")
+    if (!x %in% colnames(user_data) | !y %in% colnames(user_data)) {
+        stop("'x' and/or 'y' are not columns in 'user_data'.")
       }
   }}
 
 
   if (!is.null(categorical_variables) &
       !inherits(categorical_variables, "character")) {
-    stop("Argument 'categorical_variables' must be a 'character' vector")
+    stop("Argument 'categorical_variables' must be a 'character' vector.")
   }
 
   if (!is.null(exclude_from_pca) & !inherits(exclude_from_pca, "character")) {
-    stop("Argument 'exclude_from_pca' must be a 'character'")
+    stop("Argument 'exclude_from_pca' must be a 'character'.")
   }
 
   if (write_pca & is.null(pca_directory)) {
-    stop("If 'write_pca' = TRUE, 'pca_directory' must be specified")
+    stop("If 'write_pca' = TRUE, 'pca_directory' must be specified.")
   }
 
   if (write_pca & !inherits(pca_directory, "character")) {
-    stop("Argument 'pca_directory' must be a 'character'")
+    stop("Argument 'pca_directory' must be a 'character'.")
   }
 
-  if (!is.null(weights) && nrow(occ) != length(weights)) {
-    stop("Length of 'weights' must match the number of occurrences in 'occ'")
+  if (!is.null(weights) && nrow(user_data) != length(weights)) {
+    stop("Length of 'weights' must match the number of occurrences in 'user_data'.")
   }
 
   check_features <- unique(unlist(strsplit(features, "")))
   check_features <- setdiff(check_features, c("l", "q", "p", "h", "t"))
 
-  if(length(check_features) > 0){
-    stop(paste(check_features, collapse = ", "), " is not a valid feature\n",
-         "Features can be l, q, p, t, h, or combinations of these")
+  if (length(check_features) > 0) {
+    stop("'features' defined are not valid:\n",
+         "'features' can be l, q, p, t, h, or combinations of these.")
   }
 
   if (write_file & is.null(file_name)) {
-    stop("If 'write_file' = TRUE, 'file_name' must be specified")
+    stop("If 'write_file' = TRUE, 'file_name' must be specified.")
   }
 
   if (write_file & !is.character(file_name)) {
-    stop("Argument 'file_name' must be a 'character'")
+    stop("Argument 'file_name' must be a 'character'.")
   }
 
   #Remove NAs
@@ -214,24 +225,24 @@ prepare_user_data <- function(algorithm,
 
   if (!is.null(categorical_variables)) {
     if (any(!categorical_variables %in% vars)) {
-      stop("Defined 'categorical_variables' must be a column in 'user_data'")
+      stop("Defined 'categorical_variables' must be a column in 'user_data'.")
     }
     #Make sure it is a factor
-    user_data[,categorical_variables] <- as.factor(user_data[,categorical_variables])
-    continuous_variable_names <- setdiff(vars,
-                                         categorical_variables)
+    user_data[, categorical_variables] <- as.factor(user_data[, categorical_variables])
+    continuous_variable_names <- setdiff(vars, categorical_variables)
   } else {
     continuous_variable_names <- vars
   }
 
   sp_name <- species
 
-    if (do_pca) {
-    if (!is.null(categorical_variables)){
+  if (do_pca) {
+    if (!is.null(categorical_variables)) {
       exclude_from_pca <- c(categorical_variables, exclude_from_pca)
     } else {
       exclude_from_pca <- exclude_from_pca
     }
+
   #Get vars to do pca
     vars_in <- setdiff(continuous_variable_names, exclude_from_pca)
 
@@ -242,16 +253,20 @@ prepare_user_data <- function(algorithm,
     pca$vars_out <- exclude_from_pca
     d_exp <- cumsum(pca$sdev^2/sum(pca$sdev^2)) * 100
     d_exp <- d_exp[(pca$sdev^2/sum(pca$sdev^2) * 100) > min_explained]
-    ind_exp <- if (max(d_exp) > variance_explained) min(which(d_exp >= variance_explained)) else length(d_exp)
+    ind_exp <- if (max(d_exp) > variance_explained) {
+      min(which(d_exp >= variance_explained))
+    } else {
+      length(d_exp)
+    }
 
-    pca_variables <- stats::predict(pca, user_vars[,vars_in])[,1:ind_exp]
-    if(ind_exp == 1){
+    pca_variables <- stats::predict(pca, user_vars[,vars_in])[, 1:ind_exp]
+    if (ind_exp == 1) {
       pca_variables <- data.frame("PC1" = pca_variables)
     }
 
     pca$projection_directory <- NULL #Remove projection directory
     #Update user data
-    user_data <- cbind(user_data[,c("pr_bg", x, y, exclude_from_pca)],
+    user_data <- cbind(user_data[, c("pr_bg", x, y, exclude_from_pca)],
                        pca_variables)
 
   } else {
@@ -264,16 +279,16 @@ prepare_user_data <- function(algorithm,
 
   #Check min_number and min_continuous
   if (min_number > ncol(user_data) - 1) {
-    stop("'min_number' can't be greater than the number of variables in 'user_data'")
+    stop("'min_number' can't be greater than the number of variables in 'user_data'.")
   }
 
   if (!is.null(min_continuous)) {
     c_var <- setdiff(colnames(user_data), c("pr_bg", categorical_variables))
     if (!is.numeric(min_continuous)) {
-      stop("Argument 'min_continuous' must be 'numeric'")
+      stop("Argument 'min_continuous' must be 'numeric'.")
     } else {
       if (min_continuous > length(c_var)) {
-        stop("'min_continuous' can't be greater than the number of continuous variables in 'user_data'")
+        stop("'min_continuous' can't be greater than the number of continuous variables in 'user_data'.")
       }
     }
   }
@@ -284,7 +299,7 @@ prepare_user_data <- function(algorithm,
                                    features, algorithm, reg_mult)
 
   #Extract xy?
-  if(!is.null(x) & !is.null(y)){
+  if (!is.null(x) & !is.null(y)) {
     data_xy <- data.frame(x = x, t = y)
   } else {
     data_xy <- NULL
