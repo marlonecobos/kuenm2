@@ -2,21 +2,21 @@
 % Please edit documentation in R/partial_roc.R
 \name{partial_roc}
 \alias{partial_roc}
-\title{Partial ROC calculation for candidate models}
+\title{Partial ROC calculation for multiple candidate models}
 \usage{
 partial_roc(formula_grid, data, omission_rate = 10,
-                   addsamplestobackground = TRUE, weights = NULL,
-                   algorithm = maxnet, parallel = FALSE, ncores = 1,
-                   parallel_option = "doSNOW", progress_bar = TRUE)
+            addsamplestobackground = TRUE, weights = NULL,
+            algorithm = "maxnet", parallel = FALSE, ncores = NULL,
+            progress_bar = TRUE)
 }
 \arguments{
-\item{formula_grid}{(data.frame) the formula grid of the candidate models
-to test.}
+\item{formula_grid}{a data.frame with the grid of formulas defining the
+candidate models to test.}
 
 \item{data}{an object of class \code{prepared_data} returned by the
-\code{\link{prepare_data()}} function or an object of class
-calibration_results returned by the \code{\link{calibration()}} function.
-It contains the calibration data and kfolds.}
+\code{\link{prepare_data}}() function or an object of class
+calibration_results returned by the \code{\link{calibration}}() function.
+It contains the calibration data and k-folds.}
 
 \item{omission_rate}{(numeric) values from 0 to 100 representing the
 percentage of potential error due to any source of uncertainty. This value is
@@ -35,10 +35,7 @@ Default is "maxnet".}
 Default is FALSE.}
 
 \item{ncores}{(numeric) number of cores to use for parallel processing.
-Default is 1. This is only applicable if \code{parallel = TRUE}.}
-
-\item{parallel_option}{(character) the package to use for parallel processing:
-"doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
+Default is NULL and uses available cores - 1. This is only applicable if
 \code{parallel = TRUE}.}
 
 \item{progress_bar}{(logical) whether to display a progress bar during
@@ -50,32 +47,18 @@ calculated from the replicates of each candidate model. Specifically, it
 includes the mean and standard deviation of these metrics for each model.
 }
 \description{
-Applies partial ROC tests to model predictions
+Computes partial ROC tests for multiple candidate models.
 }
 \details{
-Partial ROC is calculated following Peterson et al. (2008) doi:10.1016/j.ecolmodel.2007.11.008.
+Partial ROC is calculated following Peterson et al. (2008)
+\url{doi:10.1016/j.ecolmodel.2007.11.008}.
 }
 \examples{
-# Import raster layers
-var <- terra::rast(system.file("extdata", "Current_variables.tif",
-                               package = "kuenm2"))
-
-# Import occurrences
-data(occ_data, package = "kuenm2")
-
-
-# Prepare data for maxnet model
-sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
-                       species = occ_data[1, 1], x = "x", y = "y",
-                       raster_variables = var,
-                       categorical_variables = "SoilType",
-                       n_background = 500,
-                       features = c("l", "q", "p", "lq", "lqp"),
-                       reg_mult = c(0.1, 1, 2, 3, 5))
+# Import prepared data to get model formulas
+data(sp_swd, package = "kuenm2")
 
 # Calculate proc for the first 5 candidate models
-res_proc <- partial_roc(formula_grid = sp_swd$formula_grid[1:5,],
-                        data = sp_swd,
-                        omission_rate = 10)
-
+res_proc <- partial_roc(formula_grid = sp_swd$formula_grid[1:2,],
+                        data = sp_swd, omission_rate = 10,
+                        algorithm = "maxnet")
 }
