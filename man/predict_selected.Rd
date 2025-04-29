@@ -4,21 +4,20 @@
 \alias{predict_selected}
 \title{Predict selected models for a single scenario}
 \usage{
-predict_selected(models, raster_variables, write_files = FALSE,
-                        write_replicates = FALSE, out_dir = NULL,
-                        consensus_per_model = TRUE, consensus_general = TRUE,
-                        consensus = c("median", "range", "mean", "stdev"),
-                        clamping = FALSE, var_to_clamp = NULL,
-                        type = "cloglog", overwrite = FALSE,
-                        progress_bar = TRUE)
+predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
+                 write_replicates = FALSE, out_dir = NULL,
+                 consensus_per_model = TRUE, consensus_general = TRUE,
+                 consensus = c("median", "range", "mean", "stdev"),
+                 clamping = FALSE, var_to_clamp = NULL, type = "cloglog",
+                 overwrite = FALSE, progress_bar = TRUE)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
 \code{\link{fit_selected}}() function.}
 
-\item{raster_variables}{a SpatRaster or data.frame of predictor variables. The names
-of these variables must match those used to calibrate the models or those
-used to run PCA if \code{do_pca = TRUE} in the \code{\link{prepare_data}}()
+\item{raster_variables}{a SpatRaster or data.frame of predictor variables.
+The names of these variables must match those used to calibrate the models or
+those used to run PCA if \code{do_pca = TRUE} in the \code{\link{prepare_data}}()
 function.}
 
 \item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
@@ -68,56 +67,32 @@ A list containing SpatRaster predictions for each replicate, along
 with the consensus results for each model and the overall general consensus.
 }
 \description{
-This function predicts selected models for a single environmental scenario
-using either \code{maxnet} or \code{glm} models. It provides options for saving the
-output and calculating consensus measures (mean, median, etc.) across
+This function predicts selected models for a single set of new data
+using either \code{maxnet} or \code{glm} It provides options to save the
+output and compute consensus results (mean, median, etc.) across
 replicates and models.
 }
 \examples{
-#Load package
-library(terra)
-# Import variables to predict
+# Import variables to predict on
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
-##Example with maxnet
+
+# Example with maxnet
 # Import example of fitted_models (output of fit_selected())
 data("fitted_model_maxnet", package = "kuenm2")
+
 # Predict to single scenario
-p <- predict_selected(models = fitted_model_maxnet,
-                      raster_variables = var,
-                      write_files = FALSE,
-                      write_replicates = FALSE,
-                      out_dir = NULL,
-                      consensus_per_model = TRUE,
-                      consensus_general = TRUE,
-                      consensus = c("median", "range", "mean", "stdev"),
-                      clamping = FALSE,
-                      var_to_clamp = NULL,
-                      type = "cloglog",
-                      overwrite = FALSE,
-                      progress_bar = TRUE)
-##Example with GLMN
+p <- predict_selected(models = fitted_model_maxnet, raster_variables = var)
+
+# Example with GLMs
 # Import example of fitted_models (output of fit_selected())
 data("fitted_model_glm", package = "kuenm2")
+
 # Predict to single scenario
-p_glm <- predict_selected(models = fitted_model_glm,
-                          raster_variables = var,
-                          write_files = FALSE,
-                          write_replicates = FALSE,
-                          out_dir = NULL,
-                          consensus_per_model = TRUE,
-                          consensus_general = TRUE,
-                          consensus = c("median", "range", "mean", "stdev"),
-                          clamping = FALSE,
-                          var_to_clamp = NULL,
-                          type = "cloglog",
-                          overwrite = FALSE,
-                          progress_bar = TRUE)
-#Compare
-plot(c(p$General_consensus$mean,
-       p_glm$General_consensus$mean),
-     col = rev(terrain.colors(240)), main = c("MAXNET", "GLM"),
-     zlim = c(0, 1))
+p_glm <- predict_selected(models = fitted_model_glm, raster_variables = var)
 
-
+# Plot predictions
+terra::plot(c(p$General_consensus$median, p_glm$General_consensus$median),
+            col = rev(terrain.colors(240)), main = c("MAXNET", "GLM"),
+            zlim = c(0, 1))
 }

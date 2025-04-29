@@ -1,27 +1,27 @@
 #' Predict selected models for a single scenario
 #'
 #' @description
-#' This function predicts selected models for a single environmental scenario
-#' using either `maxnet` or `glm` models. It provides options for saving the
-#' output and calculating consensus measures (mean, median, etc.) across
+#' This function predicts selected models for a single set of new data
+#' using either `maxnet` or `glm` It provides options to save the
+#' output and compute consensus results (mean, median, etc.) across
 #' replicates and models.
 #'
-#' @usage predict_selected(models, raster_variables, write_files = FALSE,
-#'                         write_replicates = FALSE, out_dir = NULL,
-#'                         consensus_per_model = TRUE, consensus_general = TRUE,
-#'                         consensus = c("median", "range", "mean", "stdev"),
-#'                         clamping = FALSE, var_to_clamp = NULL,
-#'                         type = "cloglog", overwrite = FALSE,
-#'                         progress_bar = TRUE)
+#' @usage
+#' predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
+#'                  write_replicates = FALSE, out_dir = NULL,
+#'                  consensus_per_model = TRUE, consensus_general = TRUE,
+#'                  consensus = c("median", "range", "mean", "stdev"),
+#'                  clamping = FALSE, var_to_clamp = NULL, type = "cloglog",
+#'                  overwrite = FALSE, progress_bar = TRUE)
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
-#' @param raster_variables a SpatRaster or data.frame of predictor variables. The names
-#' of these variables must match those used to calibrate the models or those
-#' used to run PCA if `do_pca = TRUE` in the \code{\link{prepare_data}}()
+#' @param raster_variables a SpatRaster or data.frame of predictor variables.
+#' The names of these variables must match those used to calibrate the models or
+#' those used to run PCA if `do_pca = TRUE` in the \code{\link{prepare_data}}()
 #' function.
 #' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to
-#'        mask the variables before predict. Default is NULL.
+#' mask the variables before predict. Default is NULL.
 #' @param write_files (logical) whether to save the predictions (SpatRasters)
 #' to disk. Default is FALSE.
 #' @param write_replicates (logical) whether to save the predictions for each
@@ -51,61 +51,39 @@
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
 #'
-#' @return A list containing SpatRaster predictions for each replicate, along
+#' @return
+#' A list containing SpatRaster predictions for each replicate, along
 #' with the consensus results for each model and the overall general consensus.
 #'
 #' @importFrom terra rast clamp predict median mean stdev diff writeRaster
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #' @importFrom stats glm
+#'
 #' @export
 #'
 #' @examples
-#' #Load package
-#' library(terra)
-#' # Import variables to predict
+#' # Import variables to predict on
 #' var <- terra::rast(system.file("extdata", "Current_variables.tif",
 #'                                package = "kuenm2"))
-#' ##Example with maxnet
+#'
+#' # Example with maxnet
 #' # Import example of fitted_models (output of fit_selected())
 #' data("fitted_model_maxnet", package = "kuenm2")
+#'
 #' # Predict to single scenario
-#' p <- predict_selected(models = fitted_model_maxnet,
-#'                       raster_variables = var,
-#'                       write_files = FALSE,
-#'                       write_replicates = FALSE,
-#'                       out_dir = NULL,
-#'                       consensus_per_model = TRUE,
-#'                       consensus_general = TRUE,
-#'                       consensus = c("median", "range", "mean", "stdev"),
-#'                       clamping = FALSE,
-#'                       var_to_clamp = NULL,
-#'                       type = "cloglog",
-#'                       overwrite = FALSE,
-#'                       progress_bar = TRUE)
-#' ##Example with GLMN
+#' p <- predict_selected(models = fitted_model_maxnet, raster_variables = var)
+#'
+#' # Example with GLMs
 #' # Import example of fitted_models (output of fit_selected())
 #' data("fitted_model_glm", package = "kuenm2")
+#'
 #' # Predict to single scenario
-#' p_glm <- predict_selected(models = fitted_model_glm,
-#'                           raster_variables = var,
-#'                           write_files = FALSE,
-#'                           write_replicates = FALSE,
-#'                           out_dir = NULL,
-#'                           consensus_per_model = TRUE,
-#'                           consensus_general = TRUE,
-#'                           consensus = c("median", "range", "mean", "stdev"),
-#'                           clamping = FALSE,
-#'                           var_to_clamp = NULL,
-#'                           type = "cloglog",
-#'                           overwrite = FALSE,
-#'                           progress_bar = TRUE)
-#' #Compare
-#' plot(c(p$General_consensus$mean,
-#'        p_glm$General_consensus$mean),
-#'      col = rev(terrain.colors(240)), main = c("MAXNET", "GLM"),
-#'      zlim = c(0, 1))
+#' p_glm <- predict_selected(models = fitted_model_glm, raster_variables = var)
 #'
-#'
+#' # Plot predictions
+#' terra::plot(c(p$General_consensus$median, p_glm$General_consensus$median),
+#'             col = rev(terrain.colors(240)), main = c("MAXNET", "GLM"),
+#'             zlim = c(0, 1))
 
 predict_selected <- function(models,
                              raster_variables,
@@ -123,82 +101,57 @@ predict_selected <- function(models,
                              progress_bar = TRUE) {
 
   #Check data
+  if (missing(models)) {
+    stop("Argument 'models' must be defined.")
+  }
+  if (missing(raster_variables)) {
+    stop("Argument 'raster_variables' must be defined.")
+  }
   if (!inherits(models, "fitted_models")) {
-    stop(paste0("Argument models must be a fitted_models object, not ",
-                class(models)))
+    stop("Argument 'models' must be a 'fitted_models' object.")
   }
   if (!inherits(raster_variables, "SpatRaster")) {
-    stop(paste0("Argument raster_variables must be a SpatRaster, not ",
-                class(raster_variables)))
+    stop("Argument 'raster_variables' must be a 'SpatRaster'.")
   }
 
-  if(!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
-                                        "SpatExtent"))){
-    stop(paste0("Argument mask must be a SpatVector, SpatExtent or SpatRaster, not ",
-                class(mask)))
+  if (!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
+                                         "SpatExtent"))) {
+    stop("Argument 'mask' must be a 'SpatVector', 'SpatExtent' or 'SpatRaster'.")
   }
 
-  if (!inherits(write_files, "logical")) {
-    stop(paste0("Argument write_files must be logical, not ",
-                class(write_files)))
-  }
-  if(write_files & is.null(out_dir)){
+  if (write_files & is.null(out_dir)) {
     stop("If write_files = TRUE, out_dir must be specified")
   }
-  if(write_files & !inherits(out_dir, "character")) {
-    stop(paste0("Argument out_dir must be a character, not ",
-                class(out_dir)))
-  }
-  if(write_files & !inherits(write_replicates, "logical")) {
-    stop(paste0("Argument write_replicates must be logical, not ",
-                class(write_replicates)))
-  }
-  if (!inherits(consensus_per_model, "logical")) {
-    stop(paste0("Argument consensus_per_model must be logical, not ",
-                class(consensus_per_model)))
-  }
-  if (!inherits(consensus_general, "logical")) {
-    stop(paste0("Argument consensus_general must be logical, not ",
-                class(consensus_general)))
+  if (write_files & !inherits(out_dir, "character")) {
+    stop("Argument 'out_dir' must be a 'character'.")
   }
   if (!inherits(consensus, "character")) {
-    stop(paste0("Argument consensus must be a character, not ",
-                class(consensus)))
+    stop("Argument 'consensus' must be a 'character'.")
   }
   consensus_out <- setdiff(consensus, c("median", "range", "mean", "stdev"))
-  if(length(consensus_out) > 0){
-    stop("Invalid consensus provided.
-  The available options are: 'median', 'range', 'mean' and 'stdev'")
+  if (length(consensus_out) > 0) {
+    stop("Invalid 'consensus' provided.",
+         "\nAvailable options are: 'median', 'range', 'mean' and 'stdev'.")
   }
-  if (!inherits(clamping, "logical")) {
-    stop(paste0("Argument clamping must be logical, not ",
-                class(clamping)))
-  }
+
   if (clamping & !is.null(var_to_clamp) & !inherits(var_to_clamp, "character")) {
-    stop(paste0("Argument var_to_clamp must be NULL or character, not ",
-                class(var_to_clamp)))
+    stop("Argument 'var_to_clamp' must be NULL or 'character'.")
   }
   if (!inherits(type, "character")) {
-    stop(paste0("Argument type must be character, not ",
-                class(type)))
+    stop("Argument 'type' must be 'character'.")
   }
-  if(!any(c("raw", "cumulative", "logistic", "cloglog") %in% type)){
-    stop("Invalid type provided.
-  The available options are: 'raw', 'cumulative', 'logistic', or 'cloglog'")
+  if (!any(c("raw", "cumulative", "logistic", "cloglog") %in% type)) {
+    stop("Invalid 'type' provided.",
+         "\nAvailable options are: 'raw', 'cumulative', 'logistic', or 'cloglog'.")
   }
-  if (!inherits(overwrite, "logical")) {
-    stop(paste0("Argument overwrite must be logical, not ",
-                class(overwrite)))}
-  if (!inherits(progress_bar, "logical")) {
-    stop(paste0("Argument progress_bar must be logical, not ",
-                class(progress_bar)))}
 
-  if(!is.null(mask)){
+  # Analyses start here
+  if (!is.null(mask)) {
     raster_variables <- terra::crop(raster_variables, mask, mask = TRUE)
   }
 
-  if(!is.null(models$pca)){
-    if(!("vars_out" %in% names(models$pca))) {
+  if (!is.null(models$pca)) {
+    if (!("vars_out" %in% names(models$pca))) {
       raster_variables <- terra::predict(raster_variables[[models$pca$vars_in]],
                                          models$pca)
     } else {
@@ -243,7 +196,8 @@ predict_selected <- function(models,
       var_to_clamp <- setdiff(names(varmin), c("pr_bg", "fold"))
     }
     clamped_variables <- terra::rast(lapply(var_to_clamp, function(i) {
-      terra::clamp(raster_variables[[i]], lower = varmin[i], upper = varmax[i], values = TRUE)
+      terra::clamp(raster_variables[[i]], lower = varmin[i],
+                   upper = varmax[i], values = TRUE)
     }))
     raster_variables[[names(clamped_variables)]] <- clamped_variables
   }
