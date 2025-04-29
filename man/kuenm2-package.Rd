@@ -6,14 +6,28 @@
 \alias{kuenm2-package}
 \title{kuenm2: Detailed Development of Ecological Niche Models}
 \description{
-kuenm2 helps to perform critical phases of the ecological niche modeling
-process. Data preparation analyses and explorations can be done to prepare
-data. Model calibration (model selection) can be done by creating and testing
-several candidate models. Handy options for producing final models,
-evaluating such models, and assessing extrapolation risks are also included.
-Tools for post-modeling analyses are implemented to allow further
-exploration of results.
+kuenm2 A new set of tools to help with the development of detailed ecological
+niche models using multiple algorithms. Pre-modeling analyses and
+explorations can be done to prepare data. Model calibration (model selection)
+can be done by creating and testing several candidate models. Handy options
+for producing final models with transfers are included. Other tools to
+assess extrapolation risks and variability in model transfers are also
+available.
 }
+\section{Functions by stage in the ENM process}{
+
+\itemize{
+\item Data preparation: \code{\link[=initial_cleaning]{initial_cleaning()}}, \code{\link[=advanced_cleaning]{advanced_cleaning()}},
+\code{\link[=prepare_data]{prepare_data()}}, \code{\link[=prepare_user_data]{prepare_user_data()}}
+\item Model calibration: \code{\link[=calibration]{calibration()}}, \code{\link[=select_models]{select_models()}}
+\item Model exploration: \code{\link[=fit_selected]{fit_selected()}}, \code{\link[=variable_importance]{variable_importance()}},
+\code{\link[=plot_importance]{plot_importance()}}, \code{\link[=response_curve]{response_curve()}}, \code{\link[=bivariate_response]{bivariate_response()}}
+\item Model projection: \code{\link[=predict_selected]{predict_selected()}}, \code{\link[=project_selected]{project_selected()}}
+\item Post-modeling: \code{\link[=projection_variability]{projection_variability()}}, \code{\link[=projection_changes]{projection_changes()}},
+\code{\link[=projection_mop]{projection_mop()}}
+}
+}
+
 \author{
 \strong{Maintainer}: Marlon E. Cobos \email{manubio13@gmail.com} (\href{https://orcid.org/0000-0002-2611-1767}{ORCID})
 
