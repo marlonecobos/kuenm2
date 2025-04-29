@@ -1,5 +1,14 @@
 ####Omission Rate####
 omrat <- function(threshold, pred_train, pred_test) {
+  if (missing(threshold)) {
+    stop("Argument 'threshold' must be defined.")
+  }
+  if (missing(pred_train)) {
+    stop("Argument 'pred_train' must be defined.")
+  }
+  if (missing(pred_test)) {
+    stop("Argument 'pred_test' must be defined.")
+  }
   om_rate <- vector("numeric", length = length(threshold))
   for (i in 1:length(threshold)) {
     val <- ceiling(length(pred_train) * threshold[i] / 100) + 1
@@ -16,6 +25,12 @@ omrat <- function(threshold, pred_train, pred_test) {
 
 ####AIC - Warren and Seifert ####
 aic_ws <- function(pred_occs, ncoefs) {
+  if (missing(pred_occs)) {
+    stop("Argument 'pred_occs' must be defined.")
+  }
+  if (missing(ncoefs)) {
+    stop("Argument 'ncoefs' must be defined.")
+  }
   LL <- sum(log(pred_occs + .Machine$double.eps))
   AICc <- ((2 * ncoefs) - (2 * LL)) + (2 * ncoefs * (ncoefs + 1) /
                                          (length(pred_occs) - ncoefs - 1))
@@ -23,13 +38,23 @@ aic_ws <- function(pred_occs, ncoefs) {
   return(AICc)
 }
 
+
 #### AIC - Ninomiya and Kawano ####
 aic_nk <- function(x, y, beta) {
+  if (missing(x)) {
+    stop("Argument 'x' must be defined.")
+  }
+  if (missing(y)) {
+    stop("Argument 'y' must be defined.")
+  }
+  if (missing(beta)) {
+    stop("Argument 'beta' must be defined.")
+  }
   if (!is.matrix(x)) {
-    stop("x must be a matrix.")
+    stop("'x' must be a 'matrix'.")
   }
   if (mode(x) != "numeric") {
-    stop("x must be numeric.")
+    stop("'x' must be 'numeric'.")
   }
 
   x_glm <- glm(y ~ x, family = "binomial")
