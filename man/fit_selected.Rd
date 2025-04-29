@@ -2,18 +2,19 @@
 % Please edit documentation in R/fit_selected.R
 \name{fit_selected}
 \alias{fit_selected}
-\title{Fit selected models}
+\title{Fit models selected after calibration}
 \usage{
 fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
              train_portion = 0.7, write_models = FALSE, file_name = NULL,
-             parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
-             progress_bar = TRUE, verbose = TRUE, seed = 42)
+             parallel = FALSE, ncores = NULL, progress_bar = TRUE,
+             verbose = TRUE, seed = 42)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
 by the \code{\link{calibration}}() function.}
 
-\item{n_replicates}{(numeric) the number of model replicates. Default is 1.}
+\item{n_replicates}{(numeric) the number of model replicates. Using the
+default, 1, implies that one replicate is fit with all the data.}
 
 \item{rep_type}{(character) the replicate type. It can be: "kfold", "bootstrap",
 or "subsample". Default is "kfold".}
@@ -31,12 +32,9 @@ the final models. This is only applicable if \code{write_models = TRUE}.}
 \item{parallel}{(logical) whether to fit the final models in parallel. Default
 is FALSE.}
 
-\item{ncores}{(numeric) the number of cores to use for parallel processing.
-Default is 2. This is only applicable if \code{parallel = TRUE}.}
-
-\item{parallel_option}{(character) the parallelization package to use:
-either "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable
-if \code{parallel = TRUE}.}
+\item{ncores}{(numeric) number of cores to use for parallel processing.
+Default is NULL and uses available cores - 1. This is only applicable if
+\code{parallel = TRUE}.}
 
 \item{progress_bar}{(logical) whether to display a progress bar during processing.
 Default is TRUE.}
@@ -45,13 +43,13 @@ Default is TRUE.}
 Default is TRUE.}
 
 \item{seed}{(numeric) integer value used to specify an initial seed to split
-the data. Default is 42.}
+the data. Default is 1.}
 }
 \value{
 An object of class 'fitted_models' containing the following elements:
 \item{species}{a character string with the name of the species.}
 \item{Models}{a list of fitted models, including replicates (trained with
-the training data) and full models (trained with all available records).}
+the parts of the data) and full models (trained with all available records).}
 \item{calibration_data}{a data.frame containing a column (\code{pr_bg}) that
 identifies occurrence points (1) and background points (0), along with the
 corresponding values of predictor variables for each point.}
@@ -69,51 +67,32 @@ sample not already in the background was added.}
 \code{\link{calibration}}()}
 }
 \description{
-This function fits and calculates the consensus (mean and median) of models
-that were evaluated and selected using the \code{\link{calibration}}()
-function. It also calculates the thresholds based on the omission rate set in
-\code{\link{calibration}}().The function supports parallelization for faster
-model fitting.
+This function fits models selected after candidate model training and testing
+using the function \code{\link{calibration}}().
+}
+\details{
+This function also computes model consensus (mean and median), the thresholds
+to binarize model predictions based on the omission rate set during model
+calibration to select models.
 }
 \examples{
-# Import example of calibration results (output of calibration function)
-## maxnet
-data("calib_results_maxnet", package = "kuenm2")
+# An example with maxnet models
+data(calib_results_maxnet, package = "kuenm2")
 
 # Fit models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet,
-                   n_replicates = 2,
-                   rep_type = "kfold",
-                   train_portion = 0.7,
-                   write_models = FALSE,
-                   file_name = NULL,
-                   parallel = FALSE,
-                   ncores = 1,
-                   parallel_option = "doSNOW",
-                   progress_bar = TRUE,
-                   verbose = TRUE,
-                   seed = 42)
+                   n_replicates = 2)
 
 # Output the fitted models
-print(fm)
+fm
 
-##GLM
-data("calib_results_glm", package = "kuenm2")
+# An example with GLMs
+data(calib_results_glm, package = "kuenm2")
 
 # Fit models using calibration results
 fm_glm <- fit_selected(calibration_results = calib_results_glm,
-                       n_replicates = 2,
-                       rep_type = "kfold",
-                       train_portion = 0.7,
-                       write_models = FALSE,
-                       file_name = NULL,
-                       parallel = FALSE,
-                       ncores = 1,
-                       parallel_option = "doSNOW",
-                       progress_bar = TRUE,
-                       verbose = TRUE,
-                       seed = 42)
+                       n_replicates = 2)
 
 # Output the fitted models
-print(fm_glm)
+fm_glm
 }

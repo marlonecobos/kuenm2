@@ -1,21 +1,19 @@
-#' Fit selected models
+#' Fit models selected after calibration
 #'
 #' @description
-#' This function fits and calculates the consensus (mean and median) of models
-#' that were evaluated and selected using the \code{\link{calibration}}()
-#' function. It also calculates the thresholds based on the omission rate set in
-#'  \code{\link{calibration}}().The function supports parallelization for faster
-#'  model fitting.
+#' This function fits models selected after candidate model training and testing
+#' using the function \code{\link{calibration}}().
 #'
 #' @usage
 #' fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
 #'              train_portion = 0.7, write_models = FALSE, file_name = NULL,
-#'              parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
-#'              progress_bar = TRUE, verbose = TRUE, seed = 42)
+#'              parallel = FALSE, ncores = NULL, progress_bar = TRUE,
+#'              verbose = TRUE, seed = 42)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the \code{\link{calibration}}() function.
-#' @param n_replicates (numeric) the number of model replicates. Default is 1.
+#' @param n_replicates (numeric) the number of model replicates. Using the
+#' default, 1, implies that one replicate is fit with all the data.
 #' @param rep_type (character) the replicate type. It can be: "kfold", "bootstrap",
 #' or "subsample". Default is "kfold".
 #' @param train_portion (numeric) the proportion of occurrence records used to
@@ -27,23 +25,27 @@
 #' the final models. This is only applicable if `write_models = TRUE`.
 #' @param parallel (logical) whether to fit the final models in parallel. Default
 #' is FALSE.
-#' @param ncores (numeric) the number of cores to use for parallel processing.
-#' Default is 2. This is only applicable if `parallel = TRUE`.
-#' @param parallel_option (character) the parallelization package to use:
-#' either "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable
-#' if `parallel = TRUE`.
+#' @param ncores (numeric) number of cores to use for parallel processing.
+#' Default is NULL and uses available cores - 1. This is only applicable if
+#' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during processing.
 #' Default is TRUE.
 #' @param verbose (logical) whether to display detailed messages during processing.
 #' Default is TRUE.
 #' @param seed (numeric) integer value used to specify an initial seed to split
-#' the data. Default is 42.
+#' the data. Default is 1.
+#'
+#' @details
+#' This function also computes model consensus (mean and median), the thresholds
+#' to binarize model predictions based on the omission rate set during model
+#' calibration to select models.
+#'
 #'
 #' @return
 #' An object of class 'fitted_models' containing the following elements:
 #' \item{species}{a character string with the name of the species.}
 #' \item{Models}{a list of fitted models, including replicates (trained with
-#' the training data) and full models (trained with all available records).}
+#' the parts of the data) and full models (trained with all available records).}
 #' \item{calibration_data}{a data.frame containing a column (`pr_bg`) that
 #' identifies occurrence points (1) and background points (0), along with the
 #' corresponding values of predictor variables for each point.}
@@ -63,7 +65,6 @@
 #' @export
 #'
 #' @importFrom parallel makeCluster stopCluster
-#' @importFrom doParallel registerDoParallel
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #' @importFrom foreach foreach `%dopar%`
@@ -71,60 +72,52 @@
 #' @importFrom enmpa predict_glm
 #'
 #' @examples
-#' # Import example of calibration results (output of calibration function)
-#' ## maxnet
-#' data("calib_results_maxnet", package = "kuenm2")
+#' # An example with maxnet models
+#' data(calib_results_maxnet, package = "kuenm2")
 #'
 #' # Fit models using calibration results
 #' fm <- fit_selected(calibration_results = calib_results_maxnet,
-#'                    n_replicates = 2,
-#'                    rep_type = "kfold",
-#'                    train_portion = 0.7,
-#'                    write_models = FALSE,
-#'                    file_name = NULL,
-#'                    parallel = FALSE,
-#'                    ncores = 1,
-#'                    parallel_option = "doSNOW",
-#'                    progress_bar = TRUE,
-#'                    verbose = TRUE,
-#'                    seed = 42)
+#'                    n_replicates = 2)
 #'
 #' # Output the fitted models
-#' print(fm)
+#' fm
 #'
-#' ##GLM
-#' data("calib_results_glm", package = "kuenm2")
+#' # An example with GLMs
+#' data(calib_results_glm, package = "kuenm2")
 #'
 #' # Fit models using calibration results
 #' fm_glm <- fit_selected(calibration_results = calib_results_glm,
-#'                        n_replicates = 2,
-#'                        rep_type = "kfold",
-#'                        train_portion = 0.7,
-#'                        write_models = FALSE,
-#'                        file_name = NULL,
-#'                        parallel = FALSE,
-#'                        ncores = 1,
-#'                        parallel_option = "doSNOW",
-#'                        progress_bar = TRUE,
-#'                        verbose = TRUE,
-#'                        seed = 42)
+#'                        n_replicates = 2)
 #'
 #' # Output the fitted models
-#' print(fm_glm)
+#' fm_glm
 
-fit_selected <- function(calibration_results, n_replicates = 1,
-                         rep_type = "kfold", train_portion = 0.7,
-                         write_models = FALSE, file_name = NULL,
-                         parallel = FALSE, ncores = 2, parallel_option = "doSNOW",
-                         progress_bar = TRUE, verbose = TRUE, seed = 42) {
+fit_selected <- function(calibration_results,
+                         n_replicates = 1,
+                         rep_type = "kfold",
+                         train_portion = 0.7,
+                         write_models = FALSE,
+                         file_name = NULL,
+                         parallel = FALSE,
+                         ncores = NULL,
+                         progress_bar = TRUE,
+                         verbose = TRUE,
+                         seed = 1) {
+
+  if (missing(calibration_results)) {
+    stop("Argument 'calibration_results' must be defined.")
+  }
+  if (!inherits(calibration_results, "calibration_results")) {
+    stop("Argument 'calibration_results' must be a 'calibration_results' object.")
+  }
 
   # Extract model IDs from selected models
   m_ids <- calibration_results$selected_models$ID
   algorithm <- calibration_results$algorithm
 
   # Fitting models over multiple replicates_____________________________________
-  if(n_replicates > 1) {
-    if(verbose){
+  if (n_replicates > 1) {
+    if (verbose) {
       message("Fitting replicates...")
     }
 
@@ -133,7 +126,7 @@ fit_selected <- function(calibration_results, n_replicates = 1,
     n_tot <- nrow(dfgrid) # Total models * replicates
 
     #Prepare data (index) to replicates
-    if(n_replicates > 1) {
+    if (n_replicates > 1) {
       #Partitioning data
       rep_data <- part_data(data = calibration_results$calibration_data,
                             pr_bg = "pr_bg",
@@ -144,32 +137,36 @@ fit_selected <- function(calibration_results, n_replicates = 1,
       rep_data <- NULL
     }
 
-    # Progress bar setup
-    if (isTRUE(progress_bar)) {
-      pb <- utils::txtProgressBar(0, n_tot, style = 3)
-      progress <- function(n) utils::setTxtProgressBar(pb, n)
-    }
 
     # Adjust parallelization based on number of tasks and cores
     if (n_tot == 1 & parallel) {
       parallel <- FALSE
     }
-    if (n_tot < ncores & parallel) {
-      ncores <- n_tot
+
+    # Progress bar
+    if (isTRUE(progress_bar)) {
+      pb <- utils::txtProgressBar(0, n_tot, style = 3)
+      progress <- function(n) utils::setTxtProgressBar(pb, n)
     }
+
 
     # Setup parallel cluster
     if (parallel) {
-      cl <- parallel::makeCluster(ncores)
-      if (parallel_option == "doParallel") {
-        doParallel::registerDoParallel(cl)
-        opts <- NULL
-      } else if (parallel_option == "doSNOW") {
-        doSNOW::registerDoSNOW(cl)
-        opts <- if (progress_bar) list(progress = progress) else NULL
+      if (is.null(ncores)) {
+        ncores <- max(1, parallel::detectCores() - 1)
       }
-    } else {
-      opts <- NULL
+      if (n_tot < ncores) {
+        ncores <- n_tot
+      }
+
+      cl <- parallel::makeCluster(ncores)
+      doSNOW::registerDoSNOW(cl)
+
+      opts <- if (progress_bar) {
+        list(progress = progress)
+      } else {
+        NULL
+      }
     }
 
     # Fit the best models (either in parallel or sequentially)
@@ -178,15 +175,21 @@ fit_selected <- function(calibration_results, n_replicates = 1,
                                       .packages = c("glmnet", "enmpa"),
                                       .options.snow = opts
       ) %dopar% {
-        fit_best_model(x, dfgrid, calibration_results, n_replicates,
-                       rep_data, algorithm)
+        fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
+                       n_replicates = n_replicates, rep_data = rep_data,
+                       algorithm = algorithm)
       }
     } else {
       best_models <- vector("list", length = n_tot)
       for (x in 1:n_tot) {
-        best_models[[x]] <- fit_best_model(x, dfgrid, calibration_results,
-                                           n_replicates, rep_data, algorithm)
-        if (progress_bar) utils::setTxtProgressBar(pb, x)
+        best_models[[x]] <- fit_best_model(
+          x = x, dfgrid = dfgrid, cal_res = calibration_results,
+          n_replicates = n_replicates, rep_data = rep_data,
+          algorithm = algorithm
+        )
+        if (progress_bar) {
+          utils::setTxtProgressBar(pb, x)
+        }
       }
     }
 
@@ -208,7 +211,7 @@ fit_selected <- function(calibration_results, n_replicates = 1,
   }
 
   # Fit full models ____________________________________________________________
-  if(verbose){
+  if (verbose) {
     message("\nFitting full models...")
   }
   # Full models grid setup
@@ -219,9 +222,6 @@ fit_selected <- function(calibration_results, n_replicates = 1,
   if (n_models == 1 & parallel) {
     parallel <- FALSE
   }
-  if (n_models < ncores & parallel) {
-    ncores <- n_models
-  }
 
   # Progress bar setup for full models
   if (progress_bar) {
@@ -231,16 +231,20 @@ fit_selected <- function(calibration_results, n_replicates = 1,
 
   # Parallel cluster setup for full models
   if (parallel) {
-    cl <- parallel::makeCluster(ncores)
-    if (parallel_option == "doParallel") {
-      doParallel::registerDoParallel(cl)
-      opts <- NULL
-    } else if (parallel_option == "doSNOW") {
-      doSNOW::registerDoSNOW(cl)
-      opts <- if (progress_bar) list(progress = progress) else NULL
+    if (is.null(ncores)) {
+      ncores <- max(1, parallel::detectCores() - 1)
     }
-  } else {
-    opts <- NULL
+    if (n_models < ncores & parallel) {
+      ncores <- n_models
+    }
+    cl <- parallel::makeCluster(ncores)
+    doSNOW::registerDoSNOW(cl)
+
+    opts <- if (progress_bar) {
+      list(progress = progress)
+    } else {
+      NULL
+    }
   }
 
   # Fit the full models (either in parallel or sequentially)
@@ -249,14 +253,17 @@ fit_selected <- function(calibration_results, n_replicates = 1,
                                     .packages = c("glmnet", "enmpa"),
                                     .options.snow = opts
     ) %dopar% {
-      fit_best_model(x, dfgrid, calibration_results, n_replicates = 1, rep_data,
-                     algorithm)
+      fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
+                     n_replicates = 1, rep_data = rep_data,
+                     algorithm = algorithm)
     }
   } else {
     full_models <- vector("list", length = n_models)
     for (x in 1:n_models) {
-      full_models[[x]] <- fit_best_model(x, dfgrid, calibration_results,
-                                         n_replicates = 1, rep_data, algorithm)
+      full_models[[x]] <- fit_best_model(
+        x = x, dfgrid = dfgrid, cal_res = calibration_results,
+        n_replicates = 1, rep_data = rep_data, algorithm = algorithm
+      )
       if (progress_bar) utils::setTxtProgressBar(pb, x)
     }
   }
@@ -270,7 +277,9 @@ fit_selected <- function(calibration_results, n_replicates = 1,
   }
 
   # Stop the cluster for full models
-  if (parallel) parallel::stopCluster(cl)
+  if (parallel) {
+    parallel::stopCluster(cl)
+  }
 
   # Compute thresholds for predictions
   occ <- calibration_results$calibration_data[
@@ -304,8 +313,10 @@ fit_selected <- function(calibration_results, n_replicates = 1,
   names(p_occ) <- names(best_models)
 
   # Calculate consensus across models
-  mean_consensus <- apply(sapply(p_occ, function(x) x$mean), 1, mean, na.rm = TRUE)
-  median_consensus <- apply(sapply(p_occ, function(x) x$median), 1, median, na.rm = TRUE)
+  mean_consensus <- apply(sapply(p_occ, function(x) x$mean), 1,
+                          mean, na.rm = TRUE)
+  median_consensus <- apply(sapply(p_occ, function(x) x$median), 1,
+                            median, na.rm = TRUE)
   consensus <- list(mean = mean_consensus, median = median_consensus)
   p_occ <- c(p_occ, list(consensus = consensus))
 
