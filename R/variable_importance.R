@@ -1,19 +1,17 @@
 #' Variable importance
 #'
 #' @usage
-#' var_importance(models, modelID = NULL, parallel = FALSE, ncores = 2,
-#'                parallelType = "doSNOW", progress_bar = TRUE, verbose = TRUE)
+#' variable_importance(models, modelID = NULL, parallel = FALSE, ncores = NULL,
+#'                     progress_bar = TRUE, verbose = TRUE)
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
 #' @param modelID (character). Default = NULL.
 #' @param parallel (logical) whether to calculate importance in parallel.
 #' Default is FALSE.
-#' @param ncores (numeric) the number of cores to use for parallel processing.
-#' Default is 2. This is only applicable if `parallel = TRUE`.
-#' @param parallelType (character) the parallelization package to use:
-#' either "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable
-#' if `parallel = TRUE`.
+#' @param ncores (numeric) number of cores to use for parallel processing.
+#' Default is NULL and uses available cores - 1. This is only applicable if
+#' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during processing.
 #' Default is TRUE.
 #' @param verbose (logical) whether to display detailed messages during processing.
@@ -28,43 +26,46 @@
 #'
 #' @importFrom stats update as.formula deviance coef glm
 #' @importFrom parallel makeCluster stopCluster
-#' @importFrom doParallel registerDoParallel
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom utils txtProgressBar setTxtProgressBar
 #' @importFrom foreach foreach `%dopar%`
 #'
+#' @seealso
+#' [plot_importance()]
+#'
 #' @examples
-#' ##Example with maxnet
+#' # Example with maxnet
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_maxnet", package = "kuenm2")
+#' data(fitted_model_maxnet, package = "kuenm2")
 #'
 #' # Variable importance
-#' imp_maxnet <- var_importance(models = fitted_model_maxnet)
-#' # Plot using enmpa package
-#' enmpa::plot_importance(imp_maxnet)
+#' imp_maxnet <- variable_importance(models = fitted_model_maxnet)
 #'
-#' ##Example with glm
+#' # Plot
+#' plot_importance(imp_maxnet)
+#'
+#' # Example with glm
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_glm", package = "kuenm2")
+#' data(fitted_model_glm, package = "kuenm2")
 #'
 #' # Variable importance
-#' imp_glm <- var_importance(models = fitted_model_glm)
-#' # Plot using enmpa package
-#' enmpa::plot_importance(imp_glm)
+#' imp_glm <- variable_importance(models = fitted_model_glm)
 #'
-var_importance <- function(models, modelID = NULL,
-                           parallel = FALSE,
-                           ncores = 2,
-                           parallelType = "doSNOW",
-                           progress_bar = TRUE,
-                           verbose = TRUE){
+#' # Plot
+#' plot_importance(imp_glm)
+
+variable_importance <- function(models, modelID = NULL,
+                                parallel = FALSE,
+                                ncores = NULL,
+                                progress_bar = TRUE,
+                                verbose = TRUE) {
   # initial tests
   if (missing(models)) {
     stop("Argument 'model' must be defined.")
   }
 
-  if (!is.null(modelID)){
-    if (!modelID %in% names(models[["Models"]])){
+  if (!is.null(modelID)) {
+    if (!modelID %in% names(models[["Models"]])) {
       stop(paste0(
         "The 'ModelID' is not correct, check the following: [",
         paste(names(models[["Models"]]), collapse = ", ")),
@@ -73,15 +74,21 @@ var_importance <- function(models, modelID = NULL,
     }
   }
 
+  if (parallel) {
+    if (is.null(ncores)) {
+      ncores <- max(1, parallel::detectCores() - 1)
+    }
+  }
+
   list_models <- models[["Models"]]
   model_info  <- models[["selected_models"]]
   data        <- models[["calibration_data"]]
   algorithm  <- models[["algorithm"]]
 
-  if (is.null(modelID)){
+  if (is.null(modelID)) {
     models <- names(list_models)
     aux <- lapply(seq_along(models), function(y) {
-      if(verbose){
+      if (verbose) {
         message("\nCalculating variable contribution for model ", y, " of ",
                 length(models))
       }
@@ -94,7 +101,6 @@ var_importance <- function(models, modelID = NULL,
         algorithm = algorithm,
         parallel = parallel,
         ncores = ncores,
-        parallelType = parallelType,
         progress_bar = progress_bar,
         verbose = verbose
       )
@@ -114,7 +120,6 @@ var_importance <- function(models, modelID = NULL,
       algorithm = algorithm,
       parallel = parallel,
       ncores = ncores,
-      parallelType = parallelType,
       progress_bar = progress_bar,
       verbose = verbose
     )
@@ -151,7 +156,6 @@ get_red_devmx <- function(reduce_var, p, data, f, rm, algorithm) {
 var_importance_indmx <- function(model, p, data, f, rm, algorithm,
                                  parallel,
                                  ncores,
-                                 parallelType,
                                  progress_bar,
                                  verbose) {
 
@@ -187,26 +191,22 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
   if (length(coefs) == 1 & parallel) {
     parallel <- FALSE
   }
-  if (length(coefs) < ncores & parallel) {
-    ncores <- length(coefs)
-  }
-
-  # Setup parallel cluster
-  if (parallel) {
-    cl <- parallel::makeCluster(ncores)
-    if (parallelType == "doParallel") {
-      doParallel::registerDoParallel(cl)
-      opts <- NULL
-    } else if (parallelType == "doSNOW") {
-      doSNOW::registerDoSNOW(cl)
-      opts <- if (progress_bar) list(progress = progress) else NULL
-    }
-  } else {
-    opts <- NULL
-  }
 
   # Fit the best models (either in parallel or sequentially)
   if (parallel) {
+    if (length(coefs) < ncores) {
+      ncores <- length(coefs)
+    }
+
+    cl <- parallel::makeCluster(ncores)
+    doSNOW::registerDoSNOW(cl)
+
+    opts <- if (progress_bar) {
+      list(progress = progress)
+    } else {
+      NULL
+    }
+
     dev_reduction <- foreach::foreach(x = 1:length(coefs),
                                       .options.snow = opts,
                                       .combine = 'c'
@@ -216,15 +216,17 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
   } else {
     dev_reduction <- c()
     for (x in 1:length(coefs)) {
-      dev_reduction[x] <- dev_full - kuenm2:::get_red_devmx(coefs[x], p, data,
-                                                            f, rm, algorithm)
+      dev_reduction[x] <- dev_full - get_red_devmx(coefs[x], p, data,
+                                                   f, rm, algorithm)
       if (progress_bar) utils::setTxtProgressBar(pb, x)
     }
   }
   names(dev_reduction) <- coefs
 
   # Stop the cluster
-  if (parallel) parallel::stopCluster(cl)
+  if (parallel) {
+    parallel::stopCluster(cl)
+  }
 
   # # deviance of the reduced models
   # dev_reduction <- sapply(coefs, function(variable) {
@@ -241,7 +243,7 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
   tab_contr$contribution <- deviance_importance
 
   ord <- order(tab_contr$contribution, decreasing = TRUE)
-  tab_contr <- tab_contr[ord,]
+  tab_contr <- tab_contr[ord, ]
   tab_contr$cum_contribution <- cumsum(tab_contr$contribution)
 
   # returning results
@@ -254,9 +256,20 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
 #' @description
 #' See details in \code{\link[enmpa]{plot_importance}}
 #'
+#' @param x data.frame output from \code{\link{variable_importance}}().
+#' @param xlab (character) a label for the x axis.
+#' @param ylab (character) a label for the y axis.
+#' @param main (character) main title for the plot.
+#' @param extra_info (logical) when results are from more than one model, it adds information about the number of models using each predictor and the mean contribution found.
+#' @param ... additional arguments passed to barplot or boxplot.
+#'
+#' Value
+#' A barplot or boxplot depending on the number of models considered.
+#'
 #' @usage
 #' plot_importance(x, xlab = NULL, ylab = "Relative contribution",
 #'                 main = "Variable importance", extra_info = TRUE, ...)
+#'
 #' @export
 
 plot_importance <- enmpa::plot_importance
