@@ -5,9 +5,8 @@
 \title{Fitting and evaluation of models, and selection of the best ones}
 \usage{
 calibration(data, proc_for_all = FALSE, addsamplestobackground = TRUE,
-            use_weights = FALSE, parallel = FALSE, ncores = 4,
-            parallel_option = "doSNOW", progress_bar = TRUE,
-            write_summary = FALSE, output_directory = NULL,
+            use_weights = FALSE, parallel = FALSE, ncores = NULL,
+            progress_bar = TRUE, write_summary = FALSE, output_directory = NULL,
             skip_existing_models = FALSE, return_replicate = TRUE,
             test_concave = FALSE, omission_rate = 10, omrat_threshold = 10,
             AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
@@ -15,7 +14,7 @@ calibration(data, proc_for_all = FALSE, addsamplestobackground = TRUE,
 }
 \arguments{
 \item{data}{an object of class \code{prepared_data} returned by the
-\code{\link{prepare_data()}} function. It contains the calibration data,
+\code{\link{prepare_data}}() function. It contains the calibration data,
 formulas grid, kfolds, and model type.}
 
 \item{proc_for_all}{(logical) whether to apply partial ROC tests to all
@@ -32,10 +31,7 @@ data. Default is FALSE.}
 Default is FALSE.}
 
 \item{ncores}{(numeric) number of cores to use for parallel processing.
-Default is 1. This is only applicable if \code{parallel = TRUE}.}
-
-\item{parallel_option}{(character) the package to use for parallel processing:
-"doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
+Default is NULL and uses available cores - 1. This is only applicable if
 \code{parallel = TRUE}.}
 
 \item{progress_bar}{(logical) whether to display a progress bar during
@@ -102,7 +98,7 @@ formulas and parameters.
 \item categorical_variables: a character, categorical variable names (if used).
 \item weights: a numeric vector specifying weights for data_xy (if used).
 \item pca: if a principal component analysis was performed with variables, a list
-of class "prcomp". See ?stats::prcomp() for details.
+of class "prcomp". See \code{\link[stats]{prcomp}}() for details.
 \item algorithm: the model type (glm or maxnet)
 \item calibration_results: a list containing a data frame with all evaluation
 metrics for all replicates (if \code{return_replicate = TRUE}) and a summary of
@@ -121,13 +117,13 @@ values above the threshold, and the selected models.
 }
 \description{
 This function fits and evaluates candidate models using the data and grid of
-formulas prepared with \code{\link{prepare_data}}. It supports both
+formulas prepared with \code{\link{prepare_data}}(). It supports both
 algorithms \code{glm} and \code{maxnet}. The function then selects the best models
 based on unimodality (optional), partial ROC, omission rate, and AIC values.
 }
 \details{
 Partial ROC is calculated following Peterson et al.
-(2008; http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008).
+(2008; \url{doi:10.1016/j.ecolmodel.2007.11.008}).
 
 Omission rates are calculated using models trained with separate testing data
 subsets. Users can specify multiple omission rates to be calculated
@@ -138,40 +134,19 @@ Model complexity (AIC) is assessed using models generated with the complete
 set of occurrences.
 }
 \examples{
-# Import occurrences
-data(occ_data, package = "kuenm2")
+# Import prepared data for maxnet models
+data(sp_swd, package = "kuenm2")
 
-# Import variables
-var <- terra::rast(system.file("extdata", "Current_variables.tif",
-                               package = "kuenm2"))
+## Model calibration (maxnet)
+#m <- calibration(data = sp_swd, omission_rate = 10)
+#
+#m
 
-# Use only variables 1, 2 and 3
-var <- var[[1:3]]
+# Import prepared data for GLM models
+data(sp_swd_glm, package = "kuenm2")
 
-#### maxnet ####
-# Prepare data for maxnet model
-sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
-                       species = occ_data[1, 1], x = "x", y = "y",
-                       raster_variables = var,
-                       n_background = 100,
-                       features = c("l", "lq"),
-                       reg_mult = 1)
-
-# Calibrate maxnet models
-m <- calibration(data = sp_swd, omission_rate = c(5, 10))
-
-m
-
-#### GLM ####
-# Prepare data for glm model
-sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
-                           species = occ_data[1, 1], x = "x", y = "y",
-                           raster_variables = var,
-                           n_background = 100,
-                           features = c("l", "lq", "q", "lqp"))
-
-# Calibrate glm models
-m_glm <- calibration(data = sp_swd_glm, omission_rate = c(5, 10))
+## Model calibration (GLM)
+m_glm <- calibration(data = sp_swd_glm, omission_rate = 10)
 
 m_glm
 }

@@ -2,22 +2,21 @@
 #'
 #' @description
 #' This function fits and evaluates candidate models using the data and grid of
-#' formulas prepared with \code{\link{prepare_data}}. It supports both
+#' formulas prepared with \code{\link{prepare_data}}(). It supports both
 #' algorithms `glm` and `maxnet`. The function then selects the best models
 #' based on unimodality (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
 #' calibration(data, proc_for_all = FALSE, addsamplestobackground = TRUE,
-#'             use_weights = FALSE, parallel = FALSE, ncores = 4,
-#'             parallel_option = "doSNOW", progress_bar = TRUE,
-#'             write_summary = FALSE, output_directory = NULL,
+#'             use_weights = FALSE, parallel = FALSE, ncores = NULL,
+#'             progress_bar = TRUE, write_summary = FALSE, output_directory = NULL,
 #'             skip_existing_models = FALSE, return_replicate = TRUE,
 #'             test_concave = FALSE, omission_rate = 10, omrat_threshold = 10,
 #'             AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
 #'             tolerance = 0.01, verbose = TRUE)
 #'
 #' @param data an object of class `prepared_data` returned by the
-#' \code{\link{prepare_data()}} function. It contains the calibration data,
+#' \code{\link{prepare_data}}() function. It contains the calibration data,
 #' formulas grid, kfolds, and model type.
 #' @param proc_for_all (logical) whether to apply partial ROC tests to all
 #' candidate models or only to the selected models. Default is FALSE, meaning
@@ -31,9 +30,7 @@
 #' @param parallel (logical) whether to fit the candidate models in parallel.
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
-#' Default is 1. This is only applicable if `parallel = TRUE`.
-#' @param parallel_option (character) the package to use for parallel processing:
-#' "doParallel" or "doSNOW". Default is "doSNOW". This is only applicable if
+#' Default is NULL and uses available cores - 1. This is only applicable if
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
@@ -71,12 +68,12 @@
 #' Default is TRUE.
 #'
 #' @importFrom parallel makeCluster stopCluster
-#' @importFrom doParallel registerDoParallel
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom foreach foreach `%dopar%`
-#' @importFrom utils txtProgressBar setTxtProgressBar
-#' @importFrom stats aggregate
+#' @importFrom utils txtProgressBar setTxtProgressBar read.csv head write.csv
+#' @importFrom stats aggregate glm as.formula
 #' @importFrom glmnet glmnet.control glmnet
+#' @importFrom enmpa proc_enm
 #'
 #' @export
 #'
@@ -94,7 +91,7 @@
 #' - categorical_variables: a character, categorical variable names (if used).
 #' - weights: a numeric vector specifying weights for data_xy (if used).
 #' - pca: if a principal component analysis was performed with variables, a list
-#' of class "prcomp". See ?stats::prcomp() for details.
+#' of class "prcomp". See \code{\link[stats]{prcomp}}() for details.
 #' - algorithm: the model type (glm or maxnet)
 #' - calibration_results: a list containing a data frame with all evaluation
 #' metrics for all replicates (if `return_replicate = TRUE`) and a summary of
@@ -120,7 +117,7 @@
 #'
 #' @details
 #' Partial ROC is calculated following Peterson et al.
-#' (2008; http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008).
+#' (2008; <doi:10.1016/j.ecolmodel.2007.11.008>).
 #'
 #' Omission rates are calculated using models trained with separate testing data
 #' subsets. Users can specify multiple omission rates to be calculated
@@ -131,40 +128,19 @@
 #' set of occurrences.
 #'
 #' @examples
-#' # Import occurrences
-#' data(occ_data, package = "kuenm2")
+#' # Import prepared data for maxnet models
+#' data(sp_swd, package = "kuenm2")
 #'
-#' # Import variables
-#' var <- terra::rast(system.file("extdata", "Current_variables.tif",
-#'                                package = "kuenm2"))
+#' ## Model calibration (maxnet)
+#' #m <- calibration(data = sp_swd, omission_rate = 10)
+#'#
+#' #m
 #'
-#' # Use only variables 1, 2 and 3
-#' var <- var[[1:3]]
+#' # Import prepared data for GLM models
+#' data(sp_swd_glm, package = "kuenm2")
 #'
-#' #### maxnet ####
-#' # Prepare data for maxnet model
-#' sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
-#'                        species = occ_data[1, 1], x = "x", y = "y",
-#'                        raster_variables = var,
-#'                        n_background = 100,
-#'                        features = c("l", "lq"),
-#'                        reg_mult = 1)
-#'
-#' # Calibrate maxnet models
-#' m <- calibration(data = sp_swd, omission_rate = c(5, 10))
-#'
-#' m
-#'
-#' #### GLM ####
-#' # Prepare data for glm model
-#' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
-#'                            species = occ_data[1, 1], x = "x", y = "y",
-#'                            raster_variables = var,
-#'                            n_background = 100,
-#'                            features = c("l", "lq", "q", "lqp"))
-#'
-#' # Calibrate glm models
-#' m_glm <- calibration(data = sp_swd_glm, omission_rate = c(5, 10))
+#' ## Model calibration (GLM)
+#' m_glm <- calibration(data = sp_swd_glm, omission_rate = 10)
 #'
 #' m_glm
 
@@ -174,8 +150,7 @@ calibration <- function(data,
                         addsamplestobackground = TRUE,
                         use_weights = FALSE,
                         parallel = FALSE,
-                        ncores = 4,
-                        parallel_option = "doSNOW",
+                        ncores = NULL,
                         progress_bar = TRUE,
                         write_summary = FALSE,
                         output_directory = NULL,
@@ -191,8 +166,11 @@ calibration <- function(data,
                         verbose = TRUE) {
 
   #Check data
-  if(!inherits(data, "prepared_data")){
-    stop("'data' must be a 'prepared_data' object, not ", class(data))
+  if (missing(data)) {
+    stop("Argument 'data' must be defined.")
+  }
+  if (!inherits(data, "prepared_data")) {
+    stop("'data' must be a 'prepared_data' object.")
   }
 
 
@@ -215,8 +193,9 @@ calibration <- function(data,
   if (skip_existing_models && write_summary) {
     ready_models <- list.files(path = output_directory, pattern = "summary",
                                full.names = TRUE)
-    ready_models <- do.call("rbind", lapply(seq_along(ready_models), function(i) {
-      read.csv(ready_models[i])
+    ready_models <- do.call("rbind",
+                            lapply(seq_along(ready_models), function(i) {
+                              utils::read.csv(ready_models[i])
     }))
     run_models <- setdiff(formula_grid$ID, ready_models$ID)
 
@@ -245,8 +224,8 @@ calibration <- function(data,
 
   # Parallelization setup
   if (parallel) {
-    if (!(parallel_option %in% c("doSNOW", "doParallel"))) {
-      stop("Invalid parallel_option. Use 'doSNOW' or 'doParallel'.")
+    if (is.null(ncores)) {
+      ncores <- max(1, parallel::detectCores() - 1)
     }
     cl <- parallel::makeCluster(ncores)
   }
@@ -262,28 +241,24 @@ calibration <- function(data,
     q_grids <- formula_grid[grepl("q", formula_grid$Features), ]
     n_tot <- nrow(q_grids)
 
-    if(n_tot == 0) {
-      message("None of the models include quadratic terms")
+    if (n_tot == 0) {
+      message("None of the models include quadratic terms.")
     } else {
       if (progress_bar) {
         pb <- txtProgressBar(min = 0, max = n_tot, style = 3)
-        progress <- function(n) setTxtProgressBar(pb, n)
-        opts <- list(progress = progress)} else {opts <- NULL}
-
-      if (parallel & parallel_option == "doParallel") {
-        doParallel::registerDoParallel(cl)
-        opts <- NULL # Progress bar does not work with doParallel
+        progress <- function(n) {
+          setTxtProgressBar(pb, n)
+        }
+        opts <- list(progress = progress)
+      } else {
+        opts <- NULL
       }
 
-      if (parallel & parallel_option == "doSNOW") {
-        doSNOW::registerDoSNOW(cl)
-        if (isTRUE(progress_bar))
-          opts <- list(progress = progress)
-        else opts <- opts
-      }
 
       # Execute fit_eval_concave in parallel or sequentially
-      if(parallel){
+      if (parallel) {
+        doSNOW::registerDoSNOW(cl)
+
         results_concave <- foreach::foreach(
           x = 1:n_tot,
           .packages = c("glmnet", "enmpa"),
@@ -296,13 +271,14 @@ calibration <- function(data,
                              weights = weights,
                              return_replicate = return_replicate,
                              algorithm = algorithm, AIC_option = AIC_option,
-                             proc_for_all = proc_for_all)
+                             proc_for_all = proc_for_all,
+                             out_dir = output_directory)
           }
       } else {
         results_concave <- vector("list", length = n_tot)
         for (x in 1:n_tot) {
           results_concave[[x]] <-
-            kuenm2:::fit_eval_concave(x = x, q_grids, data, formula_grid,
+            fit_eval_concave(x = x, q_grids, data, formula_grid,
                              omission_rate = omission_rate,
                              omrat_thr = omrat_threshold,
                              write_summary = write_summary,
@@ -310,18 +286,19 @@ calibration <- function(data,
                              weights = weights,
                              return_replicate = return_replicate,
                              algorithm = algorithm, AIC_option = AIC_option,
-                             proc_for_all = proc_for_all
+                             proc_for_all = proc_for_all,
+                             out_dir = output_directory
             )
           # Sets the progress bar to the current state
-          if(progress_bar) setTxtProgressBar(pb, x)
+          if (progress_bar) setTxtProgressBar(pb, x)
         }
       }
-    } # End of if(n > 0)
+    } # End of if (n > 0)
   } # End of If test_concave = TRUE
 
   # Update formula grid after concave test
-  if(!test_concave) {n_tot = 0}
-  if(test_concave & n_tot > 0) {
+  if (!test_concave) {n_tot = 0}
+  if (test_concave & n_tot > 0) {
 
     # Convert results to dataframe
     d_concave_rep <- do.call("rbind", lapply(results_concave,
@@ -337,12 +314,12 @@ calibration <- function(data,
 
   n_tot <- nrow(formula_grid)
 
-  if(n_tot == 0) {
-    message("All candidate models have been tested in task 1")
+  if (n_tot == 0) {
+    message("All candidate models have been tested in task 1.")
   } else {
 
-    if(verbose) {
-      if(test_concave) {
+    if (verbose) {
+      if (test_concave) {
         message("\n\nTask 2/2: fitting and evaluating models with no concave responses:")
       } else {
         message("Task 1/1: fitting and evaluating models:")
@@ -351,47 +328,49 @@ calibration <- function(data,
 
     if (progress_bar) {
       pb <- txtProgressBar(0, n_tot, style = 3)
-      progress <- function(n) setTxtProgressBar(pb, n) }
-
-    if (parallel_option == "doParallel") {
-      doParallel::registerDoParallel(cl)
+      progress <- function(n) {
+        setTxtProgressBar(pb, n)
+      }
+      opts <- list(progress = progress)
+    } else {
       opts <- NULL
     }
 
-    if (parallel_option == "doSNOW") {
-      doSNOW::registerDoSNOW(cl)
-      if (isTRUE(progress_bar)) {
-        opts <- list(progress = progress)
-      } else {
-        opts <- NULL
-      }
-    }
-
     if (parallel) {
+      doSNOW::registerDoSNOW(cl)
+
       results <- foreach(
         x = 1:n_tot,
         .packages = c("glmnet", "enmpa"),
-        .options.snow = opts ) %dopar% {
-          fit_eval_models(x, formula_grid, data,
+        .options.snow = opts
+      ) %dopar% {
+          fit_eval_models(x = x, formula_grid = formula_grid, data = data,
                           omission_rate = omission_rate,
                           omrat_thr = omrat_threshold,
                           write_summary = write_summary,
                           addsamplestobackground = addsamplestobackground,
                           weights = weights,
-                          return_replicate = return_replicate, AIC_option = AIC_option,
-                          algorithm = algorithm, proc_for_all)
+                          return_replicate = return_replicate,
+                          algorithm = algorithm,
+                          AIC_option = AIC_option,
+                          proc_for_all = proc_for_all,
+                          out_dir = output_directory)
         }
     } else {
       results <- vector("list", length = n_tot)
       for (x in 1:n_tot) {
         results[[x]] <-
-          fit_eval_models(x, formula_grid = formula_grid, data = data,
+          fit_eval_models(x = x, formula_grid = formula_grid, data = data,
                           omission_rate = omission_rate,
                           omrat_thr = omrat_threshold,
+                          write_summary = write_summary,
                           addsamplestobackground =  addsamplestobackground,
-                          weights = weights, write_summary,
-                          return_replicate, AIC_option = AIC_option,
-                          algorithm = algorithm, proc_for_all = proc_for_all)
+                          weights = weights,
+                          return_replicate = return_replicate,
+                          algorithm = algorithm,
+                          AIC_option = AIC_option,
+                          proc_for_all = proc_for_all,
+                          out_dir = output_directory)
 
         if (progress_bar) {
           setTxtProgressBar(pb, x)
@@ -417,7 +396,7 @@ calibration <- function(data,
     } else {
       res_final <- list(All_results =  d_res_rep, Summary = d_res_sum)
     }
-  }# End of if(n == 0)
+  } # End of if (n == 0)
 
   if (n_tot == 0) {
     res_final <- list(All_results = d_concave_rep,
@@ -429,19 +408,18 @@ calibration <- function(data,
     message("\n\nModel selection step:")
   }
 
-  bm <- sel_best_models(cand_models = res_final$Summary,
-                        test_concave = test_concave,
-                        calc_proc = !proc_for_all,
-                        data = data,
-                        omrat_threshold = omrat_threshold,
-                        allow_tolerance = allow_tolerance,
-                        tolerance = tolerance, AIC_option = AIC_option,
-                        significance = 0.05, verbose = verbose,
-                        delta_aic = delta_aic,
-                        algorithm = algorithm,
-                        parallel = parallel, ncores = ncores,
-                        parallel_option = parallel_option,
-                        progress_bar = progress_bar)
+  bm <- select_models(cand_models = res_final$Summary,
+                      test_concave = test_concave,
+                      calc_proc = !proc_for_all,
+                      data = data,
+                      omrat_threshold = omrat_threshold,
+                      allow_tolerance = allow_tolerance,
+                      tolerance = tolerance, AIC_option = AIC_option,
+                      significance = 0.05, verbose = verbose,
+                      delta_aic = delta_aic,
+                      algorithm = algorithm,
+                      parallel = parallel, ncores = ncores,
+                      progress_bar = progress_bar)
 
   # Concatenate final results
   fm <- new_calibration_results(
