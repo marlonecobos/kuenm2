@@ -44,14 +44,12 @@ such as feature mins and maxes, sample means, and entropy.
 }
 \description{
 This function fits Maxent-like models using the \code{glmnet} package, designed
-for presence-background data. It includes options for regularization and
-calculating the Akaike Information Criterion (AIC).
-The model can automatically add presence points to the background if needed.
+for presence-background data.
 }
 \details{
 This function is modified from the package maxnet and fits a Maxent-like
-model using regularization to avoid overfitting. Regularization weights
-are computed using a user-provided function and can be multiplied by
-a regularization multiplier (\code{regmult}). The function also
+model using regularization to avoid over-fitting. Regularization weights
+are computed using a provided function (which can be changed) and can be
+multiplied by a regularization multiplier (\code{regmult}). The function also
 includes an option to calculate AIC.
 }

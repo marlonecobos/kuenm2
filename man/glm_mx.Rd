@@ -38,5 +38,5 @@ with a default in which presences have a weight of 1 and background 100.
 }
 \details{
 For more details about glms using presence and background emulating what
-Maxent does, see Fithian and Hastie (2013) DOI: 10.1214/13-AOAS667.
+Maxent does, see Fithian and Hastie (2013) \url{doi:10.1214/13-AOAS667}.
 }

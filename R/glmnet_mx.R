@@ -2,9 +2,7 @@
 #'
 #' @description
 #' This function fits Maxent-like models using the \code{glmnet} package, designed
-#' for presence-background data. It includes options for regularization and
-#' calculating the Akaike Information Criterion (AIC).
-#' The model can automatically add presence points to the background if needed.
+#' for presence-background data.
 #'
 #' @usage
 #' glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
@@ -37,12 +35,13 @@
 #'
 #' @details
 #' This function is modified from the package maxnet and fits a Maxent-like
-#' model using regularization to avoid overfitting. Regularization weights
-#' are computed using a user-provided function and can be multiplied by
-#' a regularization multiplier (\code{regmult}). The function also
+#' model using regularization to avoid over-fitting. Regularization weights
+#' are computed using a provided function (which can be changed) and can be
+#' multiplied by a regularization multiplier (\code{regmult}). The function also
 #' includes an option to calculate AIC.
 #'
 #' @importFrom glmnet glmnet.control glmnet
+#'
 #' @export
 
 
@@ -56,12 +55,23 @@ glmnet_mx <- function(p,
                       calculate_AIC = FALSE,
                       AIC_option = "ws",
                       ...) {
+
+  if (missing(p)) {
+    stop("Argument 'p' must be defined.")
+  }
+  if (missing(data)) {
+    stop("Argument 'data' must be defined.")
+  }
+  if (missing(f)) {
+    stop("Argument 'f' must be defined.")
+  }
+  if (!inherits(p, "numeric")) {
+    stop("Argument 'p' must be a 'numeric' vector.")
+  }
   if (anyNA(data)) {
     stop("NA values in data table. Please remove them and rerun.")
   }
-  if (!is.vector(p)) {
-    stop("p must be a vector.")
-  }
+
   iniweigth <- is.null(weights)
 
   if (iniweigth) {

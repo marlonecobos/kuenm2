@@ -25,7 +25,7 @@
 #'
 #' @details
 #' For more details about glms using presence and background emulating what
-#' Maxent does, see Fithian and Hastie (2013) DOI: 10.1214/13-AOAS667.
+#' Maxent does, see Fithian and Hastie (2013) <doi:10.1214/13-AOAS667>.
 #'
 #'
 #' @return
@@ -34,6 +34,7 @@
 #' dataset, stored as \code{model$varmin} and \code{model$varmax}.
 #'
 #' @importFrom stats glm
+#'
 #' @export
 
 
@@ -43,11 +44,22 @@ glm_mx <- function(formula,
                    weights = NULL,
                    ...) {
 
-  # Check for missing values in the data
-  if (anyNA(data)) stop("NA values in data. Please remove them and rerun.")
+  if (missing(formula)) {
+    stop("Argument 'formula' must be defined.")
+  }
+  if (missing(data)) {
+    stop("Argument 'data' must be defined.")
+  }
+  if (!inherits(formula, "formula")) {
+    stop("Argument 'formula' must be a 'formula' object.")
+  }
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data.frame.")
+  }
 
-  if (!is.data.frame(data)){
-    stop("data must be a data.frame")
+  # Check for missing values in the data
+  if (anyNA(data)) {
+    stop("NA values in data. Please remove them and rerun.")
   }
 
   # Initialize weights: if weights is NULL, assign default weights based on pr_bg
