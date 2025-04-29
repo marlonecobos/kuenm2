@@ -5,38 +5,57 @@
 \title{Organize and structure future climate variables from WorldClim}
 \usage{
 organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
-                               variables = NULL, fixed_variables = NULL,
-                               check_extent = TRUE, mask = NULL,
-                               progress_bar = TRUE,
-                               overwrite = FALSE)
+                          variables = NULL, fixed_variables = NULL,
+                          check_extent = TRUE, mask = NULL,
+                          progress_bar = TRUE, overwrite = FALSE)
 }
 \arguments{
-\item{input_dir}{(character) path to the folder containing the future climate variables downloaded from WorldClim.}
+\item{input_dir}{(character) path to the folder containing the future climate
+variables downloaded from WorldClim.}
 
-\item{output_dir}{(character) path to the folder where the organized data will be saved.}
+\item{output_dir}{(character) path to the folder where the organized data
+will be saved.}
 
-\item{name_format}{(character) the format for renaming variable. Options are "bio_", "Bio_", "bio_0", and "Bio_0". See details for more information. Default is "bio_".}
+\item{name_format}{(character) the format for renaming variable. Options are
+"bio_", "Bio_", "bio_0", and "Bio_0". See details for more information.
+Default is "bio_".}
 
-\item{variables}{(character) the names of the variables to retain. Default is NULL, meaning all variables will be kept.}
+\item{variables}{(character) the names of the variables to retain. Default
+is NULL, meaning all variables will be kept.}
 
-\item{fixed_variables}{(SpatRaster) optional static variables (i.e., soil type) used in the model, which will remain unchanged in future scenarios. This variable will be included with each future scenario. Default is NULL.}
+\item{fixed_variables}{(SpatRaster) optional static variables (i.e., soil
+type) used in the model, which will remain unchanged in future scenarios.
+This variable will be included with each future scenario. Default is NULL.}
 
-\item{check_extent}{(logical) whether to ensure that the \code{fixed_variables} have the same spatial extent as the bioclimatic variables. Applicable only if \code{fixed_variables} is provided. Default is TRUE.}
+\item{check_extent}{(logical) whether to ensure that the \code{fixed_variables}
+have the same spatial extent as the bioclimatic variables. Applicable only
+if \code{fixed_variables} is provided. Default is TRUE.}
 
-\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to mask the variables (optional). Default is NULL.}
+\item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
+mask the variables (optional). Default is NULL.}
 
-\item{progress_bar}{(logical) whether to display a progress bar during processing. Default is TRUE.}
+\item{progress_bar}{(logical) whether to display a progress bar during
+processing. Default is TRUE.}
 
-\item{overwrite}{whether to overwrite existing files in the output directory. Default is FALSE.}
+\item{overwrite}{whether to overwrite existing files in the output directory.
+Default is FALSE.}
 }
 \value{
-A list of paths to the folders where the organized climate data has been saved.
+A list of paths to the folders where the organized climate data has been
+saved.
 }
 \description{
-This function imports future climate variables downloaded from WorldClim, renames the files, and organizes them into folders categorized by year and General Circulation Model (GCM). It simplifies the preparation of climate data, making it compatible with the \code{\link{prepare_proj}}() function, ensuring that all required variables are properly structured for modeling projections.
+This function imports future climate variables downloaded from WorldClim,
+renames the files, and organizes them into folders categorized by year and
+General Circulation Model (GCM). It simplifies the preparation of climate
+data, making it compatible with the \code{\link{prepare_proj}}() function,
+ensuring that all required variables are properly structured for modeling
+projections.
 }
 \details{
-The raw variables downloaded from WorldClim are named as "Bio01", "Bio02", "Bio03", "Bio10", etc. The \code{name_format} parameter controls how these variables will be renamed:
+The raw variables downloaded from WorldClim are named as "Bio01", "Bio02",
+"Bio03", "Bio10", etc. The \code{name_format} parameter controls how these
+variables will be renamed:
 \itemize{
 \item "bio_": the variables will be renamed to bio_1, bio_2, bio_3, bio_10, etc.
 \item "bio_0": the variables will be renamed to bio_01, bio_02, bio_03, bio_10, etc
@@ -46,21 +65,26 @@ The raw variables downloaded from WorldClim are named as "Bio01", "Bio02", "Bio0
 }
 \examples{
 # Import the current variables used to fit the model.
-# In this case, SoilType will be treated as a static variable (constant across future scenarios).
+# In this case, SoilType will be treated as a static variable (constant
+# across future scenarios).
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
+
 # Set the input directory containing the raw future climate variables.
 # For this example, the data is located in the "inst/extdata" folder.
 in_dir <- system.file("extdata", package = "kuenm2")
-# Create a "Future_raw" folder in a temporary directory and copy the raw variables there.
+
+# Create a "Future_raw" folder in a temporary directory and copy the raw
+# variables there.
 out_dir <- file.path(tempdir(), "Future_raw")
+
 # Organize and rename the future climate data, structuring it by year and GCM.
 # The 'SoilType' variable will be appended as a static variable in each scenario.
 # The files will be renamed following the "bio_" format
-organize_future_worldclim(input_dir = in_dir,
-                               output_dir = out_dir,
-                               name_format = "bio_", variables = NULL,
-                               fixed_variables = var$SoilType, mask = NULL,
-                               overwrite = TRUE)
+organize_future_worldclim(input_dir = in_dir, output_dir = out_dir,
+                          name_format = "bio_",
+                          fixed_variables = var$SoilType)
 
+# Check files organized
+dir(out_dir, recursive = TRUE)
 }
