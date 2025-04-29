@@ -4,13 +4,11 @@
 \alias{explore_calibration_hist}
 \title{Explore variable distribution for occurrence and background points}
 \usage{
-explore_calibration_hist(data, include_m = FALSE,
-                                raster_variables = NULL,
-                                magnify_occurrences = 2,
-                                breaks = 15)
+explore_calibration_hist(data, include_m = FALSE, raster_variables = NULL,
+                         magnify_occurrences = 2, breaks = 15)
 }
 \arguments{
-\item{data}{an object of class \code{prepare_data} returned by the
+\item{data}{an object of class \code{prepared_data} returned by the
 \code{\link{prepare_data}}() function.}
 
 \item{include_m}{(logical) whether to include data for plotting the histogram
@@ -18,7 +16,7 @@ of the entire area from which background points were sampled. Default is
 FALSE, meaning only background and presence information will be plotted.}
 
 \item{raster_variables}{(SpatRaster) predictor variables used to prepared the
-data with \code{prepare_data}. Only applicable if \code{include_m} is TRUE.}
+data with \code{prepared_data}. Only applicable if \code{include_m} is TRUE.}
 
 \item{magnify_occurrences}{(numeric) factor by which the frequency of
 occurrences is magnified for better visualization. Default is 2, meaning
@@ -27,27 +25,31 @@ occurrence frequencies in the plot will be doubled.}
 \item{breaks}{(numeric) a single number giving the desired number of
 intervals in the histogram.}
 }
+\value{
+A list of with information to plot informative histograms to explore data
+to be used in the modeling process. Histogram plots can be plotted with
+the function \code{\link{plot_explore_calibration}}.
+}
 \description{
 This function prepares data to generate overlaid histograms to visualize the
 distribution of predictor variables for occurrence (presence) and background
 points.
 }
 \examples{
-#Import raster layers
+# Import raster layers
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
-#Import occurrences
-data(occ_data, package = "kuenm2")
-#Prepare data for glmnet model
-sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
-                       species = occ_data[1, 1], x = "x", y = "y",
-                       raster_variables = var,
-                       categorical_variables = "SoilType",
-                       n_background = 500)
-#Explore calibration data
-calib_hist <- explore_calibration_hist(data = sp_swd, raster_variables = var,
-                                       include_m = TRUE,
-                                       magnify_occurrences = 2)
-#Plot histograms
-plot_explore_calibration(explore_calibration = calib_hist, mfrow = c(2,3))
+
+# Import occurrences
+data(sp_swd_cat, package = "kuenm2")
+
+# Explore calibration data
+calib_hist <- explore_calibration_hist(data = sp_swd_cat,
+                                       raster_variables = var,
+                                       include_m = TRUE)
+
+# To visualize results use the function plot_explore_calibration()
+}
+\seealso{
+\code{\link[=plot_explore_calibration]{plot_explore_calibration()}}
 }

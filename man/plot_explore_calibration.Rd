@@ -2,13 +2,15 @@
 % Please edit documentation in R/plot_explore_calibration.R
 \name{plot_explore_calibration}
 \alias{plot_explore_calibration}
-\title{Plot histograms from an explore_calibration object}
+\title{Histograms to visualize data from explore_calibration objects}
 \usage{
 plot_explore_calibration(explore_calibration, color_m = "grey",
-       color_background = "#56B4E9", color_presence = "#009E73", alpha = 0.4,
-       lines = TRUE, which_lines = c("range", "cl", "mean"), lty_range = 1,
-       lty_cl = 2, lty_mean = 3, lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
-       xlab = NULL, ylab = NULL, mfrow = c(1, 1))
+                         color_background = "#56B4E9",
+                         color_presence = "#009E73", alpha = 0.4,
+                         lines = TRUE, which_lines = c("cl", "mean"),
+                         lty_range = 1, lty_cl = 2, lty_mean = 3,
+                         lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
+                         xlab = NULL, ylab = NULL, mfrow = c(1, 1))
 }
 \arguments{
 \item{explore_calibration}{an object of class \code{explore_calibration} generated
@@ -24,7 +26,7 @@ background data. Default is "#56B4E9".}
 presence data. Default is "#009E73".}
 
 \item{alpha}{(numeric) opacity factor to fill the bars, typically in the
-range \link{0,1}. Default is 0.4.}
+range 0-1. Default is 0.4.}
 
 \item{lines}{(logical) whether to add vertical lines to the plot representing
 the range, confidence interval, and mean of variables.}
@@ -64,26 +66,22 @@ the plot layout, e.g., c(rows, columns). Default is c(1, 1), meaning
 one plot per variable.}
 }
 \description{
-Customizes and plots histograms stored in an \code{explore_calibration} object
+Plots histograms to visualize data from an \code{explore_calibration} object
 generated with the \code{explore_calibration_hist} function.
 }
 \examples{
-#Import raster layers
+# Import raster layers
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
-#Import occurrences
-data(occ_data, package = "kuenm2")
-#Prepare data for glmnet model
-sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
-                       species = occ_data[1, 1], x = "x", y = "y",
-                       raster_variables = var,
-                       categorical_variables = "SoilType",
-                       n_background = 500)
-#Explore calibration data
-calib_hist <- explore_calibration_hist(data = sp_swd, raster_variables = var,
-                                       include_m = TRUE,
-                                       magnify_occurrences = 2)
-#Plot histograms
-plot_explore_calibration(explore_calibration = calib_hist, mfrow = c(2,3))
 
+# Import occurrences
+data(sp_swd_cat, package = "kuenm2")
+
+# Explore calibration data
+calib_hist <- explore_calibration_hist(data = sp_swd_cat,
+                                       raster_variables = var,
+                                       include_m = TRUE)
+
+# Plot histograms
+plot_explore_calibration(explore_calibration = calib_hist, mfrow = c(2, 3))
 }
