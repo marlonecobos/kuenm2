@@ -1,16 +1,16 @@
-#' Generate Variable Response Curves from Fitted Models
+#' Variable response curves for fitted models
 #'
 #' @description
-#' A view of variable responses in fitted models. Responses based on single or multiple
-#' models can be provided.
+#' A view of variable responses in fitted models. Responses based on single or
+#' multiple models can be plotted.
 #'
-#' @usage response_curve(models, variable, modelID = NULL, n = 100,
-#'                      by_replicates = FALSE, data = NULL, new_data = NULL,
-#'                      averages_from = "pr",
-#'                      extrapolate = TRUE, extrapolation_factor = 0.1,
-#'                      l_limit = NULL, u_limit = NULL,
-#'                      xlab = NULL, ylab = "Suitability",
-#'                      col = "darkblue", ...)
+#' @usage
+#' response_curve(models, variable, modelID = NULL, n = 100,
+#'                by_replicates = FALSE, data = NULL, new_data = NULL,
+#'                averages_from = "pr", extrapolate = TRUE,
+#'                extrapolation_factor = 0.1, l_limit = NULL,
+#'                u_limit = NULL, xlab = NULL, ylab = "Suitability",
+#'                col = "darkblue", ...)
 #
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
@@ -64,40 +64,36 @@
 #'
 #' @export
 #'
-#' @importFrom stats predict coef
-#' @importFrom graphics abline polygon
+#' @seealso
+#' [bivariate_response()]
+#'
+#' @importFrom stats predict coef approx binomial complete.cases formula
+#' @importFrom stats model.matrix predict.glm sd
+#' @importFrom graphics abline polygon arrows image layout lines
 #' @importFrom terra minmax
 #' @importFrom mgcv gam
 #'
 #' @examples
-#' ##Example with glmnet
+#' # Example with maxnet
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_maxnet", package = "kuenm2")
+#' data(fitted_model_maxnet, package = "kuenm2")
 #'
 #' #Response curves
 #' response_curve(models = fitted_model_maxnet,
-#'                variable = "bio_1", by_replicates = T)
-#' response_curve(models = fitted_model_maxnet,
-#'                variable = "bio_7", by_replicates = T)
+#'                variable = "bio_1", by_replicates = TRUE)
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
-#'                modelID = "Model_13", by_replicates = T)
-#' response_curve(models = fitted_model_maxnet, variable = "bio_1",
-#'                modelID = "Model_1", by_replicates = T)
+#'                modelID = "Model_13", by_replicates = TRUE)
 #'
-#' ##Example with glm
+#' # Example with GLM
 #' # Import example of fitted_models (output of fit_selected())
-#' data("fitted_model_glm", package = "kuenm2")
+#' data(fitted_model_glm, package = "kuenm2")
 #'
 #' #Response curves
 #' response_curve(models = fitted_model_glm,
-#'                variable = "bio_1", by_replicates = T)
-#' response_curve(models = fitted_model_glm,
-#'                variable = "bio_7", by_replicates = T)
+#'                variable = "bio_1", by_replicates = TRUE)
 #' response_curve(models = fitted_model_glm, variable = "bio_1",
-#'                modelID = "Model_4", by_replicates = T)
-#' response_curve(models = fitted_model_glm, variable = "bio_12",
-#'                modelID = "Model_4", by_replicates = T)
-#'
+#'                modelID = "Model_1", by_replicates = TRUE)
+
 response_curve <- function(models, variable, modelID = NULL, n = 100,
                            by_replicates = FALSE, data = NULL,
                            new_data = NULL, averages_from = "pr",
@@ -112,28 +108,19 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
   }
 
   if (!inherits(models, "fitted_models")) {
-    stop(paste0("Argument models must be a fitted_models object, not ",
-                class(models)))
+    stop("Argument 'models' must be a fitted_models object.")
   }
 
   if (!inherits(variable, "character")) {
-    stop(paste0("Argument variable must be a character, not ",
-                class(variable)))
+    stop("Argument 'variable' must be a 'character'.")
   }
 
   if (!is.null(modelID) & !inherits(modelID, "character")) {
-    stop(paste0("Argument modelID must be a character, not ",
-                class(modelID)))
+    stop("Argument 'modelID' must be a 'character'.")
   }
 
   if (!inherits(n, "numeric")) {
-    stop(paste0("Argument n must be numeric, not ",
-                class(n)))
-  }
-
-  if (!inherits(by_replicates, "logical")) {
-    stop(paste0("Argument by_replicates must be logical, not ",
-                class(by_replicates)))
+    stop("Argument 'n' must be 'numeric'.")
   }
 
   if (!is.null(new_data)) {
@@ -143,53 +130,39 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
   }
 
   if (!inherits(extrapolation_factor, "numeric")) {
-    stop(paste0("Argument extrapolate must be numeric, not ",
-                class(extrapolation_factor)))
+    stop("Argument 'extrapolation_factor' must be 'numeric'.")
   }
 
   if (!averages_from %in% c("pr_bg", "pr")) {
-    stop("Argument averages_from must be 'pr_bg' or 'pr'")
-  }
-
-  if (!inherits(extrapolate, "logical")) {
-    stop(paste0("Argument extrapolate must be logical, not ",
-                class(extrapolate)))
+    stop("Argument 'averages_from' must be 'pr_bg' or 'pr'.")
   }
 
   if (!is.null(xlab) & !inherits(xlab, "character")) {
-    stop(paste0("Argument xlab must be NULL or a character, not ",
-                class(xlab)))
+    stop("Argument 'xlab' must be NULL or a 'character'.")
   }
 
   if (!is.null(ylab) & !inherits(ylab, "character")) {
-    stop(paste0("Argument ylab must be NULL or a character, not ",
-                class(ylab)))
+    stop("Argument 'ylab' must be NULL or a 'character'.")
   }
 
-  if (!inherits(col, "character")) {
-    stop(paste0("Argument col must be a character, not ",
-                class(col)))
-  }
 
 
   # if data is not defined it is extrated from the models kuenm2 object
-  if (is.null(data)){
+  if (is.null(data)) {
     data <- models$calibration_data
   }
 
   ## add a warming message indicating that the are not replicates.
-  if (!is.null(modelID)){
+  if (!is.null(modelID)) {
 
-    if (!modelID %in% names(models[["Models"]])){
-      stop(paste0(
-        "The 'ModelID' is not correct, check the following: [",
-        paste(names(models[["Models"]]), collapse = ", ")),
-        "]"
-      )
+    if (!modelID %in% names(models[["Models"]])) {
+      stop("'ModelID' is not correct, check the following: [",
+           paste(names(models[["Models"]]), collapse = ", "),
+           "]")
     }
 
     # Handling replicates or the full model
-    if (by_replicates){
+    if (by_replicates) {
       model_list <- models[["Models"]][[modelID]]
       model_list$Full_model <- NULL
 
@@ -206,7 +179,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
       c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T)
 
 
-      if (any(c1, c2, c3, c4) == FALSE){
+      if (any(c1, c2, c3, c4) == FALSE) {
         stop("Defined 'variable' is not present in the models model.")
       }
     } else {
@@ -214,7 +187,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
     }
   } else {
     # extract the slot Full_model for each model
-    model_list <- lapply(models[["Models"]], function(x){x$Full_model})
+    model_list <- lapply(models[["Models"]], function(x) {x$Full_model})
   }
 
   # Response curve for all selected models
@@ -250,7 +223,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
   if (!is.null(new_data)) {
     if (!class(new_data)[1] %in% c("matrix", "data.frame", "SpatRaster")) {
-      stop("'new_data' must be of class 'matrix', 'data.frame', 'SpatRaster'")
+      stop("'new_data' must be of class 'matrix', 'data.frame', 'SpatRaster'.")
     }
   }
 
@@ -259,7 +232,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
   }
 
 
-  if (length(model_list) == 1 ){
+  if (length(model_list) == 1 ) {
     model <- model_list[[1]]
 
     # Handling glmnet and glm models differently
@@ -275,7 +248,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T) # check categorical variables
 
 
-    if (any(c1, c2, c3, c4) == FALSE){
+    if (any(c1, c2, c3, c4) == FALSE) {
       stop("Defined 'variable' is not present in the models model.")
     }
 
@@ -289,14 +262,18 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                              l_limit = l_limit, u_limit = u_limit)
 
 
-    if(!is.null(categorical_variables) && variable %in% categorical_variables){
+    if (!is.null(categorical_variables) && variable %in% categorical_variables) {
       # Plot response for categorical variable for a single model
 
       x <- response_out[, variable]
       y <- c(response_out$predicted)
 
-      if (is.null(xlab)) {xlab <- variable}
-      if (is.null(ylab)) {ylab <- "Suitability"}
+      if (is.null(xlab)) {
+        xlab <- variable
+      }
+      if (is.null(ylab)) {
+        ylab <- "Suitability"
+      }
 
       # Create a list of arguments to pass to the plot function
       plotcurve_args <- list(height = y, names.arg = x, col = "lightblue",
@@ -309,19 +286,20 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     } else {
       # Plot response for continuous variable for a single model
 
-      limits <- range(data[,variable])
+      limits <- range(data[, variable])
 
       ## Plotting curve
-      if (is.null(xlab)) {xlab <- variable}
-      if (is.null(ylab)) {ylab <- "Suitability"}
+      if (is.null(xlab)) {
+        xlab <- variable
+      }
+      if (is.null(ylab)) {
+        ylab <- "Suitability"
+      }
 
       plotcurve_args <- list(x = response_out[, variable],
                              y = response_out$predicted,
-                             type = "l",
-                             xlab= xlab,
-                             ylab = ylab,
-                             col = col,
-                             ...)
+                             type = "l", xlab= xlab, ylab = ylab,
+                             col = col, ...)
 
       # plot using do.call()
       do.call(plot, plotcurve_args)
@@ -349,7 +327,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       c3 <- any(grepl(paste0(":", variable, "$"), coefs))
       c4 <- any(grepl(paste0("^categorical\\(", variable, "\\)"), coefs))
 
-      if (any(c1, c2, c3, c4)){
+      if (any(c1, c2, c3, c4)) {
 
         out <- response(x, data, variable, new_data = new_data,
                         extrapolate = extrapolate,
@@ -367,7 +345,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     response_out <- do.call(rbind, response_out)
 
 
-    if(!is.null(categorical_variables) && variable %in% categorical_variables){
+    if (!is.null(categorical_variables) && variable %in% categorical_variables) {
       # Plot response for categorical variable for multiple models
 
       # Function to calculate mean and standard error
@@ -381,8 +359,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
       # Compute statistics: mean and standard error
       stats <- aggregate(as.formula(paste("predicted ~", variable)),
-                         data = response_out,
-                         FUN = calc_stats)
+                         data = response_out, FUN = calc_stats)
       stats <- do.call(data.frame, stats)
       stats <- stats[order(as.numeric(levels(stats[, variable]))), ]
 
@@ -433,8 +410,12 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
 
 
       ## Plotting curve
-      if (is.null(xlab)) {xlab <- variable}
-      if (is.null(ylab)) {ylab <- "Suitability"}
+      if (is.null(xlab)) {
+        xlab <- variable
+      }
+      if (is.null(ylab)) {
+        ylab <- "Suitability"
+      }
 
       # Create a list of arguments to pass to the plot function
       plotcurve_args <- list(x = x, y = y, type = "n", xlab= xlab, ylab = ylab,
@@ -452,11 +433,8 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       lines(x_seq, y_pred, col = col)
 
       # It adds the calibration limits
-      abline(v = limits,
-             col = c("black", "black"),
-             lty = c(2, 2),
-             lwd = c(1, 1)
-      )
+      abline(v = limits, col = c("black", "black"), lty = c(2, 2),
+             lwd = c(1, 1))
     }
   }
 }
@@ -477,7 +455,7 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   if (!is.null(new_data)) {
     if (!class(new_data)[1] %in% c("matrix", "data.frame", "SpatRaster")) {
-      stop("'new_data' must be of class 'matrix', 'data.frame', 'SpatRaster'")
+      stop("'new_data' must be of class 'matrix', 'data.frame', 'SpatRaster'.")
     }
   }
 
@@ -494,10 +472,11 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
   }
 
   # Extract calibration data from the model object
-  if(averages_from == "pr"){
-    cal_data <- data[, vnames, drop = FALSE] } else if (averages_from == "pr_bg"){
-      cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
-    }
+  if (averages_from == "pr") {
+    cal_data <- data[, vnames, drop = FALSE]
+  } else if (averages_from == "pr_bg") {
+    cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
+  }
 
   # Extract the limits of the calibration data
   cal_maxs <-  apply(cal_data, 2, FUN = max)
@@ -507,8 +486,8 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   # Dealing with categorical variables
   means <- colMeans(cal_data[sapply(cal_data, is.numeric)])
-  if(!is.null(categorical_variables) && vnames[categorical_variables]){
-    mode_cat <- sapply(categorical_variables, function(x){
+  if (!is.null(categorical_variables) && vnames[categorical_variables]) {
+    mode_cat <- sapply(categorical_variables, function(x) {
       as.numeric(names(which.max(table(cal_data[, x]))))
     })
     means <- c(means, mode_cat)
@@ -520,10 +499,12 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
       rr <- range(cal_data[, variable]) # range of the calibration data
       extension <- extrapolation_factor * diff(rr)
 
-      if(is.null(l_limit))
+      if (is.null(l_limit)) {
         l_limit <- rr[1] - extension
-      if(is.null(u_limit))
+      }
+      if (is.null(u_limit)) {
         u_limit <- rr[2] + extension
+      }
 
       rangev <- c(l_limit, u_limit)
 
@@ -541,7 +522,7 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   }
 
-  if(variable %in% categorical_variables){
+  if (variable %in% categorical_variables) {
     newvar <- factor(levels(data[[variable]]))
   } else {
     newvar <- seq(rangev[1], rangev[2], length = n)
@@ -560,6 +541,6 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
     predict.glm(model, newdata = m, type = "response")
   }
 
-  return(m[,c(variable, "predicted")])
+  return(m[, c(variable, "predicted")])
 
 }

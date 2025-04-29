@@ -2,15 +2,14 @@
 % Please edit documentation in R/response_curves.R
 \name{response_curve}
 \alias{response_curve}
-\title{Generate Variable Response Curves from Fitted Models}
+\title{Variable response curves for fitted models}
 \usage{
 response_curve(models, variable, modelID = NULL, n = 100,
-                     by_replicates = FALSE, data = NULL, new_data = NULL,
-                     averages_from = "pr",
-                     extrapolate = TRUE, extrapolation_factor = 0.1,
-                     l_limit = NULL, u_limit = NULL,
-                     xlab = NULL, ylab = "Suitability",
-                     col = "darkblue", ...)
+               by_replicates = FALSE, data = NULL, new_data = NULL,
+               averages_from = "pr", extrapolate = TRUE,
+               extrapolation_factor = 0.1, l_limit = NULL,
+               u_limit = NULL, xlab = NULL, ylab = "Suitability",
+               col = "darkblue", ...)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
@@ -70,8 +69,8 @@ name defined in \code{variable}.}
 A plot with the response curve for a \code{variable}.
 }
 \description{
-A view of variable responses in fitted models. Responses based on single or multiple
-models can be provided.
+A view of variable responses in fitted models. Responses based on single or
+multiple models can be plotted.
 }
 \details{
 The response curves are generated with all other variables set to their mean
@@ -83,32 +82,26 @@ For categorical variables, a bar plot is generated with error bars showing
 variability across models (if multiple models are included).
 }
 \examples{
-##Example with glmnet
+# Example with maxnet
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_maxnet", package = "kuenm2")
+data(fitted_model_maxnet, package = "kuenm2")
 
 #Response curves
 response_curve(models = fitted_model_maxnet,
-               variable = "bio_1", by_replicates = T)
-response_curve(models = fitted_model_maxnet,
-               variable = "bio_7", by_replicates = T)
+               variable = "bio_1", by_replicates = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
-               modelID = "Model_13", by_replicates = T)
-response_curve(models = fitted_model_maxnet, variable = "bio_1",
-               modelID = "Model_1", by_replicates = T)
+               modelID = "Model_13", by_replicates = TRUE)
 
-##Example with glm
+# Example with GLM
 # Import example of fitted_models (output of fit_selected())
-data("fitted_model_glm", package = "kuenm2")
+data(fitted_model_glm, package = "kuenm2")
 
 #Response curves
 response_curve(models = fitted_model_glm,
-               variable = "bio_1", by_replicates = T)
-response_curve(models = fitted_model_glm,
-               variable = "bio_7", by_replicates = T)
+               variable = "bio_1", by_replicates = TRUE)
 response_curve(models = fitted_model_glm, variable = "bio_1",
-               modelID = "Model_4", by_replicates = T)
-response_curve(models = fitted_model_glm, variable = "bio_12",
-               modelID = "Model_4", by_replicates = T)
-
+               modelID = "Model_1", by_replicates = TRUE)
+}
+\seealso{
+\code{\link[=bivariate_response]{bivariate_response()}}
 }
