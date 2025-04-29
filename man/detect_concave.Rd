@@ -5,8 +5,8 @@
 \title{Detect concave curves in GLM and GLMNET models}
 \usage{
 detect_concave(model, calib_data, extrapolation_factor = 0.1,
-                     var_limits = NULL, averages_from, plot = FALSE,
-                     mfrow = NULL, legend = FALSE)
+               averages_from = "pr", var_limits = NULL, plot = FALSE,
+               mfrow = NULL, legend = FALSE)
 }
 \arguments{
 \item{model}{an object of class \code{glmnet_mx} or \code{glm}.}
@@ -44,8 +44,8 @@ A list with the following elements for each variable:
 \item is_concave (logical): indicates whether the response curve for the variable
 is concave within the limit range. This occurs when the quadratic term's
 coefficient is positive and the vertex lies between x_min and x_max,
-\item vertex (numeric): the vertex of the parabola, representing the point where the curve
-changes direction.
+\item vertex (numeric): the vertex of the parabola, representing the point where
+the curve changes direction.
 \item b2 (numeric): the coefficient of the quadratic term for the variable.
 Positive values indicate a concave curve.
 \item x_min and x_max (numeric): the range limits to identify concave curves,
@@ -85,12 +85,11 @@ presence and background localities (if \code{averages_from = "pr_bg"}).
 data("fitted_model_concave", package = "kuenm2")
 
 #Response curves
-detect_concave(model = fitted_model_concave$Models$Model_798$Full_model,
-               calib_data = fitted_model_concave$calibration_data,
-               extrapolation_factor = 0.2,
-               var_limits = list("bio_2" = c(0, NA),
-                                 "sand" = c(0, NA),
-                                 "clay" = c(0, NA))
-               plot = TRUE, mfrow = c(2, 3), legend = TRUE)
-
+ccurves <- detect_concave(model = fitted_model_concave$Models$Model_798$Full_model,
+                          calib_data = fitted_model_concave$calibration_data,
+                          extrapolation_factor = 0.2,
+                          var_limits = list("bio_2" = c(0, NA),
+                                            "sand" = c(0, NA),
+                                            "clay" = c(0, NA)),
+                          plot = TRUE, mfrow = c(2, 3), legend = TRUE)
 }

@@ -4,9 +4,10 @@
 #' Identifies the presence of concave response curves within the calibration
 #' range of GLM and GLMNET models.
 #'
-#' @usage detect_concave(model, calib_data, extrapolation_factor = 0.1,
-#'                      var_limits = NULL, averages_from, plot = FALSE,
-#'                      mfrow = NULL, legend = FALSE)
+#' @usage
+#' detect_concave(model, calib_data, extrapolation_factor = 0.1,
+#'                averages_from = "pr", var_limits = NULL, plot = FALSE,
+#'                mfrow = NULL, legend = FALSE)
 #'
 #' @param model an object of class `glmnet_mx` or `glm`.
 #' @param calib_data data.frame or matrix of data used for model calibration.
@@ -50,13 +51,12 @@
 #' localities (if \code{averages_from = "pr"}) or from the combined set of
 #' presence and background localities (if \code{averages_from = "pr_bg"}).
 #'
-#'
 #' @return A list with the following elements for each variable:
 #'  - is_concave (logical): indicates whether the response curve for the variable
 #'    is concave within the limit range. This occurs when the quadratic term's
 #'    coefficient is positive and the vertex lies between x_min and x_max,
-#'  - vertex (numeric): the vertex of the parabola, representing the point where the curve
-#'    changes direction.
+#'  - vertex (numeric): the vertex of the parabola, representing the point where
+#'    the curve changes direction.
 #'  - b2 (numeric): the coefficient of the quadratic term for the variable.
 #'    Positive values indicate a concave curve.
 #'  - x_min and x_max (numeric): the range limits to identify concave curves,
@@ -76,44 +76,50 @@
 #' data("fitted_model_concave", package = "kuenm2")
 #'
 #' #Response curves
-#' detect_concave(model = fitted_model_concave$Models$Model_798$Full_model,
-#'                calib_data = fitted_model_concave$calibration_data,
-#'                extrapolation_factor = 0.2,
-#'                var_limits = list("bio_2" = c(0, NA),
-#'                                  "sand" = c(0, NA),
-#'                                  "clay" = c(0, NA))
-#'                plot = TRUE, mfrow = c(2, 3), legend = TRUE)
-#'
-detect_concave <- function(model, calib_data,
-                          extrapolation_factor = 0.1,
-                          averages_from = "pr",
-                          var_limits = NULL, plot = FALSE, plot_linear = FALSE,
-                          mfrow = NULL, legend = FALSE){
+#' ccurves <- detect_concave(model = fitted_model_concave$Models$Model_798$Full_model,
+#'                           calib_data = fitted_model_concave$calibration_data,
+#'                           extrapolation_factor = 0.2,
+#'                           var_limits = list("bio_2" = c(0, NA),
+#'                                             "sand" = c(0, NA),
+#'                                             "clay" = c(0, NA)),
+#'                           plot = TRUE, mfrow = c(2, 3), legend = TRUE)
 
+detect_concave <- function(model,
+                           calib_data,
+                           extrapolation_factor = 0.1,
+                           averages_from = "pr",
+                           var_limits = NULL,
+                           plot = FALSE,
+                           mfrow = NULL,
+                           legend = FALSE) {
 
-  if (!inherits(extrapolation_factor, "numeric")) {
-    stop(paste0("Argument extrapolate must be numeric, not ",
-                class(extrapolation_factor)))
+  if (missing(model)) {
+    stop("Argument 'model' must be defined.")
   }
-
+  if (missing(calib_data)) {
+    stop("Argument 'calib_data' must be defined.")
+  }
+  if (!inherits(extrapolation_factor, "numeric")) {
+    stop("Argument extrapolate must be 'numeric'.")
+  }
   if (!averages_from %in% c("pr_bg", "pr")) {
-    stop("Argument averages_from must be 'pr_bg' or 'pr'")
+    stop("Argument averages_from must be 'pr_bg' or 'pr'.")
   }
 
   #Get modeltype
-  model_type <- if(inherits(model, "glmnet_mx")){
+  model_type <- if (inherits(model, "glmnet_mx")) {
     "glmnet_mx"} else if (inherits(model, "glm")) {
       "glm"}
 
   #Get coefficients
-  if(model_type == "glmnet_mx"){
-    coefs <- coef(model)[,200]
+  if (model_type == "glmnet_mx") {
+    coefs <- coef(model)[, 200]
   } else {
     coefs <- coef(model)
   }
 
   #Subset calib_data
-  if(averages_from == "pr_bg"){
+  if (averages_from == "pr_bg") {
     calib_data <- calib_data[calib_data$pr_bg == 1, ]
   }
 
@@ -122,8 +128,8 @@ detect_concave <- function(model, calib_data,
 
   #Mode of categorical variables
   cv <- colnames(calib_data)[sapply(calib_data, class) == "factor"]
-  if(length(cv) > 0){
-    mode_cat <- sapply(cv, function(x){
+  if (length(cv) > 0){
+    mode_cat <- sapply(cv, function(x) {
       as.numeric(names(which.max(table(calib_data[, x]))))
     })
     means <- c(means, mode_cat)
@@ -133,7 +139,7 @@ detect_concave <- function(model, calib_data,
   vertex <- calculate_vertex(coefs, means)
 
   #Variables to limit manually
-  if(!is.null(var_limits)){
+  if (!is.null(var_limits)) {
     v_lim <- names(var_limits)
     # #Check if some variable is not correctly assigned
     # var_out <- setdiff(v_lim, colnames(calib_data))
@@ -150,7 +156,7 @@ detect_concave <- function(model, calib_data,
   var_names <- var_names[!grepl("categorical", var_names)]
   var_names <- unique(unlist(strsplit(var_names, ":")))
 
-  var_info <- lapply(var_names, function(v){
+  var_info <- lapply(var_names, function(v) {
     #Get min and max from variables
     varmin <- min(calib_data[, v])
     varmax <- max(calib_data[, v])
@@ -163,53 +169,55 @@ detect_concave <- function(model, calib_data,
     x_max <- varmax + extrapolation_factor_i
 
     #Set manual limits
-    if(!is.null(var_limits)){
-    if(v %in% v_lim){
-      if(!is.na(var_limits[[v]][1]))
-        x_min <- var_limits[[v]][1]
+    if (!is.null(var_limits)) {
+      if(v %in% v_lim) {
+        if(!is.na(var_limits[[v]][1])) {
+          x_min <- var_limits[[v]][1]
+        }
 
-      if(!is.na(var_limits[[v]][2]))
-        x_max <- var_limits[[v]][2]
-    }
+        if(!is.na(var_limits[[v]][2])) {
+          x_max <- var_limits[[v]][2]
+        }
+      }
     }
 
     #Beta coefficient
     v2 <- paste0("I(", v, "^2)")
-    if(v2 %in% names(coefs)){
-    b2 <- coefs[[v2]] } else {
+    if (v2 %in% names(coefs)) {
+      b2 <- coefs[[v2]]
+    } else {
       b2 <- 0
     }
 
     #Check if curve is concave
-    if(v %in% names(vertex)){
-    is_concave <- b2 > 0 &
-      vertex[[v]] > x_min &
-      vertex[[v]] < x_max
-    vertex_v <- vertex[[v]]} else {
-        is_concave <- FALSE
-        vertex_v <- NA
-      }
+    if (v %in% names(vertex)) {
+      is_concave <- b2 > 0 &
+        vertex[[v]] > x_min &
+        vertex[[v]] < x_max
+      vertex_v <- vertex[[v]]
+    } else {
+      is_concave <- FALSE
+      vertex_v <- NA
+    }
 
-    return(list("is_concave" = is_concave,
-             "vertex" =  vertex_v ,
-             "b2" = b2,
-             "x_min" = x_min,
-             "x_max" = x_max,
-             "real_x_min" = varmin,
-             "real_x_max" = varmax))
-    })
+    return(list(is_concave = is_concave, vertex =  vertex_v , b2 = b2,
+                x_min = x_min, x_max = x_max, real_x_min = varmin,
+                real_x_max = varmax))
+  })
 
   names(var_info) <- var_names
 
   #If plot...
-  if(plot){
+  if (plot) {
 
     #Set grid of the plot
-    if(!is.null(mfrow)){
+    if (!is.null(mfrow)) {
       par(mfrow = mfrow) # Create a plotting matrix
-    } else {par(mfrow = c(1,1))}
+    } else {
+      par(mfrow = c(1,1))
+    }
 
-    for(i in names(var_info)){
+    for (i in names(var_info)) {
       r <- response(model = model, data = calib_data, variable = i,
                     type = "cloglog", n = 100,
                     new_data = NULL, extrapolate = TRUE,
@@ -236,12 +244,14 @@ detect_concave <- function(model, calib_data,
     }
 
     #Set mfrow to default again
-    if(!is.null(mfrow)){
-      par(mfrow = c(1,1))}
+    if (!is.null(mfrow)) {
+      par(mfrow = c(1, 1))
+    }
 
   } #End of plot
   return(var_info)
 }
+
 
 # Plot curve
 plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_max,
@@ -254,10 +264,10 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
 
   # Add vertex to the graph
   #Get variables means
-  if(!is.na(vertex_v)){
+  if (!is.na(vertex_v)) {
   means_v <- as.data.frame(t(c(means[names(means) != variable],
                                setNames(vertex_v, variable))))
-  if(model_type == "glmnet_mx"){
+  if (model_type == "glmnet_mx") {
     p_vertex <- predict.glmnet_mx(model, newdata = means_v, type = "cloglog")
   } else {
     p_vertex <- predict.glm(model, newdata = means_v, type = "response")
@@ -271,16 +281,16 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
   abline(v = real_xmin, col = "gray", lty = 2)
   abline(v = real_xmax, col = "gray", lty = 2)
 
-  if(legend){
-    result <- if(beta2 < 0) {
+  if (legend) {
+    result <- if (beta2 < 0) {
       "Convex curve"
     } else if (beta2 > 0 & vertex_v > x_min & vertex_v < x_max) {
       "Concave curve inside the range"
-    } else if (beta2 > 0 & (vertex_v < x_min | vertex_v > x_max)){
+    } else if (beta2 > 0 & (vertex_v < x_min | vertex_v > x_max)) {
       "Concave curve outside the range"
-    } else if (beta2 == 0){
+    } else if (beta2 == 0) {
       "Monotonic curve"
-      }
+    }
 
     # legend("topright", legend = result, col = "black", lty = 1, cex = 0.8,
     #        bty = "n")
@@ -290,11 +300,11 @@ plot_curve_direction <- function(model, x_values, y_values, variable, x_min, x_m
       "#009E73"
     } else if (beta2 > 0 & vertex_v > x_min & vertex_v < x_max) {
       "#D55E00"
-    } else if (beta2 > 0 & (vertex_v < x_min | vertex_v > x_max)){
-      "#CC79A7"}
+    } else if (beta2 > 0 & (vertex_v < x_min | vertex_v > x_max)) {
+      "#CC79A7"
+    }
 
     mtext(result, side = 3, line = 0.5, cex = 0.8, col = color_sub, font = 2)
-
   }
 }
 
@@ -344,16 +354,3 @@ calculate_vertex <- function(coefs, means) {
 
   return(vertices)
 }
-
-# #Test
-# detect_concave(model = fitted_model_glm$Models$Model_2$Full_model,
-#                calib_data = fitted_model_glm$calibration_data,
-#                extrapolation_factor = 2,
-#                plot = T,
-#                mfrow = NULL, legend = T)
-
-
-#
-# fm <- data("fitted_models")
-#
-# data("fitted_model_glmnet", package = "kuenm2")
