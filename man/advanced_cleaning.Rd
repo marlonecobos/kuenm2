@@ -6,24 +6,24 @@
 \alias{move_2closest_cell}
 \title{Advanced occurrence data cleaning}
 \usage{
-advanced_cleaning(data, longitude_column, latitude_column, raster_layer,
-                  cell_duplicates = TRUE, move_points_inside = TRUE,
-                  move_limit_distance = NULL, verbose = TRUE)
+advanced_cleaning(data, x, y, raster_layer, cell_duplicates = TRUE,
+                  move_points_inside = FALSE, move_limit_distance = NULL,
+                  verbose = TRUE)
 
-remove_cell_duplicates(data, longitude_column, latitude_column,
+remove_cell_duplicates(data, x, y,
                        raster_layer)
 
-move_2closest_cell(data, longitude_column, latitude_column, raster_layer,
+move_2closest_cell(data, x, y, raster_layer,
                    move_limit_distance, verbose = TRUE)
 }
 \arguments{
 \item{data}{data.frame with occurrence records. Rows with NA values will be
 omitted.}
 
-\item{longitude_column}{(character) name of the column in \code{data}
+\item{x}{(character) name of the column in \code{data}
 containing longitude values.}
 
-\item{latitude_column}{(character) name of the column in \code{data}
+\item{y}{(character) name of the column in \code{data}
 containing latitude values.}
 
 \item{raster_layer}{a raster layer (object of class
@@ -33,7 +33,7 @@ containing latitude values.}
 considering raster cells. Default = TRUE.}
 
 \item{move_points_inside}{(logical) whether to move records outside of raster
-cells with valid values to the closest cell with values. Default = TRUE.}
+cells with valid values to the closest cell with values. Default = FALSE.}
 
 \item{move_limit_distance}{maximum distance to move records outside cells
 with valid values. Default = NULL. Must be defined if \code{move_points_inside}
