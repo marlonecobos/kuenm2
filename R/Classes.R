@@ -26,33 +26,6 @@ new_explore_list <- function(summary, exploration_stats,
 }
 
 
-#new_occ_cal <- function(summary, occurrences, block_limits = NULL,
-#                        calibration_regime = NULL) {
-#  # error checking
-#
-#  val <- list(summary = summary, occurrences = occurrences,
-#              block_limits = block_limits,
-#              calibration_regime = calibration_regime)
-#  class(val) <- "occ_cal"
-#  return(val)
-#}
-
-
-
-#new_back_cal <- function(summary, background, background_bias = NULL,
-#                         training_regime = NULL) {
-#  # error checking
-#
-#  val <- list(summary = summary, background = background,
-#              background_bias = background_bias,
-#              training_regime = training_regime)
-#  class(val) <- "back_cal"
-#  return(val)
-#}
-
-
-
-
 # prepared_data Class Constructor
 new_prepared_data <- function(species, calibration_data, formula_grid,
                              kfolds, data_xy, continuous_variables,
