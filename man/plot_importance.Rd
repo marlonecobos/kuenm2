@@ -7,6 +7,22 @@
 plot_importance(x, xlab = NULL, ylab = "Relative contribution",
                 main = "Variable importance", extra_info = TRUE, ...)
 }
+\arguments{
+\item{x}{data.frame output from \code{\link{variable_importance}}().}
+
+\item{xlab}{(character) a label for the x axis.}
+
+\item{ylab}{(character) a label for the y axis.}
+
+\item{main}{(character) main title for the plot.}
+
+\item{extra_info}{(logical) when results are from more than one model, it adds information about the number of models using each predictor and the mean contribution found.}
+
+\item{...}{additional arguments passed to barplot or boxplot.
+
+Value
+A barplot or boxplot depending on the number of models considered.}
+}
 \description{
 See details in \code{\link[enmpa]{plot_importance}}
 }
