@@ -8,6 +8,7 @@ Osorio-Olvera, and A. Townsend Peterson
 - [Workflow description](#workflow-description)
   - [Data preparation](#data-preparation)
   - [Model calibration](#model-calibration)
+  - [Model explorations](#model-explorations)
   - [Model projections](#model-projections)
 - [Variability and uncertainty](#variability-and-uncertainty)
 
@@ -20,11 +21,10 @@ Osorio-Olvera, and A. Townsend Peterson
 The **kuenm2** R package implements multiple tools to help with the
 development of detailed ecological niche models using distinct
 algorithms. Pre-modeling analyses and explorations can be done to
-prepare data. Model calibration (model selection) can be done by
-creating and testing several candidate models. Handy options for
-producing final models with transfers, and evaluating such models are
-included. Other tools to assess extrapolation risks and variability in
-model transfers are also available.
+prepare data. Model calibration (model selection) is done by training
+and testing several candidate models. Handy options for producing final
+models with transfers are included. Other tools to assess extrapolation
+risks and variability in model transfers are also available.
 
 <br>
 
@@ -89,6 +89,8 @@ As shown in Fig. 1, to use **kuenm2** …
 After preparing data,
 
 <br>
+
+### Model explorations
 
 ### Model projections
 
