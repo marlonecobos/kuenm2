@@ -9,38 +9,37 @@
 \alias{filter_decimal_precision}
 \title{Initial occurrence data cleaning steps}
 \usage{
-initial_cleaning(data, species_column, longitude_column, latitude_column,
+initial_cleaning(data, species, x, y,
                  other_columns = NULL, keep_all_columns = TRUE,
                  sort_columns = TRUE, remove_na = TRUE, remove_empty = TRUE,
                  remove_duplicates = TRUE, by_decimal_precision = FALSE,
                  decimal_precision = 0, longitude_precision = NULL,
                  latitude_precision = NULL)
 
-sort_columns(data, species_column, longitude_column,
-             latitude_column, keep_all_columns = FALSE)
+sort_columns(data, species, x, y, keep_all_columns = FALSE)
 
 remove_missing(data, columns = NULL, remove_na = TRUE,
                remove_empty = TRUE, keep_all_columns = TRUE)
 
 remove_duplicates(data, columns = NULL, keep_all_columns = TRUE)
 
-remove_corrdinates_00(data, longitude_column, latitude_column)
+remove_corrdinates_00(data, x, y)
 
-filter_decimal_precision(data, longitude_column,
-                         latitude_column, decimal_precision = 0,
+filter_decimal_precision(data, x,
+                         y, decimal_precision = 0,
                          longitude_precision = NULL,
                          latitude_precision = NULL)
 }
 \arguments{
 \item{data}{data.frame with occurrence records.}
 
-\item{species_column}{(character) name of the column in \code{data}
+\item{species}{(character) name of the column in \code{data}
 containing species name.}
 
-\item{longitude_column}{(character) name of the column in \code{data}
+\item{x}{(character) name of the column in \code{data}
 containing longitude values.}
 
-\item{latitude_column}{(character) name of the column in \code{data}
+\item{y}{(character) name of the column in \code{data}
 containing latitude values.}
 
 \item{other_columns}{(character) vector of other column name(s) in

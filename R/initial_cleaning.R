@@ -2,12 +2,20 @@
 #'
 #' @description Simple occurrence data cleaning procedures.
 #'
+#' @usage
+#' initial_cleaning(data, species, x, y,
+#'                  other_columns = NULL, keep_all_columns = TRUE,
+#'                  sort_columns = TRUE, remove_na = TRUE, remove_empty = TRUE,
+#'                  remove_duplicates = TRUE, by_decimal_precision = FALSE,
+#'                  decimal_precision = 0, longitude_precision = NULL,
+#'                  latitude_precision = NULL)
+#'
 #' @param data data.frame with occurrence records.
-#' @param species_column (character) name of the column in \code{data}
+#' @param species (character) name of the column in \code{data}
 #' containing species name.
-#' @param longitude_column (character) name of the column in \code{data}
+#' @param x (character) name of the column in \code{data}
 #' containing longitude values.
-#' @param latitude_column (character) name of the column in \code{data}
+#' @param y (character) name of the column in \code{data}
 #' containing latitude values.
 #' @param other_columns (character) vector of other column name(s) in
 #' \code{data} to be considered while performing cleaning steps, default = NULL.
@@ -44,19 +52,10 @@
 #' @export
 #'
 #' @rdname initial_cleaning
-#'
-#' @usage
-#' initial_cleaning(data, species_column, longitude_column, latitude_column,
-#'                  other_columns = NULL, keep_all_columns = TRUE,
-#'                  sort_columns = TRUE, remove_na = TRUE, remove_empty = TRUE,
-#'                  remove_duplicates = TRUE, by_decimal_precision = FALSE,
-#'                  decimal_precision = 0, longitude_precision = NULL,
-#'                  latitude_precision = NULL)
 
 
-
-initial_cleaning <- function(data, species_column, longitude_column,
-                             latitude_column, other_columns = NULL,
+initial_cleaning <- function(data, species, x,
+                             y, other_columns = NULL,
                              keep_all_columns = TRUE,
                              sort_columns = TRUE, remove_na = TRUE,
                              remove_empty = TRUE, remove_duplicates = TRUE,
@@ -68,14 +67,14 @@ initial_cleaning <- function(data, species_column, longitude_column,
   if (missing(data)) {
     stop("Argument 'data' must be defined.")
   }
-  if (missing(species_column)) {
-    stop("Argument 'species_column' must be defined.")
+  if (missing(species)) {
+    stop("Argument 'species' must be defined.")
   }
-  if (missing(longitude_column)) {
-    stop("Argument 'longitude_column' must be defined.")
+  if (missing(x)) {
+    stop("Argument 'x' must be defined.")
   }
-  if (missing(latitude_column)) {
-    stop("Argument 'latitude_column' must be defined.")
+  if (missing(y)) {
+    stop("Argument 'y' must be defined.")
   }
   if (class(data)[1] != "data.frame") {
     stop("'data' must be of class 'data.frame'.")
@@ -94,16 +93,14 @@ initial_cleaning <- function(data, species_column, longitude_column,
 
   # preparing arguments
   if (!is.null(other_columns)) {
-    columns <- c(species_column, longitude_column, latitude_column,
-                 other_columns)
+    columns <- c(species, x, y, other_columns)
   } else {
-    columns <- c(species_column, longitude_column, latitude_column)
+    columns <- c(species, x, y)
   }
 
   # cleaning steps
   if (sort_columns == TRUE) {
-    data <- sort_columns(data, species_column, longitude_column,
-                         latitude_column, keep_all_columns)
+    data <- sort_columns(data, species, x, y, keep_all_columns)
   }
 
   if (remove_na == TRUE | remove_empty == TRUE) {
@@ -116,8 +113,7 @@ initial_cleaning <- function(data, species_column, longitude_column,
   }
 
   if (by_decimal_precision == TRUE) {
-    data <- filter_decimal_precision(data, longitude_column,
-                                     latitude_column, decimal_precision,
+    data <- filter_decimal_precision(data, x, y, decimal_precision,
                                      longitude_precision, latitude_precision)
   }
 
@@ -130,23 +126,21 @@ initial_cleaning <- function(data, species_column, longitude_column,
 #' @export
 #' @rdname initial_cleaning
 #' @usage
-#' sort_columns(data, species_column, longitude_column,
-#'              latitude_column, keep_all_columns = FALSE)
+#' sort_columns(data, species, x, y, keep_all_columns = FALSE)
 
-sort_columns <- function(data, species_column, longitude_column,
-                         latitude_column, keep_all_columns = FALSE) {
+sort_columns <- function(data, species, x, y, keep_all_columns = FALSE) {
   # error checking
   if (missing(data)) {
     stop("Argument 'data' must be defined.")
   }
-  if (missing(species_column)) {
-    stop("Argument 'species_column' must be defined.")
+  if (missing(species)) {
+    stop("Argument 'species' must be defined.")
   }
-  if (missing(longitude_column)) {
-    stop("Argument 'longitude_column' must be defined.")
+  if (missing(x)) {
+    stop("Argument 'x' must be defined.")
   }
-  if (missing(latitude_column)) {
-    stop("Argument 'latitude_column' must be defined.")
+  if (missing(y)) {
+    stop("Argument 'y' must be defined.")
   }
   if (class(data)[1] != "data.frame") {
     stop("'data' must be of class 'data.frame'.")
@@ -154,7 +148,7 @@ sort_columns <- function(data, species_column, longitude_column,
 
   # format data
   ## required columns
-  required <- c(species_column, longitude_column, latitude_column)
+  required <- c(species, x, y)
 
   ## returning formatted columns
   if (keep_all_columns == TRUE) {
@@ -275,25 +269,25 @@ remove_duplicates <- function(data, columns = NULL, keep_all_columns = TRUE) {
 #' @export
 #' @rdname initial_cleaning
 #' @usage
-#' remove_corrdinates_00(data, longitude_column, latitude_column)
+#' remove_corrdinates_00(data, x, y)
 
-remove_corrdinates_00 <- function(data, longitude_column, latitude_column) {
+remove_corrdinates_00 <- function(data, x, y) {
   # error checking
   if (missing(data)) {
     stop("Argument 'data' must be defined.")
   }
-  if (missing(longitude_column)) {
-    stop("Argument 'longitude_column' must be defined.")
+  if (missing(x)) {
+    stop("Argument 'x' must be defined.")
   }
-  if (missing(latitude_column)) {
-    stop("Argument 'latitude_column' must be defined.")
+  if (missing(y)) {
+    stop("Argument 'y' must be defined.")
   }
   if (class(data)[1] != "data.frame") {
     stop("'data' must be of class 'data.frame'.")
   }
 
   # filter
-  to_remove <- data[, longitude_column] == 0 & data[, latitude_column] == 0
+  to_remove <- data[, x] == 0 & data[, y] == 0
 
   # return result
   return(data[!to_remove, ])
@@ -305,24 +299,23 @@ remove_corrdinates_00 <- function(data, longitude_column, latitude_column) {
 #' @export
 #' @rdname initial_cleaning
 #' @usage
-#' filter_decimal_precision(data, longitude_column,
-#'                          latitude_column, decimal_precision = 0,
+#' filter_decimal_precision(data, x,
+#'                          y, decimal_precision = 0,
 #'                          longitude_precision = NULL,
 #'                          latitude_precision = NULL)
 
-filter_decimal_precision <- function(data, longitude_column,
-                                     latitude_column, decimal_precision = 0,
+filter_decimal_precision <- function(data, x, y, decimal_precision = 0,
                                      longitude_precision = NULL,
                                      latitude_precision = NULL) {
   # error checking
   if (missing(data)) {
     stop("Argument 'data' must be defined.")
   }
-  if (missing(longitude_column)) {
-    stop("Argument 'longitude_column' must be defined.")
+  if (missing(x)) {
+    stop("Argument 'x' must be defined.")
   }
-  if (missing(latitude_column)) {
-    stop("Argument 'latitude_column' must be defined.")
+  if (missing(y)) {
+    stop("Argument 'y' must be defined.")
   }
   if (class(data)[1] != "data.frame") {
     stop("'data' must be of class 'data.frame'.")
@@ -335,8 +328,8 @@ filter_decimal_precision <- function(data, longitude_column,
                                latitude_precision)
 
   # filter
-  lon_dec <- vapply(data[, longitude_column], decimal_places, numeric(1))
-  lat_dec <- vapply(data[, latitude_column], decimal_places, numeric(1))
+  lon_dec <- vapply(data[, x], decimal_places, numeric(1))
+  lat_dec <- vapply(data[, y], decimal_places, numeric(1))
 
   to_remove <- unique(c(which(lon_dec < longitude_precision),
                         which(lat_dec < latitude_precision)))
@@ -351,7 +344,8 @@ filter_decimal_precision <- function(data, longitude_column,
 decimal_places <- function(x) {
   if (missing(x)) {stop("Argument 'x' must be defined.")}
   if (abs(x - round(x)) > (.Machine$double.eps^0.5)) {
-    nchar(strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]][[2]])
+    nchar(strsplit(sub("0+$", "", as.character(x)), ".",
+                   fixed = TRUE)[[1]][[2]])
   } else {
     return(0)
   }
