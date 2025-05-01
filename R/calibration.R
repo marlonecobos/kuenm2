@@ -117,7 +117,7 @@
 #'
 #' @details
 #' Partial ROC is calculated following Peterson et al.
-#' (2008; <doi:10.1016/j.ecolmodel.2007.11.008>).
+#' (2008).
 #'
 #' Omission rates are calculated using separate testing data
 #' subsets. Users can specify multiple omission rates to be calculated
@@ -126,7 +126,7 @@
 #'
 #' Model fitting and complexity (AICc) is assessed using models generated with
 #' the complete set of occurrences. AICc values are computed as proposed by
-#' Warren and Seifert (2011; <doi:10.1890/10-1171.1>).
+#' Warren and Seifert (2011).
 #'
 #' @examples
 #' # Import prepared data for maxnet models
