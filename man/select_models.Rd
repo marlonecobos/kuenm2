@@ -4,10 +4,10 @@
 \alias{select_models}
 \title{Select models that perform the best among candidates}
 \usage{
-select_models(calibration_results = NULL, cand_models = NULL, data = NULL,
-              calc_proc = FALSE, addsamplestobackground = TRUE,
-              weights = NULL, algorithm = c("maxnet", "glm"),
-              test_concave = TRUE, omrat_threshold = 10,
+select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
+              algorithm = NULL, compute_proc = FALSE,
+              addsamplestobackground = TRUE, weights = NULL,
+              test_concave = FALSE, omrat_threshold = 10,
               allow_tolerance = TRUE, tolerance = 0.01, AIC_option = "ws",
               significance = 0.05, delta_aic = 2, parallel = FALSE,
               ncores = NULL, progress_bar = FALSE,verbose = TRUE)
@@ -16,31 +16,33 @@ select_models(calibration_results = NULL, cand_models = NULL, data = NULL,
 \item{calibration_results}{an object of class \code{calibration_results} returned
 by the \code{\link{calibration}}() function. Default is NULL.}
 
-\item{cand_models}{(data.frame) a summary of the evaluation metrics for each
+\item{candidate_models}{(data.frame) a summary of the evaluation metrics for each
 candidate model. Required only if \code{calibration_results} is NULL. In the
 output of the \code{\link{calibration}}(), this data.frame is located in
 \verb{$calibration_results$Summary}. Default is NULL.}
 
 \item{data}{an object of class \code{prepared_data} returned by the
 \code{\link{prepare_data}}() function. Required only if \code{calibration_results}
-is NULL and \code{calc_proc} is TRUE.}
+is NULL and \code{compute_proc} is TRUE.}
 
-\item{calc_proc}{(logical) whether to compute partial ROC tests for the
+\item{algorithm}{(character) model algorithm, either "glm" or "maxnet". The
+default, NULL, uses the one defined as part of \code{calibration_results}, or
+\code{data}. If those arguments are not used, \code{algorithm} must be defined.}
+
+\item{compute_proc}{(logical) whether to compute partial ROC tests for the
 selected models. This is required when partial ROC is not calculated for all
 candidate models during calibration. Default is FALSE.}
 
 \item{addsamplestobackground}{(logical) whether to add to the background any
-presence sample that is not already there. Required only if \code{calc_proc} is
+presence sample that is not already there. Required only if \code{compute_proc} is
 TRUE and \code{calibration_results} is NULL.Default is TRUE.}
 
 \item{weights}{(numeric) a numeric vector specifying weights for the
-occurrence records. Required only if \code{calc_proc} is TRUE and
+occurrence records. Required only if \code{compute_proc} is TRUE and
 \code{calibration_results} is NULL. Default is NULL.}
 
-\item{algorithm}{(character) model type, either "glm" or "maxnet".}
-
 \item{test_concave}{(logical) whether to remove candidate models presenting
-concave curves. Default is TRUE.}
+concave curves. Default is FALSE.}
 
 \item{omrat_threshold}{(numeric) the maximum omission rate a candidate model
 can have to be considered a best model. Default is 10. This value must match
@@ -100,32 +102,19 @@ evaluating statistical significance (partial ROC), predictive ability
 }
 \details{
 Partial ROC is calculated following Peterson et al.
-(2008; http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008).
+(2008; \url{doi:10.1016/j.ecolmodel.2007.11.008}).
 }
 \examples{
 # Import example of calibration results (output of calibration function)
 ## GLM
-data("calib_results_glm", package = "kuenm2")
+data(calib_results_glm, package = "kuenm2")
 
 #Select new best models based on another value of omission rate
-new_best_model <- select_models(cand_models = calib_results_glm$calibration_results$Summary,
+new_best_model <- select_models(candidate_models = calib_results_glm$calibration_results$Summary,
                                 algorithm = "glm",
-                                omrat_threshold = 5,
-                                delta_aic = 10)  # Higher value of delta AIC
+                                omrat_threshold = 5)  # Omission error of 5
 
-# Compare with best models selected previously, with omission rate of 10 and delta AIC of 2
-calib_results_glm$summary$Selected  # Models 1, 2 and 5 selected
+# Compare with best models selected previously
+calib_results_glm$summary$Selected  # Model 1 selected
 new_best_model$summary$Selected  # Models 1 and 5 selected
-
-# Replace selected models in calib_results
-calib_results_glm$selected_models <- new_best_model$cand_final
-calib_results_glm$summary <- new_best_model$summary
-}
-\references{
-Ninomiya, Yoshiyuki, and Shuichi Kawano. "AIC for the Lasso in generalized
-linear models." (2016): 2537-2560.
-
-Warren, D. L., & Seifert, S. N. (2011). Ecological niche modeling in Maxent:
-the importance of model complexity and the performance of model selection
-criteria. Ecological applications, 21(2), 335-342.
 }
