@@ -12,8 +12,8 @@
 #' @param formula_grid a data.frame with the grid of formulas defining the
 #' candidate models to test.
 #' @param data an object of class `prepared_data` returned by the
-#' \code{\link{prepare_data}}() function or an object of class
-#' calibration_results returned by the \code{\link{calibration}}() function.
+#' [prepare_data()] function or an object of class
+#' calibration_results returned by the [calibration()] function.
 #' It contains the calibration data and k-folds.
 #' @param omission_rate (numeric) values from 0 to 100 representing the
 #' percentage of potential error due to any source of uncertainty. This value is
@@ -42,6 +42,8 @@
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom foreach foreach `%dopar%`
 #' @importFrom enmpa predict_glm proc_enm
+#'
+#' @export
 #'
 #' @details
 #' Partial ROC is calculated following Peterson et al. (2008)

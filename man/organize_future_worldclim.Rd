@@ -48,7 +48,7 @@ saved.
 This function imports future climate variables downloaded from WorldClim,
 renames the files, and organizes them into folders categorized by year and
 General Circulation Model (GCM). It simplifies the preparation of climate
-data, making it compatible with the \code{\link{prepare_proj}}() function,
+data, making it compatible with the \code{\link[=prepared_projection]{prepared_projection()}} function,
 ensuring that all required variables are properly structured for modeling
 projections.
 }

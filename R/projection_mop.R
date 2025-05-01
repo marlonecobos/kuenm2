@@ -14,15 +14,15 @@
 #'                rescale_distance = FALSE, parallel = FALSE, ncores = NULL,
 #'                progress_bar = FALSE, overwrite = FALSE)
 #'
-#' @param data an object of class `prepare_data` returned by the
-#' \code{\link[kuenm2]{prepare_data}} function.
-#' @param projection_data an object of class `prepared_proj` returned by the
-#' \code{\link[kuenm2]{prepare_proj}}function. This file contains the paths to
+#' @param data an object of class `prepared_data` returned by the
+#' [prepare_data()] function.
+#' @param projection_data an object of class `projection_data` returned by the
+#' [prepare_projection()]function. This file contains the paths to
 #' the rasters representing each scenario.
 #' @param out_dir (character) a path to a root directory for saving the raster
 #' file of each projection.
 #' @param fitted_models an object of class `fitted_models` returned by the
-#' \code{\link[kuenm2]{fit_selected}} function.
+#' [fit_selected()] function.
 #' @param subset_variables (logical) whether to include in the analysis only the
 #' variables present in the selected models. Default is TRUE.
 #' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to

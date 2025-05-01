@@ -14,8 +14,8 @@ partial_roc(formula_grid, data, omission_rate = 10,
 candidate models to test.}
 
 \item{data}{an object of class \code{prepared_data} returned by the
-\code{\link{prepare_data}}() function or an object of class
-calibration_results returned by the \code{\link{calibration}}() function.
+\code{\link[=prepare_data]{prepare_data()}} function or an object of class
+calibration_results returned by the \code{\link[=calibration]{calibration()}} function.
 It contains the calibration data and k-folds.}
 
 \item{omission_rate}{(numeric) values from 0 to 100 representing the

@@ -13,18 +13,18 @@ projection_mop(data, projection_data, out_dir, fitted_models = NULL,
                progress_bar = FALSE, overwrite = FALSE)
 }
 \arguments{
-\item{data}{an object of class \code{prepare_data} returned by the
-\code{\link[kuenm2]{prepare_data}} function.}
+\item{data}{an object of class \code{prepared_data} returned by the
+\code{\link[=prepare_data]{prepare_data()}} function.}
 
-\item{projection_data}{an object of class \code{prepared_proj} returned by the
-\code{\link[kuenm2]{prepare_proj}}function. This file contains the paths to
+\item{projection_data}{an object of class \code{projection_data} returned by the
+\code{\link[=prepare_projection]{prepare_projection()}}function. This file contains the paths to
 the rasters representing each scenario.}
 
 \item{out_dir}{(character) a path to a root directory for saving the raster
 file of each projection.}
 
 \item{fitted_models}{an object of class \code{fitted_models} returned by the
-\code{\link[kuenm2]{fit_selected}} function.}
+\code{\link[=fit_selected]{fit_selected()}} function.}
 
 \item{subset_variables}{(logical) whether to include in the analysis only the
 variables present in the selected models. Default is TRUE.}
