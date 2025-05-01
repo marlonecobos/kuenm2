@@ -218,8 +218,6 @@ project_selected <- function(models,
   n_models <- nrow(res_path)
   if (n_models == 1 & isTRUE(parallel)) {
     parallel <- FALSE
-  } else {
-    parallel <- TRUE
   }
 
   #Show progress bar?
