@@ -159,13 +159,16 @@ print.calibration_results <- function(x, ...) {
   cat("Selected models:", nrow(x$selected_models), "\n")
 
   cat("  - Up to 5 printed here:\n")
-  cnam <- colnames(x$selected_models)
-  cnam <- cnam[-grep("\\.sd$", cnam)]
-  cnam <- cnam[-grep("^Mean_AUC", cnam)]
-  cnam <- cnam[-grep(paste0("_", x$omission_rate), cnam)]
-  cnam <- cnam[!cnam %in% c("AIC_ws", "is_concave")]
+  show_col <- c("ID", "Formulas", "Features", "reg_mult",
+                paste0("pval_pROC_at_", x$omission_rate, ".mean"),
+                paste0("Omission_rate_at_", x$omission_rate, ".mean"),
+                "dAIC", "npar")
 
-  print(head(x$selected_models[, cnam]))
+  if (x$algorithm == "maxnet") {
+    print(head(x$selected_models[, show_col]))
+  } else {
+    print(head(x$selected_models[, show_col[-4]]))
+  }
 }
 
 
