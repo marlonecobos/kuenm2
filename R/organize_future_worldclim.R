@@ -4,7 +4,7 @@
 #' This function imports future climate variables downloaded from WorldClim,
 #' renames the files, and organizes them into folders categorized by year and
 #' General Circulation Model (GCM). It simplifies the preparation of climate
-#' data, making it compatible with the [prepared_projection()] function,
+#' data, making it compatible with the [prepare_projection()] function,
 #' ensuring that all required variables are properly structured for modeling
 #' projections.
 #'
@@ -53,6 +53,9 @@
 #' - "Bio_0": the variables will be renamed to Bio_01, Bio_02, Bio_03, Bio_10, etc.
 #'
 #' @export
+#'
+#' @seealso
+#' [prepare_projection()]
 #'
 #' @examples
 #' # Import the current variables used to fit the model.
