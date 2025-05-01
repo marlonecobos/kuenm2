@@ -15,13 +15,13 @@
 #'               ncores = NULL, progress_bar = FALSE,verbose = TRUE)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
-#' by the \code{\link{calibration}}() function. Default is NULL.
+#' by the [calibration()] function. Default is NULL.
 #' @param candidate_models (data.frame) a summary of the evaluation metrics for each
 #' candidate model. Required only if `calibration_results` is NULL. In the
-#' output of the \code{\link{calibration}}(), this data.frame is located in
+#' output of the [calibration()], this data.frame is located in
 #' `$calibration_results$Summary`. Default is NULL.
 #' @param data an object of class `prepared_data` returned by the
-#' \code{\link{prepare_data}}() function. Required only if `calibration_results`
+#' [prepare_data()] function. Required only if `calibration_results`
 #' is NULL and `compute_proc` is TRUE.
 #' @param algorithm (character) model algorithm, either "glm" or "maxnet". The
 #' default, NULL, uses the one defined as part of `calibration_results`, or
@@ -39,7 +39,7 @@
 #' concave curves. Default is FALSE.
 #' @param omrat_threshold (numeric) the maximum omission rate a candidate model
 #' can have to be considered a best model. Default is 10. This value must match
-#' one of the values specified in `omrat` in \code{\link{calibration}}().
+#' one of the values specified in `omrat` in [calibration()].
 #' @param allow_tolerance (logical) whether to allow selection of models with
 #' minimum values of omission rates even if their omission rate surpasses the
 #' `omrat_threshold`. This is only applicable if all candidate models have
@@ -68,7 +68,7 @@
 #'
 #' @details
 #' Partial ROC is calculated following Peterson et al.
-#' (2008; <doi:10.1016/j.ecolmodel.2007.11.008>).
+#' (2008).
 #'
 #' @return
 #' If calibration_results is provided, it returns a new calibration_results with
@@ -420,7 +420,7 @@ select_models <- function(calibration_results = NULL,
   }
 
   if (nrow(cand_final_updated) == 0) {
-    stop("It’s impossible to select models with significant pROC values.")
+    stop("It is impossible to select models with significant pROC values.")
   }
 
   # Final results

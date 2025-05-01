@@ -14,15 +14,15 @@ select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
-by the \code{\link{calibration}}() function. Default is NULL.}
+by the \code{\link[=calibration]{calibration()}} function. Default is NULL.}
 
 \item{candidate_models}{(data.frame) a summary of the evaluation metrics for each
 candidate model. Required only if \code{calibration_results} is NULL. In the
-output of the \code{\link{calibration}}(), this data.frame is located in
+output of the \code{\link[=calibration]{calibration()}}, this data.frame is located in
 \verb{$calibration_results$Summary}. Default is NULL.}
 
 \item{data}{an object of class \code{prepared_data} returned by the
-\code{\link{prepare_data}}() function. Required only if \code{calibration_results}
+\code{\link[=prepare_data]{prepare_data()}} function. Required only if \code{calibration_results}
 is NULL and \code{compute_proc} is TRUE.}
 
 \item{algorithm}{(character) model algorithm, either "glm" or "maxnet". The
@@ -46,7 +46,7 @@ concave curves. Default is FALSE.}
 
 \item{omrat_threshold}{(numeric) the maximum omission rate a candidate model
 can have to be considered a best model. Default is 10. This value must match
-one of the values specified in \code{omrat} in \code{\link{calibration}}().}
+one of the values specified in \code{omrat} in \code{\link[=calibration]{calibration()}}.}
 
 \item{allow_tolerance}{(logical) whether to allow selection of models with
 minimum values of omission rates even if their omission rate surpasses the
@@ -102,7 +102,7 @@ evaluating statistical significance (partial ROC), predictive ability
 }
 \details{
 Partial ROC is calculated following Peterson et al.
-(2008; \url{doi:10.1016/j.ecolmodel.2007.11.008}).
+(2008).
 }
 \examples{
 # Import example of calibration results (output of calibration function)
