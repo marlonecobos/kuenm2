@@ -2,16 +2,16 @@
 #'
 #' @description
 #' This function fits models selected after candidate model training and testing
-#' using the function \code{\link{calibration}}().
+#' using the function [calibration()].
 #'
 #' @usage
 #' fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
 #'              train_portion = 0.7, write_models = FALSE, file_name = NULL,
 #'              parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-#'              verbose = TRUE, seed = 42)
+#'              verbose = TRUE, seed = 1)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
-#' by the \code{\link{calibration}}() function.
+#' by the [calibration()] function.
 #' @param n_replicates (numeric) the number of model replicates. Using the
 #' default, 1, implies that one replicate is fit with all the data.
 #' @param rep_type (character) the replicate type. It can be: "kfold", "bootstrap",
@@ -60,7 +60,7 @@
 #' \item{omission_rate}{the omission rate determined during the calibration step.}
 #' \item{thresholds}{the thresholds to binarize each replicate and the consensus
 #' (mean and median), calculated based on the omission rate set in
-#' \code{\link{calibration}}()}
+#' [calibration()].}
 #'
 #' @export
 #'

@@ -7,11 +7,11 @@
 fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
              train_portion = 0.7, write_models = FALSE, file_name = NULL,
              parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-             verbose = TRUE, seed = 42)
+             verbose = TRUE, seed = 1)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
-by the \code{\link{calibration}}() function.}
+by the \code{\link[=calibration]{calibration()}} function.}
 
 \item{n_replicates}{(numeric) the number of model replicates. Using the
 default, 1, implies that one replicate is fit with all the data.}
@@ -64,11 +64,11 @@ sample not already in the background was added.}
 \item{omission_rate}{the omission rate determined during the calibration step.}
 \item{thresholds}{the thresholds to binarize each replicate and the consensus
 (mean and median), calculated based on the omission rate set in
-\code{\link{calibration}}()}
+\code{\link[=calibration]{calibration()}}.}
 }
 \description{
 This function fits models selected after candidate model training and testing
-using the function \code{\link{calibration}}().
+using the function \code{\link[=calibration]{calibration()}}.
 }
 \details{
 This function also computes model consensus (mean and median), the thresholds
