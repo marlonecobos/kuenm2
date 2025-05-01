@@ -125,22 +125,23 @@ based on unimodality (optional), partial ROC, omission rate, and AIC values.
 Partial ROC is calculated following Peterson et al.
 (2008; \url{doi:10.1016/j.ecolmodel.2007.11.008}).
 
-Omission rates are calculated using models trained with separate testing data
+Omission rates are calculated using separate testing data
 subsets. Users can specify multiple omission rates to be calculated
-(e.g., c(5, 10)), though only one can be used as the threshold for selecting
-the best models.
+(e.g., c(5, 10)), though only one can be used as the omission error for
+model selection.
 
-Model complexity (AIC) is assessed using models generated with the complete
-set of occurrences.
+Model fitting and complexity (AICc) is assessed using models generated with
+the complete set of occurrences. AICc values are computed as proposed by
+Warren and Seifert (2011; \url{doi:10.1890/10-1171.1}).
 }
 \examples{
 # Import prepared data for maxnet models
 data(sp_swd, package = "kuenm2")
 
-## Model calibration (maxnet)
-#m <- calibration(data = sp_swd, omission_rate = 10)
-#
-#m
+# Model calibration (maxnet)
+m <- calibration(data = sp_swd, omission_rate = 10)
+
+m
 
 # Import prepared data for GLM models
 data(sp_swd_glm, package = "kuenm2")

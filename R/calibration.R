@@ -119,22 +119,23 @@
 #' Partial ROC is calculated following Peterson et al.
 #' (2008; <doi:10.1016/j.ecolmodel.2007.11.008>).
 #'
-#' Omission rates are calculated using models trained with separate testing data
+#' Omission rates are calculated using separate testing data
 #' subsets. Users can specify multiple omission rates to be calculated
-#' (e.g., c(5, 10)), though only one can be used as the threshold for selecting
-#' the best models.
+#' (e.g., c(5, 10)), though only one can be used as the omission error for
+#' model selection.
 #'
-#' Model complexity (AIC) is assessed using models generated with the complete
-#' set of occurrences.
+#' Model fitting and complexity (AICc) is assessed using models generated with
+#' the complete set of occurrences. AICc values are computed as proposed by
+#' Warren and Seifert (2011; <doi:10.1890/10-1171.1>).
 #'
 #' @examples
 #' # Import prepared data for maxnet models
 #' data(sp_swd, package = "kuenm2")
 #'
-#' ## Model calibration (maxnet)
-#' #m <- calibration(data = sp_swd, omission_rate = 10)
-#'#
-#' #m
+#' # Model calibration (maxnet)
+#' m <- calibration(data = sp_swd, omission_rate = 10)
+#'
+#' m
 #'
 #' # Import prepared data for GLM models
 #' data(sp_swd_glm, package = "kuenm2")
@@ -297,7 +298,10 @@ calibration <- function(data,
   } # End of If test_concave = TRUE
 
   # Update formula grid after concave test
-  if (!test_concave) {n_tot = 0}
+  if (!test_concave) {
+    n_tot <- 0
+  }
+
   if (test_concave & n_tot > 0) {
 
     # Convert results to dataframe
@@ -408,16 +412,15 @@ calibration <- function(data,
     message("\n\nModel selection step:")
   }
 
-  bm <- select_models(cand_models = res_final$Summary,
+  bm <- select_models(candidate_models = res_final$Summary,
                       test_concave = test_concave,
-                      calc_proc = !proc_for_all,
+                      compute_proc = !proc_for_all,
                       data = data,
                       omrat_threshold = omrat_threshold,
                       allow_tolerance = allow_tolerance,
                       tolerance = tolerance, AIC_option = AIC_option,
                       significance = 0.05, verbose = verbose,
                       delta_aic = delta_aic,
-                      algorithm = algorithm,
                       parallel = parallel, ncores = ncores,
                       progress_bar = progress_bar)
 
@@ -426,7 +429,7 @@ calibration <- function(data,
     prepared_data = data, calibration_results = list(res_final),
     omission_rate = omrat_threshold,
     addsamplestobackground = addsamplestobackground,
-    weights = weights, selected_models = list(bm$cand_final),
+    weights = weights, selected_models = list(bm$selected_models),
     summary = list(bm$summary)
   )
 
