@@ -30,11 +30,12 @@ generate_background_variables <- function(env, nbg, bias_file = NULL,
     bias_value <- cell_samp$bias_value
     cell_samp <- cell_samp$cell
     if (bias_effect == "inverse") {
-      bias_value <- max(bias_value) - bias_value}
-    } else {
+      bias_value <- max(bias_value) - bias_value
+    }
+  } else {
     cell_samp <- terra::as.data.frame(env[[1]], na.rm = TRUE,
                                       cells = TRUE)[, "cell"]
-    bias_value = NULL
+    bias_value <- NULL
   }
 
   if (length(cell_samp) > nbg) {

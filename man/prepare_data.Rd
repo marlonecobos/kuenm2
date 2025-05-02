@@ -10,7 +10,7 @@ prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
              categorical_variables = NULL, do_pca = FALSE, center = TRUE,
              scale = TRUE, exclude_from_pca = NULL, variance_explained = 95,
              min_explained = 5, min_number = 2, min_continuous = NULL,
-             bias_file = NULL, bias_effect = "direct", weights = NULL,
+             bias_file = NULL, bias_effect = NULL, weights = NULL,
              include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
              write_file = FALSE, file_name = NULL, seed = 1)
 }
@@ -85,9 +85,10 @@ same extent, resolution, and number of cells as the raster variables, unless
 a mask is provided. Default is NULL.}
 
 \item{bias_effect}{(character) a string specifying how the values in the
-\code{bias_file} should be interpreted. If "direct", higher values in the bias
-file increase the likelihood of selecting background points. If "inverse",
-higher values decrease the likelihood. Default is "direct".}
+\code{bias_file} should be interpreted. Options are "direct" or "inverse". If
+"direct", higher values in bias file increase the likelihood of selecting
+background points. If "inverse", higher values decrease the likelihood.
+Default = NULL. Must be defined if \code{bias_file} is provided.}
 
 \item{weights}{(numeric) a numeric vector specifying weights for the
 occurrence records. Default is NULL.}
@@ -144,6 +145,7 @@ sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        species = occ_data[1, 1],
                        categorical_variables = "SoilType",
                        n_background = 500, bias_file = bias,
+                       bias_effect = "direct",
                        features = c("l", "q", "p", "lq", "lqp"),
                        r_multiplier = c(0.1, 1, 2, 3, 5))
 print(sp_swd)
@@ -155,6 +157,7 @@ sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            species = occ_data[1, 1],
                            categorical_variables = "SoilType",
                            n_background = 500, bias_file = bias,
+                           bias_effect = "direct",
                            features = c("l", "q", "p", "lq", "lqp"))
 print(sp_swd_glm)
 }

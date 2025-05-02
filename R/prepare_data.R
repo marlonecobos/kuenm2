@@ -13,7 +13,7 @@
 #'              categorical_variables = NULL, do_pca = FALSE, center = TRUE,
 #'              scale = TRUE, exclude_from_pca = NULL, variance_explained = 95,
 #'              min_explained = 5, min_number = 2, min_continuous = NULL,
-#'              bias_file = NULL, bias_effect = "direct", weights = NULL,
+#'              bias_file = NULL, bias_effect = NULL, weights = NULL,
 #'              include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
 #'              write_file = FALSE, file_name = NULL, seed = 1)
 #'
@@ -61,9 +61,10 @@
 #' same extent, resolution, and number of cells as the raster variables, unless
 #' a mask is provided. Default is NULL.
 #' @param bias_effect (character) a string specifying how the values in the
-#' `bias_file` should be interpreted. If "direct", higher values in the bias
-#' file increase the likelihood of selecting background points. If "inverse",
-#' higher values decrease the likelihood. Default is "direct".
+#' `bias_file` should be interpreted. Options are "direct" or "inverse". If
+#' "direct", higher values in bias file increase the likelihood of selecting
+#' background points. If "inverse", higher values decrease the likelihood.
+#' Default = NULL. Must be defined if `bias_file` is provided.
 #' @param kfolds (numeric) the number of groups (folds) the occurrence
 #' data will be split into for cross-validation. Default is 4.
 #' @param weights (numeric) a numeric vector specifying weights for the
@@ -119,6 +120,7 @@
 #'                        species = occ_data[1, 1],
 #'                        categorical_variables = "SoilType",
 #'                        n_background = 500, bias_file = bias,
+#'                        bias_effect = "direct",
 #'                        features = c("l", "q", "p", "lq", "lqp"),
 #'                        r_multiplier = c(0.1, 1, 2, 3, 5))
 #' print(sp_swd)
@@ -130,6 +132,7 @@
 #'                            species = occ_data[1, 1],
 #'                            categorical_variables = "SoilType",
 #'                            n_background = 500, bias_file = bias,
+#'                            bias_effect = "direct",
 #'                            features = c("l", "q", "p", "lq", "lqp"))
 #' print(sp_swd_glm)
 
@@ -154,7 +157,7 @@ prepare_data <- function(algorithm,
                          min_number = 2,
                          min_continuous = NULL,
                          bias_file = NULL,
-                         bias_effect = "direct",
+                         bias_effect = NULL,
                          weights = NULL,
                          include_xy = TRUE,
                          write_pca = FALSE,
@@ -275,6 +278,9 @@ prepare_data <- function(algorithm,
   if (!is.null(bias_file)) {
     if (!inherits(bias_file, "SpatRaster")) {
       stop("Argument 'bias_file' must be a 'SpatRaster'.")
+    }
+    if (is.null(bias_effect)) {
+      stop("Argument 'bias_effect' must be defined if 'bias_file' is provided.")
     }
     if (!inherits(bias_effect, "character")) {
       stop("Argument 'bias_effect' must be a 'character'.")
