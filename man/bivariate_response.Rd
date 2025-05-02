@@ -11,7 +11,7 @@ bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{\link{fit_selected}}() function.}
+\code{\link[=fit_selected]{fit_selected()}} function.}
 
 \item{variable1}{(character) name of the variable to be plotted in x axis.}
 

@@ -10,7 +10,7 @@
 #'                    xlab = NULL, ylab = NULL, ...)
 #
 #' @param models an object of class `fitted_models` returned by the
-#' \code{\link{fit_selected}}() function.
+#' [fit_selected()] function.
 #' @param variable1 (character) name of the variable to be plotted in x axis.
 #' @param variable2 (character) name of the variable to be plotted in y axis.
 #' @param modelID (character) name of the ModelID presents in the fitted
