@@ -36,7 +36,7 @@
 #' original data.
 #'
 #' @seealso
-#' \code{\link{initial_cleaning}}
+#' [initial_cleaning()]
 #'
 #' @export
 #'

@@ -56,5 +56,5 @@ Data used in this functions should have gone through initial processes of
 cleaning and filtering.
 }
 \seealso{
-\code{\link{initial_cleaning}}
+\code{\link[=initial_cleaning]{initial_cleaning()}}
 }
