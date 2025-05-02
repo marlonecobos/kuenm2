@@ -4,14 +4,14 @@
 \alias{prepare_user_data}
 \title{Prepare data for model calibration with user-prepared calibration data}
 \usage{
-prepare_user_data(algorithm, user_data, pr_bg, species = NULL,
-                  x = NULL,y = NULL, categorical_variables = NULL,
-                  do_pca = FALSE, exclude_from_pca = NULL,
-                  variance_explained = 95, min_explained = 5, center = TRUE,
-                  scale = FALSE, write_pca = FALSE, pca_directory = NULL,
-                  kfolds = 4, weights = NULL, min_number = 2,
-                  min_continuous = NULL, features = c("lq", "lqp"),
-                  reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
+prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
+                  y = NULL, features = c("lq", "lqp"),
+                  r_multiplier = c(0.1, 0.5, 1, 2, 3), kfolds = 4,
+                  categorical_variables = NULL, do_pca = FALSE,
+                  center = TRUE, scale = TRUE, exclude_from_pca = NULL,
+                  variance_explained = 95, min_explained = 5,
+                  min_number = 2, min_continuous = NULL, weights = NULL,
+                  include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
                   write_file = FALSE, file_name = NULL, seed = 1)
 }
 \arguments{
@@ -37,11 +37,26 @@ that contains the latitude values. Default is NULL. Must be defined if
 present in \code{user_data} otherwise it will be considered as another predictor
 variable.}
 
+\item{features}{(character) a vector of feature classes. Default is c("q",
+"lq", "lp", "qp", "lqp").}
+
+\item{r_multiplier}{(numeric) a vector of regularization parameters for maxnet.
+Default is c(0.1, 1, 2, 3, 5).}
+
+\item{kfolds}{(numeric) the number of groups (folds) the occurrence
+data will be split into for cross-validation. Default is 4.}
+
 \item{categorical_variables}{(character) names of the variables that are
 categorical. Default is NULL.}
 
 \item{do_pca}{(logical) whether to perform a principal component analysis
 (PCA) with the set of variables. Default is FALSE.}
+
+\item{center}{(logical) whether the variables should be zero-centered. Default
+is TRUE.}
+
+\item{scale}{(logical) whether the variables should be scaled to have unit
+variance before the analysis takes place. Default is FALSE.}
 
 \item{exclude_from_pca}{(character) variable names within raster_variables
 that should not be included in the PCA transformation. Instead, these
@@ -56,11 +71,17 @@ Default is 95.}
 \item{min_explained}{(numeric) the minimum percentage of total variance that
 a principal component must explain to be retained. Default is 5.}
 
-\item{center}{(logical) whether the variables should be zero-centered. Default
-is TRUE.}
+\item{min_number}{(numeric) the minimum number of variables to be included in
+the model formulas to be generated.}
 
-\item{scale}{(logical) whether the variables should be scaled to have unit
-variance before the analysis takes place. Default is FALSE.}
+\item{min_continuous}{(numeric) the minimum number of continuous variables
+required in a combination. Default is NULL.}
+
+\item{weights}{(numeric) a numeric vector specifying weights for the
+occurrence records. Default is NULL.}
+
+\item{include_xy}{(logical) whether to include the coordinates (longitude and
+latitude) in the results from preparing data. Default is TRUE.}
 
 \item{write_pca}{(logical) whether to save the PCA-derived raster layers
 (principal components) to disk. Default is FALSE.}
@@ -68,27 +89,6 @@ variance before the analysis takes place. Default is FALSE.}
 \item{pca_directory}{(character) the path or name of the folder where the PC
 raster layers will be saved. This is only applicable if \code{write_pca = TRUE}.
 Default is NULL.}
-
-\item{kfolds}{(numeric) the number of groups (folds) the occurrence
-data will be split into for cross-validation. Default is 4.}
-
-\item{weights}{(numeric) a numeric vector specifying weights for the
-occurrence records. Default is NULL.}
-
-\item{min_number}{(numeric) the minimum number of variables to be included in
-the model formulas to be generated.}
-
-\item{min_continuous}{(numeric) the minimum number of continuous variables
-required in a combination. Default is NULL.}
-
-\item{features}{(character) a vector of feature classes. Default is c("q",
-"lq", "lp", "qp", "lqp").}
-
-\item{reg_mult}{(numeric) a vector of regularization parameters for maxnet.
-Default is c(0.1, 1, 2, 3, 5).}
-
-\item{include_xy}{(logical) whether to include the coordinates (longitude and
-latitude) in the results from preparing data. Default is TRUE.}
 
 \item{write_file}{(logical) whether to write the resulting prepared_data list
 in a local directory. Default is FALSE.}
@@ -123,7 +123,7 @@ maxnet_swd_user <- prepare_user_data(algorithm = "maxnet",
                                      species = "Myrcia hatschbachii",
                                      categorical_variables = "SoilType",
                                      features = c("l", "q", "p", "lq", "lqp"),
-                                     reg_mult = c(0.1, 1, 2, 3, 5))
+                                     r_multiplier = c(0.1, 1, 2, 3, 5))
 maxnet_swd_user
 
 # Prepare data for glm model

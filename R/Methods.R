@@ -131,7 +131,7 @@ print.prepared_data <- function(x, ...) {
   cat("  - Features classes (responses):", paste(unique(x$formula_grid$Features), collapse = ", "), "\n")
 
   if (x$algorithm == "maxnet") {
-    cat("  - Regularization multipliers:", paste(unique(x$formula_grid$reg_mult), collapse = ", "), "\n")
+    cat("  - Regularization multipliers:", paste(unique(x$formula_grid$R_multiplier), collapse = ", "), "\n")
   }
 }
 
@@ -159,10 +159,10 @@ print.calibration_results <- function(x, ...) {
   cat("Selected models:", nrow(x$selected_models), "\n")
 
   cat("  - Up to 5 printed here:\n")
-  show_col <- c("ID", "Formulas", "Features", "reg_mult",
+  show_col <- c("ID", "Formulas", "Features", "R_multiplier",
                 paste0("pval_pROC_at_", x$omission_rate, ".mean"),
                 paste0("Omission_rate_at_", x$omission_rate, ".mean"),
-                "dAIC", "npar")
+                "dAIC", "Parameters")
 
   if (x$algorithm == "maxnet") {
     print(head(x$selected_models[, show_col]))

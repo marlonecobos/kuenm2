@@ -130,7 +130,7 @@ calibration_grid <- function(occ_bg,
                              categorical_var = NULL,
                              features = c("l", "q", "lq", "lqp", "p"),
                              algorithm = c("glm", "maxnet"),
-                             reg_mult = c(0.1, 1, 2, 3, 5)) {
+                             r_multiplier = c(0.1, 1, 2, 3, 5)) {
 
   # Validate the algorithm input
   algorithm <- match.arg(algorithm)
@@ -150,7 +150,7 @@ calibration_grid <- function(occ_bg,
                                                min_continuous = min_continuous,
                                                categorical_var = categorical_var,
                                                features = features,
-                                               reg_mult = reg_mult)
+                                               r_multiplier = r_multiplier)
   }
 
   return(cal_grid_data)
@@ -162,7 +162,7 @@ calibration_grid_glmnetmx <- function(occ_bg,
                                       features = c("l", "q", "lq", "lqp", "p"),
                                       min_number = 2,
                                       min_continuous = NULL,
-                                      reg_mult = c(0.1, 1, 2, 3, 5)) {
+                                      r_multiplier = c(0.1, 1, 2, 3, 5)) {
 
   #Get variable names
   var_names <- colnames(occ_bg[, -1, drop = FALSE])
@@ -202,12 +202,12 @@ calibration_grid_glmnetmx <- function(occ_bg,
   )
 
   # Expand the grid by combining formulas and regularization parameters
-  f_grid <- expand.grid(Formulas = formula_d$Formulas, reg_mult = reg_mult,
+  f_grid <- expand.grid(Formulas = formula_d$Formulas, r_multiplier = r_multiplier,
                         stringsAsFactors = FALSE)
 
   f_grid <- merge(f_grid, formula_d, by = "Formulas", sort = FALSE)
   f_grid$ID <- seq_len(nrow(f_grid))
-  f_grid <- f_grid[, c("ID", "Formulas", "reg_mult", "Features")]
+  f_grid <- f_grid[, c("ID", "Formulas", "R_multiplier", "Features")]
   f_grid$Formulas <- as.character(f_grid$Formulas)
 
   return(f_grid)

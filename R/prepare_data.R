@@ -8,15 +8,14 @@
 #'
 #' @usage
 #' prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
-#'              mask = NULL, categorical_variables = NULL, do_pca = FALSE,
-#'              variance_explained = 95, min_explained = 5, center = TRUE,
-#'              scale = TRUE, write_pca = FALSE, pca_directory = NULL,
-#'              exclude_from_pca = NULL, n_background = 1000, bias_file = NULL,
-#'              bias_effect = "direct", kfolds = 4, weights = NULL,
-#'              min_number = 2, min_continuous = NULL,
-#'              features = c("lq", "lqp"), reg_mult = c(0.1, 0.5, 1, 2, 3),
-#'              include_xy = TRUE, write_file = FALSE,
-#'              file_name = NULL, seed = 1)
+#'              mask = NULL, n_background = 1000, features = c("lq", "lqp"),
+#'              r_multiplier = c(0.1, 0.5, 1, 2, 3), kfolds = 4,
+#'              categorical_variables = NULL, do_pca = FALSE, center = TRUE,
+#'              scale = TRUE, exclude_from_pca = NULL, variance_explained = 95,
+#'              min_explained = 5, min_number = 2, min_continuous = NULL,
+#'              bias_file = NULL, bias_effect = "direct", weights = NULL,
+#'              include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
+#'              write_file = FALSE, file_name = NULL, seed = 1)
 #'
 #' @param algorithm (character) modeling algorithm, either "glm" or "maxnet".
 #' @param occ (data frame) a data.frame containing the coordinates (longitude
@@ -75,7 +74,7 @@
 #' required in a combination. Default is NULL.
 #' @param features (character) a vector of feature classes. Default is c("q",
 #' "lq", "lp", "qp", "lqp").
-#' @param reg_mult (numeric) a vector of regularization parameters for maxnet.
+#' @param r_multiplier (numeric) a vector of regularization parameters for maxnet.
 #' Default is c(0.1, 1, 2, 3, 5).
 #' @param include_xy (logical) whether to include the coordinates (longitude and
 #' latitude) in the results from preparing data. Columns containing coordinates
@@ -121,7 +120,7 @@
 #'                        categorical_variables = "SoilType",
 #'                        n_background = 500, bias_file = bias,
 #'                        features = c("l", "q", "p", "lq", "lqp"),
-#'                        reg_mult = c(0.1, 1, 2, 3, 5))
+#'                        r_multiplier = c(0.1, 1, 2, 3, 5))
 #' print(sp_swd)
 #'
 #' # Prepare data for glm model
@@ -134,8 +133,6 @@
 #'                            features = c("l", "q", "p", "lq", "lqp"))
 #' print(sp_swd_glm)
 
-
-
 prepare_data <- function(algorithm,
                          occ,
                          x,
@@ -143,25 +140,25 @@ prepare_data <- function(algorithm,
                          raster_variables,
                          species = NULL,
                          mask = NULL,
+                         n_background = 1000,
+                         features = c("lq", "lqp"),
+                         r_multiplier = c(0.1, 0.5, 1, 2, 3),
+                         kfolds = 4,
                          categorical_variables = NULL,
                          do_pca = FALSE,
-                         variance_explained = 95,
-                         min_explained = 5,
                          center = TRUE,
                          scale = TRUE,
-                         write_pca = FALSE,
-                         pca_directory = NULL,
                          exclude_from_pca = NULL,
-                         n_background = 1000,
-                         bias_file = NULL,
-                         bias_effect = "direct",  # maybe we need this as NULL and make them decide
-                         kfolds = 4,
-                         weights = NULL,
+                         variance_explained = 95,
+                         min_explained = 5,
                          min_number = 2,
                          min_continuous = NULL,
-                         features = c("lq", "lqp"),
-                         reg_mult = c(0.1, 0.5, 1, 2, 3),
+                         bias_file = NULL,
+                         bias_effect = "direct",
+                         weights = NULL,
                          include_xy = TRUE,
+                         write_pca = FALSE,
+                         pca_directory = NULL,
                          write_file = FALSE,
                          file_name = NULL,
                          seed = 1) {
@@ -345,7 +342,7 @@ prepare_data <- function(algorithm,
                                    min_continuous = min_continuous,
                                    categorical_var = categorical_variables,
                                    features = features, algorithm = algorithm,
-                                   reg_mult = reg_mult)
+                                   r_multiplier = r_multiplier)
 
   data <- new_prepared_data(species = species, calibration_data = occ_bg,
                             formula_grid = formula_grid,

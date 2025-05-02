@@ -8,14 +8,14 @@
 #' environmental variables.
 #'
 #' @usage
-#' prepare_user_data(algorithm, user_data, pr_bg, species = NULL,
-#'                   x = NULL,y = NULL, categorical_variables = NULL,
-#'                   do_pca = FALSE, exclude_from_pca = NULL,
-#'                   variance_explained = 95, min_explained = 5, center = TRUE,
-#'                   scale = FALSE, write_pca = FALSE, pca_directory = NULL,
-#'                   kfolds = 4, weights = NULL, min_number = 2,
-#'                   min_continuous = NULL, features = c("lq", "lqp"),
-#'                   reg_mult = c(0.1, 0.5, 1, 2, 3), include_xy = TRUE,
+#' prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
+#'                   y = NULL, features = c("lq", "lqp"),
+#'                   r_multiplier = c(0.1, 0.5, 1, 2, 3), kfolds = 4,
+#'                   categorical_variables = NULL, do_pca = FALSE,
+#'                   center = TRUE, scale = TRUE, exclude_from_pca = NULL,
+#'                   variance_explained = 95, min_explained = 5,
+#'                   min_number = 2, min_continuous = NULL, weights = NULL,
+#'                   include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
 #'                   write_file = FALSE, file_name = NULL, seed = 1)
 #'
 #' @param algorithm (character) modeling algorithm, either "glm" or "maxnet".
@@ -67,7 +67,7 @@
 #' required in a combination. Default is NULL.
 #' @param features (character) a vector of feature classes. Default is c("q",
 #' "lq", "lp", "qp", "lqp").
-#' @param reg_mult (numeric) a vector of regularization parameters for maxnet.
+#' @param r_multiplier (numeric) a vector of regularization parameters for maxnet.
 #' Default is c(0.1, 1, 2, 3, 5).
 #' @param include_xy (logical) whether to include the coordinates (longitude and
 #' latitude) in the results from preparing data. Default is TRUE.
@@ -103,7 +103,7 @@
 #'                                      species = "Myrcia hatschbachii",
 #'                                      categorical_variables = "SoilType",
 #'                                      features = c("l", "q", "p", "lq", "lqp"),
-#'                                      reg_mult = c(0.1, 1, 2, 3, 5))
+#'                                      r_multiplier = c(0.1, 1, 2, 3, 5))
 #' maxnet_swd_user
 #'
 #' # Prepare data for glm model
@@ -120,22 +120,22 @@ prepare_user_data <- function(algorithm,
                               species = NULL,
                               x = NULL,
                               y = NULL,
+                              features = c("lq", "lqp"),
+                              r_multiplier = c(0.1, 0.5, 1, 2, 3),
+                              kfolds = 4,
                               categorical_variables = NULL,
                               do_pca = FALSE,
+                              center = TRUE,
+                              scale = TRUE,
                               exclude_from_pca = NULL,
                               variance_explained = 95,
                               min_explained = 5,
-                              center = TRUE,
-                              scale = FALSE,
-                              write_pca = FALSE,
-                              pca_directory = NULL,
-                              kfolds = 4,
-                              weights = NULL,
                               min_number = 2,
                               min_continuous = NULL,
-                              features = c("lq", "lqp"),
-                              reg_mult = c(0.1, 0.5, 1, 2, 3),
+                              weights = NULL,
                               include_xy = TRUE,
+                              write_pca = FALSE,
+                              pca_directory = NULL,
                               write_file = FALSE,
                               file_name = NULL,
                               seed = 1) {
@@ -296,7 +296,7 @@ prepare_user_data <- function(algorithm,
   #Formula grid
   formula_grid <- calibration_grid(user_data, min_number, min_continuous,
                                    categorical_var = categorical_variables,
-                                   features, algorithm, reg_mult)
+                                   features, algorithm, r_multiplier)
 
   #Extract xy?
   if (!is.null(x) & !is.null(y)) {
