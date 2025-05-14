@@ -11,7 +11,7 @@
 #' prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
 #'                   y = NULL, features = c("lq", "lqp"),
 #'                   r_multiplier = c(0.1, 0.5, 1, 2, 3), kfolds = 4,
-#'                   categorical_variables = NULL, do_pca = FALSE,
+#'                   user_folds = NULL, categorical_variables = NULL, do_pca = FALSE,
 #'                   center = TRUE, scale = TRUE, exclude_from_pca = NULL,
 #'                   variance_explained = 95, min_explained = 5,
 #'                   min_number = 2, min_continuous = NULL, weights = NULL,
@@ -59,6 +59,9 @@
 #' Default is NULL.
 #' @param kfolds (numeric) the number of groups (folds) the occurrence
 #' data will be split into for cross-validation. Default is 4.
+#' @param user_folds a user provided list with folds for cross-validation to be
+#' used in model calibration. Each element of the list contains indices to split
+#' `use_data` into training and testing sets.
 #' @param weights (numeric) a numeric vector specifying weights for the
 #' occurrence records. Default is NULL.
 #' @param min_number (numeric) the minimum number of variables to be included in
@@ -123,6 +126,7 @@ prepare_user_data <- function(algorithm,
                               features = c("lq", "lqp"),
                               r_multiplier = c(0.1, 0.5, 1, 2, 3),
                               kfolds = 4,
+                              user_folds = NULL,
                               categorical_variables = NULL,
                               do_pca = FALSE,
                               center = TRUE,
@@ -274,8 +278,12 @@ prepare_user_data <- function(algorithm,
   }
 
   #Partition
-  k_f <- enmpa::kfold_partition(data = user_data, dependent = "pr_bg", k = kfolds,
-                                seed = seed)
+  if (is.null(user_folds)) {
+    k_f <- enmpa::kfold_partition(data = user_data, dependent = "pr_bg", k = kfolds,
+                                  seed = seed)
+  } else {
+    k_f <- user_folds
+  }
 
   #Check min_number and min_continuous
   if (min_number > ncol(user_data) - 1) {
