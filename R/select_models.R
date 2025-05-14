@@ -9,8 +9,8 @@
 #' select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
 #'               algorithm = NULL, compute_proc = FALSE,
 #'               addsamplestobackground = TRUE, weights = NULL,
-#'               test_concave = FALSE, omrat_threshold = 10,
-#'               allow_tolerance = TRUE, tolerance = 0.01, AIC_option = "ws",
+#'               test_concave = FALSE, omission_rate = NULL,
+#'               allow_tolerance = TRUE, tolerance = 0.01,
 #'               significance = 0.05, delta_aic = 2, parallel = FALSE,
 #'               ncores = NULL, progress_bar = FALSE,verbose = TRUE)
 #'
@@ -37,21 +37,19 @@
 #' `calibration_results` is NULL. Default is NULL.
 #' @param test_concave (logical) whether to remove candidate models presenting
 #' concave curves. Default is FALSE.
-#' @param omrat_threshold (numeric) the maximum omission rate a candidate model
-#' can have to be considered a best model. Default is 10. This value must match
-#' one of the values specified in `omrat` in [calibration()].
+#' @param omission_rate (numeric) the maximum omission rate a candidate model
+#' can have to be considered as a potentially selected model. The default, NULL,
+#' uses the value provided as part of `calibration_results`. For purposes of
+#' selection in existing results of evaluation, this value must match one of
+#' the values used in omission tests, and must be manually defined.
 #' @param allow_tolerance (logical) whether to allow selection of models with
 #' minimum values of omission rates even if their omission rate surpasses the
-#' `omrat_threshold`. This is only applicable if all candidate models have
-#' omission rates higher than the `omrat_threshold`. Default is TRUE.
+#' `omission_rate`. This is only applicable if all candidate models have
+#' omission rates higher than the `omission_rate`. Default is TRUE.
 #' @param tolerance (numeric) The value added to the minimum omission rate if it
-#' exceeds the `omrat_threshold`. If `allow_tolerance = TRUE`, selected models
+#' exceeds the `omission_rate`. If `allow_tolerance = TRUE`, selected models
 #' will have an omission rate equal to or less than the minimum rate plus this
 #' tolerance. Default is 0.01.
-#' @param AIC_option (character) the type of AIC to be calculated: "ws" for AIC
-#' proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-#' and Kawano (2016). This is only applicable if algorithm = "maxnet".
-#' Default is "ws". See References for details.
 #' @param significance (numeric) the significance level to select models
 #' based on the partial ROC (pROC). Default is 0.05. See Details.
 #' @param delta_aic (numeric) the value of delta AIC used as a threshold to
@@ -91,7 +89,7 @@
 #' #Select new best models based on another value of omission rate
 #' new_best_model <- select_models(candidate_models = calib_results_glm$calibration_results$Summary,
 #'                                 algorithm = "glm",
-#'                                 omrat_threshold = 5)  # Omission error of 5
+#'                                 omission_rate = 5)  # Omission error of 5
 #'
 #' # Compare with best models selected previously
 #' calib_results_glm$summary$Selected  # Model 1 selected
@@ -106,10 +104,9 @@ select_models <- function(calibration_results = NULL,
                           addsamplestobackground = TRUE,
                           weights = NULL,
                           test_concave = FALSE,
-                          omrat_threshold = 10,
+                          omission_rate = NULL,
                           allow_tolerance = TRUE,
                           tolerance = 0.01,
-                          AIC_option = "ws",
                           significance = 0.05,
                           delta_aic = 2,
                           parallel = FALSE,
@@ -128,7 +125,11 @@ select_models <- function(calibration_results = NULL,
   if (!is.null(calibration_results)) {
     candidate_models <- calibration_results$calibration_results$Summary
     algorithm <- calibration_results$algorithm
+    omission_rate <- calibration_results$omission_rate
   } else {
+    if (is.null(omission_rate)) {
+      stop("Argument 'omission_rate' must be defined.")
+    }
     if (!is.null(data)) {
       algorithm <- data$algorithm
     }
@@ -146,15 +147,8 @@ select_models <- function(calibration_results = NULL,
   # Adjust AIC column based on model type
   if (algorithm == "maxnet") {
     # Remove the unused AIC column in maxnet
-    if (AIC_option == "nk") {
-      AIC_option <- "AIC_nk"
-      candidate_models$AIC_ws <- NULL
-    } else if (AIC_option == "ws") {
-      AIC_option <- "AIC_ws"
-      candidate_models$AIC_nk <- NULL
-    } else {
-      stop("Unsupported AIC option. Please use 'nk' or 'ws'.")
-    }
+    AIC_option <- "AICc"
+    candidate_models$AIC_nk <- NULL
   } else if (algorithm == "glm") {
     AIC_option <- "AIC" # For glm models, we only use a single AIC column
   } else {
@@ -162,10 +156,10 @@ select_models <- function(calibration_results = NULL,
   }
 
   # Omission rate column name
-  om_thr <- paste0("Omission_rate_at_", omrat_threshold, ".mean")
+  om_thr <- paste0("Omission_rate_at_", omission_rate, ".mean")
 
   #proc-pval columns
-  proc_pval <- paste0("pval_pROC_at_", omrat_threshold, ".mean")
+  proc_pval <- paste0("pval_pROC_at_", omission_rate, ".mean")
 
 
   #Check if it's necessary calculate proc
@@ -202,40 +196,40 @@ select_models <- function(calibration_results = NULL,
       }
 
       # Remove models with errors
-      na_models <- candidate_models[is.na(candidate_models$is_concave), "ID"]
+      na_models <- candidate_models[is.na(candidate_models$Is_concave), "ID"]
 
       if (verbose) {
         message("Removing ", length(na_models), " model(s) because they failed to fit.")
       }
 
-      candidate_models <- candidate_models[!is.na(candidate_models$is_concave), ]
+      candidate_models <- candidate_models[!is.na(candidate_models$Is_concave), ]
 
       # Remove concave curves if test_concave is TRUE
       if (test_concave) {
-        concave_models <- candidate_models[candidate_models$is_concave, "ID"]
+        concave_models <- candidate_models[candidate_models$Is_concave, "ID"]
 
         if (verbose) {
           message("Removing ", length(concave_models), " model(s) with concave curves.")
         }
 
-        candidate_models <- candidate_models[!candidate_models$is_concave, ]
+        candidate_models <- candidate_models[!candidate_models$Is_concave, ]
       } else {
         concave_models <- 0
       }
 
       # Subset models by omission rate
-      high_omr <- candidate_models[candidate_models[, om_thr] > omrat_threshold / 100, "ID"]
-      cand_om <- candidate_models[candidate_models[, om_thr] <= omrat_threshold / 100, ]
+      high_omr <- candidate_models[candidate_models[, om_thr] > omission_rate / 100, "ID"]
+      cand_om <- candidate_models[candidate_models[, om_thr] <= omission_rate / 100, ]
 
       if (verbose) {
         message(nrow(cand_om), " models were selected with omission rate below ",
-                omrat_threshold, "%.")
+                omission_rate, "%.")
       }
 
       # Stop if no models meet the omission rate threshold and allow_tolerance is FALSE
       if (nrow(cand_om) == 0 & !allow_tolerance) {
         stop("There are no models with values of omission rate below ",
-             omrat_threshold, "%. Try with 'allow_tolerance' = TRUE.")
+             omission_rate, "%. Try with 'allow_tolerance' = TRUE.")
       }
 
       # Apply tolerance if no models meet the omission rate threshold and allow_tolerance is TRUE
@@ -247,7 +241,7 @@ select_models <- function(calibration_results = NULL,
 
         if (verbose) {
           message("Minimum value of omission rate (", round(min_thr * 100, 1),
-                  "%) is above the selected threshold (", omrat_threshold,
+                  "%) is above the selected threshold (", omission_rate,
                   "%).\nApplying tolerance and selecting ", nrow(cand_om),
                   " models with omission rate <",
                   round(min_thr * 100 + tolerance, 1), "%.")
@@ -287,7 +281,7 @@ select_models <- function(calibration_results = NULL,
         }
 
         proc_values <- partial_roc(formula_grid = cand_final, data = data,
-                                   omission_rate = omrat_threshold,
+                                   omission_rate = omission_rate,
                                    addsamplestobackground, weights,
                                    algorithm, parallel, ncores,
                                    progress_bar)
@@ -309,7 +303,7 @@ select_models <- function(calibration_results = NULL,
 
         # Check if p_value is non-significative
         p_value_omr <- cand_final_updated[, paste0("pval_pROC_at_",
-                                                  omrat_threshold, ".mean")]
+                                                  omission_rate, ".mean")]
         any_bad <- any(p_value_omr > significance | is.na(p_value_omr))
 
         #Get models to remove, if necessary
@@ -340,24 +334,24 @@ select_models <- function(calibration_results = NULL,
   if (!compute_proc) {
     #### Initiate filtering if it's NOT necessary to calculate proc ####
     # Remove models with errors
-    na_models <- candidate_models[is.na(candidate_models$is_concave), "ID"]
+    na_models <- candidate_models[is.na(candidate_models$Is_concave), "ID"]
 
     if (verbose) {
       message("\nRemoving ", length(na_models), " model(s) that failed to fit.")
     }
 
-    candidate_models <- candidate_models[!is.na(candidate_models$is_concave), ]
+    candidate_models <- candidate_models[!is.na(candidate_models$Is_concave), ]
 
     # Remove concave curves if test_concave is TRUE
     if (test_concave) {
-      concave_models <- candidate_models[candidate_models$is_concave, "ID"]
+      concave_models <- candidate_models[candidate_models$Is_concave, "ID"]
 
       if (verbose) {
         message("Removing ", length(concave_models),
                 " model(s) with concave responses.")
       }
 
-      candidate_models <- candidate_models[!candidate_models$is_concave, ]
+      candidate_models <- candidate_models[!candidate_models$Is_concave, ]
     } else {
       concave_models <- 0
     }
@@ -375,17 +369,17 @@ select_models <- function(calibration_results = NULL,
                                  !is.na(candidate_models[[proc_pval]]), ]
 
     # Subset models by omission rate
-    high_omr <- candidate_models[candidate_models[, om_thr] > omrat_threshold / 100, "ID"]
-    cand_om <- candidate_models[candidate_models[, om_thr] <= omrat_threshold / 100, ]
+    high_omr <- candidate_models[candidate_models[, om_thr] > omission_rate / 100, "ID"]
+    cand_om <- candidate_models[candidate_models[, om_thr] <= omission_rate / 100, ]
 
     if (verbose) {
-      message(nrow(cand_om), " models passed the ", omrat_threshold,
+      message(nrow(cand_om), " models passed the ", omission_rate,
               "% omission criterion.")
     }
 
     # Stop if no models meet the omission rate threshold and allow_tolerance is FALSE
     if (nrow(cand_om) == 0 & !allow_tolerance) {
-      stop("There were no models with omissions below ", omrat_threshold, "%.",
+      stop("There were no models with omissions below ", omission_rate, "%.",
            "Try using the arguments 'allow_tolerance' and 'tolerance'.")
     }
 
@@ -397,7 +391,7 @@ select_models <- function(calibration_results = NULL,
 
       if (verbose) {
         message("Minimum value of omission in models (", round(min_thr * 100, 1),
-                "%) > omission criterion (", omrat_threshold, "%).\n",
+                "%) > omission criterion (", omission_rate, "%).\n",
                 "Applying tolerance: ", nrow(cand_om), " models with omission <",
                 round((min_thr + tolerance) * 100, 1), "% were found.")
       }
@@ -426,7 +420,7 @@ select_models <- function(calibration_results = NULL,
   # Final results
   sel_res <- list(selected_models = cand_final_updated,
                   summary = list(delta_AIC = delta_aic,
-                                 omission_rate_thr = omrat_threshold,
+                                 omission_rate_thr = omission_rate,
                                  Errors = na_models,
                                  Concave = concave_models,
                                  Non_sig_pROC = insig_proc,
@@ -438,7 +432,7 @@ select_models <- function(calibration_results = NULL,
   if (!is.null(calibration_results)) {
     calibration_results$selected_models <- sel_res$selected_models
     calibration_results$summary <- sel_res$summary
-    calibration_results$omission_rate <- omrat_threshold
+    calibration_results$omission_rate <- omission_rate
     return(calibration_results)
   } else {
     return(sel_res)

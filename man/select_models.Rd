@@ -7,8 +7,8 @@
 select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
               algorithm = NULL, compute_proc = FALSE,
               addsamplestobackground = TRUE, weights = NULL,
-              test_concave = FALSE, omrat_threshold = 10,
-              allow_tolerance = TRUE, tolerance = 0.01, AIC_option = "ws",
+              test_concave = FALSE, omission_rate = NULL,
+              allow_tolerance = TRUE, tolerance = 0.01,
               significance = 0.05, delta_aic = 2, parallel = FALSE,
               ncores = NULL, progress_bar = FALSE,verbose = TRUE)
 }
@@ -44,24 +44,21 @@ occurrence records. Required only if \code{compute_proc} is TRUE and
 \item{test_concave}{(logical) whether to remove candidate models presenting
 concave curves. Default is FALSE.}
 
-\item{omrat_threshold}{(numeric) the maximum omission rate a candidate model
-can have to be considered a best model. Default is 10. This value must match
-one of the values specified in \code{omrat} in \code{\link[=calibration]{calibration()}}.}
+\item{omission_rate}{(numeric) the maximum omission rate a candidate model
+can have to be considered as a potentially selected model. The default, NULL,
+uses the value provided as part of \code{calibration_results}. For purposes of
+selection in existing results of evaluation, this value must match one of
+the values used in omission tests, and must be manually defined.}
 
 \item{allow_tolerance}{(logical) whether to allow selection of models with
 minimum values of omission rates even if their omission rate surpasses the
-\code{omrat_threshold}. This is only applicable if all candidate models have
-omission rates higher than the \code{omrat_threshold}. Default is TRUE.}
+\code{omission_rate}. This is only applicable if all candidate models have
+omission rates higher than the \code{omission_rate}. Default is TRUE.}
 
 \item{tolerance}{(numeric) The value added to the minimum omission rate if it
-exceeds the \code{omrat_threshold}. If \code{allow_tolerance = TRUE}, selected models
+exceeds the \code{omission_rate}. If \code{allow_tolerance = TRUE}, selected models
 will have an omission rate equal to or less than the minimum rate plus this
 tolerance. Default is 0.01.}
-
-\item{AIC_option}{(character) the type of AIC to be calculated: "ws" for AIC
-proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-and Kawano (2016). This is only applicable if algorithm = "maxnet".
-Default is "ws". See References for details.}
 
 \item{significance}{(numeric) the significance level to select models
 based on the partial ROC (pROC). Default is 0.05. See Details.}
@@ -112,7 +109,7 @@ data(calib_results_glm, package = "kuenm2")
 #Select new best models based on another value of omission rate
 new_best_model <- select_models(candidate_models = calib_results_glm$calibration_results$Summary,
                                 algorithm = "glm",
-                                omrat_threshold = 5)  # Omission error of 5
+                                omission_rate = 5)  # Omission error of 5
 
 # Compare with best models selected previously
 calib_results_glm$summary$Selected  # Model 1 selected
