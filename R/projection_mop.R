@@ -12,7 +12,7 @@
 #'                distance = "euclidean", scale = FALSE, center = FALSE,
 #'                fix_NA = TRUE, percentage = 1, comp_each = 2000, tol = NULL,
 #'                rescale_distance = FALSE, parallel = FALSE, ncores = NULL,
-#'                progress_bar = FALSE, overwrite = FALSE)
+#'                progress_bar = TRUE, overwrite = FALSE)
 #'
 #' @param data an object of class `prepared_data` returned by the
 #' [prepare_data()] function.
@@ -62,7 +62,7 @@
 #' Default is NULL and uses available cores - 1. This is only applicable if
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
-#' processing. Default is FALSE.
+#' processing. Default is TRUE.
 #' @param overwrite (logical) whether to overwrite SpatRaster if they already
 #' exists. Only applicable if `write_files` is set to TRUE. Default is FALSE.
 #'
@@ -221,7 +221,7 @@ projection_mop <- function(data,
                            rescale_distance = FALSE,
                            parallel = FALSE,
                            ncores = NULL,
-                           progress_bar = FALSE,
+                           progress_bar = TRUE,
                            overwrite = FALSE) {
   #Check data
   if (missing(data)) {

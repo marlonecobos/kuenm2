@@ -10,7 +10,7 @@ projection_mop(data, projection_data, out_dir, fitted_models = NULL,
                distance = "euclidean", scale = FALSE, center = FALSE,
                fix_NA = TRUE, percentage = 1, comp_each = 2000, tol = NULL,
                rescale_distance = FALSE, parallel = FALSE, ncores = NULL,
-               progress_bar = FALSE, overwrite = FALSE)
+               progress_bar = TRUE, overwrite = FALSE)
 }
 \arguments{
 \item{data}{an object of class \code{prepared_data} returned by the
@@ -80,7 +80,7 @@ Default is NULL and uses available cores - 1. This is only applicable if
 \code{parallel = TRUE}.}
 
 \item{progress_bar}{(logical) whether to display a progress bar during
-processing. Default is FALSE.}
+processing. Default is TRUE.}
 
 \item{overwrite}{(logical) whether to overwrite SpatRaster if they already
 exists. Only applicable if \code{write_files} is set to TRUE. Default is FALSE.}
