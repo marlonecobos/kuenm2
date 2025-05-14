@@ -6,14 +6,14 @@
 \usage{
 response_curve(models, variable, modelID = NULL, n = 100,
                by_replicates = FALSE, data = NULL, new_data = NULL,
-               averages_from = "pr", extrapolate = TRUE,
+               averages_from = "pr_bg", extrapolate = TRUE,
                extrapolation_factor = 0.1, l_limit = NULL,
                u_limit = NULL, xlab = NULL, ylab = "Suitability",
                col = "darkblue", ...)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{\link{fit_selected}}() function.}
+\code{\link[=fit_selected]{fit_selected()}} function.}
 
 \item{variable}{(character) name of the variable to be plotted.}
 
@@ -36,7 +36,7 @@ explicitly include a data component.}
 \item{averages_from}{(character) specifies how the averages or modes of the
 variables are calculated. Available options are "pr" (to calculate averages
 from the presence localities) or "pr_bg" (to use the combined set of presence
-and background localities). Default is "pr". See details.}
+and background localities). Default is "pr_bg". See details.}
 
 \item{extrapolate}{(logical) whether to allow extrapolation to study the
 behavior of the response outside the calibration limits. Ignored if

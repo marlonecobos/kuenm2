@@ -7,13 +7,13 @@
 #' @usage
 #' response_curve(models, variable, modelID = NULL, n = 100,
 #'                by_replicates = FALSE, data = NULL, new_data = NULL,
-#'                averages_from = "pr", extrapolate = TRUE,
+#'                averages_from = "pr_bg", extrapolate = TRUE,
 #'                extrapolation_factor = 0.1, l_limit = NULL,
 #'                u_limit = NULL, xlab = NULL, ylab = "Suitability",
 #'                col = "darkblue", ...)
 #
 #' @param models an object of class `fitted_models` returned by the
-#' \code{\link{fit_selected}}() function.
+#' [fit_selected()] function.
 #' @param variable (character) name of the variable to be plotted.
 #' @param data data.frame or matrix of data used in the model calibration step.
 #' Default = NULL.
@@ -29,7 +29,7 @@
 #' @param averages_from (character) specifies how the averages or modes of the
 #' variables are calculated. Available options are "pr" (to calculate averages
 #' from the presence localities) or "pr_bg" (to use the combined set of presence
-#' and background localities). Default is "pr". See details.
+#' and background localities). Default is "pr_bg". See details.
 #' @param extrapolate (logical) whether to allow extrapolation to study the
 #' behavior of the response outside the calibration limits. Ignored if
 #' `new_data` is defined. Default = TRUE.
@@ -96,7 +96,7 @@
 
 response_curve <- function(models, variable, modelID = NULL, n = 100,
                            by_replicates = FALSE, data = NULL,
-                           new_data = NULL, averages_from = "pr",
+                           new_data = NULL, averages_from = "pr_bg",
                            extrapolate = TRUE, extrapolation_factor = 0.1,
                            l_limit = NULL, u_limit = NULL,
                            xlab = NULL, ylab = "Suitability",
@@ -211,7 +211,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                                   new_data = NULL,
                                   xlab = NULL, ylab = NULL, col = "darkblue",
                                   categorical_variables = NULL,
-                                  averages_from = "pr",
+                                  averages_from = "pr_bg",
                                   l_limit = NULL,
                                   u_limit = NULL,
                                   ...) {
@@ -473,9 +473,9 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   # Extract calibration data from the model object
   if (averages_from == "pr") {
-    cal_data <- data[, vnames, drop = FALSE]
-  } else if (averages_from == "pr_bg") {
     cal_data <- data[data$pr_bg == 1, vnames, drop = FALSE]
+  } else if (averages_from == "pr_bg") {
+    cal_data <- data[, vnames, drop = FALSE]
   }
 
   # Extract the limits of the calibration data
