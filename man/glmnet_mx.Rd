@@ -5,8 +5,7 @@
 \title{Maxent-like glmnet models}
 \usage{
 glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
-          addsamplestobackground = TRUE, weights = NULL,
-          calculate_AIC = FALSE, AIC_option = "ws", ...)
+          addsamplestobackground = TRUE, weights = NULL, ...)
 }
 \arguments{
 \item{p}{A vector of binary presence-background labels, where 1 indicates
@@ -29,11 +28,6 @@ the background to the background data. Default is \code{TRUE}.}
 \item{weights}{(numeric) A numeric vector of weights for each observation.
 Default is \code{NULL}, which sets weights to 1 for presence points
 and 100 for background points.}
-
-\item{calculate_AIC}{(logical) Whether to calculate AIC. Default is \code{FALSE}.}
-
-\item{AIC_option}{(character) Method for calculating AIC, either "nk" or "ws".
-Default is "ws".}
 
 \item{...}{Additional arguments to pass to \code{\link[glmnet]{glmnet}}.}
 }

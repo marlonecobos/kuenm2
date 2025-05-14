@@ -6,8 +6,7 @@
 #'
 #' @usage
 #' glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
-#'           addsamplestobackground = TRUE, weights = NULL,
-#'           calculate_AIC = FALSE, AIC_option = "ws", ...)
+#'           addsamplestobackground = TRUE, weights = NULL, ...)
 #'
 #' @param p A vector of binary presence-background labels, where 1 indicates
 #' presence and 0 indicates background.
@@ -23,9 +22,6 @@
 #' @param weights (numeric) A numeric vector of weights for each observation.
 #' Default is \code{NULL}, which sets weights to 1 for presence points
 #' and 100 for background points.
-#' @param calculate_AIC (logical) Whether to calculate AIC. Default is \code{FALSE}.
-#' @param AIC_option (character) Method for calculating AIC, either "nk" or "ws".
-#' Default is "ws".
 #' @param ... Additional arguments to pass to \code{\link[glmnet]{glmnet}}.
 #'
 #' @return
@@ -52,8 +48,6 @@ glmnet_mx <- function(p,
                       regfun = maxnet.default.regularization,
                       addsamplestobackground = TRUE,
                       weights = NULL,
-                      calculate_AIC = FALSE,
-                      AIC_option = "ws",
                       ...) {
 
   if (missing(p)) {
@@ -128,11 +122,13 @@ glmnet_mx <- function(p,
   filter <- bb[-1] != 0
   bb <- c(bb[1], bb[-1][filter])
 
-  if (calculate_AIC & sum(filter) != 0 & AIC_option == "nk") {
-    model$AIC <- aic_nk(x = as.matrix(mm[, filter]), y = p, beta = bb)
-  } else {
-    model$AIC <- NA
-  }
+  #if (calculate_AIC & sum(filter) != 0 & AIC_option == "nk") {
+  #  model$AIC <- aic_nk(x = as.matrix(mm[, filter]), y = p, beta = bb)
+  #} else {
+  #  model$AIC <- NA
+  #}
+
+  model$AIC <- NA
 
   # returning other elements
   model$betas <- bb[-1]
