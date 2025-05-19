@@ -206,8 +206,8 @@ organize_future_worldclim <- function(input_dir,
   }
 
   #Return folders
-  return(cat("\nVariables successfully organized in the root directory:\n",
-             output_dir))
+  return(message("\nVariables successfully organized in directory:\n",
+                 output_dir))
 }
 
 
