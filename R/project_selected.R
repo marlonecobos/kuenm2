@@ -3,7 +3,7 @@
 #' @description
 #' This function performs predictions of selected models on multiple scenarios,
 #' as specified in a `projection_data` object created with the
-#' \code{\link{prepare_projection}}() function. In addition to generating predictions
+#' [prepare_projection()] function. In addition to generating predictions
 #' for each replicate, the function calculates consensus measures (e.g., mean,
 #' median) across replicates and models.
 #'
@@ -17,9 +17,9 @@
 #'                  progress_bar = TRUE, verbose = TRUE)
 #'
 #' @param models an object of class `fitted_models` returned by the
-#' \code{\link{fit_selected}}() function.
+#' [fit_selected()] function.
 #' @param projection_data an object of class `projection_data` returned by the
-#' \code{\link{prepare_projection}}() function. This file contains the paths to the
+#' [prepare_projection()] function. This file contains the paths to the
 #' rasters representing each scenario.
 #' @param out_dir (character) a path to a root directory for saving the raster
 #' file of each projection.

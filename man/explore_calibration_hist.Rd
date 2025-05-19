@@ -28,7 +28,7 @@ intervals in the histogram.}
 \value{
 A list of with information to plot informative histograms to explore data
 to be used in the modeling process. Histogram plots can be plotted with
-the function \code{\link{plot_explore_calibration}}.
+the function \code{\link[=plot_explore_calibration]{plot_explore_calibration()}}.
 }
 \description{
 This function prepares data to generate overlaid histograms to visualize the

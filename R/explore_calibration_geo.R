@@ -4,7 +4,7 @@
 #' explore_calibration_geo(data, raster_variables, plot = TRUE)
 #'
 #' @param data an object of class `prepared_data` returned by the
-#' \code{\link{prepare_data}}() function.
+#' [prepare_data()] function.
 #' @param raster_variables (SpatRaster) predictor variables used for model
 #' calibration.
 #' @param plot (logical) wheter to plot the SpatRaster. Default is TRUE.

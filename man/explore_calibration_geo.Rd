@@ -8,7 +8,7 @@ explore_calibration_geo(data, raster_variables, plot = TRUE)
 }
 \arguments{
 \item{data}{an object of class \code{prepared_data} returned by the
-\code{\link{prepare_data}}() function.}
+\code{\link[=prepare_data]{prepare_data()}} function.}
 
 \item{raster_variables}{(SpatRaster) predictor variables used for model
 calibration.}
