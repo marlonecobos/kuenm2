@@ -5,7 +5,7 @@
 \title{Bivariate response plot for fitted models}
 \usage{
 bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
-                   new_data = NULL, extrapolate = FALSE, add_bar = TRUE ,
+                   new_data = NULL, extrapolate = TRUE, add_bar = TRUE ,
                    add_limits = TRUE, color_palette	= NULL,
                    xlab = NULL, ylab = NULL, ...)
 }
