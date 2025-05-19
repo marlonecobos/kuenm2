@@ -1,21 +1,21 @@
 
-eval_stats <- function(cal_res, omission_rate, algorithm) {
+eval_stats <- function(cal_res, error_considered, algorithm) {
 
   # Arguments:
   # cal_res: Calibration results
-  # omission_rate: Omission rate threshold
+  # error_considered: Omission rate threshold
   # algorithm: Type of model, either maxnet or glm
 
   # Check arguments:
-  if (any(missing(cal_res), missing(omission_rate), missing(algorithm))) {
-    stop("Arguments 'cal_res', 'omission_rate', 'algorithm' must be defined.")
+  if (any(missing(cal_res), missing(error_considered), missing(algorithm))) {
+    stop("Arguments 'cal_res', 'error_considered', 'algorithm' must be defined.")
   }
   if (!inherits(cal_res, "data.frame")) {
     stop("Argument 'cal_res' must be a 'dataframe'.")
   }
 
-  if (!inherits(omission_rate, "numeric")) {
-    stop("Argument 'omission_rate' must be 'numeric'.")
+  if (!inherits(error_considered, "numeric")) {
+    stop("Argument 'error_considered' must be 'numeric'.")
   }
 
   if (!inherits(algorithm, "character")) {
@@ -28,21 +28,21 @@ eval_stats <- function(cal_res, omission_rate, algorithm) {
   ####
 
   # Define omission rates and proc to aggregate
-  omission_rates <- paste0("Omission_rate_at_", omission_rate)
-  proc_values <- paste0("Mean_AUC_ratio_at_", omission_rate)
-  pval_values <- paste0("pval_pROC_at_", omission_rate)
+  omission_rates <- paste0("Omission_rate_at_", error_considered)
+  proc_values <- paste0("Mean_AUC_ratio_at_", error_considered)
+  pval_values <- paste0("pval_pROC_at_", error_considered)
 
   toagg <- c(omission_rates, proc_values, pval_values)
 
   # Aggregation groups depending on the model type
   if (algorithm == "maxnet") {
-    agg_by <- c("Formulas", "reg_mult", "Features")
-    to_keep <- c("ID", "Formulas", "reg_mult", "Features", "AIC_nk", "AIC_ws",
-                 "npar", "is_concave")
+    agg_by <- c("Formulas", "R_multiplier", "Features")
+    to_keep <- c("ID", "Formulas", "R_multiplier", "Features", "AICc",
+                 "Parameters", "Is_concave")
 
   } else if (algorithm == "glm") {
     agg_by <- c("Formulas", "Features")
-    to_keep <- c("ID", "Formulas", "Features", "AIC", "npar", "is_concave")
+    to_keep <- c("ID", "Formulas", "Features", "AIC", "Parameters", "Is_concave")
 
   } else {
     stop("Unsupported model type. Please use 'maxnet' or 'glm'.")
@@ -76,23 +76,23 @@ eval_stats <- function(cal_res, omission_rate, algorithm) {
 
 
 
-empty_replicates <- function(omission_rate, n_row, replicates,
+empty_replicates <- function(error_considered, n_row, replicates,
                              is_c, algorithm) {
 
   # Arguments:
-  # omrat_thr: Omission rate threshold
+  # omission_rate: Omission rate threshold
   # n_row: Number of rows
   # replicates: Replicates
   # is_c: Concavity status
   # algorithm: Type of model, either maxnet or glm
 
   # Check arguments:
-  if (any(missing(omission_rate), missing(n_row), missing(replicates),
+  if (any(missing(error_considered), missing(n_row), missing(replicates),
           missing(is_c), missing(algorithm))) {
-    stop("Arguments 'omission_rate', 'n_row', 'replicates', 'is_c', and 'algorithm' must be defined.")
+    stop("Arguments 'error_considered', 'n_row', 'replicates', 'is_c', and 'algorithm' must be defined.")
   }
-  if (!inherits(omission_rate, "numeric")) {
-    stop("Argument 'omission_rate' must be 'numeric'.")
+  if (!inherits(error_considered, "numeric")) {
+    stop("Argument 'error_considered' must be 'numeric'.")
   }
   if (!is.numeric(n_row)) {
     stop("Argument 'n_row' must be 'numeric'.")
@@ -118,18 +118,17 @@ empty_replicates <- function(omission_rate, n_row, replicates,
 
   # Define column names based on model type
   if (algorithm == "maxnet") {
-    column_names <- c("Replicate",
-                      paste0("Omission_rate_at_", omission_rate),
-                      paste0("Mean_AUC_ratio_at_", omission_rate),
-                      paste0("pval_pROC_at_", omission_rate),
-                      "AIC_nk", "AIC_ws", "npar",
-                      "is_concave")
+    column_names <- c("Fold",
+                      paste0("Omission_rate_at_", error_considered),
+                      paste0("Mean_AUC_ratio_at_", error_considered),
+                      paste0("pval_pROC_at_", error_considered),
+                      "AICc", "Parameters", "Is_concave")
   } else if (algorithm == "glm") {
-    column_names <- c("Replicate",
-                      paste0("Omission_rate_at_", omission_rate),
-                      paste0("Mean_AUC_ratio_at_", omission_rate),
-                      paste0("pval_pROC_at_", omission_rate),
-                      "AIC", "npar", "is_concave")
+    column_names <- c("Fold",
+                      paste0("Omission_rate_at_", error_considered),
+                      paste0("Mean_AUC_ratio_at_", error_considered),
+                      paste0("pval_pROC_at_", error_considered),
+                      "AIC", "Parameters", "Is_concave")
   } else {
     stop("Unsupported model type. Please use 'maxnet' or 'glm'.")
   }
@@ -138,29 +137,29 @@ empty_replicates <- function(omission_rate, n_row, replicates,
   df_eval_q <- data.frame(matrix(NA, nrow = n_row, ncol = length(column_names)))
   colnames(df_eval_q) <- column_names
 
-  # Assign replicate values and concavity status
-  df_eval_q$Replicate <- replicates
-  df_eval_q$is_concave <- is_c
+  # Assign Fold values and concavity status
+  df_eval_q$Fold <- replicates
+  df_eval_q$Is_concave <- is_c
 
   return(df_eval_q)
 }
 
 
 
-empty_summary <- function(omission_rate, is_c, algorithm) {
+empty_summary <- function(error_considered, is_c, algorithm) {
 
 
   # Arguments:
-  # omrat_thr: Omission rate threshold
+  # omission_rate: Omission rate threshold
   # is_c: Concavity status
   # algorithm: Type of model, either maxnet or glm
 
   # Check arguments:
-  if (any(missing(omission_rate), missing(is_c), missing(algorithm))) {
-    stop("Arguments 'omission_rate', 'is_c', and 'algorithm' must be defined.")
+  if (any(missing(error_considered), missing(is_c), missing(algorithm))) {
+    stop("Arguments 'error_considered', 'is_c', and 'algorithm' must be defined.")
   }
-  if (!inherits(omission_rate, "numeric")) {
-    stop("Argument 'omission_rate' must be 'numeric'.")
+  if (!inherits(error_considered, "numeric")) {
+    stop("Argument 'error_considered' must be 'numeric'.")
   }
 
   if (!is.na(is_c)) {
@@ -179,26 +178,26 @@ empty_summary <- function(omission_rate, is_c, algorithm) {
   ####
 
   # Omission rates column names
-  om_means <- paste0("Omission_rate_at_", omission_rate, ".mean")
-  om_sd <- paste0("Omission_rate_at_", omission_rate, ".sd")
+  om_means <- paste0("Omission_rate_at_", error_considered, ".mean")
+  om_sd <- paste0("Omission_rate_at_", error_considered, ".sd")
 
   #Proc columns names
-  auc_means <- paste0("Mean_AUC_ratio_at_", omission_rate, ".mean")
-  auc_sd <- paste0("Mean_AUC_ratio_at_", omission_rate, ".sd")
-  pval_means <- paste0("pval_pROC_at_", omission_rate, ".mean")
-  pval_sd <- paste0("pval_pROC_at_", omission_rate, ".sd")
+  auc_means <- paste0("Mean_AUC_ratio_at_", error_considered, ".mean")
+  auc_sd <- paste0("Mean_AUC_ratio_at_", error_considered, ".sd")
+  pval_means <- paste0("pval_pROC_at_", error_considered, ".mean")
+  pval_sd <- paste0("pval_pROC_at_", error_considered, ".sd")
 
   # Base column names depending on the model type
   if (algorithm == "maxnet") {
     column_names <- c(om_means, om_sd,
                       auc_means, auc_sd,
                       pval_means, pval_sd,
-                      "AIC_nk", "AIC_ws", "npar", "is_concave")
+                      "AICc", "Parameters", "Is_concave")
   } else if (algorithm == "glm") {
     column_names <- c(om_means, om_sd,
                       auc_means, auc_sd,
                       pval_means, pval_sd,
-                      "AIC", "npar", "is_concave")
+                      "AIC", "Parameters", "Is_concave")
   } else {
     stop("Unsupported model type. Please use 'maxnet' or 'glm'.")
   }
@@ -206,16 +205,16 @@ empty_summary <- function(omission_rate, is_c, algorithm) {
   # Create the empty dataframe
   eval_final_q <- data.frame(matrix(NA, nrow = 1, ncol = length(column_names)))
   colnames(eval_final_q) <- column_names
-  eval_final_q$is_concave <- is_c
+  eval_final_q$Is_concave <- is_c
 
   return(eval_final_q)
 }
 
 
 
-fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omrat_thr,
+fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, omission_rate,
                              write_summary, addsamplestobackground, weights = NULL,
-                             return_replicate, algorithm, AIC_option,
+                             return_all_results, algorithm,
                              proc_for_all, out_dir) {
 
   # Arguments:
@@ -223,13 +222,12 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   # q_grids: Formula grid for quadratic terms
   # data: Data to fit models (output of prepare_data)
   # formula_grid: Formula grid
-  # omrat_thr: Omission rate threshold
+  # omission_rate: Omission rate threshold
   # write_summary: Write individual summary for each line in formula grid?
   # addsamplestobackground: Add samples to background?
   # weights: Add weights
-  # return_replicate: Return results of replicates
+  # return_all_results: Return results of replicates
   # algorithm: Type of model, either maxnet or glm
-  # AIC_option: AIC for maxnet (can be ws or nk)
 
   # Check arguments
 
@@ -245,12 +243,12 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     stop("Argument 'formula_grid' must be a data.frame.")
   }
 
-  if (!inherits(omission_rate, "numeric")) {
-    stop("Argument omission_rate must be numeric.")
+  if (!inherits(error_considered, "numeric")) {
+    stop("Argument error_considered must be numeric.")
   }
 
-  if (!inherits(omrat_thr, "numeric")) {
-    stop("Argument omrat_thr must be numeric.")
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument omission_rate must be numeric.")
   }
 
   if (!inherits(write_summary, "logical")) {
@@ -266,8 +264,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
       stop("Argument 'weights' must be NULL or 'numeric'.")
     }}
 
-  if (!inherits(return_replicate, "logical")) {
-    stop("Argument 'return_replicate' must be 'logical'.")
+  if (!inherits(return_all_results, "logical")) {
+    stop("Argument 'return_all_results' must be 'logical'.")
   }
 
   if (!inherits(algorithm, "character")) {
@@ -276,14 +274,6 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
 
   if (!(algorithm %in% c("glm", "maxnet"))) {
     stop("Argument 'algorithm' must be 'glm' or 'maxnet'.")
-  }
-
-  if (!inherits(AIC_option, "character")) {
-    stop("Argument 'AIC_option' must be a 'character'.")
-  }
-
-  if (!(AIC_option %in% c("ws", "nk"))) {
-    stop("Argument 'AIC_option' must be 'ws' or 'nk'.")
   }
 
   if (!inherits(proc_for_all, "logical")) {
@@ -297,14 +287,12 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   if (algorithm == "maxnet") {
     # For maxnet model
     formula_x <- as.formula(grid_x$Formulas)
-    reg_x <- grid_x$reg_mult
+    reg_x <- grid_x$R_multiplier
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                            data = data$calibration_data,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
-                           weights = weights,
-                           calculate_AIC = TRUE,
-                           AIC_option = AIC_option),
+                           weights = weights),
                  silent = TRUE)
 
   } else if (algorithm == "glm") {
@@ -353,28 +341,28 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   if (isTRUE(is_c) | is.na(is_c)) {
     # If concave, return grid
     grid_q <- if (algorithm == "maxnet") {
-      all_reg <- unique(formula_grid$reg_mult)
+      all_reg <- unique(formula_grid$R_multiplier)
       do.call("rbind", lapply(seq_along(all_reg), function(k) {
         grid_x_i <- grid_x
-        grid_x_i$reg_mult <- all_reg[k]
+        grid_x_i$R_multiplier <- all_reg[k]
         grid_x_i$ID <- formula_grid[formula_grid$Formulas == grid_x$Formulas &
-                                      formula_grid$reg_mult == all_reg[k], "ID"]
+                                      formula_grid$R_multiplier == all_reg[k], "ID"]
         return(grid_x_i)
       }))
     } else {
       formula_grid[x, ]
     }
 
-    df_eval_q <- empty_replicates(omission_rate = omission_rate,
+    df_eval_q <- empty_replicates(error_considered = error_considered,
                                   n_row = nrow(grid_q) * length(data$kfolds),
                                   replicates = names(data$kfolds),
                                   is_c = is_c,
                                   algorithm = algorithm)
     df_eval_q2 <- cbind(grid_q, df_eval_q)
-    eval_final_q <- empty_summary(omission_rate = omission_rate, is_c = is_c,
+    eval_final_q <- empty_summary(error_considered = error_considered, is_c = is_c,
                                   algorithm = algorithm)
     eval_final_q_summary <- reorder_stats_columns(cbind(grid_q, eval_final_q),
-                                                  omission_rate)
+                                                  error_considered)
 
   } else {
     # If not concave, calculate metrics
@@ -411,12 +399,12 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
       # Calculate metrics (omission rate, pROC)
       suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
-      om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
+      om_rate <- omrat(threshold = error_considered, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
 
       #Calculate PROC? ...
       if (proc_for_all) {
-        proc_i <- lapply(omission_rate, function(omr) {
+        proc_i <- lapply(error_considered, function(omr) {
           proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                       prediction = pred_i,
                                       threshold = omr)$pROC_summary
@@ -426,29 +414,28 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
         })
         proc_i <- unlist(proc_i)} else {
           #Or fill PROC with NA
-          proc_i <- rep(NA, length(omission_rate) * 2)
-          names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", omission_rate),
-                             paste0("pval_pROC_at_", omission_rate))
+          proc_i <- rep(NA, length(error_considered) * 2)
+          names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", error_considered),
+                             paste0("pval_pROC_at_", error_considered))
         }
 
 
 
       df_eval_q <-  if (algorithm == "maxnet") {
-        data.frame(Replicate = i,
+        data.frame(Fold = i,
                    t(om_rate),
                    t(proc_i),
-                   AIC_nk = m_aic$AIC,
-                   AIC_ws = AICc,
-                   npar = npar,
-                   is_concave = is_c,
+                   AICc = AICc,
+                   Parameters = npar,
+                   Is_concave = is_c,
                    row.names = NULL)
       } else {
-        data.frame(Replicate = i,
+        data.frame(Fold = i,
                    t(om_rate),
                    t(proc_i),
                    AIC = m_aic$aic,
-                   npar = npar,
-                   is_concave = is_c,
+                   Parameters = npar,
+                   Is_concave = is_c,
                    row.names = NULL)
       }
       return(cbind(grid_x, df_eval_q))
@@ -456,9 +443,9 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
     names(mods) <- names(data$kfolds)
     eval_final_q <- do.call("rbind", mods)
     eval_final_q_summary <- reorder_stats_columns(eval_stats(eval_final_q,
-                                                             omission_rate,
+                                                             error_considered,
                                                              algorithm),
-                                                  omission_rate = omission_rate)
+                                                  error_considered = error_considered)
   }
 
   # Write summary if requested
@@ -469,7 +456,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
   }
 
   # Return final results
-  if (!return_replicate)
+  if (!return_all_results)
     eval_final_q <- NULL
 
   return(list(All_results = eval_final_q, Summary = eval_final_q_summary))
@@ -477,22 +464,21 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
 
 
 
-fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
+fit_eval_models <- function(x, formula_grid, data, error_considered, omission_rate,
                             write_summary, addsamplestobackground, weights = NULL,
-                            return_replicate, algorithm, AIC_option,
+                            return_all_results, algorithm,
                             proc_for_all, out_dir) {
 
   # Arguments:
   # x: Each line of the formula grid
   # formula_grid: Formula grid (output of calibration_grid)
   # data: Data to fit models (output of prepare_data)
-  # omrat_thr: Omission rate threshold
+  # omission_rate: Omission rate threshold
   # write_summary: Write individual summary for each line in formula grid?
   # addsamplestobackground: Add samples to background?
   # weights: Add weights
-  # return_replicate: Return results of replicates
+  # return_all_results: Return results of replicates
   # algorithm: Type of model, either maxnet or glm
-  # AIC_option: AIC_option for maxnet (can be ws or nk)
 
   # Check rguments
 
@@ -504,12 +490,12 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
     stop("Argument 'formula_grid' must be a 'data.frame'.")
   }
 
-  if (!inherits(omission_rate, "numeric")) {
-    stop("Argument 'omission_rate' must be 'numeric'.")
+  if (!inherits(error_considered, "numeric")) {
+    stop("Argument 'error_considered' must be 'numeric'.")
   }
 
-  if (!inherits(omrat_thr, "numeric")) {
-    stop("Argument 'omrat_thr' must be 'numeric'.")
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument 'omission_rate' must be 'numeric'.")
   }
 
   if (!inherits(write_summary, "logical")) {
@@ -525,8 +511,8 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
       stop("Argument 'weights' must be NULL or 'numeric'.")
     }}
 
-  if (!inherits(return_replicate, "logical")) {
-    stop("Argument 'return_replicate' must be 'logical'.")
+  if (!inherits(return_all_results, "logical")) {
+    stop("Argument 'return_all_results' must be 'logical'.")
   }
 
   if (!inherits(algorithm, "character")) {
@@ -535,14 +521,6 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
   if (!(algorithm %in% c("glm", "maxnet"))) {
     stop("Argument 'algorithm' must be 'glm' or 'maxnet'.")
-  }
-
-  if (!inherits(AIC_option, "character")) {
-    stop("Argument 'AIC_option' must be a 'character'.")
-  }
-
-  if (!(AIC_option %in% c("ws", "nk"))) {
-    stop("Argument AIC_option must be 'ws' or 'nk'.")
   }
 
   if (!inherits(proc_for_all, "logical")) {
@@ -554,15 +532,14 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
   if (algorithm == "maxnet") {
     # Fit maxnet model
-    reg_x <- grid_x$reg_mult # Get regularization multiplier for maxnet
+    reg_x <- grid_x$R_multiplier # Get regularization multiplier for maxnet
     formula_x <- as.formula(grid_x$Formulas) # Get formula from grid x
 
     m_aic <- try(glmnet_mx(p = data$calibration_data$pr_bg,
                            data = data$calibration_data,
                            f = formula_x, regmult = reg_x,
                            addsamplestobackground = addsamplestobackground,
-                           weights = weights, calculate_AIC = TRUE,
-                           AIC_option = AIC_option),
+                           weights = weights),
     silent = TRUE)
   } else if (algorithm == "glm") {
     # Fit glm model
@@ -671,29 +648,28 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
         })
         proc_i <- unlist(proc_i)} else {
           #Or fill PROC with NA
-          proc_i <- rep(NA, length(omission_rate) * 2)
-          names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", omission_rate),
-                             paste0("pval_pROC_at_", omission_rate))
+          proc_i <- rep(NA, length(error_considered) * 2)
+          names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", error_considered),
+                             paste0("pval_pROC_at_", error_considered))
         }
 
 
       # Save metrics in a dataframe
       df_eval <-  if (algorithm == "maxnet") {
-        data.frame(Replicate = i,
+        data.frame(Fold = i,
                    t(om_rate),
                    t(proc_i),
-                   AIC_nk = m_aic$AIC,
-                   AIC_ws = AICc,
-                   npar = npar,
-                   is_concave = is_c,
+                   AICc = AICc,
+                   Parameters = npar,
+                   Is_concave = is_c,
                    row.names = NULL)
       } else if (algorithm == "glm") {
-        data.frame(Replicate = i,
+        data.frame(Fold = i,
                    t(om_rate),
                    t(proc_i),
                    AIC = m_aic$aic,
-                   npar = npar,
-                   is_concave = is_c,
+                   Parameters = npar,
+                   Is_concave = is_c,
                    row.names = NULL)
       }
       return(cbind(grid_x, df_eval))
@@ -703,7 +679,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
   ##### Handle errors and summarize results #####
   if (inherits(mods, "try-error")) {
     eval_final <- cbind(grid_x,
-                        empty_replicates(omission_rate = omission_rate,
+                        empty_replicates(error_considered = error_considered,
                                          n_row = length(data$kfolds),
                                          replicates = names(data$kfolds),
                                          is_c = is_c, algorithm = algorithm))
@@ -715,12 +691,12 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
   # Summarize results using eval_stats
   eval_final_summary <- if (inherits(mods, "try-error")) {
-    reorder_stats_columns(cbind(grid_x, empty_summary(omission_rate, is_c,
+    reorder_stats_columns(cbind(grid_x, empty_summary(error_considered, is_c,
                                                       algorithm)),
-                          omission_rate = omission_rate)
+                          error_considered = error_considered)
   } else {
-    reorder_stats_columns(eval_stats(eval_final, omission_rate, algorithm),
-                          omission_rate = omission_rate)
+    reorder_stats_columns(eval_stats(eval_final, error_considered, algorithm),
+                          error_considered = error_considered)
   }
 
   # Write summary if requested
@@ -731,7 +707,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
   }
 
   # Return replicates?
-  if (!return_replicate) {
+  if (!return_all_results) {
     eval_final <- NULL
   }
 
@@ -797,10 +773,10 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
   best_formula <- best_model$Formulas
 
   if (algorithm == "maxnet") {
-    best_regm <- best_model$reg_mult  # Regularization multiplier for maxnet
+    best_regm <- best_model$R_multiplier  # Regularization multiplier for maxnet
   }
 
-  # Select data for the replicate, or use the entire calibration data
+  # Select data for the Fold, or use the entire calibration data
   # if n_replicates == 1
   if (n_replicates > 1) {
     rep_i <- rep_data[[rep_x]]
@@ -828,7 +804,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
 
     #mod_x$data <- NULL # avoid store redundant info
   }
-  # Assign model ID and replicate number for tracking
+  # Assign model ID and Fold number for tracking
   mod_x$checkModel <- m_id
   mod_x$checkReplicate <- rep_x
 
@@ -861,26 +837,26 @@ bind_rows_projection <- function(data_frames) {
 
 
 # Reorder columns in stats final
-reorder_stats_columns <- function(stats_final, omission_rate) {
+reorder_stats_columns <- function(stats_final, error_considered) {
 
   if (!inherits(stats_final, "data.frame")) {
     stop("Argument 'stats_final' must be a 'data.frame'.")
   }
 
-  if (!inherits(omission_rate, "numeric")) {
-    stop("Argument 'omission_rate' must be 'numeric'.")
+  if (!inherits(error_considered, "numeric")) {
+    stop("Argument 'error_considered' must be 'numeric'.")
   }
 
-  first_cols<- intersect(c("ID", "Formulas", "reg_mult", "Features"),
+  first_cols<- intersect(c("ID", "Formulas", "R_multiplier", "Features"),
                          colnames(stats_final))
-  metric_cols <- c(paste0("Omission_rate_at_", omission_rate, ".mean"),
-                   paste0("Omission_rate_at_", omission_rate, ".sd"),
+  metric_cols <- c(paste0("Omission_rate_at_", error_considered, ".mean"),
+                   paste0("Omission_rate_at_", error_considered, ".sd"),
                    #Proc columns names
-                   paste0("Mean_AUC_ratio_at_", omission_rate, ".mean"),
-                   paste0("Mean_AUC_ratio_at_", omission_rate, ".sd"),
-                   paste0("pval_pROC_at_", omission_rate, ".mean"),
-                   paste0("pval_pROC_at_", omission_rate, ".sd"))
-  ordered_metric_cols <- unlist(lapply(omission_rate, function(rate) {
+                   paste0("Mean_AUC_ratio_at_", error_considered, ".mean"),
+                   paste0("Mean_AUC_ratio_at_", error_considered, ".sd"),
+                   paste0("pval_pROC_at_", error_considered, ".mean"),
+                   paste0("pval_pROC_at_", error_considered, ".sd"))
+  ordered_metric_cols <- unlist(lapply(error_considered, function(rate) {
     grep(paste0("_", rate, "."), metric_cols, value = TRUE)
   }))
   last_cols <- setdiff(colnames(stats_final), c(first_cols, metric_cols))
@@ -889,7 +865,7 @@ reorder_stats_columns <- function(stats_final, omission_rate) {
 }
 
 #### PROC ####
-proc <- function(x, formula_grid, data, omission_rate = 10,
+proc <- function(x, formula_grid, data, error_considered = 10,
                  addsamplestobackground = TRUE, weights = NULL,
                  algorithm) {
 
@@ -907,8 +883,8 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
     stop("Argument 'formula_grid' must be a 'data.frame'.")
   }
 
-  if (!inherits(omission_rate, "numeric")) {
-    stop("Argument 'omission_rate' must be 'numeric'.")
+  if (!inherits(error_considered, "numeric")) {
+    stop("Argument 'error_considered' must be 'numeric'.")
   }
 
   if (!inherits(addsamplestobackground, "logical")) {
@@ -932,7 +908,7 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
   grid_x <- formula_grid[x,] # Get i candidate model
   #Get formula and reg
   formula_x <- as.formula(grid_x$Formulas)
-  reg_x <- grid_x$reg_mult
+  reg_x <- grid_x$R_multiplier
 
   if (algorithm == "glm") {
     formula_x <- as.formula(paste("pr_bg ", grid_x$Formulas))
@@ -982,7 +958,7 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
     suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
 
     #Proc
-    proc_i <- lapply(omission_rate, function(omr) {
+    proc_i <- lapply(error_considered, function(omr) {
       proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                   prediction = pred_i,
                                   threshold = omr)$pROC_summary
@@ -994,11 +970,11 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
 
     # Save metrics in a dataframe
     df_proc <-  if (algorithm == "maxnet") {
-      data.frame(Replicate = i,
+      data.frame(Fold = i,
                  t(proc_i),
                  row.names = NULL)
     } else if (algorithm == "glm") {
-      data.frame(Replicate = i,
+      data.frame(Fold = i,
                  t(proc_i),
                  row.names = NULL)
     }
@@ -1008,7 +984,7 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
   proc_df <- do.call("rbind", mods)
 
   #Get means and sd
-  means <- sapply(proc_df[, -1], mean)  # Excluindo a coluna Replicate
+  means <- sapply(proc_df[, -1], mean)  # Excluindo a coluna Fold
   sds <- sapply(proc_df[, -1], sd)
 
   #Create new dataframe
