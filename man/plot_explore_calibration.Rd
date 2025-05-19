@@ -7,7 +7,7 @@
 plot_explore_calibration(explore_calibration, color_m = "grey",
                          color_background = "#56B4E9",
                          color_presence = "#009E73", alpha = 0.4,
-                         lines = TRUE, which_lines = c("cl", "mean"),
+                         lines = FALSE, which_lines = c("cl", "mean"),
                          lty_range = 1, lty_cl = 2, lty_mean = 3,
                          lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
                          xlab = NULL, ylab = NULL, mfrow = c(1, 1))
@@ -29,7 +29,7 @@ presence data. Default is "#009E73".}
 range 0-1. Default is 0.4.}
 
 \item{lines}{(logical) whether to add vertical lines to the plot representing
-the range, confidence interval, and mean of variables.}
+the range, confidence interval, and mean of variables. Default = FALSE.}
 
 \item{which_lines}{(character) a vector indicating which lines to plot.
 Available options are "range", "cl" (confidence interval), and "mean".
