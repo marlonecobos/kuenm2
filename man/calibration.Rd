@@ -4,38 +4,56 @@
 \alias{calibration}
 \title{Fitting and evaluation of models, and selection of the best ones}
 \usage{
-calibration(data, proc_for_all = FALSE, addsamplestobackground = TRUE,
-            use_weights = FALSE, parallel = FALSE, ncores = NULL,
-            progress_bar = TRUE, write_summary = FALSE, output_directory = NULL,
-            skip_existing_models = FALSE, return_replicate = TRUE,
-            test_concave = FALSE, omission_rate = 10, omrat_threshold = 10,
-            AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
-            tolerance = 0.01, verbose = TRUE)
+calibration(data, error_considered, test_concave = FALSE,
+            proc_for_all = FALSE, omission_rate = NULL, delta_aic = 2,
+            allow_tolerance = TRUE, tolerance = 0.01,
+            addsamplestobackground = TRUE, use_weights = NULL,
+            write_summary = FALSE, output_directory = NULL,
+            skip_existing_models = FALSE, return_all_results = TRUE,
+            parallel = FALSE, ncores = NULL, progress_bar = TRUE,
+            verbose = TRUE)
 }
 \arguments{
 \item{data}{an object of class \code{prepared_data} returned by the
-\code{\link{prepare_data}}() function. It contains the calibration data,
+\code{\link[=prepare_data]{prepare_data()}} function. It contains the calibration data,
 formulas grid, kfolds, and model type.}
+
+\item{error_considered}{(numeric) values from 0 to 100 representing the
+percentage of potential error due to any source of uncertainty in your data.
+This value is used to calculate omission rates and partial ROC. See details.}
+
+\item{test_concave}{(logical) whether to test for and remove candidate models
+presenting concave curves. Default is FALSE.}
 
 \item{proc_for_all}{(logical) whether to apply partial ROC tests to all
 candidate models or only to the selected models. Default is FALSE, meaning
 that tests are applied only to the selected models.}
 
+\item{omission_rate}{(numeric) values from 0 - 100, the maximum omission rate
+a candidate model can have to be considered as a potentially selected model.
+The default, NULL, uses the value in \code{error_considered}. If more that one
+value is used in \code{error_considered}, \code{omission_rate} must be defined.}
+
+\item{delta_aic}{(numeric) the value of delta AIC used as a threshold to
+select models. Default is 2.}
+
+\item{allow_tolerance}{(logical) whether to allow selection of models with
+minimum values of omission rates even if their omission rate surpasses the
+\code{omission_rate}. This is only applicable if all candidate models have
+omission rates higher than the \code{omission_rate}. Default is TRUE.}
+
+\item{tolerance}{(numeric) The value added to the minimum omission rate if it
+exceeds the \code{omission_rate}. If \code{allow_tolerance = TRUE}, selected models
+will have an omission rate equal to or less than the minimum rate plus this
+tolerance. Default is 0.01.}
+
 \item{addsamplestobackground}{(logical) whether to add to the background any
 presence sample that is not already there. Default is TRUE.}
 
 \item{use_weights}{(logical) whether to apply the weights present in the
-data. Default is FALSE.}
-
-\item{parallel}{(logical) whether to fit the candidate models in parallel.
-Default is FALSE.}
-
-\item{ncores}{(numeric) number of cores to use for parallel processing.
-Default is NULL and uses available cores - 1. This is only applicable if
-\code{parallel = TRUE}.}
-
-\item{progress_bar}{(logical) whether to display a progress bar during
-processing. Default is TRUE.}
+data. The default, NULL, uses weights provided in \code{data}. If they are not
+present in \code{data}, NULL weights are 1 for presences and 100 for background.
+If turned to FALSE, it uses NULL weights even if present in \code{data}.}
 
 \item{write_summary}{(logical) whether to save the evaluation results for
 each candidate model to disk. Default is FALSE.}
@@ -48,37 +66,19 @@ the evaluation results for each candidate model. This is only applicable if
 models that have already been fitted and saved in \code{output_directory}. This is only
 applicable if \code{write_summary = TRUE}. Default is FALSE.}
 
-\item{return_replicate}{(logical) whether to return the evaluation results
+\item{return_all_results}{(logical) whether to return the evaluation results
 for each replicate. Default is TRUE, meaning evaluation results for each
 replicate will be returned.}
 
-\item{test_concave}{(logical) whether to test for and remove candidate models
-presenting concave curves. Default is FALSE.}
+\item{parallel}{(logical) whether to fit the candidate models in parallel.
+Default is FALSE.}
 
-\item{omission_rate}{(numeric) values from 0 to 100 representing the
-percentage of potential error due to any source of uncertainty. This value is
-used to calculate the omission rate. Default is 10. See details.}
+\item{ncores}{(numeric) number of cores to use for parallel processing.
+Default is NULL and uses available cores - 1. This is only applicable if
+\code{parallel = TRUE}.}
 
-\item{omrat_threshold}{(numeric) the maximum omission rate a candidate model
-can have to be considered a best model. This value must match one of the
-values specified in omrat. Defaut is 10.}
-
-\item{AIC_option}{(character) the type of AIC to be calculated: "ws" for AIC
-proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-and Kawano (2016). Default is "ws". See References for details.}
-
-\item{delta_aic}{(numeric) the value of delta AIC used as a threshold to
-select models. Default is 2.}
-
-\item{allow_tolerance}{(logical) whether to allow selection of models with
-minimum values of omission rates even if their omission rate surpasses the
-\code{omrat_threshold}. This is only applicable if all candidate models have
-omission rates higher than the \code{omrat_threshold}. Default is TRUE.}
-
-\item{tolerance}{(numeric) The value added to the minimum omission rate if it
-exceeds the \code{omrat_threshold}. If \code{allow_tolerance = TRUE}, selected models
-will have an omission rate equal to or less than the minimum rate plus this
-tolerance. Default is 0.01.}
+\item{progress_bar}{(logical) whether to display a progress bar during
+processing. Default is TRUE.}
 
 \item{verbose}{(logical) whether to display messages during processing.
 Default is TRUE.}
@@ -101,10 +101,9 @@ formulas and parameters.
 of class "prcomp". See \code{\link[stats]{prcomp}}() for details.
 \item algorithm: the model type (glm or maxnet)
 \item calibration_results: a list containing a data frame with all evaluation
-metrics for all replicates (if \code{return_replicate = TRUE}) and a summary of
+metrics for all replicates (if \code{return_all_results = TRUE}) and a summary of
 the evaluation metrics for each candidate model.
-\item omission_rate: The omission rate determined by \code{omrat_threshold} for
-selecting best models.
+\item omission_rate: The omission rate used to select models.
 \item addsamplestobackground: a logical value indicating whether any presence
 sample not already in the background was added.
 \item selected_models: data frame with the ID and the summary of evaluation
@@ -117,18 +116,18 @@ values above the threshold, and the selected models.
 }
 \description{
 This function fits and evaluates candidate models using the data and grid of
-formulas prepared with \code{\link{prepare_data}}(). It supports both
+formulas prepared with \code{\link[=prepare_data]{prepare_data()}}. It supports both
 algorithms \code{glm} and \code{maxnet}. The function then selects the best models
 based on unimodality (optional), partial ROC, omission rate, and AIC values.
 }
 \details{
-Partial ROC is calculated following Peterson et al.
-(2008).
+Partial ROC is calculated using the values defined in \code{error_considered}
+following Peterson et al. (2008).
 
 Omission rates are calculated using separate testing data
-subsets. Users can specify multiple omission rates to be calculated
-(e.g., c(5, 10)), though only one can be used as the omission error for
-model selection.
+subsets. Users can specify multiple values of \code{error_considered} to calculate
+this metric (e.g., c(5, 10)), but only one can be used as the omission
+rate for model selection.
 
 Model fitting and complexity (AICc) is assessed using models generated with
 the complete set of occurrences. AICc values are computed as proposed by
@@ -139,7 +138,7 @@ Warren and Seifert (2011).
 data(sp_swd, package = "kuenm2")
 
 # Model calibration (maxnet)
-m <- calibration(data = sp_swd, omission_rate = 10)
+m <- calibration(data = sp_swd, error_considered = 10)
 
 m
 
@@ -147,7 +146,7 @@ m
 data(sp_swd_glm, package = "kuenm2")
 
 ## Model calibration (GLM)
-m_glm <- calibration(data = sp_swd_glm, omission_rate = 10)
+m_glm <- calibration(data = sp_swd_glm, error_considered = 10)
 
 m_glm
 }

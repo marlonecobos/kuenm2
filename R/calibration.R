@@ -2,21 +2,22 @@
 #'
 #' @description
 #' This function fits and evaluates candidate models using the data and grid of
-#' formulas prepared with \code{\link{prepare_data}}(). It supports both
+#' formulas prepared with [prepare_data()]. It supports both
 #' algorithms `glm` and `maxnet`. The function then selects the best models
 #' based on unimodality (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
-#' calibration(data, proc_for_all = FALSE, addsamplestobackground = TRUE,
-#'             use_weights = FALSE, parallel = FALSE, ncores = NULL,
-#'             progress_bar = TRUE, write_summary = FALSE, output_directory = NULL,
-#'             skip_existing_models = FALSE, return_replicate = TRUE,
-#'             test_concave = FALSE, omission_rate = 10, omrat_threshold = 10,
-#'             AIC_option = "ws", delta_aic = 2, allow_tolerance = TRUE,
-#'             tolerance = 0.01, verbose = TRUE)
+#' calibration(data, error_considered, test_concave = FALSE,
+#'             proc_for_all = FALSE, omission_rate = NULL, delta_aic = 2,
+#'             allow_tolerance = TRUE, tolerance = 0.01,
+#'             addsamplestobackground = TRUE, use_weights = NULL,
+#'             write_summary = FALSE, output_directory = NULL,
+#'             skip_existing_models = FALSE, return_all_results = TRUE,
+#'             parallel = FALSE, ncores = NULL, progress_bar = TRUE,
+#'             verbose = TRUE)
 #'
 #' @param data an object of class `prepared_data` returned by the
-#' \code{\link{prepare_data}}() function. It contains the calibration data,
+#' [prepare_data()] function. It contains the calibration data,
 #' formulas grid, kfolds, and model type.
 #' @param proc_for_all (logical) whether to apply partial ROC tests to all
 #' candidate models or only to the selected models. Default is FALSE, meaning
@@ -26,7 +27,9 @@
 #' @param addsamplestobackground (logical) whether to add to the background any
 #' presence sample that is not already there. Default is TRUE.
 #' @param use_weights (logical) whether to apply the weights present in the
-#' data. Default is FALSE.
+#' data. The default, NULL, uses weights provided in `data`. If they are not
+#' present in `data`, NULL weights are 1 for presences and 100 for background.
+#' If turned to FALSE, it uses NULL weights even if present in `data`.
 #' @param parallel (logical) whether to fit the candidate models in parallel.
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
@@ -42,26 +45,24 @@
 #' @param skip_existing_models (logical) whether to check for and skip candidate
 #' models that have already been fitted and saved in `output_directory`. This is only
 #' applicable if `write_summary = TRUE`. Default is FALSE.
-#' @param return_replicate (logical) whether to return the evaluation results
+#' @param return_all_results (logical) whether to return the evaluation results
 #' for each replicate. Default is TRUE, meaning evaluation results for each
 #' replicate will be returned.
-#' @param omission_rate (numeric) values from 0 to 100 representing the
-#' percentage of potential error due to any source of uncertainty. This value is
-#' used to calculate the omission rate. Default is 10. See details.
-#' @param omrat_threshold (numeric) the maximum omission rate a candidate model
-#' can have to be considered a best model. This value must match one of the
-#' values specified in omrat. Defaut is 10.
-#' @param AIC_option (character) the type of AIC to be calculated: "ws" for AIC
-#' proposed by Warren and Seifert (2011), or "nk" for AIC proposed by Ninomiya
-#' and Kawano (2016). Default is "ws". See References for details.
+#' @param error_considered (numeric) values from 0 to 100 representing the
+#' percentage of potential error due to any source of uncertainty in your data.
+#' This value is used to calculate omission rates and partial ROC. See details.
+#' @param omission_rate (numeric) values from 0 - 100, the maximum omission rate
+#' a candidate model can have to be considered as a potentially selected model.
+#' The default, NULL, uses the value in `error_considered`. If more that one
+#' value is used in `error_considered`, `omission_rate` must be defined.
 #' @param delta_aic (numeric) the value of delta AIC used as a threshold to
 #' select models. Default is 2.
 #' @param allow_tolerance (logical) whether to allow selection of models with
 #' minimum values of omission rates even if their omission rate surpasses the
-#' `omrat_threshold`. This is only applicable if all candidate models have
-#' omission rates higher than the `omrat_threshold`. Default is TRUE.
+#' `omission_rate`. This is only applicable if all candidate models have
+#' omission rates higher than the `omission_rate`. Default is TRUE.
 #' @param tolerance (numeric) The value added to the minimum omission rate if it
-#' exceeds the `omrat_threshold`. If `allow_tolerance = TRUE`, selected models
+#' exceeds the `omission_rate`. If `allow_tolerance = TRUE`, selected models
 #' will have an omission rate equal to or less than the minimum rate plus this
 #' tolerance. Default is 0.01.
 #' @param verbose (logical) whether to display messages during processing.
@@ -94,10 +95,9 @@
 #' of class "prcomp". See \code{\link[stats]{prcomp}}() for details.
 #' - algorithm: the model type (glm or maxnet)
 #' - calibration_results: a list containing a data frame with all evaluation
-#' metrics for all replicates (if `return_replicate = TRUE`) and a summary of
+#' metrics for all replicates (if `return_all_results = TRUE`) and a summary of
 #' the evaluation metrics for each candidate model.
-#' - omission_rate: The omission rate determined by `omrat_threshold` for
-#' selecting best models.
+#' - omission_rate: The omission rate used to select models.
 #' - addsamplestobackground: a logical value indicating whether any presence
 #' sample not already in the background was added.
 #' - selected_models: data frame with the ID and the summary of evaluation
@@ -116,13 +116,13 @@
 #' criteria. Ecological applications, 21(2), 335-342.
 #'
 #' @details
-#' Partial ROC is calculated following Peterson et al.
-#' (2008).
+#' Partial ROC is calculated using the values defined in `error_considered`
+#' following Peterson et al. (2008).
 #'
 #' Omission rates are calculated using separate testing data
-#' subsets. Users can specify multiple omission rates to be calculated
-#' (e.g., c(5, 10)), though only one can be used as the omission error for
-#' model selection.
+#' subsets. Users can specify multiple values of `error_considered` to calculate
+#' this metric (e.g., c(5, 10)), but only one can be used as the omission
+#' rate for model selection.
 #'
 #' Model fitting and complexity (AICc) is assessed using models generated with
 #' the complete set of occurrences. AICc values are computed as proposed by
@@ -133,7 +133,7 @@
 #' data(sp_swd, package = "kuenm2")
 #'
 #' # Model calibration (maxnet)
-#' m <- calibration(data = sp_swd, omission_rate = 10)
+#' m <- calibration(data = sp_swd, error_considered = 10)
 #'
 #' m
 #'
@@ -141,29 +141,28 @@
 #' data(sp_swd_glm, package = "kuenm2")
 #'
 #' ## Model calibration (GLM)
-#' m_glm <- calibration(data = sp_swd_glm, omission_rate = 10)
+#' m_glm <- calibration(data = sp_swd_glm, error_considered = 10)
 #'
 #' m_glm
 
 
 calibration <- function(data,
-                        proc_for_all = FALSE,
-                        addsamplestobackground = TRUE,
-                        use_weights = FALSE,
-                        parallel = FALSE,
-                        ncores = NULL,
-                        progress_bar = TRUE,
-                        write_summary = FALSE,
-                        output_directory = NULL,
-                        skip_existing_models = FALSE,
-                        return_replicate = TRUE,
+                        error_considered,
                         test_concave = FALSE,
-                        omission_rate = 10,
-                        omrat_threshold = 10,
-                        AIC_option = "ws",
+                        proc_for_all = FALSE,
+                        omission_rate = NULL,
                         delta_aic = 2,
                         allow_tolerance = TRUE,
                         tolerance = 0.01,
+                        addsamplestobackground = TRUE,
+                        use_weights = NULL,
+                        write_summary = FALSE,
+                        output_directory = NULL,
+                        skip_existing_models = FALSE,
+                        return_all_results = TRUE,
+                        parallel = FALSE,
+                        ncores = NULL,
+                        progress_bar = TRUE,
                         verbose = TRUE) {
 
   #Check data
@@ -172,6 +171,26 @@ calibration <- function(data,
   }
   if (!inherits(data, "prepared_data")) {
     stop("'data' must be a 'prepared_data' object.")
+  }
+  if (missing(error_considered)) {
+    stop("Argument 'error_considered' must be defined.")
+  }
+  if (!is.numeric(error_considered)) {
+    stop("'error_considered' must be 'numeric' 0-100.")
+  }
+  if (!is.null(omission_rate)) {
+    if (length(omission_rate) > 1) {
+      stop("Argument 'omission_rate' must be defined of leght 1.")
+    }
+    if (!omission_rate %in% error_considered) {
+      stop("None of the values in 'error_considered' matches 'omission_rate'.")
+    }
+  } else {
+    if (length(error_considered) > 1) {
+      stop("'omission_rate' must be defined if more than one 'error_considered' is used.")
+    } else {
+      omission_rate <- error_considered
+    }
   }
 
 
@@ -208,19 +227,21 @@ calibration <- function(data,
   }
 
   # Warning about samples added to background when weights are null
-  if (verbose & addsamplestobackground & use_weights & is.null(weights)) {
-    message("Weights for samples added to background are the same as in samples.")
-  }
+  if (!is.null(use_weights)) {
+    if (verbose & addsamplestobackground & use_weights & is.null(weights)) {
+      message("Weights for samples added to background are the same as in samples.")
+    }
 
-  # Validate weights
-  if (use_weights && is.null(weights)) {
-    message("'use_weights' = TRUE, but weights are not present in 'data'.\n",
-            "Setting 'use_weights' = FALSE.")
-    use_weights <- FALSE
-  }
+    # Validate weights
+    if (use_weights && is.null(weights)) {
+      message("'use_weights' = TRUE, but weights are not present in 'data'.\n",
+              "Setting 'use_weights' = FALSE.")
+      use_weights <- FALSE
+    }
 
-  if (use_weights && length(weights) != nrow(data$calibration_data)) {
-    stop("Length of weights does not match number of rows in calibration_data.")
+    if (use_weights && length(weights) != nrow(data$calibration_data)) {
+      stop("In 'data', 'weights' length does not match rows in 'calibration_data'.")
+    }
   }
 
   # Parallelization setup
@@ -264,14 +285,15 @@ calibration <- function(data,
           x = 1:n_tot,
           .packages = c("glmnet", "enmpa"),
           .options.snow = opts) %dopar% {
-            fit_eval_concave(x = x, q_grids, data, formula_grid,
+            fit_eval_concave(x = x, q_grids = q_grids, data = data,
+                             formula_grid = formula_grid,
+                             error_considered = error_considered,
                              omission_rate = omission_rate,
-                             omrat_thr = omrat_threshold,
                              write_summary = write_summary,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
-                             return_replicate = return_replicate,
-                             algorithm = algorithm, AIC_option = AIC_option,
+                             return_all_results = return_all_results,
+                             algorithm = algorithm,
                              proc_for_all = proc_for_all,
                              out_dir = output_directory)
           }
@@ -279,17 +301,17 @@ calibration <- function(data,
         results_concave <- vector("list", length = n_tot)
         for (x in 1:n_tot) {
           results_concave[[x]] <-
-            fit_eval_concave(x = x, q_grids, data, formula_grid,
+            fit_eval_concave(x = x, q_grids = q_grids, data = data,
+                             formula_grid = formula_grid,
+                             error_considered = error_considered,
                              omission_rate = omission_rate,
-                             omrat_thr = omrat_threshold,
                              write_summary = write_summary,
                              addsamplestobackground = addsamplestobackground,
                              weights = weights,
-                             return_replicate = return_replicate,
-                             algorithm = algorithm, AIC_option = AIC_option,
+                             return_all_results = return_all_results,
+                             algorithm = algorithm,
                              proc_for_all = proc_for_all,
-                             out_dir = output_directory
-            )
+                             out_dir = output_directory)
           # Sets the progress bar to the current state
           if (progress_bar) setTxtProgressBar(pb, x)
         }
@@ -349,14 +371,13 @@ calibration <- function(data,
         .options.snow = opts
       ) %dopar% {
           fit_eval_models(x = x, formula_grid = formula_grid, data = data,
+                          error_considered = error_considered,
                           omission_rate = omission_rate,
-                          omrat_thr = omrat_threshold,
                           write_summary = write_summary,
                           addsamplestobackground = addsamplestobackground,
                           weights = weights,
-                          return_replicate = return_replicate,
+                          return_all_results = return_all_results,
                           algorithm = algorithm,
-                          AIC_option = AIC_option,
                           proc_for_all = proc_for_all,
                           out_dir = output_directory)
         }
@@ -365,14 +386,13 @@ calibration <- function(data,
       for (x in 1:n_tot) {
         results[[x]] <-
           fit_eval_models(x = x, formula_grid = formula_grid, data = data,
+                          error_considered = error_considered,
                           omission_rate = omission_rate,
-                          omrat_thr = omrat_threshold,
                           write_summary = write_summary,
                           addsamplestobackground =  addsamplestobackground,
                           weights = weights,
-                          return_replicate = return_replicate,
+                          return_all_results = return_all_results,
                           algorithm = algorithm,
-                          AIC_option = AIC_option,
                           proc_for_all = proc_for_all,
                           out_dir = output_directory)
 
@@ -416,9 +436,9 @@ calibration <- function(data,
                       test_concave = test_concave,
                       compute_proc = !proc_for_all,
                       data = data,
-                      omrat_threshold = omrat_threshold,
+                      omission_rate = omission_rate,
                       allow_tolerance = allow_tolerance,
-                      tolerance = tolerance, AIC_option = AIC_option,
+                      tolerance = tolerance,
                       significance = 0.05, verbose = verbose,
                       delta_aic = delta_aic,
                       parallel = parallel, ncores = ncores,
@@ -427,7 +447,7 @@ calibration <- function(data,
   # Concatenate final results
   fm <- new_calibration_results(
     prepared_data = data, calibration_results = list(res_final),
-    omission_rate = omrat_threshold,
+    omission_rate = omission_rate,
     addsamplestobackground = addsamplestobackground,
     weights = weights, selected_models = list(bm$selected_models),
     summary = list(bm$summary)
