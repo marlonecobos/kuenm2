@@ -203,7 +203,7 @@ calibration_grid_glmnetmx <- function(occ_bg,
   )
 
   # Expand the grid by combining formulas and regularization parameters
-  f_grid <- expand.grid(Formulas = formula_d$Formulas, r_multiplier = r_multiplier,
+  f_grid <- expand.grid(Formulas = formula_d$Formulas, R_multiplier = r_multiplier,
                         stringsAsFactors = FALSE)
 
   f_grid <- merge(f_grid, formula_d, by = "Formulas", sort = FALSE)
