@@ -1,8 +1,3 @@
-#' Summarize evaluation results
-#'
-#' @importFrom stats aggregate glm as.formula
-#' @importFrom enmpa proc_enm
-#' @export
 
 eval_stats <- function(cal_res, omission_rate, algorithm) {
 
@@ -12,19 +7,22 @@ eval_stats <- function(cal_res, omission_rate, algorithm) {
   # algorithm: Type of model, either maxnet or glm
 
   # Check arguments:
-  if(!inherits(cal_res, "data.frame")){
-    stop("Argument cal_res must be a dataframe, not ", class(cal_res))
+  if (any(missing(cal_res), missing(omission_rate), missing(algorithm))) {
+    stop("Arguments 'cal_res', 'omission_rate', 'algorithm' must be defined.")
+  }
+  if (!inherits(cal_res, "data.frame")) {
+    stop("Argument 'cal_res' must be a 'dataframe'.")
   }
 
-  if(!inherits(omission_rate, "numeric")){
-    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument 'omission_rate' must be 'numeric'.")
   }
 
-  if(!inherits(algorithm, "character")){
-    stop("Argument algorithm must be a character, not ", class(algorithm))
+  if (!inherits(algorithm, "character")) {
+    stop("Argument 'algorithm' must be a 'character'.")
   }
 
-  if(!(algorithm %in% c("glm", "maxnet"))){
+  if (!(algorithm %in% c("glm", "maxnet"))) {
     stop("Argument algorithm must be 'glm' or 'maxnet'")
   }
   ####
@@ -89,24 +87,31 @@ empty_replicates <- function(omission_rate, n_row, replicates,
   # algorithm: Type of model, either maxnet or glm
 
   # Check arguments:
-  if(!inherits(omission_rate, "numeric")){
-    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  if (any(missing(omission_rate), missing(n_row), missing(replicates),
+          missing(is_c), missing(algorithm))) {
+    stop("Arguments 'omission_rate', 'n_row', 'replicates', 'is_c', and 'algorithm' must be defined.")
+  }
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument 'omission_rate' must be 'numeric'.")
+  }
+  if (!is.numeric(n_row)) {
+    stop("Argument 'n_row' must be 'numeric'.")
+  }
+  if (all(!inherits(replicates, "numeric") & !inherits(replicates, "character"))) {
+    stop("Argument 'replicates' must be 'numeric' or 'character'.")
   }
 
-  if(all(!inherits(replicates, "numeric") & !inherits(replicates, "character"))){
-    stop("Argument replicates must be numeric or character, not ", class(replicates))
+  if (!is.na(is_c)) {
+    if (!inherits(is_c, "logical")) {
+      stop("Argument 'is_c' must be NA or 'logical'.")
+    }
   }
 
-  if(!is.na(is_c)){
-    if(!inherits(is_c, "logical")){
-    stop("Argument is_c must be NA or logical, not ", class(is_c))}
+  if (!inherits(algorithm, "character")) {
+    stop("Argument 'algorithm' must be a 'character'.")
   }
 
-  if(!inherits(algorithm, "character")){
-    stop("Argument algorithm must be a character, not ", class(algorithm))
-  }
-
-  if(!(algorithm %in% c("glm", "maxnet"))){
+  if (!(algorithm %in% c("glm", "maxnet"))) {
     stop("Argument algorithm must be 'glm' or 'maxnet'")
   }
   ####
@@ -144,26 +149,31 @@ empty_replicates <- function(omission_rate, n_row, replicates,
 
 empty_summary <- function(omission_rate, is_c, algorithm) {
 
+
   # Arguments:
   # omrat_thr: Omission rate threshold
   # is_c: Concavity status
   # algorithm: Type of model, either maxnet or glm
 
   # Check arguments:
-  if(!inherits(omission_rate, "numeric")){
-    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  if (any(missing(omission_rate), missing(is_c), missing(algorithm))) {
+    stop("Arguments 'omission_rate', 'is_c', and 'algorithm' must be defined.")
+  }
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument 'omission_rate' must be 'numeric'.")
   }
 
-  if(!is.na(is_c)){
-    if(!inherits(is_c, "logical")){
-      stop("Argument is_c must be NA or logical, not ", class(is_c))}
+  if (!is.na(is_c)) {
+    if (!inherits(is_c, "logical")) {
+      stop("Argument 'is_c' must be NA or 'logical'.")
+    }
   }
 
-  if(!inherits(algorithm, "character")){
-    stop("Argument algorithm must be a character, not ", class(algorithm))
+  if (!inherits(algorithm, "character")) {
+    stop("Argument 'algorithm' must be a 'character'.")
   }
 
-  if(!(algorithm %in% c("glm", "maxnet"))){
+  if (!(algorithm %in% c("glm", "maxnet"))) {
     stop("Argument algorithm must be 'glm' or 'maxnet'")
   }
   ####
@@ -206,7 +216,7 @@ empty_summary <- function(omission_rate, is_c, algorithm) {
 fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omrat_thr,
                              write_summary, addsamplestobackground, weights = NULL,
                              return_replicate, algorithm, AIC_option,
-                             proc_for_all) {
+                             proc_for_all, out_dir) {
 
   # Arguments:
   # x: Each line of the formula grid
@@ -223,61 +233,61 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
 
   # Check arguments
 
-  if(!inherits(q_grids, "data.frame")){
-    stop("Argument q_grids must be a data.frame, not ", class(q_grids))
+  if (!inherits(q_grids, "data.frame")) {
+    stop("Argument 'q_grids' must be a data.frame.")
   }
 
-  if(!inherits(data, "prepared_data")){
-    stop("Argument data must be a prepared_data object, not ", class(prepared_data))
+  if (!inherits(data, "prepared_data")) {
+    stop("Argument 'data' must be a prepared_data object.")
   }
 
-  if(!inherits(formula_grid, "data.frame")){
-    stop("Argument formula_grid must be a data.frame, not ", class(formula_grid))
+  if (!inherits(formula_grid, "data.frame")) {
+    stop("Argument 'formula_grid' must be a data.frame.")
   }
 
-  if(!inherits(omission_rate, "numeric")){
-    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument omission_rate must be numeric.")
   }
 
-  if(!inherits(omrat_thr, "numeric")){
-    stop("Argument omrat_thr must be numeric, not ", class(omrat_thr))
+  if (!inherits(omrat_thr, "numeric")) {
+    stop("Argument omrat_thr must be numeric.")
   }
 
-  if(!inherits(write_summary, "logical")){
-    stop("Argument write_summary must be logical, not ", class(write_summary))
+  if (!inherits(write_summary, "logical")) {
+    stop("Argument write_summary must be logical.")
   }
 
-  if(!inherits(addsamplestobackground, "logical")){
-    stop("Argument addsamplestobackground must be logical, not ", class(addsamplestobackground))
+  if (!inherits(addsamplestobackground, "logical")) {
+    stop("Argument 'addsamplestobackground' must be 'logical'.")
   }
 
-  if(!is.null(weights)){
-    if(!inherits(weights, "numeric")){
-    stop("Argument weights must be NULL or numeric, not ", class(weights))
-  }}
+  if (!is.null(weights)) {
+    if (!inherits(weights, "numeric")) {
+      stop("Argument 'weights' must be NULL or 'numeric'.")
+    }}
 
-  if(!inherits(return_replicate, "logical")){
-    stop("Argument return_replicate must be logical, not ", class(return_replicate))
+  if (!inherits(return_replicate, "logical")) {
+    stop("Argument 'return_replicate' must be 'logical'.")
   }
 
-  if(!inherits(algorithm, "character")){
-    stop("Argument algorithm must be a character, not ", class(algorithm))
+  if (!inherits(algorithm, "character")) {
+    stop("Argument 'algorithm' must be a 'character'.")
   }
 
-  if(!(algorithm %in% c("glm", "maxnet"))){
-    stop("Argument algorithm must be 'glm' or 'maxnet'")
+  if (!(algorithm %in% c("glm", "maxnet"))) {
+    stop("Argument 'algorithm' must be 'glm' or 'maxnet'.")
   }
 
-  if(!inherits(AIC_option, "character")){
-    stop("Argument AIC_option must be a character, not ", class(AIC_option))
+  if (!inherits(AIC_option, "character")) {
+    stop("Argument 'AIC_option' must be a 'character'.")
   }
 
-  if(!(AIC_option %in% c("ws", "nk"))){
-    stop("Argument AIC_option must be 'ws' or 'nk'")
+  if (!(AIC_option %in% c("ws", "nk"))) {
+    stop("Argument 'AIC_option' must be 'ws' or 'nk'.")
   }
 
-  if(!inherits(proc_for_all, "logical")){
-    stop("Argument proc_for_all must be logical, not ", class(proc_for_all))
+  if (!inherits(proc_for_all, "logical")) {
+    stop("Argument 'proc_for_all' must be 'logical'.")
   }
 
   ####
@@ -373,7 +383,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
       notrain <- -data$kfolds[[i]]
       data_i <- data$calibration_data[notrain, ]
 
-      if (!is.null(data$weights)){
+      if (!is.null(data$weights)) {
         weights_i <- data$weights[notrain]
       } else {
         weights_i <- NULL
@@ -401,12 +411,12 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
       # Calculate metrics (omission rate, pROC)
       suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
       suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
-      om_rate <- kuenm2:::omrat(threshold = omission_rate, pred_train = suit_val_cal,
+      om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
                        pred_test = suit_val_eval)
 
       #Calculate PROC? ...
-      if(proc_for_all){
-        proc_i <- lapply(omission_rate, function(omr){
+      if (proc_for_all) {
+        proc_i <- lapply(omission_rate, function(omr) {
           proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                       prediction = pred_i,
                                       threshold = omr)$pROC_summary
@@ -421,16 +431,6 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
                              paste0("pval_pROC_at_", omission_rate))
         }
 
-
-      # #Proc
-      # proc_i <- lapply(omission_rate, function(omr){
-      #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-      #                   prediction = pred_i, threshold = omr)$pROC_summary
-      #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
-      #                        paste0("pval_pROC_at_", omr))
-      #   return(proc_omr)
-      # })
-      # proc_i <- unlist(proc_i)
 
 
       df_eval_q <-  if (algorithm == "maxnet") {
@@ -480,7 +480,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, omission_rate, omra
 fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
                             write_summary, addsamplestobackground, weights = NULL,
                             return_replicate, algorithm, AIC_option,
-                            proc_for_all) {
+                            proc_for_all, out_dir) {
 
   # Arguments:
   # x: Each line of the formula grid
@@ -496,57 +496,57 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
 
   # Check rguments
 
-  if(!inherits(data, "prepared_data")){
-    stop("Argument data must be a prepared_data object, not ", class(prepared_data))
+  if (!inherits(data, "prepared_data")) {
+    stop("Argument 'data' must be a 'prepared_data' object.")
   }
 
-  if(!inherits(formula_grid, "data.frame")){
-    stop("Argument formula_grid must be a data.frame, not ", class(formula_grid))
+  if (!inherits(formula_grid, "data.frame")) {
+    stop("Argument 'formula_grid' must be a 'data.frame'.")
   }
 
-  if(!inherits(omission_rate, "numeric")){
-    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument 'omission_rate' must be 'numeric'.")
   }
 
-  if(!inherits(omrat_thr, "numeric")){
-    stop("Argument omrat_thr must be numeric, not ", class(omrat_thr))
+  if (!inherits(omrat_thr, "numeric")) {
+    stop("Argument 'omrat_thr' must be 'numeric'.")
   }
 
-  if(!inherits(write_summary, "logical")){
-    stop("Argument write_summary must be logical, not ", class(write_summary))
+  if (!inherits(write_summary, "logical")) {
+    stop("Argument 'write_summary' must be 'logical'.")
   }
 
-  if(!inherits(addsamplestobackground, "logical")){
-    stop("Argument addsamplestobackground must be logical, not ", class(addsamplestobackground))
+  if (!inherits(addsamplestobackground, "logical")) {
+    stop("Argument 'addsamplestobackground' must be 'logical'.")
   }
 
-  if(!is.null(weights)){
-    if(!inherits(weights, "numeric")){
-      stop("Argument weights must be NULL or numeric, not ", class(weights))
+  if (!is.null(weights)) {
+    if (!inherits(weights, "numeric")) {
+      stop("Argument 'weights' must be NULL or 'numeric'.")
     }}
 
-  if(!inherits(return_replicate, "logical")){
-    stop("Argument return_replicate must be logical, not ", class(return_replicate))
+  if (!inherits(return_replicate, "logical")) {
+    stop("Argument 'return_replicate' must be 'logical'.")
   }
 
-  if(!inherits(algorithm, "character")){
-    stop("Argument algorithm must be a character, not ", class(algorithm))
+  if (!inherits(algorithm, "character")) {
+    stop("Argument 'algorithm' must be a 'character'.")
   }
 
-  if(!(algorithm %in% c("glm", "maxnet"))){
-    stop("Argument algorithm must be 'glm' or 'maxnet'")
+  if (!(algorithm %in% c("glm", "maxnet"))) {
+    stop("Argument 'algorithm' must be 'glm' or 'maxnet'.")
   }
 
-  if(!inherits(AIC_option, "character")){
-    stop("Argument AIC_option must be a character, not ", class(AIC_option))
+  if (!inherits(AIC_option, "character")) {
+    stop("Argument 'AIC_option' must be a 'character'.")
   }
 
-  if(!(AIC_option %in% c("ws", "nk"))){
-    stop("Argument AIC_option must be 'ws' or 'nk'")
+  if (!(AIC_option %in% c("ws", "nk"))) {
+    stop("Argument AIC_option must be 'ws' or 'nk'.")
   }
 
-  if(!inherits(proc_for_all, "logical")){
-    stop("Argument proc_for_all must be logical, not ", class(proc_for_all))
+  if (!inherits(proc_for_all, "logical")) {
+    stop("Argument 'proc_for_all' must be 'logical'.")
   }
   ####
 
@@ -618,7 +618,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
       data_i <- data$calibration_data[notrain,]
 
       # Set weights per k-fold
-      if (!is.null(weights)){
+      if (!is.null(weights)) {
         weights_i <- weights[notrain]
       } else {
         weights_i <- NULL
@@ -660,11 +660,11 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
                          pred_test = suit_val_eval)}
 
       #Calculate PROC? ...
-      if(proc_for_all & !inherits(mod_i, "try-error")){
-        proc_i <- lapply(omission_rate, function(omr){
+      if(proc_for_all & !inherits(mod_i, "try-error")) {
+        proc_i <- lapply(omission_rate, function(omr) {
           proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                       prediction = pred_i,
-                                      threshold = omr, ...)$pROC_summary
+                                      threshold = omr)$pROC_summary
           names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
                                paste0("pval_pROC_at_", omr))
           return(proc_omr)
@@ -675,16 +675,6 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
           names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", omission_rate),
                              paste0("pval_pROC_at_", omission_rate))
         }
-
-      # #Proc
-      # proc_i <- lapply(omission_rate, function(omr){
-      #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-      #                               prediction = pred_i, threshold = omr)$pROC_summary
-      #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
-      #                        paste0("pval_pROC_at_", omr))
-      #   return(proc_omr)
-      # })
-      # proc_i <- unlist(proc_i)
 
 
       # Save metrics in a dataframe
@@ -711,7 +701,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
   }
 
   ##### Handle errors and summarize results #####
-  if (class(mods) == "try-error") {
+  if (inherits(mods, "try-error")) {
     eval_final <- cbind(grid_x,
                         empty_replicates(omission_rate = omission_rate,
                                          n_row = length(data$kfolds),
@@ -724,7 +714,7 @@ fit_eval_models <- function(x, formula_grid, data, omission_rate, omrat_thr,
   }
 
   # Summarize results using eval_stats
-  eval_final_summary <- if (class(mods) == "try-error") {
+  eval_final_summary <- if (inherits(mods, "try-error")) {
     reorder_stats_columns(cbind(grid_x, empty_summary(omission_rate, is_c,
                                                       algorithm)),
                           omission_rate = omission_rate)
@@ -762,38 +752,38 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
 
   # Check arguments
   if (missing(x)) {
-    stop("Argumen 'x' must be defined")
+    stop("Argumen 'x' must be defined.")
   }
   if (missing(dfgrid)) {
-    stop("Argumen 'dfgrid' must be defined")
+    stop("Argumen 'dfgrid' must be defined.")
   }
   if (missing(cal_res)) {
-    stop("Argumen 'cal_res' must be defined")
+    stop("Argumen 'cal_res' must be defined.")
   }
 
-  if(!inherits(dfgrid, "data.frame")){
-    stop("Argument dfgrid must be a data.frame, not ", class(dfgrid))
+  if (!inherits(dfgrid, "data.frame")) {
+    stop("Argument 'dfgrid' must be a 'data.frame.'")
   }
 
-  if(!inherits(cal_res, "calibration_results")){
-    stop("Argument cal_res must be a data.frame, not ", class(calibration_results))
+  if (!inherits(cal_res, "calibration_results")) {
+    stop("Argument 'cal_res' must be a 'calibration_results' object.")
   }
 
-  if(!inherits(n_replicates, "numeric")){
-    stop("Argument n_replicates must be numeric, not ", class(n_replicates))
+  if (!inherits(n_replicates, "numeric")) {
+    stop("Argument 'n_replicates' must be 'numeric'.")
   }
   if (n_replicates > 1) {
-    if(!inherits(rep_data, "list")){
-      stop("Argument rep_data must be a list, not ", class(rep_data))
+    if (!inherits(rep_data, "list")) {
+      stop("Argument 'rep_data' must be a 'list'.")
     }
   }
 
-  if(!inherits(algorithm, "character")){
-    stop("Argument algorithm must be a character, not ", class(algorithm))
+  if (!inherits(algorithm, "character")) {
+    stop("Argument 'algorithm' must be a 'character'.")
   }
 
-  if(!(algorithm %in% c("glm", "maxnet"))){
-    stop("Argument algorithm must be 'glm' or 'maxnet'")
+  if (!(algorithm %in% c("glm", "maxnet"))) {
+    stop("Argument algorithm must be 'glm' or 'maxnet'.")
   }
   ####
 
@@ -871,14 +861,14 @@ bind_rows_projection <- function(data_frames) {
 
 
 # Reorder columns in stats final
-reorder_stats_columns <- function(stats_final, omission_rate){
+reorder_stats_columns <- function(stats_final, omission_rate) {
 
-  if(!inherits(stats_final, "data.frame")){
-    stop("Argument stats_final must be a data.frame, not ", class(stats_final))
+  if (!inherits(stats_final, "data.frame")) {
+    stop("Argument 'stats_final' must be a 'data.frame'.")
   }
 
-  if(!inherits(omission_rate, "numeric")){
-    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument 'omission_rate' must be 'numeric'.")
   }
 
   first_cols<- intersect(c("ID", "Formulas", "reg_mult", "Features"),
@@ -901,32 +891,41 @@ reorder_stats_columns <- function(stats_final, omission_rate){
 #### PROC ####
 proc <- function(x, formula_grid, data, omission_rate = 10,
                  addsamplestobackground = TRUE, weights = NULL,
-                 algorithm){
+                 algorithm) {
 
   #Check arguments
-  if(!inherits(formula_grid, "data.frame")){
-    stop("Argument formula_grid must be a data.frame, not ", class(formula_grid))
+  if (missing(x)) {
+    stop("Argumen 'x' must be defined.")
+  }
+  if (missing(formula_grid)) {
+    stop("Argumen 'formula_grid' must be defined.")
+  }
+  if (missing(data)) {
+    stop("Argumen 'data' must be defined.")
+  }
+  if (!inherits(formula_grid, "data.frame")) {
+    stop("Argument 'formula_grid' must be a 'data.frame'.")
   }
 
-  if(!inherits(omission_rate, "numeric")){
-    stop("Argument omission_rate must be numeric, not ", class(omission_rate))
+  if (!inherits(omission_rate, "numeric")) {
+    stop("Argument 'omission_rate' must be 'numeric'.")
   }
 
-  if(!inherits(addsamplestobackground, "logical")){
-    stop("Argument addsamplestobackground must be logical, not ", class(addsamplestobackground))
+  if (!inherits(addsamplestobackground, "logical")) {
+    stop("Argument 'addsamplestobackground' must be 'logical'.")
   }
 
-  if(!is.null(weights)){
-    if(!inherits(weights, "numeric")){
-      stop("Argument weights must be NULL or numeric, not ", class(weights))
+  if (!is.null(weights)) {
+    if (!inherits(weights, "numeric")) {
+      stop("Argument 'weights' must be NULL or 'numeric'.")
     }}
 
-  if(!inherits(algorithm, "character")){
-    stop("Argument algorithm must be a character, not ", class(algorithm))
+  if (!inherits(algorithm, "character")) {
+    stop("Argument 'algorithm' must be a 'character'.")
   }
 
-  if(!(algorithm %in% c("glm", "maxnet"))){
-    stop("Argument algorithm must be 'glm' or 'maxnet'")
+  if (!(algorithm %in% c("glm", "maxnet"))) {
+    stop("Argument algorithm must be 'glm' or 'maxnet'.")
   }
   ####
 
@@ -935,7 +934,7 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
   formula_x <- as.formula(grid_x$Formulas)
   reg_x <- grid_x$reg_mult
 
-  if(algorithm == "glm"){
+  if (algorithm == "glm") {
     formula_x <- as.formula(paste("pr_bg ", grid_x$Formulas))
   }
 
@@ -948,7 +947,7 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
     data_i <- data$calibration_data[notrain,]
 
     # Set weights per k-fold
-    if (!is.null(weights)){
+    if (!is.null(weights)) {
       weights_i <- weights[notrain]
     } else {
       weights_i <- NULL
@@ -983,7 +982,7 @@ proc <- function(x, formula_grid, data, omission_rate = 10,
     suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
 
     #Proc
-    proc_i <- lapply(omission_rate, function(omr){
+    proc_i <- lapply(omission_rate, function(omr) {
       proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
                                   prediction = pred_i,
                                   threshold = omr)$pROC_summary
