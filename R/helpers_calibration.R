@@ -633,7 +633,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
       } else {
         suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
         suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
-        om_rate <- omrat(threshold = omission_rate, pred_train = suit_val_cal,
+        om_rate <- omrat(threshold = error_considered, pred_train = suit_val_cal,
                          pred_test = suit_val_eval)}
 
       #Calculate PROC? ...
