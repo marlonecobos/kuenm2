@@ -7,8 +7,9 @@
 response_curve(models, variable, modelID = NULL, n = 100,
                by_replicates = FALSE, data = NULL, new_data = NULL,
                averages_from = "pr_bg", extrapolate = TRUE,
-               extrapolation_factor = 0.1, l_limit = NULL,
-               u_limit = NULL, xlab = NULL, ylab = "Suitability",
+               extrapolation_factor = 0.1, add_points = FALSE, p_col = NULL,
+               l_limit = NULL, u_limit = NULL,
+               xlab = NULL, ylab = "Suitability",
                col = "darkblue", ...)
 }
 \arguments{
@@ -45,6 +46,13 @@ behavior of the response outside the calibration limits. Ignored if
 \item{extrapolation_factor}{(numeric) a multiplier used to calculate the
 extrapolation range. Larger values allow broader extrapolation beyond the
 observed data range. Default is 0.1.}
+
+\item{add_points}{(logical) if \code{TRUE}, adds the original observed
+points (0/1) to the plot. Default = \code{FALSE}.}
+
+\item{p_col}{(character) color for the observed points when
+\code{add_points = TRUE}. Any valid R color name or hexadecimal code.
+Default = "black".}
 
 \item{l_limit}{(numeric) specifies the lower limit for the variable. Default
 is \code{NULL}, meaning the lower limit will be calculated based on the
