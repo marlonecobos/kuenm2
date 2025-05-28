@@ -8,8 +8,9 @@
 #' response_curve(models, variable, modelID = NULL, n = 100,
 #'                by_replicates = FALSE, data = NULL, new_data = NULL,
 #'                averages_from = "pr_bg", extrapolate = TRUE,
-#'                extrapolation_factor = 0.1, l_limit = NULL,
-#'                u_limit = NULL, xlab = NULL, ylab = "Suitability",
+#'                extrapolation_factor = 0.1, add_points = FALSE, p_col = NULL,
+#'                l_limit = NULL, u_limit = NULL,
+#'                xlab = NULL, ylab = "Suitability",
 #'                col = "darkblue", ...)
 #
 #' @param models an object of class `fitted_models` returned by the
@@ -48,6 +49,12 @@
 #' name defined in `variable`.
 #' @param ylab (character) a label for the y axis. Default = "Suitability".
 #' @param col (character) color for lines. Default = "darkblue".
+#' @param col (character) color for lines. Default = "darkblue".
+#' @param add_points (logical) if \code{TRUE}, adds the original observed
+#'   points (0/1) to the plot. Default = \code{FALSE}.
+#' @param p_col (character) color for the observed points when
+#'   \code{add_points = TRUE}. Any valid R color name or hexadecimal code.
+#'   Default = "black".
 #' @param ... additional arguments passed to \code{\link[graphics]{plot}}.
 #'
 #' @details
@@ -69,7 +76,8 @@
 #'
 #' @importFrom stats predict coef approx binomial complete.cases formula
 #' @importFrom stats model.matrix predict.glm sd
-#' @importFrom graphics abline polygon arrows image layout lines
+#' @importFrom graphics abline polygon arrows image layout lines points
+#' @importFrom grDevices adjustcolor
 #' @importFrom terra minmax
 #' @importFrom mgcv gam
 #'
@@ -98,6 +106,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                            by_replicates = FALSE, data = NULL,
                            new_data = NULL, averages_from = "pr_bg",
                            extrapolate = TRUE, extrapolation_factor = 0.1,
+                           add_points = FALSE, p_col = NULL,
                            l_limit = NULL, u_limit = NULL,
                            xlab = NULL, ylab = "Suitability",
                            col = "darkblue", ...) {
@@ -199,6 +208,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                         categorical_variables = models$categorical_variables,
                         averages_from = averages_from,
                         l_limit = l_limit, u_limit = u_limit,
+                        add_points = add_points,
                         ...)
 }
 
@@ -214,6 +224,8 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                                   averages_from = "pr_bg",
                                   l_limit = NULL,
                                   u_limit = NULL,
+                                  ylim = NULL,
+                                  add_points = FALSE, p_col= NULL,
                                   ...) {
 
   # initial tests
@@ -275,6 +287,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
         ylab <- "Suitability"
       }
 
+
       # Create a list of arguments to pass to the plot function
       plotcurve_args <- list(height = y, names.arg = x, col = "lightblue",
                              xlab= xlab, ylab = ylab, ...)
@@ -295,20 +308,33 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       if (is.null(ylab)) {
         ylab <- "Suitability"
       }
+      if (add_points){
+        ylim = c(0,1)
+      }
+      if (is.null(p_col)){
+        p_col <- adjustcolor("black", alpha.f = 0.5)
+      }
 
       plotcurve_args <- list(x = response_out[, variable],
                              y = response_out$predicted,
                              type = "l", xlab= xlab, ylab = ylab,
-                             col = col, ...)
+                             col = col, ylim = ylim, ...)
 
       # plot using do.call()
       do.call(plot, plotcurve_args)
 
-      abline(v = limits,
+      abline(v = limits, # It adds the calibration limits
              col = c("black", "black"),
              lty = c(2, 2),
              lwd = c(1, 1)
       )
+      if (add_points) {
+        # Add points to the plot
+        x_obs <- data[, variable]
+        y_obs <- data$pr_bg
+
+        points(x_obs,  y_obs, bg = p_col, pch = 21, cex = 0.6)
+      }
     }
 
   } else {
@@ -416,10 +442,16 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       if (is.null(ylab)) {
         ylab <- "Suitability"
       }
+      if (add_points){
+        ylim = c(0,1)
+      }
+      if (is.null(p_col)){
+        p_col <- adjustcolor("black", alpha.f = 0.5)
+      }
 
       # Create a list of arguments to pass to the plot function
       plotcurve_args <- list(x = x, y = y, type = "n", xlab= xlab, ylab = ylab,
-                             ...)
+                             ylim = ylim, ...)
 
       # plot using do.call()
       do.call(plot, plotcurve_args)
@@ -435,6 +467,13 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       # It adds the calibration limits
       abline(v = limits, col = c("black", "black"), lty = c(2, 2),
              lwd = c(1, 1))
+
+      if (add_points) { # Add points to the plot
+        x_obs <- data[, variable]
+        y_obs <- data$pr_bg
+
+        points(x_obs,  y_obs, bg = p_col, pch = 21, cex = 0.6)
+      }
     }
   }
 }
