@@ -33,7 +33,7 @@ Description: A new set of tools to help with the development of detailed ecologi
     Cobos et al. (2024) <doi:10.17161/bi.v18i.21742>.
 Imports:
     doSNOW, 
-    enmpa (>= 0.2.0),
+    enmpa (>= 0.2.1),
     foreach (>= 1.5),
     glmnet (>= 4.1),
     grDevices,
