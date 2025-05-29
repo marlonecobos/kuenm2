@@ -208,7 +208,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                         categorical_variables = models$categorical_variables,
                         averages_from = averages_from,
                         l_limit = l_limit, u_limit = u_limit,
-                        add_points = add_points,
+                        add_points = add_points, p_col = p_col,
                         ...)
 }
 
@@ -225,7 +225,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                                   l_limit = NULL,
                                   u_limit = NULL,
                                   ylim = NULL,
-                                  add_points = FALSE, p_col= NULL,
+                                  add_points = FALSE, p_col = NULL,
                                   ...) {
 
   # initial tests
@@ -328,11 +328,9 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
              lty = c(2, 2),
              lwd = c(1, 1)
       )
-      if (add_points) {
-        # Add points to the plot
+      if (add_points) { # Add points to the plot
         x_obs <- data[, variable]
         y_obs <- data$pr_bg
-
         points(x_obs,  y_obs, bg = p_col, pch = 21, cex = 0.6)
       }
     }
@@ -471,7 +469,6 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       if (add_points) { # Add points to the plot
         x_obs <- data[, variable]
         y_obs <- data$pr_bg
-
         points(x_obs,  y_obs, bg = p_col, pch = 21, cex = 0.6)
       }
     }
