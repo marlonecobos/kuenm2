@@ -87,8 +87,9 @@
 #' distances are used.
 #'
 #' @return
-#' A dataframe containing the file paths where the results were stored
-#' for each scenario. The paths contain the following files:
+#' An object of class `mop_projections`, with the root directory and the dataframe
+#' containing the file paths where the results were stored for each scenario.
+#' The paths contain the following files:
 #' - **summary** - a data.frame with details of the data used in the analysis:
 #'     - *variables* - names of variables considered.
 #'     - *type* - type of MOP analysis performed.
@@ -421,8 +422,12 @@ projection_mop <- function(data,
     }
   }
 
-  #Return output path
+  #Return root directory and output path
   res_path$output_path <- dirname(res_path$output_path)
-  return(unique(res_path))
+  res_final <- list("paths" = unique(res_path),
+                    "root_directory" = out_dir)
+  class(res_final) <- "mop_projections"
+
+  return(res_final)
 }
 

@@ -86,8 +86,9 @@ processing. Default is TRUE.}
 exists. Only applicable if \code{write_files} is set to TRUE. Default is FALSE.}
 }
 \value{
-A dataframe containing the file paths where the results were stored
-for each scenario. The paths contain the following files:
+An object of class \code{mop_projections}, with the root directory and the dataframe
+containing the file paths where the results were stored for each scenario.
+The paths contain the following files:
 \itemize{
 \item \strong{summary} - a data.frame with details of the data used in the analysis:
 \itemize{

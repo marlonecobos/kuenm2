@@ -50,9 +50,13 @@ Default is TRUE.}
 Only applicable if \code{write_files} is set to TRUE. Default is FALSE.}
 }
 \value{
-If \code{return_rasters = TRUE}, the function returns a list containing
-the SpatRasters with the computed variances, categorized by replicate,
-model, and GCMs. A NULL object if \code{return_rasters = FALSE}.
+An object of class \code{variability_projections}. If \code{return_rasters = TRUE},
+the function returns a list containing the SpatRasters with the computed
+variances, categorized by replicate, model, and GCMs. If \code{write_files = TRUE},
+it also returns the directory path where the computed rasters were saved to
+disk, and the object can then be used to import these files later with the
+\code{import_projections()} function. If both \code{return_rasters = FALSE} and
+\code{write_files = FALSE}, the function returns \code{NULL}
 }
 \description{
 Calculates variance in model predictions, distinguishing
@@ -118,5 +122,6 @@ terra::plot(v$`Future_2041-2060_ssp126`$by_model)  # From models
 terra::plot(v$`Future_2041-2060_ssp126`$by_gcm)  # From GCMs
 }
 \seealso{
-\code{\link[=organize_future_worldclim]{organize_future_worldclim()}}, \code{\link[=prepare_projection]{prepare_projection()}}, \code{\link[=project_selected]{project_selected()}}
+\code{\link[=organize_future_worldclim]{organize_future_worldclim()}}, \code{\link[=prepare_projection]{prepare_projection()}}, \code{\link[=project_selected]{project_selected()}},
+\code{\link[=import_projections]{import_projections()}}
 }
