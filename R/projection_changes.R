@@ -234,6 +234,8 @@
     if (!file.exists(output_dir)) {
     dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
     }
+  } else {
+    output_dir <- NULL
   }
 
   #Extract threshold
@@ -265,7 +267,7 @@
   #Get raster of reference
   dir_reference <- model_projections$output_path[which(model_projections$id ==
                                                         reference_id)]
-  file_reference <- file.path(dir_reference, "General_consensus.tiff")
+  file_reference <- file.path(dir_reference, "General_consensus.tif")
   r <- terra::rast(file_reference)[[consensus]]
   names(r) <- model_projections$Time[which(model_projections$id ==
                                                    reference_id)]
@@ -290,7 +292,7 @@
 
     #Get time
     proj_time <- d_i$Time
-    file_change <- file.path(dir_change, "General_consensus.tiff")
+    file_change <- file.path(dir_change, "General_consensus.tif")
     r_change <- terra::rast(file_change)[[consensus]]
 
     #Force resample if necessary
@@ -312,7 +314,7 @@
 
   if (write_bin_models) {
     terra::writeRaster(x = c(r_bin, proj_bin),
-                      filename = file.path(output_dir, "Binarized.tiff"),
+                      filename = file.path(output_dir, "Binarized.tif"),
                       overwrite = overwrite)
   }
 
@@ -349,7 +351,7 @@
 
     if (write_results & by_gcm) {
       terra::writeRaster(x = res_by_gcm,
-                         filename = file.path(output_dir, "Changes_by_GCM.tiff"),
+                         filename = file.path(output_dir, "Changes_by_GCM.tif"),
                          overwrite = overwrite)
     }
 
@@ -453,7 +455,7 @@
 
     if (write_results) {
       terra::writeRaster(x = res_summary,
-                         filename = file.path(output_dir, "Changes_summary.tiff"),
+                         filename = file.path(output_dir, "Changes_summary.tif"),
                          overwrite = overwrite)
     }
 
@@ -467,11 +469,13 @@
     res_final <- list(Binarized = c(r_bin, proj_bin),
                       Results_by_gcm = res_by_gcm,
                       Results_by_change = res_by_change,
-                      Summary_changes = res_summary)
-    return(res_final)
-  } else {
-    return(invisible(NULL))
-  }
+                      Summary_changes = res_summary,
+                      root_directory = output_dir)
 
+  } else {
+    res_final <- list(root_directory = output_dir)
+  }
+  class(res_final) <- "changes_projections"
+  return(res_final)
 } #End of function
 

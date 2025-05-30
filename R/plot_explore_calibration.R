@@ -11,7 +11,7 @@
 #'                          lines = FALSE, which_lines = c("cl", "mean"),
 #'                          lty_range = 1, lty_cl = 2, lty_mean = 3,
 #'                          lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
-#'                          xlab = NULL, ylab = NULL, mfrow = c(1, 1))
+#'                          xlab = NULL, ylab = NULL, mfrow = NULL)
 #'
 #' @param explore_calibration an object of class `explore_calibration` generated
 #'        by the `explore_calibration_hist` function.
@@ -47,8 +47,8 @@
 #' @param ylab (character) the label for the y-axis. Default is NULL, meaning
 #'        the y-axis will be labeled as "Frequency".
 #' @param mfrow (numeric) a vector specifying the number of rows and columns in
-#'        the plot layout, e.g., c(rows, columns). Default is c(1, 1), meaning
-#'        one plot per variable.
+#'        the plot layout, e.g., c(rows, columns). Default is NULL, meaning
+#'        the grid will be arranged automatically based on the number of plots.
 #'
 #' @importFrom grDevices adjustcolor
 #' @importFrom graphics par abline box barplot
@@ -86,7 +86,7 @@ plot_explore_calibration <- function(explore_calibration,
                                      lwd_mean = 2,
                                      xlab = NULL,
                                      ylab = NULL,
-                                     mfrow = c(1, 1)) {
+                                     mfrow = NULL) {
   #Check errors####
   if (missing(explore_calibration)) {
     stop("Argument 'explore_calibration' must be defined.")
@@ -149,8 +149,17 @@ plot_explore_calibration <- function(explore_calibration,
     }
   }
 
+  #Par settings
+  opar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(opar))
+
   #Set mfrow
-  graphics::par(mfrow = mfrow)
+  if(is.null(mfrow)){ #If NULL, arrange automatically
+    nl <- length(v)
+    mfrow <- c(ceiling(nl / ceiling(sqrt(nl))), ceiling(sqrt(nl)))
+    graphics::par(mfrow = mfrow)
+  } else {
+    graphics::par(mfrow = mfrow)}
 
   #Loop variables
   for(i in v) {

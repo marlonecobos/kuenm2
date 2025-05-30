@@ -41,9 +41,13 @@
 #' Only applicable if `write_files` is set to TRUE. Default is FALSE.
 #'
 #' @return
-#' If `return_rasters = TRUE`, the function returns a list containing
-#' the SpatRasters with the computed variances, categorized by replicate,
-#' model, and GCMs. A NULL object if `return_rasters = FALSE`.
+#' An object of class `variability_projections`. If `return_rasters = TRUE`,
+#' the function returns a list containing the SpatRasters with the computed
+#' variances, categorized by replicate, model, and GCMs. If `write_files = TRUE`,
+#' it also returns the directory path where the computed rasters were saved to
+#' disk, and the object can then be used to import these files later with the
+#' `import_projections()` function. If both `return_rasters = FALSE` and
+#' `write_files = FALSE`, the function returns `NULL`
 #'
 #' @export
 #'
@@ -51,7 +55,8 @@
 #' @importFrom terra rast nlyr mean app writeRaster
 #'
 #' @seealso
-#' [organize_future_worldclim()], [prepare_projection()], [project_selected()]
+#' [organize_future_worldclim()], [prepare_projection()], [project_selected()],
+#' [import_projections()]
 #'
 #' @examples
 #' # Step 1: Organize variables for current projection
@@ -162,7 +167,7 @@ projection_variability <- function(model_projections,
   if (write_files) {
     out_dir <- file.path(output_dir, "variance")
     dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-  }
+  } else {out_dir <- NULL}
   #### Get data ####
   d <- model_projections[["paths"]]
 
@@ -271,8 +276,12 @@ projection_variability <- function(model_projections,
     names(res) <- gsub("Present_Present_Present", "Present",
                        gsub("_NA", "",
                        paste(uc$Time, uc$Period, uc$ssp, uc$Scenario, sep = "_")))
-    return(res)
+    #Append directory
+    res[["root_directory"]] <- out_dir
+
   } else {
-    return(invisible(NULL))
+    res <- list("root_directory" = out_dir)
   }
+  class(res) <- "variability_projections"
+  return(res)
 } #End of function

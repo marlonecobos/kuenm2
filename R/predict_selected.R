@@ -362,16 +362,16 @@ predict_selected <- function(models,
     sapply(nm, function(i) {
       if (write_replicates & nrep > 1) {
         terra::writeRaster(res[[i]]$Replicates,
-                           file.path(out_dir, paste0(i, "_replicates.tiff")),
+                           file.path(out_dir, paste0(i, "_replicates.tif")),
                            overwrite = overwrite)
       }
       terra::writeRaster(res[[i]]$Model_consensus,
-                         file.path(out_dir, paste0(i, "_consensus.tiff")),
+                         file.path(out_dir, paste0(i, "_consensus.tif")),
                          overwrite = overwrite)
     })
 
     terra::writeRaster(res$General_consensus,
-                       file.path(out_dir, "General_consensus.tiff"),
+                       file.path(out_dir, "General_consensus.tif"),
                        overwrite = overwrite)
   }
 

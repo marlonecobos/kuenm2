@@ -195,7 +195,7 @@ organize_future_worldclim <- function(input_dir,
     res_save <- file.path(output_dir, year, ssp, gcm)
     dir.create(res_save, recursive = T, showWarnings = FALSE)
     #Save
-    terra::writeRaster(var_x, file.path(res_save, "Variables.tiff"),
+    terra::writeRaster(var_x, file.path(res_save, "Variables.tif"),
                        overwrite = overwrite)
 
     # Sets the progress bar to the current state
