@@ -10,7 +10,7 @@ plot_explore_calibration(explore_calibration, color_m = "grey",
                          lines = FALSE, which_lines = c("cl", "mean"),
                          lty_range = 1, lty_cl = 2, lty_mean = 3,
                          lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
-                         xlab = NULL, ylab = NULL, mfrow = c(1, 1))
+                         xlab = NULL, ylab = NULL, mfrow = NULL)
 }
 \arguments{
 \item{explore_calibration}{an object of class \code{explore_calibration} generated
@@ -62,8 +62,8 @@ object.}
 the y-axis will be labeled as "Frequency".}
 
 \item{mfrow}{(numeric) a vector specifying the number of rows and columns in
-the plot layout, e.g., c(rows, columns). Default is c(1, 1), meaning
-one plot per variable.}
+the plot layout, e.g., c(rows, columns). Default is NULL, meaning
+the grid will be arranged automatically based on the number of plots.}
 }
 \description{
 Plots histograms to visualize data from an \code{explore_calibration} object
