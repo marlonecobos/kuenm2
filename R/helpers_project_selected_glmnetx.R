@@ -48,7 +48,7 @@ calc_thr <- function(occ_suitability, thr = 0.1) {
   sort(occ_suitability)[round(length(occ_suitability) * thr) + 1]
 }
 # data <- readRDS("../test_kuenm2/Myrcia.RDS")
-# r <- rast("../test_kuenm2/Projection_results/Present/Brazil/General_consensus.tiff")
+# r <- rast("../test_kuenm2/Projection_results/Present/Brazil/General_consensus.tif")
 # thr <- calc_thr(r = r, data = data, consensus = "median", thr = 0.1)
 # thr
 
@@ -91,7 +91,7 @@ var_models_model_by_gcm <- function(path, consensus) {
 var_models_across_gcm <- function(paths, consensus) {
   # Read rasters
   r <- terra::rast(lapply(paths, function(x) {
-    terra::rast(file.path(x, "General_consensus.tiff"))[[consensus]]
+    terra::rast(file.path(x, "General_consensus.tif"))[[consensus]]
   }))
 
   #plot(r)
@@ -103,7 +103,7 @@ var_models_across_gcm <- function(paths, consensus) {
 var_models_across_ssp <- function(paths, consensus) {
   # Read rasters
   r <- terra::rast(lapply(paths, function(x) {
-    terra::rast(file.path(x, "General_consensus.tiff"))[[consensus]]
+    terra::rast(file.path(x, "General_consensus.tif"))[[consensus]]
   }))
 
   #plot(r)
