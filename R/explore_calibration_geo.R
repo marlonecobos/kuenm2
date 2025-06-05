@@ -8,6 +8,7 @@
 #' @param raster_variables (SpatRaster) predictor variables used for model
 #' calibration.
 #' @param plot (logical) wheter to plot the SpatRaster. Default is TRUE.
+#' @param ... additional arguments passed to `terra::plot()`.
 #'
 #' @return
 #' A categorical `SpatRaster` with four factor values representing:
@@ -35,7 +36,8 @@
 
 explore_calibration_geo <- function(data,
                                     raster_variables,
-                                    plot = TRUE) {
+                                    plot = TRUE,
+                                    ...) {
 
   #Check data
   if (missing(data)) {
@@ -81,7 +83,7 @@ explore_calibration_geo <- function(data,
   r <- terra::trim(terra::crop(r, raster_variables[[1]], mask = TRUE))
 
   if (plot) {
-    terra::plot(r)
+    terra::plot(r, ...)
   }
 
   return(r)
