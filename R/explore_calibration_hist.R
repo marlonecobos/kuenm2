@@ -82,6 +82,18 @@ explore_calibration_hist <- function(data, include_m = FALSE,
       stop("'raster_variables' must be a 'SpatRaster'.")
     }
 
+    #Check pca
+    if(!is.null(data$pca)){
+      if (!("vars_out" %in% names(data$pca))) {
+        raster_variables <- terra::predict(raster_variables[[data$pca$vars_in]],
+                                           data$pca)
+      } else {
+        raster_variables <- c(terra::predict(raster_variables[[data$pca$vars_in]],
+                                             data$pca),
+                              raster_variables[[data$pca$vars_out]])
+      }
+    }
+
     r_out <- setdiff(terra::names(raster_variables),
                      colnames(data$calibration_data)[-1])
     if (length(r_out) >= 1) {
@@ -103,7 +115,9 @@ explore_calibration_hist <- function(data, include_m = FALSE,
   pr_data <- d[d$pr_bg == 1, ]
 
   #Get variables
-  v <- setdiff(colnames(d), "pr_bg")
+  v <- setdiff(colnames(d), "pr_bg") #All variables
+  cont_v <- setdiff(v, data$categorical_variables) #Continuous variables
+  cat_v <- data$categorical_variables #Categorical variables
 
   if (include_m) {
   #Get values of entire M, if necessary
@@ -113,6 +127,7 @@ explore_calibration_hist <- function(data, include_m = FALSE,
 
   # preparing histogram information
   var_hist <- lapply(v, function(i) {
+    #print(i)
 
     #Get means, cl and range
     if (!(i %in% data$categorical_variables)) {
@@ -125,6 +140,13 @@ explore_calibration_hist <- function(data, include_m = FALSE,
       ax <- pretty((min(pr_bg) - 0.1):max(pr_bg), n = breaks)
       df <- diff(ax[1:2])
       ax <- c(ax[1] - df, ax, ax[length(ax)] + df)
+      #Check if ax cover all values in the variable
+      if(min(ax) > min(pr_bg)){
+        ax <- c(min(ax) - df, ax)
+      }
+      if(max(ax) < max(pr_bg)){
+        ax <- c(ax, max(ax) + df)
+      }
 
       #M
       if (include_m) {
@@ -201,6 +223,6 @@ explore_calibration_hist <- function(data, include_m = FALSE,
 
   # results
   return(new_explore_list(summary = summa, exploration_stats = var_hist,
-         continuous_variables = data$continuous_variables,
-         categorical_variables = data$categorical_variables))
+         continuous_variables = cont_v,
+         categorical_variables = cat_v))
 } #end of function
