@@ -14,6 +14,8 @@ explore_calibration_geo(data, raster_variables, plot = TRUE)
 calibration.}
 
 \item{plot}{(logical) wheter to plot the SpatRaster. Default is TRUE.}
+
+\item{...}{additional arguments passed to \code{terra::plot()}.}
 }
 \value{
 A categorical \code{SpatRaster} with four factor values representing:

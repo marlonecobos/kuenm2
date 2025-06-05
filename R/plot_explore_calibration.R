@@ -171,6 +171,8 @@ plot_explore_calibration <- function(explore_calibration,
     var_res <- explore_calibration$exploration_stats[[i]]
 
     # plot
+
+
     #Continuous variables
     if (i %in% explore_calibration$continuous_variables) {
       if (all(!is.na(var_res$hist_m))) {

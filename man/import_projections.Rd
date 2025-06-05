@@ -85,6 +85,8 @@ select specific periods (past/future), emission scenarios, General Circulation
 Models (GCMs), and result types for import.
 }
 \examples{
+# Load packages
+library(terra)
 # Step 1: Organize variables for current projection
 ## Import current variables (used to fit models)
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
