@@ -12,155 +12,240 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 6
+  fig.height = 6,
+  rmarkdown.html_vignette.check_title = FALSE
 )
 ```
 
-# Introduction
-*kuenm2* is an updated version of [kuenm](https://peerj.com/articles/6281/), an R package designed to make the process of model calibration and final model creation easier and more reproducible, and at the same time more robust. The aim of this package is to design suites of candidate models to create diverse calibrations of Maxent models and enable selection of optimal parameterizations for each study. Other objectives of this program are to make the task of creating final models and their transfers easier, as well to summarize changes across scenarios and permit assessing extrapolation risks when model transfers are needed.
-This new version of *kuenm* reduces the dependency on a strictly organized working directory. Instead, it generates specific R objects that store all the necessary information for subsequent steps. The workflow begins with **data preparation**, which requires at minimum a `data.frame` containing occurrence record coordinates (longitude and latitude) and a `SpatRaster` object with your predictor variables.
 
-*kuenm2* fits Maxent models using either the *maxnet* implementation (as described in [Phillips et al. (2017)](http://doi.wiley.com/10.1111/ecog.03049)) or classic GLMs. By default, *kuenm2* utilizes *maxnet*.
+- [Introduction](#introduction)
+- [Install kuenm2](#install-kuenm2)
+- [Prepare data](#prepare-data)
+  - [Import data](#import-data)
+  - [First steps in preparing data](#first-steps-in-preparing-data)
+  - [Using a bias file](#using-a-bias-file)  
+  - [PCA for variables](#pca-for-variables)
+- [Prepare user pre-processed data](#prepare-user-pre-processed-data)
+- [Saving a prepared_data object](#saving-a-prepared_data-object)
 
-# Install development version from GitHub
-You can install the released version of *kuenm2* from [GitHub](https://github.com/marlonecobos/kuenm2) with:
+<hr>
+
+
+## Introduction
+
+**kuenm2** is an new version of **kuenm** [Cobos et al. 2019](https://peerj.com/articles/6281/), an R package designed to make the process of ecological niche modeling (ENM) easier, faster, and more reproducible, and at the same time more robust. The aim of this package is to facilitate crucial steps in the ENM process: data preparation, model calibration, selected model exploration, model projections, and analyses of uncertainty and variability. 
+
+This new version of the package reduces the dependency on a strictly organized working directory (required only if projections to multiple scenarios are needed). Instead, **kuenm2** functions generate specific R objects that store all the necessary information for subsequent steps. The ENM workflow in **kuenm2** begins with *data preparation*, which requires at minimum a `data.frame` containing occurrence record coordinates (longitude and latitude) and a `SpatRaster` object with predictor variables.
+
+**kuenm2** fits maximum entropy (Maxnet) models or logistic generalized linear models (GLMs). Maxnet models are created as described in [Phillips et al. (2017)](http://doi.wiley.com/10.1111/ecog.03049), and GLMs are constructed as in [Cobos and Peterson (2023)](https://doi.org/10.1371/journal.pone.0276951).
+
+<br>
+
+## Getting ready
+
+### Install kuenm2
+
+You can install the development version of **kuenm2** from a [GitHub repository](https://github.com/marlonecobos/kuenm2) with:
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
-#Install remotes, if necessary
-if(!require(remotes)){
-    install.packages("remotes")
+# Install remotes, if necessary
+if(!require(remotes)) {
+  install.packages("remotes")
 }
 
-#Install kuenm2
-if(!require(kuenm2)){
-remotes::install_github('marlonecobos/kuenm2')}
+# Install kuenm2
+if(!require(kuenm2)) {
+  remotes::install_github('marlonecobos/kuenm2')
+}
 
-#Load packages
+# Load packages
 library(kuenm2)
 library(terra)
 ```
 
-# Prepare data
+<br>
 
-## Import data
-For this tutorial, we will use species occurrences provided within the *kuenm2* package. The `occ_data` contains 51 occurrence records of *Myrcia hatschbachii*, a tree endemic to Southern Brazil, retrieved from [Trindade & Marques (2024)](https://onlinelibrary.wiley.com/doi/10.1111/ddi.13931). Note that while this example data has three columns (species, x, and y for longitude and latitude, respectively), your input data only needs two numeric columns for longitude and latitude.
+### Define working directory
+
+In general, it is a good practice to define a working directory when using R because this allows more control over where files can be read from or saved to. We recommend setting a working directory if needed, as at least one file will be saved a later stages of this guide.
+
+```{r set wd, eval=FALSE}
+# Current directory
+getwd()
+
+# Define new directory
+setwd("YOUR/DIRECTORY")
+```
+
+<br>
+
+## Prepare data
+
+### Import data
+
+We will use occurrence records provided within the **kuenm2** package. Most example data in the package is derived from [Trindade & Marques (2024)](https://doi.org/10.1111/ddi.13931). The `occ_data` object contains 51 occurrences of *Myrcia hatschbachii*, a tree endemic to Southern Brazil. Although this example data set has three columns (species, x, and y), users' input data only requires two numeric columns with longitude and latitude coordinates.
+
 ```{r Import occurrence data}
 # Import occurrences
 data(occ_data, package = "kuenm2")
-#See data structure
+
+# Check data structure
 str(occ_data)
 ```
 
-As predictor variables, we'll use example data also included in the *kuenm2* package. This dataset comprises four bioclimatic variables from  [WorldClim 2.1](https://worldclim.org/data/bioclim.html) at 10arc-minute resolution, plus a categorical variable (Soil type) sourced from [SoilGrids](https://soilgrids.org/) resampled from 5km to 10arc-minutes. All variables have been masked using a polygon defining the calibration area, which was generated by drawing a minimum convex polygon around the occurrence records and adding a 300km buffer.
+<br>
+
+As predictor variables, we will use other data included in the package. This data set comprises four bioclimatic variables from  [WorldClim 2.1](https://worldclim.org/data/bioclim.html) at 10 arc-minute resolution, and a categorical variable (SoilType) from [SoilGrids](https://soilgrids.org/) resampled to 10 arc-minutes. All variables have been masked using a polygon that delimits the area for model calibration, which was generated by drawing a minimum convex polygon around the records with a 300 km buffer.
+
 ```{r Load variables}
 # Import raster layers
-var <- terra::rast(system.file("extdata", "Current_variables.tif",
-                               package = "kuenm2"))
+var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
+
+# Check variables
 plot(var)
 ```
 
-Let's convert the occurrence data to a spatial object just to visualize the occurrences:
+<br>
+
+Visualize occurrences records in geography:
+
 ```{r }
-# Visualize occurrences
-pts <- vect(occ_data, geom = c(x = "x", y = "y"), crs = "+init=epsg:4326")
+# Visualize occurrences on one variable
 plot(var[["bio_1"]], main = "Bio 1")
-points(pts, col = "black")
+
+points(occ_data[, c("x", "y")], col = "black")
 ```
 
-## First steps with prepare data
-The `prepare_data()` function is central to preparing your data for model calibration. It handles several key steps:
+<br>
 
-* **Defining the algorithm type**: You can choose between `maxnet` or `glmnet`.
-* **Generating background points**: This is a crucial step, as [Maxent is a presence/background algorithm](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12252).
-* **Performing principal component analysis (PCA)**: An optional step that can be applied to your set of predictor variables.
-* **Generating calibration data**: Values are extracted for both your presence and background points.
-* **Partitioning data**: The function divides your data into training and testing sets for model evaluation.
-* **Creating a grid of model parameter combinations**: This includes setting up regularization multiplier (RM) values, feature classes (FCs), and defining sets of environmental variables. For a deeper understanding of the roles of RMs and FCs in Maxent models, consult [Merow et al. 2013](https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/j.1600-0587.2013.07872.x).
+### First steps in preparing data
 
-Now, let's prepare our data for model calibration using prepare_data():
+The function `prepare_data()` is central to getting data ready for model calibration. It handles several key steps:
+
+* **Defining the algorithm**: Users can choose between `maxnet` or `glm`.
+* **Generating background points**: Background points area sampled from raster layers, unless provided by the user. These points serve as a reference to contrast presence records.
+* **Principal component analysis (PCA)**: An optional step that can be applied to the set of predictors in PCA.
+* **Preparing calibration data**: Presence records and background points are associate with predictor values and put together in a `data.frame` to be used in the ENM.
+* **Data partitioning**: The function divides your data using `k-folds` to prepare training and testing sets via a cross-validation process.
+* **Defining grid of model parameters**: This helps setting up combinations of feature classes (FCs), regularization multiplier (RM) values (for Maxnet), and sets of predictor variables. An explanation of the roles of RMs and FCs in Maxent models see [Merow et al. 2013](https://doi.org/10.1111/j.1600-0587.2013.07872.x).
+
+Now, let's prepare our data for model calibration using `prepare_data()`:
+
 ```{r simple prepare data}
 # Prepare data for maxnet model
 d <- prepare_data(algorithm = "maxnet",
                   occ = occ_data,
                   x = "x", y = "y",
                   raster_variables = var,
-                  mask = NULL, #We don't need a mask because 'var' has already been masked to the calibration area
                   species = "Myrcia hatschbachii",
                   categorical_variables = "SoilType",
                   n_background = 1000,
                   features = c("l", "q", "p", "lq", "lqp"),
                   r_multiplier = c(0.1, 1, 2, 3, 5))
 ```
-The `prepare_data()` function returns a `prepared_data`, which is a list containing various essential pieces of information, such as the total number of occurrence and background points, the number of k-folds used for partitioning, the names of continuous and categorical variables, and the total number of candidate models generated.
+
+<br>
+
+The `prepare_data()` function returns a `prepared_data` object, which is a list containing various essential pieces of information fro model calibration. Below is an example of how the object is printed to summarize its components.
+
 ```{r print prepared data}
 print(d)
 ```
 
+<br>
+
+The parts of the `prepared_data` object can be explored in further detail by indexing them as in the following example.
 
 ```{r explore some data}
-#See first rows of calibration data
+# See first rows of calibration data
 head(d$calibration_data)
 
-#See first rows of formula grid
+# See first rows of formula grid
 head(d$formula_grid)
 ```
-We can visualize the distribution of predictor variables for occurrence (presence) points, background points, and the entire calibration area using overlaid histograms:
+
+<br>
+
+Users can visualize the distribution of predictor values for occurrence records, background points, and the entire calibration area using histograms:
+
 ```{r explore histogram}
+# Prepare histogram data
 calib_hist <- explore_calibration_hist(data = d, raster_variables = var,
                                        include_m = TRUE)
-#Plot
-plot_explore_calibration(explore_calibration = calib_hist, lines = FALSE,
-                           mfrow = NULL)
+
+# Plot histograms
+plot_explore_calibration(explore_calibration = calib_hist)
 ```
+
 The gray bars represent values across the entire calibration area. Blue bars show values for the background, while green bars display values at presence points (magnified by a factor of 2 for improved visualization). You can customize both the colors and the magnification factor.
 
-Additionally, we can explore the spatial distribution of occurrence and background points:
+<br>
+
+Additionally, users can explore the geographic distribution of occurrence and background points:
+
 ```{r explore spatial}
 pbg <- explore_calibration_geo(data = d, raster_variables = var[[1]],
                                plot = TRUE)
 ```
-Note that, by default, background points are selected randomly within the calibration area. However, you can influence their spatial distribution, increasing or decreasing the probability of selection in certain regions, by providing a bias file (as demonstrated in the next section).
 
-## Using a bias file
+<br>
 
-A bias file is a `SpatRaster` object that contains probability weights influencing the selection of background points within the calibration area. This can be particularly useful for mitigating sampling bias, for instance, by incorporating the density of records for the target group (as discussed in [Barber et al. 2020](https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/ddi.13442)).
+Note that, by default, background points are selected randomly within the calibration area. However, users can influence the spatial distribution of background, increasing or decreasing the probability of selection in certain regions, by providing a bias file (as demonstrated in the next section).
 
-The bias file must have the same extent, resolution, and number of cells as your environmental raster variables, unless a mask is supplied. If a mask is used, the bias file's extent should encompass or be larger than the mask's extent.
+<br>
 
-Let's illustrate this with an example bias file included in the package. This `SpatRaster` represents weights within the calibration areas, with lower bias values in the center and higher values towards the borders:
+### Using a bias file
+
+A bias file is a `SpatRaster` object that contains values that will influence the selection of background points within the calibration area. This can be particularly useful for mitigating sampling bias, for instance, by incorporating the density of records from a target group (as discussed in [Ponder et al. 2001](https://doi.org/10.1046/j.1523-1739.2001.015003648.x), [Anderson et al. 2003](https://doi.org/10.1046/j.1365-2699.2003.00867.x), and [Barber et al. 2020](https://doi.org/10.1111/ddi.13442)).
+
+The bias file must have the same extent, resolution, and number of cells as your raster variables, unless a mask is supplied. If a mask is used, the extent of the bias file should encompass or be larger than the mask extent.
+
+Let's illustrate this with an example bias file included in the package. This `SpatRaster` has lower values in the center and higher values towards the borders:
+
 ```{r import bias file}
 # Import a bias file
-bias <- terra::rast(system.file("extdata", "bias_file.tif",
-                                package = "kuenm2"))
+bias <- rast(system.file("extdata", "bias_file.tif", package = "kuenm2"))
+
 plot(bias)
 ```
-We will now use this bias file to prepare two new datasets: one where the bias effect is "direct" (higher probability in regions with higher bias values) and another where the effect is "inverse" (higher probability in regions with lower bias values):
-```{r bias data, results='hide'}
-d_bias_direct <- prepare_data(algorithm = "maxnet",
-                       occ = occ_data,
-                       x = "x", y = "y",
-                       raster_variables = var,
-                       mask = NULL, #We don't need a mask because 'var' has already been masked to the calibration area
-                       species = "Myrcia hatschbachii",
-                       categorical_variables = "SoilType",
-                       n_background = 1000,
-                       bias_file = bias, bias_effect = "direct",
-                       features = c("l", "q", "p", "lq", "lqp"),
-                       r_multiplier = c(0.1, 1, 2, 3, 5))
-d_bias_inverse <- prepare_data(algorithm = "maxnet",
-                       occ = occ_data,
-                       x = "x", y = "y",
-                       raster_variables = var,
-                       mask = NULL, #We don't need a mask because 'var' has been already masked to calibration area
-                       species = "Myrcia hatschbachii",
-                       categorical_variables = "SoilType",
-                       n_background = 1000,
-                       bias_file = bias, bias_effect = "inverse",
-                       features = c("l", "q", "p", "lq", "lqp"),
-                       r_multiplier = c(0.1, 1, 2, 3, 5))
 
-#Compare the background points generated randomly versus with bias effects
-par(mfrow = c(2,2)) #Adjust plotting grid
+<br>
+
+We will now use this bias file to prepare two new datasets: one where the bias effect is "direct" (higher probability in regions with higher bias values) and another where the effect is "inverse" (higher probability in regions with lower bias values):
+
+```{r bias data, results='hide'}
+# Using bias as a direct effect in sampling
+d_bias_direct <- prepare_data(algorithm = "maxnet",
+                              occ = occ_data,
+                              x = "x", y = "y",
+                              raster_variables = var,
+                              species = "Myrcia hatschbachii",
+                              categorical_variables = "SoilType",
+                              n_background = 1000,
+                              bias_file = bias, bias_effect = "direct",  # bias parameters
+                              features = c("l", "q", "p", "lq", "lqp"),
+                              r_multiplier = c(0.1, 1, 2, 3, 5))
+
+# Using bias as an indirect effect in sampling
+d_bias_inverse <- prepare_data(algorithm = "maxnet",
+                               occ = occ_data,
+                               x = "x", y = "y",
+                               raster_variables = var,
+                               species = "Myrcia hatschbachii",
+                               categorical_variables = "SoilType",
+                               n_background = 1000,
+                               bias_file = bias, bias_effect = "inverse",   # bias parameters
+                               features = c("l", "q", "p", "lq", "lqp"),
+                               r_multiplier = c(0.1, 1, 2, 3, 5))
+
+# Compare background points generated randomly versus with bias effects
+## Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
+
+## Adjusting plotting grid
+par(mfrow = c(2,2))  
+
+## The plots to show sampling bias effects
 plot(bias, main = "Bias file")
 explore_calibration_geo(d, raster_variables = var[[1]],
                         main = "Random Background")
@@ -168,111 +253,150 @@ explore_calibration_geo(d_bias_direct, raster_variables = var[[1]],
                         main = "Direct Bias Effect")
 explore_calibration_geo(d_bias_inverse, raster_variables = var[[1]],
                         main = "Inverse Bias Effect")
-par(mfrow = c(1,1)) #Reset grid
+
+par(original_par)  # Reset grid
 ```
-Observe that when the bias effect is "direct", the majority of the background points are sampled from the borders of the calibration area, corresponding to higher bias values. Conversely, with an "inverse" bias effect, most background points are selected from the center, where bias values are lower.
 
-## Principal Component Analysis for raster layers
-A common approach in ENM involves summarizing the information from a set of predictor variables into a smaller set of uncorrelated variables using [Principal Component Analysis (PCA)](https://www.sciencedirect.com/science/article/pii/S1870345314707444). The *kuenm2* package offers two methods for performing PCA: internally and externally.
+Note that when the bias effect is "direct", the majority of the background points are sampled from the borders of the calibration area, corresponding to higher bias values. Conversely, with an "inverse" bias effect, most background points are selected from the center, where bias values are lower.
 
-### Internal PCA
+<br>
 
-`kuenm2` can perform all PCA transformations internally, eliminating the need to explicitly save the new PCA variables for each scenario. This is particularly advantageous when projecting model results across multiple time scenarios (e.g., various Global Climate Models for different future periods). By performing PCA internally, you only need to store the raw environmental variables (e.g., `bio_1`, `bio_2`, etc.) on your system, and the functions will handle the PCA transformation as needed. Let's explore how to implement this:
+### PCA for variables
+
+A common approach in ENM involves summarizing the information from a set of predictor variables into a smaller set of uncorrelated variables using Principal Component Analysis (PCA) (see [Cruz-Cardenaz et al. 2014](https://doi.org/10.7550/rmb.36723) for an example). In **kuenm2** users can perform a PCA internally or use variables that have been externally prepared as PCs.
+
+#### Internal PCA
+
+**kuenm2** can perform all PCA transformations internally, eliminating the need to prepare the new PC variables for each scenario of projection. This is particularly advantageous when projecting model results across multiple time scenarios (e.g., various Global Climate Models for different future periods). By performing PCA internally, you only need to store the raw environmental variables (e.g., `bio_1`, `bio_2`, etc.) on your directory, and the functions will handle the PCA transformation as needed. 
+
+Let's explore how to implement this:
+
 ```{r prepare data pca}
-# Prepare data for maxnet model using PCA variables
+# Prepare data for maxnet models using PCA parameters
 d_pca <- prepare_data(algorithm = "maxnet",
                   occ = occ_data,
                   x = "x", y = "y",
                   raster_variables = var, 
-                  do_pca = TRUE, center = TRUE, scale = TRUE, #PCA parameters
+                  do_pca = TRUE, center = TRUE, scale = TRUE,  # PCA parameters
                   species = "Myrcia hatschbachii",
                   categorical_variables = "SoilType",
                   n_background = 1000,
                   features = c("l", "q", "p", "lq", "lqp"),
                   r_multiplier = c(0.1, 1, 2, 3, 5))
+
 print(d_pca)
 ```
-The calibration data and formula grid have now been generated based on the PCA-transformed variables. By default, all continuous variables were included in the PCA, while categorical variables (e.g., "SoilType") were excluded. The default settings for PCA axis selection first retain the axes that collectively explain 95% of the total variance, and then further filter these, keeping only those axes that individually explain at least 5% of the variance.
+
+<br> 
+
+The elements calibration data and formula grid have now been generated considering the principal components (PCs). By default, all continuous variables were included in the PCA, while categorical variables (e.g., "SoilType") were excluded. The default settings for the number of PCs selected retain the axes that collectively explain 95% of the total variance, and then further filter these, keeping only those axes that individually explain at least 5% of the variance. These parameters can be changed using other arguments in the function `prepare_data`
 
 ```{r}
-#Check calibration data
+# Check calibration data
 head(d_pca$calibration_data)
 
-#Check formula grid
+# Check formula grid
 head(d_pca$formula_grid)
 
-#Explore variables distribution
+# Explore variables distribution
 calib_hist_pca <- explore_calibration_hist(data = d_pca, raster_variables = var,
                                            include_m = TRUE, breaks = 7)
-plot_explore_calibration(explore_calibration = calib_hist_pca, lines = FALSE,
-                         mfrow = NULL)
-```
-Since the PCA was performed internally, the `prepared_data` object now contains all the necessary information to transform the raw environmental variables into their PCA components. **This means that when you predict or project your models, you should provide the raw variables (`var`) as raster inputs**, and the conversion to PCA variables will be automatically applied within the function.
 
-### External PCA
-Alternatively, you can apply the PCA transformation before preparing your data by using the `perform_pca()` function:
+plot_explore_calibration(explore_calibration = calib_hist_pca)
+```
+
+As the PCA was performed internally, the `prepared_data` object contains all the necessary information to transform the raw environmental variables into the required PCs **This means that when predicting or projecting models, users should provide raw raster variables**, and the PCs will be obtained internally in the function.
+
+<br>
+
+#### External PCA
+
+Alternatively, users can perform a PCA with their data by using the `perform_pca()` function, or one of their preference. Se an example with `perform_pca()` below:
+
 ```{r do PCA}
 pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                        center = TRUE, scale = TRUE)
 
-#Plot
+# Plot
 plot(pca_var$env)
 ```
-Now, we can use the PCA-transformed variables generated by `perform_pca()` to prepare the data:
+
+<br>
+
+Now, let's use the PCs generated by `perform_pca()` to prepare the data:
 
 ```{r prepare data pca external}
 # Prepare data for maxnet model using PCA variables
 d_pca_extern <- prepare_data(algorithm = "maxnet",
                              occ = occ_data,
                              x = "x", y = "y",
-                             raster_variables = pca_var$env, #Output of perform_pca()
-                             do_pca = FALSE, # Set to FALSE because the raster variables are already PCA-transformed
+                             raster_variables = pca_var$env,  # Output of perform_pca()
+                             do_pca = FALSE,  # Set to FALSE because variables are PCs
                              species = "Myrcia hatschbachii",
                              categorical_variables = "SoilType",
                              n_background = 1000,
                              features = c("l", "q", "p", "lq", "lqp"),
                              r_multiplier = c(0.1, 1, 2, 3, 5))
+
 print(d_pca_extern)
 ```
-Note that since we performed the PCA externally, we set `do_pca = FALSE` within the `prepare_data` function. This is crucial because setting it to `TRUE` would incorrectly apply PCA to variables that are *already* PCA-transformed. Consequently, the `prepared_data` object in this scenario does not store any PCA-related information. This means when you predict or project your models, you **must provide the PCA-transformed variables** (`pca_var$env`) instead of the raw variables (`var`) as your raster inputs.
+
+<br>
+
+Note that since PCA was performed  externally, `do_pca = FALSE`  is set within the `prepare_data` function. This is crucial because setting it to `TRUE` would incorrectly apply PCA to variables that are *already* PCs. Consequently, the `prepared_data` object in this scenario does not store any PCA-related information. This means that when users predict or project models, they must **must provide the PCs** instead of the raw raster variables.
 
 ```{r check prepared pca externally}
-#Check calibration data
+# Check calibration data
 head(d_pca_extern$calibration_data)
 
-#Check formula grid
+# Check formula grid
 head(d_pca_extern$formula_grid)
 ```
-# Prepare data with user-prepared calibration data
 
-If you already have a calibration dataset, you can use the `prepare_user_data()` function to create an object suitable for model calibration. Your user-prepared calibration data must be a `data.frame` that includes a column indicating **presence (1)** and **background (0)** records, along with columns for each of your **variable values**. The package includes an example of such a prepared calibration dataset for your reference:
+<br>
+
+## Prepare user pre-processed data
+
+If users already have data that has been prepared for calibration, they can use the `prepare_user_data()` function to create the object required for model calibration. User-prepared calibration data must be a `data.frame` that includes a column indicating **presence (1)** and **background (0)** records, along with columns with values for each of your **variables**. The package includes an example of such a `data.frame` for reference. See an example of its use below:
+
 ```{r import user data}
 data("user_data", package = "kuenm2")
+
 head(user_data)
 ```
-The `prepare_user_data()` function operates similarly to `prepare_data()`, but with a key difference: instead of requiring a `data.frame` of occurrence coordinates and a `SpatRaster` of predictor variables, it takes your already prepared calibration data directly:
+
+<br> 
+
+The `prepare_user_data()` function operates similarly to `prepare_data()`, but with a key difference: instead of requiring a `data.frame` of occurrence coordinates and a `SpatRaster` of predictor variables, it takes your already prepared user `data.frame` (see below):
+
 ```{r prepare user data}
 # Prepare data for maxnet model
 data_user <- prepare_user_data(algorithm = "maxnet",
-                               user_data = user_data, #your already prepared calibration data
+                               user_data = user_data,  # user-prepared data.frame
                                pr_bg = "pr_bg",
                                species = "Myrcia hatschbachii",
                                categorical_variables = "SoilType",
                                features = c("l", "q", "p", "lq", "lqp"),
                                r_multiplier = c(0.1, 1, 2, 3, 5))
+
 data_user 
 ```
-This function also allows you to provide a list of folds for cross-validation to be used during model calibration. If `user_folds` is `NULL`, the function will automatically split your data based on the number of folds specified by the `kfolds` argument.
 
-# Saving the prepared_data object
-The `prepared_data` object is essential for calibrating models using the `calibration()` function. As this object is a list, you can save it to disk using `saveRDS()` and load it back into your R session later using `readRDS()`:
+This function also allows you to provide a list of folds for cross-validation to be used during model calibration. If `user_folds` is `NULL`, the function will automatically split your data based on the number of folds specified by the `kfolds` argument. Internal PCA for variables is also available with this function.
+
+<br>
+
+## Saving a prepared_data object
+
+The `prepared_data` object is crucial for the next step in the ENM workflow in **kuenm2**, model calibration. As this object is essentially a list, users can save it to a local directory using `saveRDS()`. Saving the object facilitates loading it back into your R session later using `readRDS()`. See an example below:
+
 ```{r save data}
-#Save the data
-#Set directory to save (here, in a temporary directory)
+# Set directory to save (here, in a temporary directory)
 dir_to_save <- file.path(tempdir())
+
+# Save the data
 saveRDS(d, file.path(dir_to_save, "Data.rds"))
 
-#Import data
+# Import data
 d <- readRDS(file.path(dir_to_save, "Data.rds"))
 ```
-

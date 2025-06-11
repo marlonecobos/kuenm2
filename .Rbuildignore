@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^R/testing_workflow.R$
 ^README\.Rmd$
+^doc$
+^Meta$
