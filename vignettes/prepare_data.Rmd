@@ -12,14 +12,15 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 6,
-  rmarkdown.html_vignette.check_title = FALSE
+  fig.height = 6
 )
 ```
 
 
 - [Introduction](#introduction)
-- [Install kuenm2](#install-kuenm2)
+- [Getting ready](#getting-ready)
+  - [Install kuenm2](#install-kuenm2)
+  - [Define working directory](#define-working-directory)
 - [Prepare data](#prepare-data)
   - [Import data](#import-data)
   - [First steps in preparing data](#first-steps-in-preparing-data)
