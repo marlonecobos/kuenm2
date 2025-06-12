@@ -58,7 +58,7 @@ if(!require(remotes)){
 remotes::install_github("marlonecobos/kuenm2")
 
 # To install the package and its vignettes use (if needed use: force = TRUE)  
-remotes::install_github("marlonecobos/kuenm2", build_vignettes = TRUE)  # in the progress
+remotes::install_github("marlonecobos/kuenm2", build_vignettes = TRUE)  # in progress
 ```
 
 <br>
@@ -146,7 +146,7 @@ this models (`fit_selected()`) in order to explore their characteristics
 and continue with the next steps. Fitted models can then be used to
 assess variable importance in models, as well as to explore variable
 response curves. See functions `variable_importance()` and
-`response_curves`.
+`response_curves()`.
 
 ### Model projections
 
