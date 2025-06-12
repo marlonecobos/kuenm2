@@ -5,12 +5,15 @@ Osorio-Olvera, and A. Townsend Peterson
 
 - [Package description](#package-description)
 - [Installing the package](#installing-the-package)
-- [Workflow description](#workflow-description)
+- [Workflow in kuenm2](#workflow-in-kuenm2)
+  - [Basic data cleaning](#basic-data-cleaning)
   - [Data preparation](#data-preparation)
   - [Model calibration](#model-calibration)
   - [Model explorations](#model-explorations)
   - [Model projections](#model-projections)
-- [Variability and uncertainty](#variability-and-uncertainty)
+  - [Projections comparisons](#projections-comparisons)
+  - [Variability and uncertainty](#variability-and-uncertainty)
+- [Checking the vignettes](#checking-the-vignettes)
 
 <hr>
 
@@ -35,6 +38,11 @@ Note: Internet connection is required to install the package.
 To install the latest release of **kuenm2** use the following line of
 code:
 
+``` r
+# Installing from CRAN 
+#install.packages("kuenm2")  # in progress
+```
+
 <br>
 
 The development version of **kuenm2** can be installed using the code
@@ -50,7 +58,7 @@ if(!require(remotes)){
 remotes::install_github("marlonecobos/kuenm2")
 
 # To install the package and its vignettes use (if needed use: force = TRUE)  
-#remotes::install_github("marlonecobos/kuenm2", build_vignettes = TRUE)  # in the process
+remotes::install_github("marlonecobos/kuenm2", build_vignettes = TRUE)  # in the progress
 ```
 
 <br>
@@ -61,7 +69,7 @@ If you have any problems during installation of the development version
 from GitHub, restart R session, close other RStudio sessions you may
 have open, and try again. If during the installation you are asked to
 update packages, do so if you don’t need a specific version of one or
-more of the packages to be installed. If any of the packages give an
+more of the packages to be installed. If any of the packages gives an
 error when updating, please install it alone using `install.packages()`,
 then try installing **kuenm2** again.
 
@@ -76,35 +84,128 @@ library(kuenm2)
 
 <br>
 
-## Workflow description
+## Workflow in kuenm2
+
+The **kuenm2** package facilitates the following steps in the ENM
+process: basic data cleaning, data preparation, model calibration, model
+exploration, model projections, projection comparisons, and exploration
+of variability and uncertainty. The figure below shows a schematic view
+of how the package works. A brief description of the steps that can be
+performed with the package is presented below. For a complete
+description and demonstration of the steps, see the package vignettes
+listed in the section [Checking the vignettes](#checking-the-vignettes).
+
+<div class="figure" style="text-align: center">
+
+<img src="man/figures/kuenm2_map.png" alt="Figure 1. Schematic view of the workflow to use kuenm2." width="460" />
+<p class="caption">
+
+Figure 1. Schematic view of the workflow to use kuenm2.
+</p>
+
+</div>
+
+### Basic data cleaning
+
+Data cleaning tools in **kuenm2** help to automate the following basic
+steps: columns sorting, missing-data cleaning, duplicate removal,
+exclusion of coordinates with longitude and latitude values of 0, and
+filtering based on coordinate decimal precision (see function
+`initial_cleaning()`). In addition, users can erase duplicates based on
+the pixels of a raster layer, and move records that are barely outside
+the valid pixels of a raster layer (see function `advanced_cleaning()`).
 
 ### Data preparation
 
-As shown in Fig. 1, to use **kuenm2** …
-
-<br>
+**kuenm2** has two main functions that help users prepare their data for
+the ENM process. These functions take initial data, and guide users to
+make decisions about the algorithm to be used for models and the
+combination of parameters (feature classes, regularization multiplier,
+sets of variables) to be explored later during model calibration. Users
+can input occurrence records and raster layers, or a `data.frame` that
+has been prepared before hand. The main functions for this step are
+`prepare_data()` and `prepare_user_data()`. Users can also explore in
+more detail how environmental values look like in the data for model
+calibration using the results from preparing data and the functions
+`explore_calibration_geo()`, `explore_calibration_hist()`, and
+`plot_explore_calibration()`.
 
 ### Model calibration
 
-After preparing data,
-
-<br>
+Model calibration is the most computationally challenging process
+automated in **kuenm2**. In this step, candidate models are trained and
+tested using a k-fold cross-validation approach. Then, models are
+selected based on multiple criteria to warranty that the models used in
+later steps are the most robust among the candidates. The main function
+used in this step is `calibration()`.
 
 ### Model explorations
 
+After the best performing models have been selected, users need to fit
+this models (`fit_selected()`) in order to explore their characteristics
+and continue with the next steps. Fitted models can then be used to
+assess variable importance in models, as well as to explore variable
+response curves. See functions `variable_importance()` and
+`response_curves`.
+
 ### Model projections
 
-After the selection of best parameter settings and the fitting of such
-best performing models, projections to multiple scenarios can be done.
-To facilitate projections to simple or complex combinations of
-scenarios, use the **kuenm2** function `prepare_projection()`.
+Once selected models have been fit and explored, projections to single
+or multiple scenarios can be done. To facilitate projections to simple
+or complex combinations of scenarios, multiple functions are available.
+The function `predict_selected()` performs projections to single
+scenarios, and the function `project_selected()` helps with multiple
+scenarios. Notice, however, that before projecting to multiple
+scenarios, some steps need to be done. For an example of projections to
+future scenarios, with WorldClim variables, see the functions:
+`organize_future_worldclim()`, and `prepare_projection()`.
+
+### Projections comparisons
+
+When projections to multiple scenarios involve a transfer to another
+time that can be compared to the current scenario, **kuenm2** provides a
+way to quantify and characterize changes. This can be done using the
+function `projection_changes()` and the results help to describe changes
+in each of the scenarios, and distinct levels of agreement in these
+changes among scenarios.
+
+### Variability and uncertainty
+
+For results of model projections to multiple scenarios, tools for
+analyses of variability and uncertainty are included in **kuenm2**.
+Variability in model projections (`projection_variability()`) is
+represented geographically by exploring the variance that comes from
+replicates, distinct model parameterizations, and general circulation
+models (in projections to other times). To represent uncertainty, the
+Mobility Oriented-Parity (MOP) metric is used to compare all projection
+scenarios to conditions of model training (`projection_mop()`).
 
 <br>
 
-## Variability and uncertainty
+## Checking the vignettes
 
-Variability in results can be summarized and represented using multiple
-options in **kuenm2**.
+Users can check **kuenm2** vignettes for a full explanation of the
+package functionality. If installing the development version form
+GitHub, make sure to use the argument `build_vignettes = TRUE`.
 
-To represent uncertainty, the Mobility Oriented-Parity (MOP) metric is
-implemented in **kuenm2**.
+Check each of the vignettes with the code below:
+
+``` r
+# Guide to prepare data for the ENM pocess
+vignette("prepare_data")
+
+# Guide to train and evaluate candidate models, and select based on performance
+#vignette("model_calibration")  # in progress
+
+# Guide to explore selected models, variable importance, response curves
+#vignette("model_exploration")  # in progress
+
+# Guide to predict models in geographic space (single scenarios)
+#vignette("model_predictions")  # in progress
+
+# Guide to project models in geographic space (multiple scenarios)
+#vignette("model_projections")  # in progress
+
+# Guide to explore variability and uncertainty in projections (multiple scenarios)
+#vignette("variability_and_uncertainty")  # in progress
+```
