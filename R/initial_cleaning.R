@@ -211,9 +211,9 @@ remove_missing <- function(data, columns = NULL, remove_na = TRUE,
 
   # returning results (metadata?)
   if (keep_all_columns == TRUE) {
-    return(data[to_remove, ])
+    return(data[-to_remove, ])
   } else {
-    return(data[!to_remove, columns])
+    return(data[-to_remove, columns])
   }
 }
 
@@ -335,7 +335,7 @@ filter_decimal_precision <- function(data, x, y, decimal_precision = 0,
                         which(lat_dec < latitude_precision)))
 
   # return results (metadata?)
-  return(data <- data[!to_remove, ])
+  return(data <- data[-to_remove, ])
 }
 
 
