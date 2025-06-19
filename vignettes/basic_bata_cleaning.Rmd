@@ -89,10 +89,10 @@ Visualize occurrences records in geography:
 # Visualize occurrences on one variable
 ## Create an extent based on the layer and the records to see all errors
 vext <- ext(var)  # extent of layer
-pext <- apply(occ_data_noclean[, 2:3], 2, range)  # extent of records
+pext <- apply(occ_data_noclean[, 2:3], 2, range, na.rm = TRUE)  # extent of records
 
 allext <- ext(c(min(pext[1, 1], vext[1]), max(pext[2, 1], vext[2]), 
-                min(pext[1, 2], vext[3]), max(pext[2, 2], vext[4])))
+                min(pext[1, 2], vext[3]), max(pext[2, 2], vext[4]))) + 1
 
 # plotting records on the variable
 plot(var, ext = allext, main = "Bio 1")
@@ -110,7 +110,11 @@ Below is an example of cleaning missing data. This example uses a `data.frame` c
 ```{r remove missing}
 # remove missing data
 mis <- remove_missing(data = occ_data_noclean, columns = NULL, remove_na = TRUE,
-                      remove_empty = TRUE, keep_all_columns = TRUE)
+                      remove_empty = TRUE)
+
+# quick check
+nrow(occ_data_noclean)
+nrow(mis)
 ```
 
 <br>
@@ -120,6 +124,10 @@ The code below uses the previous results and continues the process of cleaning d
 ```{r remove duplicates}
 # remove exact duplicates
 mis_dup <- remove_duplicates(data = mis, columns = NULL, keep_all_columns = TRUE)
+
+# quick check
+nrow(mis)
+nrow(mis_dup)
 ```
 
 <br>
@@ -129,6 +137,10 @@ Continue the process by removing coordinates with values of 0 (zero) for longitu
 ```{r remove 00}
 # remove records with 0 for x and y coordinates
 mis_dup_00 <- remove_corrdinates_00(data = mis_dup, x = "x", y = "y")
+
+# quick check
+nrow(mis_dup)
+nrow(mis_dup_00)
 ```
 
 <br>
@@ -139,6 +151,10 @@ The following lines of code take the previous result and remove coordinates with
 # remove coordinates with low decimal precision.
 mis_dup_00_dec <- filter_decimal_precision(data = mis_dup_00, x = "x", y = "y", 
                                            decimal_precision = 2)
+
+# quick check
+nrow(mis_dup_00)
+nrow(mis_dup_00_dec)
 ```
 
 <br>
@@ -152,6 +168,24 @@ clean_init <- initial_cleaning(data = occ_data_noclean, species = "species",
                                remove_empty = TRUE, remove_duplicates = TRUE, 
                                by_decimal_precision = TRUE,
                                decimal_precision = 2)
+
+# quick check
+nrow(occ_data_noclean)  # original data
+nrow(clean_init)  # data after all basic cleaning steps
+
+# a final plot to check
+par(mfrow = c(2, 2))
+
+## initial data
+plot(var, ext = allext, main = "Initial data")
+points(occ_data_noclean[, c("x", "y")])
+
+## data after basic cleaning steps
+plot(var, ext = allext, main = "After basic cleaning")
+points(clean_init[, c("x", "y")])
+
+plot(var, main = "After basic cleaning (zoom)")
+points(clean_init[, c("x", "y")])
 ```
 
 <br>
@@ -175,7 +209,7 @@ The following lines of code help adjust records that fall just outside valid ras
 ```{r move records}
 # move records to valid pixels
 moved <- move_2closest_cell(data = celldup, x = "x", y = "y", 
-                            raster_layer = var, move_limit_distance = 5)
+                            raster_layer = var, move_limit_distance = 10)
 ```
 
 <br>
@@ -187,7 +221,41 @@ The function *advanced_cleaning* facilitates the two processes from above in a s
 clean_data <- advanced_cleaning(data = clean_init, x = "x", y = "y", 
                                 raster_layer = var, cell_duplicates = TRUE,
                                 move_points_inside = TRUE, 
-                                move_limit_distance = 5)
+                                move_limit_distance = 10)
+
+# exclude points not moved
+clean_data <- clean_data[clean_data$condition != "Not_moved", 1:3]
+
+# quick check
+nrow(occ_data_noclean)  # original data
+nrow(clean_init)  # data after all basic cleaning steps
+nrow(clean_data)  # data after all basic cleaning steps
+
+# a final plot to check
+par(mfrow = c(3, 2))
+
+## initial data
+plot(var, ext = allext, main = "Initial")
+points(occ_data_noclean[, c("x", "y")])
+
+## data after basic cleaning steps
+plot(var, ext = allext, main = "Basic cleaning")
+points(clean_init[, c("x", "y")])
+
+plot(var, main = "B. cleaning (zoom)")
+points(clean_init[, c("x", "y")])
+
+## data after basic cleaning steps
+plot(var, main = "Final data")
+points(clean_data[, c("x", "y")])
+
+## zoom to a particular area, initial data
+plot(var, xlim = c(-48, -50), ylim = c(-26, -25),  main = "Initial (zoom)")
+points(occ_data_noclean[, c("x", "y")])
+
+## zoom to a particular area, final data
+plot(var, xlim = c(-48, -50), ylim = c(-26, -25),  main = "Final (zoom)")
+points(clean_data[, c("x", "y")])
 ```
 
 <br>
