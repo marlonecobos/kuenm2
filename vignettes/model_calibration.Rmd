@@ -1,0 +1,224 @@
+---
+title: "Model Calibration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{model_calibration}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 6
+)
+```
+
+
+- [Introduction](#introduction)
+- [Calibration](#calibration)
+  - [Concave curves](#concave-curves)
+- [Re-selecting models](#re-selecting-models)
+- [Saving a calibration_results object](#saving-a-calibration_results-object)
+
+<hr>
+
+
+## Introduction
+
+Model calibration is the most computationally challenging process automated in **kuenm2**. In this step, candidate models are trained and tested using a k-fold cross-validation approach. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. The main function used in this step is `calibration()`.
+
+To start the calibration process, we need a `prepared_data` object. For more details in data preparation, please refer to [Prepare Data for Model Calibration vignette](prepared_data.Rmd).
+
+```{r Create d_maxnet again, warning=FALSE}
+#Load packages
+library(kuenm2)
+library(terra)
+# Import occurrences
+data(occ_data, package = "kuenm2")
+# Import raster layers
+var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
+# Prepare data for maxnet model
+d_maxnet <- prepare_data(algorithm = "maxnet",
+                         occ = occ_data,
+                         x = "x", y = "y",
+                         raster_variables = var,
+                         species = "Myrcia hatschbachii",
+                         categorical_variables = "SoilType",
+                         n_background = 300,
+                         features = c("l", "q", "lq", "lqp"),
+                         r_multiplier = c(0.1, 1, 2))
+```
+
+<br>
+
+## Calibration
+The `calibration()` function fits and evaluates candidate models considering the follow metrics:
+
+- Omission error: calculated using models trained with separate testing data subsets. Users can specify multiple omission rates to be considered (e.g., c(5%, 10%)), though only one can be used as the threshold for selecting the best models.
+- Partial ROC: calculated following [Peterson et al. (2008)](http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008).
+- Model complexity (AIC): assessed using models generated with the complete set of occurrences.
+- Unimodality (optional): Assessed through the beta coefficients of quadratic terms, following [Arias-Giraldo & Cobos (2024)](https://journals.ku.edu/jbi/article/view/21742).
+
+<br>
+
+In summary, to calibrate and evaluate the models, the function requires a `prepared_data` object and the following definitions:
+
+* **Omission Errors:** Values ranging from 0 to 100, representing the percentage of potential error attributed to various sources of uncertainty in the data. These values are utilized in the calculation of omission rates and partial ROC.
+* **Omission Rate for Model Selection:** The specific omission error threshold used to select models. This value defines the maximum omission rate a candidate model can have to be considered for selection.
+* **Removal of Concave Curves:** A specification of whether to exclude candidate models that exhibit concave curves.
+
+Optional arguments allow for modifications such as changing the delta AIC threshold for model selection (default is 2), determining whether to add presence samples to the background (default is `TRUE`), and whether to employ user-specified weights. For a comprehensive description of all arguments, refer to `?calibration`.
+
+In this example, we will evaluate the models considering two omission errors (5% and 10%), with model selection based on the 10% omission error. To improve computational speed, you can set `parallel` to `TRUE` and specify the number of cores to utilize; the candidate models will be distributed among these cores. To detect the number of available cores on your machine, run `parallel::detectCores()`.
+
+```{r calibrate models}
+m <- calibration(data = d_maxnet, 
+                 error_considered = c(5, 10),
+                 omission_rate = 10,
+                 parallel = FALSE, #Set TRUE to run in parallel
+                 ncores = 1) #Define number of cores
+```
+
+The `calibration()` function returns a `calibration_results` object, a list containing various essential pieces of information from the model calibration process. The elements of the `calibration_results` object can be explored by indexing them. For example, all evaluation metrics are stored within the `calibration_results` element:
+```{r explore calibration}
+# See first rows of the summary of calibration results
+head(m$calibration_results$Summary[,c("ID", "Omission_rate_at_10.mean", "AICc",
+                                      "Is_concave")])
+```
+
+<br>
+
+We can also examine the details of the selected models:
+
+```{r explore selected}
+# See first rows of the summary of calibration results
+m$selected_models[,c("ID", "Formulas", "R_multiplier", 
+                     "Omission_rate_at_10.mean", "AICc", "Is_concave")]
+```
+
+<br>
+
+When printed, the `calibration_results` object provides a summary of the model selection process. This includes the total number of candidate models considered, the number of models that failed to fit, and the number of models exhibiting concave curves (along with an indication of whether these were removed). Additionally, it reports the number of models excluded due to non-significant partial ROC (pROC) values, high omission error rates, or elevated AIC values. Finally, a summary of the metrics for the selected models is presented.
+
+```{r}
+print(m)
+```
+
+<br>
+
+In this example, of the 300 candidate models fitted, only one was selected based on a significant pROC value, a low omission error (<10%), and a low AIC score (<2). 
+
+### Concave curves
+
+It is worth noting that 35 models were identified as having concave curves. Concave (or bimodal) curves indicate that the peak suitability is found at the extremes of the variable range. For example, as shown in the right panel of the figure below, higher suitability is observed in both the driest and wettest regions, with lower suitabilities occurring at intermediate precipitation levels.
+
+```{r figure of concave curves, out.width="75%", echo=FALSE}
+knitr::include_graphics("vignettes_img/concave_curves.png")
+```
+
+<br>
+
+In our example, none of the selected models have concave curves:
+```{r has concave}
+m$selected_models[,c("ID", "Formulas", "Is_concave")]
+```
+
+<br>
+
+However, occasionally, a model with concave curves might be selected if it has sufficiently low omission rate and AIC values. To **ensure that none of the selected models have concave curves**, you can set `remove_concave = TRUE` within the `calibration()` function:
+```{r remove_concave}
+m_unimodal <- calibration(data = d_maxnet, 
+                 remove_concave = TRUE, # Ensures concave models are not selected
+                 error_considered = c(5, 10),
+                 omission_rate = 10)
+```
+
+<br>
+
+Note that the process is now divided into two tasks:
+
+* Task 1/2: Only candidate models that include quadratic terms are fitted. For Maxent models (using the maxnet algorithm), the function first fits the candidate model with the highest regularization multiplier (e.g., 5) for each formula. This approach is used because if a particular formula produces a concave response at a high regularization value, it will also produce concave responses at lower regularization values. By checking the model with the highest regularization first, the function can skip fitting the other models with the same formula but lower regularization values, saving time and computation.
+
+* Task 2/2: In this step, the function fits and evaluates two groups of models:
+  - Models without quadratic terms.
+  - Models with quadratic terms, but only those with formulas that did not produce concave responses in Task 1/2 (i.e., they passed the concavity check at the higher regularization multiplier).
+  
+<br>
+
+## Re-selecting models
+The model selection procedure is conducted internally during the calibration process. However, it is possible to re-select models by considering other omission rates (since these were calculated during calibration), model complexity (delta AIC) and concave curves.
+
+By default, `calibration()` calculates pROC values only for the selected models to optimize computational time. Consequently, pROC values for non-selected models are filled with `NA`.
+
+```{r pROC NA}
+# See first rows of the summary of calibration results (pROC values)
+head(m$calibration_results$Summary[,c("ID", "Mean_AUC_ratio_at_10.mean",
+                                 "pval_pROC_at_10.mean")])
+# See pROC values of selected models
+m$selected_models[,c("ID", "Mean_AUC_ratio_at_10.mean",
+                                 "pval_pROC_at_10.mean")]
+```
+<br>
+
+When pROC is not calculated for all models during `calibration`, the `select_models()` function requires the `prepared_data` used during the calibration step, and `compute_proc` must be set to `TRUE`.
+
+For instance, let's re-select models from the calibration results, applying an omission rate of 5% and a delta AIC of 10.
+
+```{r}
+new_m <- select_models(calibration_results = m, 
+                       data = d_maxnet, #Necessary for computing pROC
+                       compute_proc = TRUE, 
+                       omission_rate = 5, # New omission rate
+                       delta_aic = 10) # New Delta AIC
+print(new_m)
+```
+
+<br>
+
+If a `calibration_results` object is provided, `select_models` will return a `calibration_results` output with the selected models and summary updated. Note that we now have 5 models selected:
+```{r selected models or5}
+new_m$selected_models[,c("ID", "Formulas", "R_multiplier", 
+                     "Omission_rate_at_5.mean", "Mean_AUC_ratio_at_10.mean",
+                     "AICc", "Is_concave")]
+```
+
+<br>
+
+You can also provide a `data.frame` containing the evaluation metrics for each candidate model directly to `select_models()`. This `data.frame` is available in the output of the `calibration()` function under `object$calibration_results$Summary`. In this case, the function will return a list containing the selected models along with summaries of the model selection process.
+
+```{r select models dataframe}
+#Re-select models using data.frame
+new_summary <- select_models(candidate_models = m$calibration_results$Summary,
+                             data = d_maxnet, #Necessary for computing pROC
+                             compute_proc = TRUE, 
+                             omission_rate = 5, # New omission rate
+                             delta_aic = 10) # New Delta AIC
+
+#Get class of object
+class(new_summary)
+
+#See selected models
+new_summary$selected_models[,c("ID", "Formulas", "R_multiplier", 
+                     "Omission_rate_at_5.mean", "Mean_AUC_ratio_at_10.mean",
+                     "AICc", "Is_concave")]
+```
+
+<br>
+
+## Saving a calibration_results object
+
+After calibrating and selecting the best-performing models, we can proceed to fit the final models (see the vignette for model exploration) using the `calibration_results` object. As this object is essentially a list, users can save it to a local directory using `saveRDS()`. Saving the object facilitates loading it back into your R session later using `readRDS()`. See an example below:
+
+```{r save data}
+# Set directory to save (here, in a temporary directory)
+dir_to_save <- file.path(tempdir())
+
+# Save the data
+saveRDS(m, file.path(dir_to_save, "Candidates.rds"))
+
+# Import data
+m <- readRDS(file.path(dir_to_save, "Candidates.rds"))
+```
