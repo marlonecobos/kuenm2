@@ -30,11 +30,15 @@ knitr::opts_chunk$set(
 
 ## Description
 
-As any modeling technique, ecological niche modeling depends on the quality of the input data, particularly species occurrence records. Cleaning these data is a critical step to minimize biases, reduce errors, and ensure meaningful model outcomes. This vignette introduces tools available in the **kuenm2** package to facilitate the *cleaning of occurrence data* prior to modeling. It guides users through loading and inspecting data, applying cleaning functions, and saving cleaned datasets, all within a reproducible R workflow. 
+As any modeling technique, ecological niche modeling depends on the quality of the input data, particularly species occurrence records. Cleaning these data is a critical step to minimize biases, reduce errors, and ensure meaningful model outcomes. This vignette introduces tools available in the **kuenm2** package to facilitate the *cleaning of occurrence data* prior to modeling. It guides users through loading and inspecting data, applying cleaning functions, and saving cleaned datasets, all within a reproducible R workflow.
+
+We want to highlight that additional data cleaning and filtering steps (e.g., spatial thinning) may be necessary depending on the type of model or modeling approach the user intends to adopt. The tools presented here are designed to assist with the most basic steps of preparing data for modeling.
 
 <br>
 
 ## Getting ready
+
+If **kuenm2** has not been installed yet, please do so. See the [Main guide](../README.html) for installation instructions.
 
 Load **kuenm2** and any other required packages, and define a working directory (if needed). In general, setting a working directory in R is considered good practice, as it provides better control over where files are read from or saved to. If users are not working within an R project, we recommend setting a working directory, since at least one file will be saved at later stages of this guide.
 
@@ -85,7 +89,7 @@ plot(var)
 
 Visualize occurrences records in geography:
 
-```{r }
+```{r visualize}
 # Visualize occurrences on one variable
 ## Create an extent based on the layer and the records to see all errors
 vext <- ext(var)  # extent of layer
@@ -161,7 +165,7 @@ nrow(mis_dup_00_dec)
 
 Users can perform all this steps with a single function as follows:
 
-```{r filter decimal}
+```{r all basic}
 # all basinc cleaning steps
 clean_init <- initial_cleaning(data = occ_data_noclean, species = "species", 
                                x = "x", y = "y", remove_na = TRUE, 
@@ -200,6 +204,10 @@ Removing cell duplicates involves excluding records that are not exact coordinat
 # exclude duplicates based on raster cell (pixel)
 celldup <- remove_cell_duplicates(data = clean_init, x = "x", y = "y",
                                   raster_layer = var)
+
+# quick check
+nrow(clean_init)  # data after all basic cleaning steps
+nrow(celldup)  # plus removing cell duplicates
 ```
 
 <br>
@@ -210,13 +218,17 @@ The following lines of code help adjust records that fall just outside valid ras
 # move records to valid pixels
 moved <- move_2closest_cell(data = celldup, x = "x", y = "y", 
                             raster_layer = var, move_limit_distance = 10)
+
+# quick check
+nrow(celldup)  # basic cleaning and no cell duplicates
+nrow(moved[moved$condition != "Not_moved", ])  # plus moved to valid cells
 ```
 
 <br>
 
 The function *advanced_cleaning* facilitates the two processes from above in a single step:
 
-```{r move records}
+```{r all advanced}
 # move records to valid pixels
 clean_data <- advanced_cleaning(data = clean_init, x = "x", y = "y", 
                                 raster_layer = var, cell_duplicates = TRUE,
@@ -242,7 +254,7 @@ points(occ_data_noclean[, c("x", "y")])
 plot(var, ext = allext, main = "Basic cleaning")
 points(clean_init[, c("x", "y")])
 
-plot(var, main = "B. cleaning (zoom)")
+plot(var, main = "Basic cleaning (zoom)")
 points(clean_init[, c("x", "y")])
 
 ## data after basic cleaning steps
@@ -250,11 +262,11 @@ plot(var, main = "Final data")
 points(clean_data[, c("x", "y")])
 
 ## zoom to a particular area, initial data
-plot(var, xlim = c(-48, -50), ylim = c(-26, -25),  main = "Initial (zoom)")
+plot(var, xlim = c(-48, -50), ylim = c(-26, -25),  main = "Initial (zoom +)")
 points(occ_data_noclean[, c("x", "y")])
 
 ## zoom to a particular area, final data
-plot(var, xlim = c(-48, -50), ylim = c(-26, -25),  main = "Final (zoom)")
+plot(var, xlim = c(-48, -50), ylim = c(-26, -25),  main = "Final (zoom +)")
 points(clean_data[, c("x", "y")])
 ```
 

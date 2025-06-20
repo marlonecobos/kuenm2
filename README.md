@@ -11,7 +11,7 @@ Osorio-Olvera, and A. Townsend Peterson
   - [Model calibration](#model-calibration)
   - [Model explorations](#model-explorations)
   - [Model projections](#model-projections)
-  - [Projections comparisons](#projections-comparisons)
+  - [Projection comparisons](#projection-comparisons)
   - [Variability and uncertainty](#variability-and-uncertainty)
 - [Checking the vignettes](#checking-the-vignettes)
 
@@ -21,13 +21,28 @@ Osorio-Olvera, and A. Townsend Peterson
 
 ## Package description
 
-The **kuenm2** R package implements multiple tools to help with the
-development of detailed ecological niche models using distinct
-algorithms. Pre-modeling analyses and explorations can be done to
-prepare data. Model calibration (model selection) is done by training
-and testing several candidate models. Handy options for producing final
-models with transfers are included. Other tools to assess extrapolation
-risks and variability in model transfers are also available.
+**kuenm2** is an new version of **kuenm** [Cobos et
+al. 2019](https://peerj.com/articles/6281/), an R package designed to
+make the process of ecological niche modeling (ENM) easier, faster, and
+more reproducible, and at the same time more robust. The aim of this
+package is to facilitate crucial steps in the ENM process: data
+preparation, model calibration, selected model exploration, model
+projections, and analyses of uncertainty and variability.
+
+This new version of the package reduces the dependency on a strictly
+organized working directory (required only if projections to multiple
+scenarios are needed). Instead, **kuenm2** functions generate specific R
+objects that store all the necessary information for subsequent steps.
+The ENM workflow in **kuenm2** begins with *data preparation*, which
+requires at minimum a `data.frame` containing occurrence record
+coordinates (longitude and latitude) and a `SpatRaster` object with
+predictor variables.
+
+**kuenm2** fits maximum entropy (Maxnet) models or logistic generalized
+linear models (GLMs). Maxnet models are created as described in
+[Phillips et al. (2017)](http://doi.wiley.com/10.1111/ecog.03049), and
+GLMs are constructed as in [Cobos and Peterson
+(2023)](https://doi.org/10.1371/journal.pone.0276951).
 
 <br>
 
@@ -160,7 +175,7 @@ scenarios, some steps need to be done. For an example of projections to
 future scenarios, with WorldClim variables, see the functions:
 `organize_future_worldclim()`, and `prepare_projection()`.
 
-### Projections comparisons
+### Projection comparisons
 
 When projections to multiple scenarios involve a transfer to another
 time that can be compared to the current scenario, **kuenm2** provides a
@@ -191,7 +206,10 @@ GitHub, make sure to use the argument `build_vignettes = TRUE`.
 Check each of the vignettes with the code below:
 
 ``` r
-# Guide to prepare data for the ENM pocess
+# Guide to basic data cleaning before the ENM process
+vignette("basic_data_cleaning")
+
+# Guide to prepare data for the ENM process
 vignette("prepare_data")
 
 # Guide to train and evaluate candidate models, and select based on performance
