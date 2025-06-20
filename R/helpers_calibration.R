@@ -358,7 +358,9 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
                                   replicates = names(data$kfolds),
                                   is_c = is_c,
                                   algorithm = algorithm)
-    df_eval_q2 <- cbind(grid_q, df_eval_q)
+    # Remove row.names from grid_q
+    # row.names(grid_q) <- NULL
+    # df_eval_q2 <- cbind(grid_q, df_eval_q)
     eval_final_q <- empty_summary(error_considered = error_considered, is_c = is_c,
                                   algorithm = algorithm)
     eval_final_q_summary <- reorder_stats_columns(cbind(grid_q, eval_final_q),

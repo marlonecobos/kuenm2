@@ -4,7 +4,7 @@
 \alias{calibration}
 \title{Fitting and evaluation of models, and selection of the best ones}
 \usage{
-calibration(data, error_considered, test_concave = FALSE,
+calibration(data, error_considered, remove_concave = FALSE,
             proc_for_all = FALSE, omission_rate = NULL, delta_aic = 2,
             allow_tolerance = TRUE, tolerance = 0.01,
             addsamplestobackground = TRUE, use_weights = NULL,
@@ -22,8 +22,8 @@ formulas grid, kfolds, and model type.}
 percentage of potential error due to any source of uncertainty in your data.
 This value is used to calculate omission rates and partial ROC. See details.}
 
-\item{test_concave}{(logical) whether to test for and remove candidate models
-presenting concave curves. Default is FALSE.}
+\item{remove_concave}{(logical) whether to remove candidate models presenting
+concave curves. Default is FALSE.}
 
 \item{proc_for_all}{(logical) whether to apply partial ROC tests to all
 candidate models or only to the selected models. Default is FALSE, meaning

@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 - [Prepare data](#prepare-data)
   - [Import data](#import-data)
   - [First steps in preparing data](#first-steps-in-preparing-data)
+  - [Exploring calibration data](#exploring-calibration-data)
   - [Using a bias file](#using-a-bias-file)  
   - [PCA for variables](#pca-for-variables)
 - [Prepare user pre-processed data](#prepare-user-pre-processed-data)
@@ -141,6 +142,61 @@ head(d$formula_grid)
 ```
 
 <br>
+
+By default, `prepare_data()` prepares an object for fitting models using `maxnet`. However, this can be changed to use GLM instead. When using GLM, it is not necessary to set regularization multipliers, as this algorithm does not utilize them.
+
+```{r prepare glm}
+d_glm <- prepare_data(algorithm = "glm",
+                      occ = occ_data,
+                      x = "x", y = "y",
+                      raster_variables = var,
+                      species = "Myrcia hatschbachii",
+                      categorical_variables = "SoilType",
+                      n_background = 300,
+                      features = c("l", "q", "p", "lq", "lqp"),
+                      r_multiplier = NULL) #Not necessary with glms
+#Print object
+d_glm
+```
+
+<br>
+
+By default, `prepare_data()` extracts background points from the entire extent of the provided raster variables. If you have a species-specific polygon defining the calibration area, you can use it to mask the raster variables and delimit the calibration area. For example, let's create a 100km buffer around the occurrence records:
+
+```{r create buffer}
+#Convert dataframe with occurrences to SpatVector
+pts <- vect(occ_data, geom = c(x = "x", y = "y"), crs = "EPSG:4326")
+#Create buffer
+b <- buffer(x = pts, width = 100000) #Width in meters
+#Aggregate buffers
+b <- terra::aggregate(b)
+#Plot buffer
+plot(b)
+points(occ_data[, c("x", "y")], col = "black")
+```
+
+Now, let's use this new polygon to mask the variables within `prepare_data()`. Let's also increase the number of background points to 1,000:
+
+```{r prepare data with mask}
+d_buffer <- prepare_data(algorithm = "maxnet",
+                         occ = occ_data,
+                         x = "x", y = "y",
+                         raster_variables = var,
+                         mask = b, #Polygon to mask variables
+                         species = "Myrcia hatschbachii",
+                         categorical_variables = "SoilType",
+                         n_background = 1000,
+                         features = c("l", "q", "p", "lq", "lqp"),
+                         r_multiplier = c(0.1, 1, 2, 3, 5))
+```
+
+Note the warning message: **"n_background' >= initial number of points, using all points"**. This occurs because, after masking the variables, the total number of pixels within the buffer is less than the specified n_background (1,000). In such cases, all available points within the calibration area will be used as background points.
+
+In the following examples, we'll use the object `d_maxnet`, which was prepared for the maxnet algorithm without a mask. However, all functions are compatible with objects prepared for GLM as well.
+
+<br>
+
+### Exploring calibration data
 
 Users can visualize the distribution of predictor values for occurrence records, background points, and the entire calibration area using histograms. An example is presented below. See full documentation with `help(explore_calibration_hist)` and `help(plot_explore_calibration)`.
 

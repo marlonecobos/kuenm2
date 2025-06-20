@@ -149,10 +149,14 @@ print.calibration_results <- function(x, ...) {
 
   #Print summary
   cat("  - Models removed because they failed to fit:", length(x$summary$Errors), "\n")
-  cat("  - Models removed with concave curves:", length(x$summary$Concave), "\n")
+  cat("  - Models identified with concave curves:",
+      sum(x$calibration_results$Summary$Is_concave), "\n")
+  if(m$summary$Remove_concave){
+    cat("  - Model with concave curves removed", "\n")
+  } else {cat("  - Model with concave curves not removed", "\n")}
   cat("  - Models removed with non-significant values of pROC:",
       length(x$summary$Non_sig_pROC), "\n")
-  cat("  - Models removed with omission rate >", paste0(x$omission_rate, "%:"),
+  cat("  - Models removed with omission error >", paste0(x$omission_rate, "%:"),
       length(x$summary$High_omission_rate), "\n")
   cat("  - Models removed with delta AIC >", paste0(x$summary$delta_AIC, ":"),
       length(x$summary$High_AIC), "\n")

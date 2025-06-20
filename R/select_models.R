@@ -9,7 +9,7 @@
 #' select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
 #'               algorithm = NULL, compute_proc = FALSE,
 #'               addsamplestobackground = TRUE, weights = NULL,
-#'               test_concave = FALSE, omission_rate = NULL,
+#'               remove_concave = FALSE, omission_rate = NULL,
 #'               allow_tolerance = TRUE, tolerance = 0.01,
 #'               significance = 0.05, delta_aic = 2, parallel = FALSE,
 #'               ncores = NULL, progress_bar = FALSE,verbose = TRUE)
@@ -35,7 +35,7 @@
 #' @param weights (numeric) a numeric vector specifying weights for the
 #' occurrence records. Required only if `compute_proc` is TRUE and
 #' `calibration_results` is NULL. Default is NULL.
-#' @param test_concave (logical) whether to remove candidate models presenting
+#' @param remove_concave (logical) whether to remove candidate models presenting
 #' concave curves. Default is FALSE.
 #' @param omission_rate (numeric) the maximum omission rate a candidate model
 #' can have to be considered as a potentially selected model. The default, NULL,
@@ -103,7 +103,7 @@ select_models <- function(calibration_results = NULL,
                           compute_proc = FALSE,
                           addsamplestobackground = TRUE,
                           weights = NULL,
-                          test_concave = FALSE,
+                          remove_concave = FALSE,
                           omission_rate = NULL,
                           allow_tolerance = TRUE,
                           tolerance = 0.01,
@@ -125,7 +125,8 @@ select_models <- function(calibration_results = NULL,
   if (!is.null(calibration_results)) {
     candidate_models <- calibration_results$calibration_results$Summary
     algorithm <- calibration_results$algorithm
-    omission_rate <- calibration_results$omission_rate
+    if(is.null(omission_rate))
+      omission_rate <- calibration_results$omission_rate
   } else {
     if (is.null(omission_rate)) {
       stop("Argument 'omission_rate' must be defined.")
@@ -204,8 +205,8 @@ select_models <- function(calibration_results = NULL,
 
       candidate_models <- candidate_models[!is.na(candidate_models$Is_concave), ]
 
-      # Remove concave curves if test_concave is TRUE
-      if (test_concave) {
+      # Remove concave curves if remove_concave is TRUE
+      if (remove_concave) {
         concave_models <- candidate_models[candidate_models$Is_concave, "ID"]
 
         if (verbose) {
@@ -214,7 +215,7 @@ select_models <- function(calibration_results = NULL,
 
         candidate_models <- candidate_models[!candidate_models$Is_concave, ]
       } else {
-        concave_models <- 0
+        concave_models <- integer(0)
       }
 
       # Subset models by omission rate
@@ -342,8 +343,8 @@ select_models <- function(calibration_results = NULL,
 
     candidate_models <- candidate_models[!is.na(candidate_models$Is_concave), ]
 
-    # Remove concave curves if test_concave is TRUE
-    if (test_concave) {
+    # Remove concave curves if remove_concave is TRUE
+    if (remove_concave) {
       concave_models <- candidate_models[candidate_models$Is_concave, "ID"]
 
       if (verbose) {
@@ -422,7 +423,8 @@ select_models <- function(calibration_results = NULL,
                   summary = list(delta_AIC = delta_aic,
                                  omission_rate_thr = omission_rate,
                                  Errors = na_models,
-                                 Concave = concave_models,
+                                 Remove_concave = remove_concave,
+                                 Concave_removed = concave_models,
                                  Non_sig_pROC = insig_proc,
                                  High_omission_rate = high_omr,
                                  High_AIC = high_aic,

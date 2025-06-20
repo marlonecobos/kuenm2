@@ -7,7 +7,7 @@
 #' based on unimodality (optional), partial ROC, omission rate, and AIC values.
 #'
 #' @usage
-#' calibration(data, error_considered, test_concave = FALSE,
+#' calibration(data, error_considered, remove_concave = FALSE,
 #'             proc_for_all = FALSE, omission_rate = NULL, delta_aic = 2,
 #'             allow_tolerance = TRUE, tolerance = 0.01,
 #'             addsamplestobackground = TRUE, use_weights = NULL,
@@ -22,8 +22,8 @@
 #' @param proc_for_all (logical) whether to apply partial ROC tests to all
 #' candidate models or only to the selected models. Default is FALSE, meaning
 #' that tests are applied only to the selected models.
-#' @param test_concave (logical) whether to test for and remove candidate models
-#' presenting concave curves. Default is FALSE.
+#' @param remove_concave (logical) whether to remove candidate models presenting
+#' concave curves. Default is FALSE.
 #' @param addsamplestobackground (logical) whether to add to the background any
 #' presence sample that is not already there. Default is TRUE.
 #' @param use_weights (logical) whether to apply the weights present in the
@@ -148,7 +148,7 @@
 
 calibration <- function(data,
                         error_considered,
-                        test_concave = FALSE,
+                        remove_concave = FALSE,
                         proc_for_all = FALSE,
                         omission_rate = NULL,
                         delta_aic = 2,
@@ -255,7 +255,7 @@ calibration <- function(data,
   # Task 1: Checking concave curves in quadratic models_________________________
   # ____________________________________________________________________________
 
-  if (test_concave) {
+  if (remove_concave) {
     if (verbose) {
       message("Task 1/2: checking for concave responses in models:")
     }
@@ -317,14 +317,14 @@ calibration <- function(data,
         }
       }
     } # End of if (n > 0)
-  } # End of If test_concave = TRUE
+  } # End of If remove_concave = TRUE
 
   # Update formula grid after concave test
-  if (!test_concave) {
+  if (!remove_concave) {
     n_tot <- 0
   }
 
-  if (test_concave & n_tot > 0) {
+  if (remove_concave & n_tot > 0) {
 
     # Convert results to dataframe
     d_concave_rep <- do.call("rbind", lapply(results_concave,
@@ -345,7 +345,7 @@ calibration <- function(data,
   } else {
 
     if (verbose) {
-      if (test_concave) {
+      if (remove_concave) {
         message("\n\nTask 2/2: fitting and evaluating models with no concave responses:")
       } else {
         message("Task 1/1: fitting and evaluating models:")
@@ -412,7 +412,7 @@ calibration <- function(data,
     d_res_sum <- do.call("rbind", lapply(results, function(x) x$Summary))
 
     # Join results with results concave, if it exists
-    if (test_concave) {
+    if (remove_concave) {
       replicates_final <- rbind(d_concave_rep, d_res_rep)
       summary_final <- rbind(d_concave_sum, d_res_sum)
       res_final <- list(All_results = replicates_final,
@@ -433,7 +433,7 @@ calibration <- function(data,
   }
 
   bm <- select_models(candidate_models = res_final$Summary,
-                      test_concave = test_concave,
+                      remove_concave = remove_concave,
                       compute_proc = !proc_for_all,
                       data = data,
                       omission_rate = omission_rate,

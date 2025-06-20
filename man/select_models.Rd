@@ -7,7 +7,7 @@
 select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
               algorithm = NULL, compute_proc = FALSE,
               addsamplestobackground = TRUE, weights = NULL,
-              test_concave = FALSE, omission_rate = NULL,
+              remove_concave = FALSE, omission_rate = NULL,
               allow_tolerance = TRUE, tolerance = 0.01,
               significance = 0.05, delta_aic = 2, parallel = FALSE,
               ncores = NULL, progress_bar = FALSE,verbose = TRUE)
@@ -41,7 +41,7 @@ TRUE and \code{calibration_results} is NULL.Default is TRUE.}
 occurrence records. Required only if \code{compute_proc} is TRUE and
 \code{calibration_results} is NULL. Default is NULL.}
 
-\item{test_concave}{(logical) whether to remove candidate models presenting
+\item{remove_concave}{(logical) whether to remove candidate models presenting
 concave curves. Default is FALSE.}
 
 \item{omission_rate}{(numeric) the maximum omission rate a candidate model
