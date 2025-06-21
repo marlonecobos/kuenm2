@@ -212,7 +212,7 @@ new_summary$selected_models[,c("ID", "Formulas", "R_multiplier",
 
 After calibrating and selecting the best-performing models, we can proceed to fit the final models (see the vignette for model exploration) using the `calibration_results` object. As this object is essentially a list, users can save it to a local directory using `saveRDS()`. Saving the object facilitates loading it back into your R session later using `readRDS()`. See an example below:
 
-```{r save data}
+```{r save data, eval=FALSE}
 # Set directory to save (here, in a temporary directory)
 dir_to_save <- file.path(tempdir())
 
