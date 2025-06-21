@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 Model calibration is the most computationally challenging process automated in **kuenm2**. In this step, candidate models are trained and tested using a k-fold cross-validation approach. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. The main function used in this step is `calibration()`.
 
-To start the calibration process, we need a `prepared_data` object. For more details in data preparation, please refer to [Prepare Data for Model Calibration vignette](prepared_data.Rmd).
+To start the calibration process, we need a `prepared_data` object. For more details in data preparation, please refer to the vignette [prepare data for model calibration](/articles/prepared_data.html).
 
 ```{r Create d_maxnet again, warning=FALSE}
 #Load packages
