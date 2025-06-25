@@ -4,8 +4,9 @@ pkgdown_sha: ~
 articles:
   basic_bata_cleaning: basic_bata_cleaning.html
   model_calibration: model_calibration.html
+  model_exploration: model_exploration.html
   prepare_data: prepare_data.html
-last_built: 2025-06-21T04:04Z
+last_built: 2025-06-25T15:10Z
 urls:
   reference: https://marlonecobos.github.io/kuenm2/reference
   article: https://marlonecobos.github.io/kuenm2/articles

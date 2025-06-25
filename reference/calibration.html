@@ -26,6 +26,7 @@ based on unimodality (optional), partial ROC, omission rate, and AIC values."></
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrene Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">Model Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/model_exploration.html">Fit and Explore Selected Models</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">Prepare Data for Model Calibration</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -252,7 +253,21 @@ criteria. Ecological applications, 21(2), 335-342.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of candidate models: 8 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed because they failed to fit: 0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Models identified with concave curves: 0 </span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in print.calibration_results(x):</span> object 'm' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Model with concave curves not removed </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed with non-significant values of pROC: 0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed with omission error &gt; 10%: 1 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed with delta AIC &gt; 2: 5 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Selected models: 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Up to 5 printed here:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID                                                           Formulas</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  5                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  8 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Features R_multiplier pval_pROC_at_10.mean Omission_rate_at_10.mean    dAIC</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       lq            1                    0                   0.0978 0.00000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8       lq            1                    0                   0.0978 1.22774</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5          3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8          4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Import prepared data for GLM models</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">sp_swd_glm</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span></span>
@@ -283,7 +298,18 @@ criteria. Ecological applications, 21(2), 335-342.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of candidate models: 12 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed because they failed to fit: 0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Models identified with concave curves: 1 </span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in print.calibration_results(x):</span> object 'm' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Model with concave curves not removed </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed with non-significant values of pROC: 0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed with omission error &gt; 10%: 4 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Models removed with delta AIC &gt; 2: 6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Selected models: 2 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Up to 5 printed here:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ID                                                        Formulas Features</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  5                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2)       lq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  8 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2)       lq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pval_pROC_at_10.mean Omission_rate_at_10.mean       dAIC Parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                    0                   0.0962 0.02361168          4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                    0                   0.0962 0.00000000          6</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

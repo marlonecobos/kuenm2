@@ -24,6 +24,7 @@ evaluating statistical significance (partial ROC), predictive ability
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrene Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">Model Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/model_exploration.html">Fit and Explore Selected Models</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">Prepare Data for Model Calibration</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -189,21 +190,11 @@ values above the threshold, and the selected models.</p></li>
 <span class="r-in"><span><span class="va">new_best_model</span> <span class="op">&lt;-</span> <span class="fu">select_models</span><span class="op">(</span>candidate_models <span class="op">=</span> <span class="va">calib_results_glm</span><span class="op">$</span><span class="va">calibration_results</span><span class="op">$</span><span class="va">Summary</span>,</span></span>
 <span class="r-in"><span>                                algorithm <span class="op">=</span> <span class="st">"glm"</span>,</span></span>
 <span class="r-in"><span>                                omission_rate <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>  <span class="co"># Omission error of 5</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Selecting best among 8 models.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Removing 0 model(s) that failed to fit.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Removing 0 model(s) with non-significant pROC values.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 models passed the 5% omission criterion.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no non-missing arguments to min; returning Inf</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Minimum value of omission in models (Inf%) &gt; omission criterion (5%).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Applying tolerance: 0 models with omission &lt;Inf% were found.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>no non-missing arguments to min; returning Inf</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Selecting 0 final model(s) with delta AIC &lt;2.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in select_models(candidate_models = calib_results_glm$calibration_results$Summary,     algorithm = "glm", omission_rate = 5):</span> It is impossible to select models with significant pROC values.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in select_models(candidate_models = calib_results_glm$calibration_results$Summary,     algorithm = "glm", omission_rate = 5):</span> pROC values were not provided as part of the input. Set 'compute_proc' to TRUE.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare with best models selected previously</span></span></span>
 <span class="r-in"><span><span class="va">calib_results_glm</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">Selected</span>  <span class="co"># Model 1 selected</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 86</span>
 <span class="r-in"><span><span class="va">new_best_model</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">Selected</span>  <span class="co"># Models 1 and 5 selected</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'new_best_model' not found</span>
 </code></pre></div>
