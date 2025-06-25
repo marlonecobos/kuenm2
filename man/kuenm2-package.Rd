@@ -28,6 +28,13 @@ available.
 }
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://marlonecobos.github.io/kuenm2/}
+}
+
+}
 \author{
 \strong{Maintainer}: Marlon E. Cobos \email{manubio13@gmail.com} (\href{https://orcid.org/0000-0002-2611-1767}{ORCID})
 

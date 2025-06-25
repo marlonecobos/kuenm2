@@ -151,7 +151,7 @@ print.calibration_results <- function(x, ...) {
   cat("  - Models removed because they failed to fit:", length(x$summary$Errors), "\n")
   cat("  - Models identified with concave curves:",
       sum(x$calibration_results$Summary$Is_concave), "\n")
-  if(m$summary$Remove_concave){
+  if(x$summary$Remove_concave){
     cat("  - Model with concave curves removed", "\n")
   } else {cat("  - Model with concave curves not removed", "\n")}
   cat("  - Models removed with non-significant values of pROC:",
