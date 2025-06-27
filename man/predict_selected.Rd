@@ -8,8 +8,8 @@ predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
                  write_replicates = FALSE, out_dir = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
-                 clamping = FALSE, var_to_clamp = NULL, type = "cloglog",
-                 overwrite = FALSE, progress_bar = TRUE)
+                 extrapolation_type = "E", var_to_clamp = NULL,
+                 type = NULL, overwrite = FALSE, progress_bar = TRUE)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
@@ -23,8 +23,8 @@ function.}
 \item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
 mask the variables before predict. Default is NULL.}
 
-\item{write_files}{(logical) whether to save the predictions (SpatRasters)
-to disk. Default is FALSE.}
+\item{write_files}{(logical) whether to save the predictions (SpatRasters or
+data.frame) to disk. Default is FALSE.}
 
 \item{write_replicates}{(logical) whether to save the predictions for each
 replicate to disk. Only applicable if \code{write_files} is TRUE. Default is
@@ -44,17 +44,19 @@ calculate across replicates and models. Available options are \code{"median"},
 \code{"range"}, \code{"mean"}, and \code{"stdev"} (standard deviation). Default is
 \code{c("median", "range", "mean", "stdev")}.}
 
-\item{clamping}{(logical) whether to restrict variable values to the range
-of the calibration data to avoid extrapolation. Default is FALSE (free
-extrapolation).}
+\item{extrapolation_type}{(character) extrapolation type of model. Models can
+be transferred with three options: free extrapolation ('E'), extrapolation
+with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.}
 
-\item{var_to_clamp}{(character) vector specifying which variables to clamp.
-Only applicable if \code{clamping = TRUE}. Default is \code{NULL}, meaning all
-variables will be clamped.}
+\item{var_to_clamp}{(character) vector specifying which variables to clamp or
+not extrapolate. Only applicable if extrapolation_type is "EC" or "NE".
+Default is \code{NULL}, meaning all variables will be clamped or not extrapolated.}
 
 \item{type}{(character) the format of prediction values. For \code{maxnet} models,
-available options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"},
-with the default being \code{"cloglog"} for maxnet and \code{"response"} for glm.}
+valid options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"}. For
+\code{glm} models, valid options are \code{"response"} and \code{"raw"}. If \code{NULL} (default),
+the function uses \code{"cloglog"} for \code{maxnet} models and \code{"response"} for \code{glm}
+models.}
 
 \item{overwrite}{(logical) whether to overwrite SpatRasters if they already
 exist. Only applicable if \code{write_files = TRUE}. Default is FALSE.}
@@ -63,14 +65,25 @@ exist. Only applicable if \code{write_files = TRUE}. Default is FALSE.}
 processing. Default is TRUE.}
 }
 \value{
-A list containing SpatRaster predictions for each replicate, along
-with the consensus results for each model and the overall general consensus.
+A list containing SpatRaster or data.frames predictions for each replicate,
+long with the consensus results for each model and the overall general consensus.
 }
 \description{
 This function predicts selected models for a single set of new data
 using either \code{maxnet} or \code{glm} It provides options to save the
 output and compute consensus results (mean, median, etc.) across
 replicates and models.
+}
+\details{
+When predicting to areas where the variables are beyond the lower or upper
+limits of the calibration data, users can choose to free extrapolate the
+predictions (\code{extrapolation_type = "E"}), extrapolate with clamping
+(extrapolation_type = "EC"), or not extrapolate (extrapolation_type = "NE").
+When clamping, the variables are set to minimum and maximum values
+established for the maximum and minimum values within calibration data. In
+the no extrapolation approach, any cell with at least one variable listed in
+\code{var_to_clamp} falling outside the calibration range is assigned a suitability
+value of 0.
 }
 \examples{
 # Import variables to predict on
