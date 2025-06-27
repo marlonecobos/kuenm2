@@ -21,7 +21,7 @@
 
 predict.glmnet_mx <- function(object, newdata, clamp = FALSE,
                               type = c("link", "exponential", "cloglog",
-                                       "logistic")) {
+                                       "logistic", "cumulative")) {
   if (clamp) {
     for (v in intersect(names(object$varmax), names(newdata))) {
       newdata[, v] <- pmin(pmax(newdata[, v], object$varmin[v]),
@@ -59,6 +59,9 @@ predict.glmnet_mx <- function(object, newdata, clamp = FALSE,
   }
   if (type == "logistic") {
     return(1/(1 + exp(-object$entropy - link)))
+  }
+  if (type == "cumulative") {
+   return(cumulative_predictions(predictions = exp(link)))
   }
 }
 

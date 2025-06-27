@@ -157,7 +157,7 @@ Now, let's calibrate the GLM Models to see if with this algorith we achieve diff
 m_glm <- kuenm2::calib_results_glm
 ```
 
-```{r calibrate glm, eval=FALSE}
+```{r calibrate glm, eval=FALSE, warning=FALSE}
 #Calibrate maxnet models
 m_glm <- calibration(data = d_glm, 
                      error_considered = c(5, 10),

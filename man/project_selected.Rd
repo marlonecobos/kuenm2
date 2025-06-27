@@ -7,8 +7,8 @@
 project_selected(models, projection_data, out_dir, mask = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
-                 write_replicates = FALSE, clamping = FALSE,
-                 var_to_clamp = NULL, type = "cloglog", overwrite = FALSE,
+                 write_replicates = FALSE, extrapolation_type = "E",
+                 var_to_clamp = NULL, type = NULL, overwrite = FALSE,
                  parallel = FALSE, ncores = NULL,
                  progress_bar = TRUE, verbose = TRUE)
 }
@@ -39,17 +39,19 @@ Default is c("median", "range", "mean", "stdev").}
 \item{write_replicates}{(logical) whether to write the projections for each
 replicate. Default is FALSE.}
 
-\item{clamping}{(logical) whether to restricts variable values to the range
-of the calibration data to avoid extrapolation. Default is \code{TRUE}
-(free extrapolation).}
+\item{extrapolation_type}{(character) extrapolation type of model. Models can
+be transferred with three options: free extrapolation ('E'), extrapolation
+with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.}
 
 \item{var_to_clamp}{(character) vector specifying which variables to clamp.
-Only applicable if \code{clamping = TRUE}. Default is \code{NULL}, meaning all
-variables will be clamped.}
+Only applicable if extrapolation_type is "EC" or "NE". Default is \code{NULL}, meaning all
+variables will be clamped or not extrapolated.}
 
-\item{type}{(character) the format of the prediction values. Available
-options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"}.
-Default is \code{"cloglog"}.}
+\item{type}{(character) the format of prediction values. For \code{maxnet} models,
+valid options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"}. For
+\code{glm} models, valid options are \code{"response"} and \code{"raw"}. If \code{NULL} (default),
+the function uses \code{"cloglog"} for \code{maxnet} models and \code{"response"} for \code{glm}
+models.}
 
 \item{overwrite}{(logical) whether to overwrite SpatRaster if they already
 exists. Only applicable if \code{write_files} is set to TRUE. Default is FALSE.}

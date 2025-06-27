@@ -11,8 +11,8 @@
 #' project_selected(models, projection_data, out_dir, mask = NULL,
 #'                  consensus_per_model = TRUE, consensus_general = TRUE,
 #'                  consensus = c("median", "range", "mean", "stdev"),
-#'                  write_replicates = FALSE, clamping = FALSE,
-#'                  var_to_clamp = NULL, type = "cloglog", overwrite = FALSE,
+#'                  write_replicates = FALSE, extrapolation_type = "E",
+#'                  var_to_clamp = NULL, type = NULL, overwrite = FALSE,
 #'                  parallel = FALSE, ncores = NULL,
 #'                  progress_bar = TRUE, verbose = TRUE)
 #'
@@ -34,15 +34,17 @@
 #' Default is c("median", "range", "mean", "stdev").
 #' @param write_replicates (logical) whether to write the projections for each
 #' replicate. Default is FALSE.
-#' @param clamping (logical) whether to restricts variable values to the range
-#' of the calibration data to avoid extrapolation. Default is `TRUE`
-#' (free extrapolation).
+#' @param extrapolation_type (character) extrapolation type of model. Models can
+#' be transferred with three options: free extrapolation ('E'), extrapolation
+#' with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.
 #' @param var_to_clamp (character) vector specifying which variables to clamp.
-#' Only applicable if `clamping = TRUE`. Default is `NULL`, meaning all
-#' variables will be clamped.
-#' @param type (character) the format of the prediction values. Available
-#' options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`.
-#' Default is `"cloglog"`.
+#' Only applicable if extrapolation_type is "EC" or "NE". Default is `NULL`, meaning all
+#' variables will be clamped or not extrapolated.
+#' @param type (character) the format of prediction values. For `maxnet` models,
+#' valid options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`. For
+#' `glm` models, valid options are `"response"` and `"raw"`. If `NULL` (default),
+#' the function uses `"cloglog"` for `maxnet` models and `"response"` for `glm`
+#' models.
 #' @param overwrite (logical) whether to overwrite SpatRaster if they already
 #' exists. Only applicable if `write_files` is set to TRUE. Default is FALSE.
 #' @param parallel (logical) whether to fit the candidate models in parallel.
@@ -127,9 +129,9 @@ project_selected <- function(models,
                              consensus_general = TRUE,
                              consensus = c("median", "range", "mean", "stdev"),
                              write_replicates = FALSE,
-                             clamping = FALSE,
+                             extrapolation_type = "E",
                              var_to_clamp = NULL,
-                             type = "cloglog",
+                             type = NULL,
                              overwrite = FALSE,
                              parallel = FALSE,
                              ncores = NULL,
@@ -173,15 +175,40 @@ project_selected <- function(models,
     stop("'consensus' must contain at least one of the options: 'median' or 'mean'.")
   }
 
-  if (clamping & !is.null(var_to_clamp) & !inherits(var_to_clamp, "character")) {
+  if (extrapolation_type %in% c("EC", "NE") & !is.null(var_to_clamp) &
+      !inherits(var_to_clamp, "character")) {
     stop("Argument 'var_to_clamp' must be NULL or 'character'.")
   }
-  if (!inherits(type, "character")) {
-    stop("Argument 'type' must be 'character'.")
+
+  if(is.null(type)){
+    if(models$algorithm == "maxnet") {
+      type <- "cloglog"
+    } else if (models$algorithm == "glm") {
+      type <- "response"
+    }
   }
-  if (!any(c("raw", "cumulative", "logistic", "cloglog") %in% type)) {
-    stop("Invalid 'type' provided.",
-         "\nAvailable options are: 'raw', 'cumulative', 'logistic', or 'cloglog'.")
+
+  if(!inherits(type, "character")){
+    stop("Argument 'type' must be NULL or 'character'.")
+  }
+
+  if(models$algorithm == "maxnet"){
+    if (!any(c("raw", "cumulative", "logistic", "cloglog") %in% type)) {
+      stop("Invalid 'type' provided.",
+           "\nAvailable options for maxnet models are: 'raw', 'cumulative',
+           'logistic', or 'cloglog'.")
+    }
+    if(type == "raw")
+      type <-  "exponential"
+  }
+
+  if(models$algorithm == "glm"){
+    if (!any(c("response", "cloglog") %in% type)) {
+      stop("Invalid 'type' provided.",
+           "\nAvailable options for glm models are 'response' or 'cloglog'.")
+    }
+    if(type == "cloglog")
+      type = "link"
   }
 
   #Save parameters in a list to send to foreach nodes#
@@ -192,7 +219,7 @@ project_selected <- function(models,
                    consensus_general = consensus_general,
                    consensus = consensus,
                    write_replicates = write_replicates,
-                   clamping = clamping,
+                   extrapolation_type = extrapolation_type,
                    var_to_clamp = var_to_clamp,
                    type = type,
                    overwrite = overwrite)

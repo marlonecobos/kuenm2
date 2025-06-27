@@ -25,7 +25,7 @@ multiple_projections <- function(i, res_path, raster_pattern, par_list) {
                      consensus_per_model = par_list$consensus_per_model,
                      consensus_general = par_list$consensus_general,
                      consensus = par_list$consensus,  # weighted mean
-                     clamping = par_list$clamping,
+                     extrapolation_type = par_list$extrapolation_type,
                      var_to_clamp = par_list$var_to_clamp,
                      type = par_list$type,
                      overwrite = par_list$overwrite,
@@ -223,4 +223,21 @@ check_pred_scenarios <- function(projection_data, out_dir) {
   #Create ID
   res_path$id <- 1:nrow(res_path)
   return(res_path)
+}
+
+#### Function to get cumulative predictions ####
+cumulative_predictions <- function(predictions){
+  original_order <- order(order(predictions)) #Get original order
+  sorted_predictions <- sort(predictions) #Sort raw predictions
+  cumulative_sum <- cumsum(sorted_predictions) #Cumulative sum
+  max_cumulative_sum <- max(cumulative_sum, na.rm = TRUE) #Maximum cumulative value
+  if (max_cumulative_sum == 0) {
+    # Se todos os valores de entrada forem zero, o resultado também deve ser zero
+    normalized_cumulative <- rep(0, length(predictions))
+  } else {
+    # 5. Normalizar a soma cumulativa para o intervalo de 0 a 100
+    # Formula: (valor_atual / valor_maximo) * 100
+    normalized_cumulative <- (cumulative_sum / max_cumulative_sum) * 100
+  }
+  return(normalized_cumulative[original_order])
 }
