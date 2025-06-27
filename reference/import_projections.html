@@ -29,6 +29,7 @@ Models (GCMs), and result types for import."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrene Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">Fit and Explore Selected Models</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">Predict models to single scenario</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">Prepare Data for Model Calibration</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -189,7 +190,7 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpTHGvPQ/Future_raw2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmppZ1hZC/Future_raw2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 3: Prepare data to run multiple projections</span></span></span>
 <span class="r-in"><span><span class="co">## An example with maxnet models</span></span></span>
@@ -285,10 +286,9 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -53.5, -46.83333, -30.83333, -22.16667  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : lon/lat WGS 84 (EPSG:4326) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> varname     : Model_192_consensus </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> name        : by_model </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min value   :        0 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max value   :        0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> name        :    by_model </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min value   : 8.74016e-18 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max value   : 1.78190e-01 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`Future_2041-2060_ssp126`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
@@ -297,9 +297,9 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -53.5, -46.83333, -30.83333, -22.16667  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : lon/lat WGS 84 (EPSG:4326) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : by_model,       by_gcm </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :        0, 2.949691e-14 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :        0, 8.807037e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :     by_model,       by_gcm </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 3.919573e-24, 2.292895e-20 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 3.273341e-01, 1.272195e-01 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`Future_2041-2060_ssp585`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
@@ -308,9 +308,9 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -53.5, -46.83333, -30.83333, -22.16667  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : lon/lat WGS 84 (EPSG:4326) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : by_model,       by_gcm </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :        0, 2.271080e-16 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :        0, 1.332681e-01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :     by_model,       by_gcm </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 4.933464e-24, 5.044065e-24 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 3.362731e-01, 1.425250e-01 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`Future_2081-2100_ssp126`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
@@ -319,9 +319,9 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -53.5, -46.83333, -30.83333, -22.16667  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : lon/lat WGS 84 (EPSG:4326) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : by_model,       by_gcm </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :        0, 6.528702e-14 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :        0, 8.215145e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :     by_model,       by_gcm </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 3.264598e-23, 2.467159e-20 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 2.897881e-01, 1.651514e-01 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $`Future_2081-2100_ssp585`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> class       : SpatRaster </span>
@@ -330,12 +330,12 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> extent      : -53.5, -46.83333, -30.83333, -22.16667  (xmin, xmax, ymin, ymax)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> coord. ref. : lon/lat WGS 84 (EPSG:4326) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> source(s)   : memory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> names       : by_model,       by_gcm </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> min values  :        0, 4.778489e-21 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max values  :        0, 6.843316e-02 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> names       :     by_model,       by_gcm </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> min values  : 6.933348e-33, 1.386670e-32 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 2.583937e-01, 2.152776e-01 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $root_directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmpTHGvPQ/variance"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmppZ1hZC/variance"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "variability_projections"</span>

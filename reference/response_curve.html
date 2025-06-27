@@ -23,6 +23,7 @@ multiple models can be plotted."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrene Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">Fit and Explore Selected Models</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">Predict models to single scenario</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">Prepare Data for Model Calibration</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -186,7 +187,7 @@ variability across models (if multiple models are included).</p>
 <span class="r-plt img"><img src="response_curve-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span></span>
 <span class="r-in"><span>               modelID <span class="op">=</span> <span class="st">"Model_13"</span>, by_replicates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in response_curve(models = fitted_model_maxnet, variable = "bio_1",     modelID = "Model_13", by_replicates = TRUE):</span> 'ModelID' is not correct, check the following: [Model_192]</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in response_curve(models = fitted_model_maxnet, variable = "bio_1",     modelID = "Model_13", by_replicates = TRUE):</span> 'ModelID' is not correct, check the following: [Model_159, Model_189]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with GLM</span></span></span>
 <span class="r-in"><span><span class="co"># Import example of fitted_models (output of fit_selected())</span></span></span>

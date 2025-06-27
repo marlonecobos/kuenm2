@@ -27,6 +27,7 @@ replicates and models."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrene Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">Fit and Explore Selected Models</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">Predict models to single scenario</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">Prepare Data for Model Calibration</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -57,8 +58,8 @@ replicates and models.</p>
 <span>                 write_replicates <span class="op">=</span> <span class="cn">FALSE</span>, out_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                 consensus_per_model <span class="op">=</span> <span class="cn">TRUE</span>, consensus_general <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                 consensus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"median"</span>, <span class="st">"range"</span>, <span class="st">"mean"</span>, <span class="st">"stdev"</span><span class="op">)</span>,</span>
-<span>                 clamping <span class="op">=</span> <span class="cn">FALSE</span>, var_to_clamp <span class="op">=</span> <span class="cn">NULL</span>, type <span class="op">=</span> <span class="st">"cloglog"</span>,</span>
-<span>                 overwrite <span class="op">=</span> <span class="cn">FALSE</span>, progress_bar <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>                 extrapolation_type <span class="op">=</span> <span class="st">"E"</span>, var_to_clamp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                 type <span class="op">=</span> <span class="cn">NULL</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span>, progress_bar <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -83,8 +84,8 @@ mask the variables before predict. Default is NULL.</p></dd>
 
 
 <dt id="arg-write-files">write_files<a class="anchor" aria-label="anchor" href="#arg-write-files"></a></dt>
-<dd><p>(logical) whether to save the predictions (SpatRasters)
-to disk. Default is FALSE.</p></dd>
+<dd><p>(logical) whether to save the predictions (SpatRasters or
+data.frame) to disk. Default is FALSE.</p></dd>
 
 
 <dt id="arg-write-replicates">write_replicates<a class="anchor" aria-label="anchor" href="#arg-write-replicates"></a></dt>
@@ -115,22 +116,24 @@ calculate across replicates and models. Available options are <code>"median"</co
 <code>c("median", "range", "mean", "stdev")</code>.</p></dd>
 
 
-<dt id="arg-clamping">clamping<a class="anchor" aria-label="anchor" href="#arg-clamping"></a></dt>
-<dd><p>(logical) whether to restrict variable values to the range
-of the calibration data to avoid extrapolation. Default is FALSE (free
-extrapolation).</p></dd>
+<dt id="arg-extrapolation-type">extrapolation_type<a class="anchor" aria-label="anchor" href="#arg-extrapolation-type"></a></dt>
+<dd><p>(character) extrapolation type of model. Models can
+be transferred with three options: free extrapolation ('E'), extrapolation
+with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.</p></dd>
 
 
 <dt id="arg-var-to-clamp">var_to_clamp<a class="anchor" aria-label="anchor" href="#arg-var-to-clamp"></a></dt>
-<dd><p>(character) vector specifying which variables to clamp.
-Only applicable if <code>clamping = TRUE</code>. Default is <code>NULL</code>, meaning all
-variables will be clamped.</p></dd>
+<dd><p>(character) vector specifying which variables to clamp or
+not extrapolate. Only applicable if extrapolation_type is "EC" or "NE".
+Default is <code>NULL</code>, meaning all variables will be clamped or not extrapolated.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>(character) the format of prediction values. For <code>maxnet</code> models,
-available options are <code>"raw"</code>, <code>"cumulative"</code>, <code>"logistic"</code>, and <code>"cloglog"</code>,
-with the default being <code>"cloglog"</code> for maxnet and <code>"response"</code> for glm.</p></dd>
+valid options are <code>"raw"</code>, <code>"cumulative"</code>, <code>"logistic"</code>, and <code>"cloglog"</code>. For
+<code>glm</code> models, valid options are <code>"response"</code> and <code>"raw"</code>. If <code>NULL</code> (default),
+the function uses <code>"cloglog"</code> for <code>maxnet</code> models and <code>"response"</code> for <code>glm</code>
+models.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
@@ -145,8 +148,20 @@ processing. Default is TRUE.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list containing SpatRaster predictions for each replicate, along
-with the consensus results for each model and the overall general consensus.</p>
+    <p>A list containing SpatRaster or data.frames predictions for each replicate,
+long with the consensus results for each model and the overall general consensus.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>When predicting to areas where the variables are beyond the lower or upper
+limits of the calibration data, users can choose to free extrapolate the
+predictions (<code>extrapolation_type = "E"</code>), extrapolate with clamping
+(extrapolation_type = "EC"), or not extrapolate (extrapolation_type = "NE").
+When clamping, the variables are set to minimum and maximum values
+established for the maximum and minimum values within calibration data. In
+the no extrapolation approach, any cell with at least one variable listed in
+<code>var_to_clamp</code> falling outside the calibration range is assigned a suitability
+value of 0.</p>
     </div>
 
     <div class="section level2">
@@ -161,7 +176,7 @@ with the consensus results for each model and the overall general consensus.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Predict to single scenario</span></span></span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">predict_selected</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, raster_variables <span class="op">=</span> <span class="va">var</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |===================================                                   |  50%  |                                                                              |======================================================================| 100%</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with GLMs</span></span></span>
 <span class="r-in"><span><span class="co"># Import example of fitted_models (output of fit_selected())</span></span></span>

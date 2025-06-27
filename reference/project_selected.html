@@ -29,6 +29,7 @@ median) across replicates and models."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrene Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">Fit and Explore Selected Models</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">Predict models to single scenario</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">Prepare Data for Model Calibration</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -59,8 +60,8 @@ median) across replicates and models.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">project_selected</span><span class="op">(</span><span class="va">models</span>, <span class="va">projection_data</span>, <span class="va">out_dir</span>, mask <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                 consensus_per_model <span class="op">=</span> <span class="cn">TRUE</span>, consensus_general <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                 consensus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"median"</span>, <span class="st">"range"</span>, <span class="st">"mean"</span>, <span class="st">"stdev"</span><span class="op">)</span>,</span>
-<span>                 write_replicates <span class="op">=</span> <span class="cn">FALSE</span>, clamping <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                 var_to_clamp <span class="op">=</span> <span class="cn">NULL</span>, type <span class="op">=</span> <span class="st">"cloglog"</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                 write_replicates <span class="op">=</span> <span class="cn">FALSE</span>, extrapolation_type <span class="op">=</span> <span class="st">"E"</span>,</span>
+<span>                 var_to_clamp <span class="op">=</span> <span class="cn">NULL</span>, type <span class="op">=</span> <span class="cn">NULL</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                 parallel <span class="op">=</span> <span class="cn">FALSE</span>, ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                 progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -111,22 +112,24 @@ Default is c("median", "range", "mean", "stdev").</p></dd>
 replicate. Default is FALSE.</p></dd>
 
 
-<dt id="arg-clamping">clamping<a class="anchor" aria-label="anchor" href="#arg-clamping"></a></dt>
-<dd><p>(logical) whether to restricts variable values to the range
-of the calibration data to avoid extrapolation. Default is <code>TRUE</code>
-(free extrapolation).</p></dd>
+<dt id="arg-extrapolation-type">extrapolation_type<a class="anchor" aria-label="anchor" href="#arg-extrapolation-type"></a></dt>
+<dd><p>(character) extrapolation type of model. Models can
+be transferred with three options: free extrapolation ('E'), extrapolation
+with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.</p></dd>
 
 
 <dt id="arg-var-to-clamp">var_to_clamp<a class="anchor" aria-label="anchor" href="#arg-var-to-clamp"></a></dt>
 <dd><p>(character) vector specifying which variables to clamp.
-Only applicable if <code>clamping = TRUE</code>. Default is <code>NULL</code>, meaning all
-variables will be clamped.</p></dd>
+Only applicable if extrapolation_type is "EC" or "NE". Default is <code>NULL</code>, meaning all
+variables will be clamped or not extrapolated.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>(character) the format of the prediction values. Available
-options are <code>"raw"</code>, <code>"cumulative"</code>, <code>"logistic"</code>, and <code>"cloglog"</code>.
-Default is <code>"cloglog"</code>.</p></dd>
+<dd><p>(character) the format of prediction values. For <code>maxnet</code> models,
+valid options are <code>"raw"</code>, <code>"cumulative"</code>, <code>"logistic"</code>, and <code>"cloglog"</code>. For
+<code>glm</code> models, valid options are <code>"response"</code> and <code>"raw"</code>. If <code>NULL</code> (default),
+the function uses <code>"cloglog"</code> for <code>maxnet</code> models and <code>"response"</code> for <code>glm</code>
+models.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
@@ -176,7 +179,7 @@ binarize the predictions.</p>
 <span class="r-in"><span><span class="co">## Create a folder in a temporary directory to copy the variables</span></span></span>
 <span class="r-in"><span><span class="va">out_dir_current</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Current_raw2"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">out_dir_current</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'/tmp/RtmpTHGvPQ/Current_raw2' already exists</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'/tmp/RtmppZ1hZC/Current_raw2' already exists</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Save current variables in temporary directory</span></span></span>
 <span class="r-in"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">var</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir_current</span>, <span class="st">"Variables.tif"</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -215,7 +218,7 @@ binarize the predictions.</p>
 <span class="r-in"><span><span class="co">## A folder to save projection results</span></span></span>
 <span class="r-in"><span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Projection_results/maxnet"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">out_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'/tmp/RtmpTHGvPQ/Projection_results/maxnet' already exists</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>'/tmp/RtmppZ1hZC/Projection_results/maxnet' already exists</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Project selected models to multiple scenarios</span></span></span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">project_selected</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, projection_data <span class="op">=</span> <span class="va">pr</span>,</span></span>
