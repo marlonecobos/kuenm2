@@ -125,7 +125,7 @@ By default, response curves are computed using all selected models. The resultin
 par(mfrow = c(1, 3)) #Set grid of plot
 response_curve(models = fm, variable = "bio_1")
 response_curve(models = fm, variable = "bio_7")
-response_curve(models = fm, variable = "bio_15")
+response_curve(models = fm, variable = "bio_12")
 on.exit() #Reinitiate grid
 ```
 
