@@ -2,7 +2,8 @@
 #'
 #' @usage
 #' predict.glmnet_mx(object, newdata, clamp = FALSE,
-#'                   type = c("link", "exponential", "cloglog", "logistic"))
+#'                   type = c("link", "exponential", "cloglog", "logistic",
+#'                   "cumulative"))
 #'
 #' @name predict
 #' @aliases predict,kuenm2_glmnet_mx-method
@@ -11,8 +12,7 @@
 #' @param newdata data to predict on.
 #' @param clamp (logical) whether to clamp predictions. Default = FALSE.
 #' @param type (character) type of prediction to be performed. Options are:
-#' "link", "exponential", "cloglog", and "logistic". Defaults to "link" if not
-#' defined.
+#' "link", "exponential", "cloglog", "logistic", and cumulative. Defaults to "link" if not defined.
 #'
 #' @export
 #'

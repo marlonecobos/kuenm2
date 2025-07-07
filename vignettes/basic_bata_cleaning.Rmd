@@ -1,8 +1,8 @@
 ---
-title: "Occurrene Data Cleaning"
+title: "Occurrence Data Cleaning"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{prepare_data}
+  %\VignetteIndexEntry{basic_bata_cleaning}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

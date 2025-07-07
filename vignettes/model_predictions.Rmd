@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 
 ## Introduction {#introduction}
 
-Once selected models have been fit using `fit_selected()`, projections to single or multiple scenarios can be performed. The function `predict_selected()` is designed for projections to single scenarios.
+Once selected models have been fit using `fit_selected()`, projections to single or multiple scenarios can be performed. The `predict_selected()` function is designed for projections to single scenarios.
 
 To predict using the selected models, a `fitted_models` object is required. For detailed information on model fitting, please consult the vignette [Fit and Explore Selected Models](/articles/model_exploration.html). The `fitted_models` object generated in that vignette is included as an example dataset within the package. Let's load it.
 

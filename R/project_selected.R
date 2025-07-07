@@ -79,7 +79,7 @@
 #'                                package = "kuenm2"))
 #'
 #' ## Create a folder in a temporary directory to copy the variables
-#' out_dir_current <- file.path(tempdir(), "Current_raw2")
+#' out_dir_current <- file.path(tempdir(), "Current_raw_wc")
 #' dir.create(out_dir_current, recursive = TRUE)
 #'
 #' ## Save current variables in temporary directory
@@ -91,7 +91,7 @@
 #' in_dir <- system.file("extdata", package = "kuenm2")
 #'
 #' ## Create a folder in a temporary directory to copy the future variables
-#' out_dir_future <- file.path(tempdir(), "Future_raw2")
+#' out_dir_future <- file.path(tempdir(), "Future_raw_wc")
 #'
 #' ## Organize and rename the future climate data (structured by year and GCM)
 #' ### 'SoilType' will be appended as a static variable in each scenario
@@ -114,7 +114,7 @@
 #'
 #' # Step 4: Run multiple model projections
 #' ## A folder to save projection results
-#' out_dir <- file.path(tempdir(), "Projection_results/maxnet")
+#' out_dir <- file.path(tempdir(), "Projection_results/maxnet_projections")
 #' dir.create(out_dir, recursive = TRUE)
 #'
 #' ## Project selected models to multiple scenarios

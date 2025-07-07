@@ -1,7 +1,7 @@
 #' Explore the spatial distribution of occurrence and background points
 #'
 #' @usage
-#' explore_calibration_geo(data, raster_variables, plot = TRUE)
+#' explore_calibration_geo(data, raster_variables, plot = TRUE, ...)
 #'
 #' @param data an object of class `prepared_data` returned by the
 #' [prepare_data()] function.
