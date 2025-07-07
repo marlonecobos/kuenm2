@@ -6,8 +6,9 @@ articles:
   model_calibration: model_calibration.html
   model_exploration: model_exploration.html
   model_predictions: model_predictions.html
+  model_projections: model_projections.html
   prepare_data: prepare_data.html
-last_built: 2025-06-27T00:16Z
+last_built: 2025-07-07T20:28Z
 urls:
   reference: https://marlonecobos.github.io/kuenm2/reference
   article: https://marlonecobos.github.io/kuenm2/articles

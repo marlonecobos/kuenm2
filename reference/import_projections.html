@@ -26,10 +26,11 @@ Models (GCMs), and result types for import."></head><body>
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrene Data Cleaning</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">Occurrence Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">Fit and Explore Selected Models</a></li>
     <li><a class="dropdown-item" href="../articles/model_predictions.html">Predict models to single scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">Project models to multiple scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">Prepare Data for Model Calibration</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -190,7 +191,7 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmppZ1hZC/Future_raw2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpraqRyK/Future_raw2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 3: Prepare data to run multiple projections</span></span></span>
 <span class="r-in"><span><span class="co">## An example with maxnet models</span></span></span>
@@ -218,9 +219,8 @@ containing the computed variability.</p></li>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use import_projections to import results:</span></span></span>
 <span class="r-in"><span><span class="va">raster_p</span> <span class="op">&lt;-</span> <span class="fu">import_projections</span><span class="op">(</span>projection <span class="op">=</span> <span class="va">p</span>, consensus <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in import_projections(projection = p, consensus = "mean"):</span> object 'p' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_p</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'raster_p' not found</span>
+<span class="r-plt img"><img src="import_projections-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 5: Identify areas of change in projections</span></span></span>
 <span class="r-in"><span><span class="co">## Contraction, expansion and stability</span></span></span>
@@ -231,9 +231,9 @@ containing the computed variability.</p></li>
 <span class="r-in"><span>                                     change_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"summary"</span>, <span class="st">"by_gcm"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_changes</span><span class="op">$</span><span class="va">by_gcm</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="import_projections-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_changes</span><span class="op">$</span><span class="va">Summary</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="import_projections-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_changes</span><span class="op">$</span><span class="va">Summary</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="import_projections-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 6: Perform MOP for all projection scenarios</span></span></span>
 <span class="r-in"><span><span class="co">## Create a folder to save MOP results</span></span></span>
@@ -253,15 +253,14 @@ containing the computed variability.</p></li>
 <span class="r-in"><span>                                 mop_types <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simple"</span>, <span class="st">"basic"</span>,</span></span>
 <span class="r-in"><span>                                               <span class="st">"towards_high_combined"</span>,</span></span>
 <span class="r-in"><span>                                               <span class="st">"towards_low_combined"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'unique': object 'p' not found</span>
 <span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_mop</span><span class="op">$</span><span class="va">simple</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'raster_mop' not found</span>
+<span class="r-plt img"><img src="import_projections-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_mop</span><span class="op">$</span><span class="va">basic</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'raster_mop' not found</span>
+<span class="r-plt img"><img src="import_projections-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_mop</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'raster_mop' not found</span>
+<span class="r-plt img"><img src="import_projections-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_mop</span><span class="op">$</span><span class="va">towards_low_combined</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in h(simpleError(msg, call)):</span> error in evaluating the argument 'x' in selecting a method for function 'plot': object 'raster_mop' not found</span>
+<span class="r-plt img"><img src="import_projections-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 7: Compute variance from distinct sources</span></span></span>
 <span class="r-in"><span><span class="co">## Set folder to save results</span></span></span>
@@ -335,14 +334,14 @@ containing the computed variability.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> max values  : 2.583937e-01, 2.152776e-01 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $root_directory</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmppZ1hZC/variance"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/RtmpraqRyK/variance"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "variability_projections"</span>
 <span class="r-in"><span><span class="va">raster_variability</span> <span class="op">&lt;-</span> <span class="fu">import_projections</span><span class="op">(</span>projection <span class="op">=</span> <span class="va">v</span>,</span></span>
 <span class="r-in"><span>                                         future_period <span class="op">=</span> <span class="st">"2041-2060"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">raster_variability</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="import_projections-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="import_projections-8.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
