@@ -1,4 +1,31 @@
 url: https://marlonecobos.github.io/kuenm2/
 template:
-  bootstrap: 5
+  params:
+    bootswatch: cosmo
+# navigation bar configuration
+navbar:
+  left:
+    - icon: fa-home
+      href: index.html
+    - text: "Functions"
+      href: reference/index.html
+    - icon: fas fa-book
+      text: "Articles"
+      menu:
+      -  text: "1. Occurrence Data Cleaning"
+         href: articles/basic_bata_cleaning.html
+      -  text: "2. Prepare Data for Model Calibration"
+         href: articles/prepare_data.html
+      -  text: "3. Model Calibration"
+         href: articles/model_calibration.html
+      -  text: "4. Fit and Explore Selected Models"
+         href: articles/model_exploration.html
+      -  text: "5. Predict models to single scenario"
+         href: articles/model_predictions.html
+      -  text: "6. Project models to multiple scenarios"
+         href: articles/model_projections.html
+  components:
+    home: ~
+
+
 

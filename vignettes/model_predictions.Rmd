@@ -32,7 +32,7 @@ knitr::opts_chunk$set(
 
 Once selected models have been fit using `fit_selected()`, projections to single or multiple scenarios can be performed. The `predict_selected()` function is designed for projections to single scenarios.
 
-To predict using the selected models, a `fitted_models` object is required. For detailed information on model fitting, please consult the vignette [Fit and Explore Selected Models](/articles/model_exploration.html). The `fitted_models` object generated in that vignette is included as an example dataset within the package. Let's load it.
+To predict using the selected models, a `fitted_models` object is required. For detailed information on model fitting, please consult the vignette [Fit and Explore Selected Models](model_exploration.html). The `fitted_models` object generated in that vignette is included as an example dataset within the package. Let's load it.
 
 ```{r import maxnet calib, warning=FALSE}
 #Load packages
@@ -58,7 +58,7 @@ fitted_model_glm
 
 # Predict Selected Models for a Single Scenario {#predict-selected-models-for-a-single-scenario}
 
-To predict selected models for a single scenario, you need a `fitted_models` object and the corresponding predictor variables. These predictor variables can be provided as either a `SpatRaster` or a `data.frame`. The names of the variables (or columns in the `data.frame`) must precisely match those used for model calibration or those used when running PCA (if `do_pca = TRUE` was set in the `prepare_data()` function; see [Prepare Data for Model Calibration](/articles/prepared_data.html) for more details).
+To predict selected models for a single scenario, you need a `fitted_models` object and the corresponding predictor variables. These predictor variables can be provided as either a `SpatRaster` or a `data.frame`. The names of the variables (or columns in the `data.frame`) must precisely match those used for model calibration or those used when running PCA (if `do_pca = TRUE` was set in the `prepare_data()` function; see [Prepare Data for Model Calibration](prepare_data.html) for more details).
 
 ## Predict to SpatRaster {#predict-to-spatraster}
 
