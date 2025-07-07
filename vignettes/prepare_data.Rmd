@@ -38,7 +38,7 @@ Before starting the ENM process, data must be formatted in a specific structure 
 
 ## Getting ready
 
-If **kuenm2** has not been installed yet, please do so. See the [Main guide](../index.html) for installation instructions. See the [basic data cleaning guide](/articles/basic_data_cleaning.html) for some steps on cleaning data.
+If **kuenm2** has not been installed yet, please do so. See the [Main guide](../index.html) for installation instructions. See the [basic data cleaning guide](basic_data_cleaning.html) for some steps on cleaning data.
 
 Use the following lines of code to load **kuenm2** and any other required packages, and define a working directory (if needed). In general, setting a working directory in R is considered good practice, as it provides better control over where files are read from or saved to. If users are not working within an R project, we recommend setting a working directory, since at least one file will be saved at later stages of this guide.
 
