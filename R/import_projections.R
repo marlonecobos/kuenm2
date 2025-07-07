@@ -214,8 +214,63 @@ import_projections <- function(projection,
            "\nAvailable options are: 'median', 'range', 'mean' and 'stdev'.")
     }
 
+    #Check past_period
+    if(!is.null(past_period)){
+      available_past_period <- na.omit(unique(projection$paths$Period[projection$paths$Time == "Past"]))
+      past_period_out <- setdiff(past_period, available_past_period)
+      if (length(past_period_out) > 0) {
+        stop("Invalid 'past_period' provided.",
+             "\nAvailable options are: ", paste(available_past_period,
+                                                collapse = "; "))
+      }
+    }
+
+    #Check past_gcm
+    if(!is.null(past_gcm)){
+      available_past_gcm <- na.omit(unique(projection$paths$GCM[projection$paths$Time == "Past"]))
+      past_gcm_out <- setdiff(past_gcm, available_past_gcm)
+      if (length(past_gcm_out) > 0) {
+        stop("Invalid 'past_gcm' provided.",
+             "\nAvailable options are: ", paste(available_past_gcm,
+                                                collapse = "; "))
+      }
+    }
+
+    #Check future_period
+    if(!is.null(future_period)){
+      available_future_period <- na.omit(unique(projection$paths$Period[projection$paths$Time == "Future"]))
+      future_period_out <- setdiff(future_period, available_future_period)
+      if (length(future_period_out) > 0) {
+        stop("Invalid 'future_period' provided.",
+             "\nAvailable options are: ", paste(available_future_period,
+                                                collapse = "; "))
+      }
+    }
+
+    #Check future_gcm
+    if(!is.null(future_gcm)){
+      available_future_gcm <- na.omit(unique(projection$paths$Period[projection$paths$GCM == "Future"]))
+      future_gcm_out <- setdiff(future_gcm, available_future_gcm)
+      if (length(future_gcm_out) > 0) {
+        stop("Invalid 'future_gcm' provided.",
+             "\nAvailable options are: ", paste(available_future_gcm,
+                                                collapse = "; "))
+      }
+    }
+
+    #Check ssps
+    if(!is.null(future_pscen)){
+      available_future_pscen <- na.omit(unique(projection$paths$ssp))
+      future_pscen_out <- setdiff(future_pscen, available_future_pscen)
+      if (length(future_pscen_out) > 0) {
+        stop("Invalid 'future_pscen' provided.",
+             "\nAvailable options are: ", paste(available_future_pscen,
+                                                collapse = "; "))
+      }
+    }
+
     #Get paths
-    p_paths <- p$paths}
+    p_paths <- projection$paths}
 
 
   if(inherits(projection, "mop_projections")){
@@ -251,7 +306,7 @@ import_projections <- function(projection,
   if(inherits(projection, "mop_projections") |
      inherits(projection, "model_projections")){
   #Extract periods and gcms
-  Times <- unique(p$paths$Time)
+  Times <- unique(projection$paths$Time)
   # periods <- unique(p$paths$Period)
   # scenarios <- na.omit(unique(p$paths$ssp))
   # gcms <- na.omit(unique(p$paths$GCM))

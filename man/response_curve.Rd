@@ -98,7 +98,7 @@ data(fitted_model_maxnet, package = "kuenm2")
 response_curve(models = fitted_model_maxnet,
                variable = "bio_1", by_replicates = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
-               modelID = "Model_13", by_replicates = TRUE)
+               modelID = "Model_189", by_replicates = TRUE)
 
 # Example with GLM
 # Import example of fitted_models (output of fit_selected())
@@ -108,7 +108,7 @@ data(fitted_model_glm, package = "kuenm2")
 response_curve(models = fitted_model_glm,
                variable = "bio_1", by_replicates = TRUE)
 response_curve(models = fitted_model_glm, variable = "bio_1",
-               modelID = "Model_1", by_replicates = TRUE)
+               modelID = "Model_86", by_replicates = TRUE)
 }
 \seealso{
 \code{\link[=bivariate_response]{bivariate_response()}}

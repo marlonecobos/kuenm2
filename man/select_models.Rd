@@ -107,11 +107,11 @@ Partial ROC is calculated following Peterson et al.
 data(calib_results_glm, package = "kuenm2")
 
 #Select new best models based on another value of omission rate
-new_best_model <- select_models(candidate_models = calib_results_glm$calibration_results$Summary,
-                                algorithm = "glm",
-                                omission_rate = 5)  # Omission error of 5
+new_best_model <- select_models(calibration_results = calib_results_glm,
+                                algorithm = "glm", compute_proc = TRUE,
+                                omission_rate = 10)  # Omission error of 10
 
 # Compare with best models selected previously
-calib_results_glm$summary$Selected  # Model 1 selected
-new_best_model$summary$Selected  # Models 1 and 5 selected
+calib_results_glm$summary$Selected  # Model 86 selected
+new_best_model$summary$Selected  # Models 64, 73 and 86 selected
 }

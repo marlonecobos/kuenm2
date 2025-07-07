@@ -195,7 +195,7 @@
 #'
 #' # Step 5: Perform MOP for all projection scenarios
 #' ## Create a folder to save MOP results
-#' out_dir <- file.path(tempdir(), "MOP_results")
+#' out_dir <- file.path(tempdir(), "MOPresults")
 #' dir.create(out_dir, recursive = TRUE)
 #'
 #' ## Run MOP

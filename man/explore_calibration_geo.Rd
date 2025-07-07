@@ -4,7 +4,7 @@
 \alias{explore_calibration_geo}
 \title{Explore the spatial distribution of occurrence and background points}
 \usage{
-explore_calibration_geo(data, raster_variables, plot = TRUE)
+explore_calibration_geo(data, raster_variables, plot = TRUE, ...)
 }
 \arguments{
 \item{data}{an object of class \code{prepared_data} returned by the

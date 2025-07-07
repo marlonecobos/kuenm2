@@ -7,7 +7,8 @@
 \title{Predict method for glmnet_mx (maxnet) models}
 \usage{
 predict.glmnet_mx(object, newdata, clamp = FALSE,
-                  type = c("link", "exponential", "cloglog", "logistic"))
+                  type = c("link", "exponential", "cloglog", "logistic",
+                  "cumulative"))
 }
 \arguments{
 \item{object}{a glmnet_mx object.}
@@ -17,8 +18,7 @@ predict.glmnet_mx(object, newdata, clamp = FALSE,
 \item{clamp}{(logical) whether to clamp predictions. Default = FALSE.}
 
 \item{type}{(character) type of prediction to be performed. Options are:
-"link", "exponential", "cloglog", and "logistic". Defaults to "link" if not
-defined.}
+"link", "exponential", "cloglog", "logistic", and cumulative. Defaults to "link" if not defined.}
 }
 \value{
 A glmnet_mx (maxnet) prediction.
