@@ -96,7 +96,10 @@ Optional arguments allow for modifications such as changing the delta AIC thresh
 
 In this example, we will evaluate the models considering two omission errors (5% and 10%), with model selection based on the 5% omission error. To improve computational speed, you can set `parallel` to `TRUE` and specify the number of cores to utilize; the candidate models will be distributed among these cores. To detect the number of available cores on your machine, run `parallel::detectCores()`.
 
+<br>
+
 ### Maxnet Models
+
 Let's calibrate the maxnet models:
 
 ```{r import calib_results_maxnet, echo=FALSE}
@@ -125,6 +128,8 @@ m_maxnet <- calibration(data = d_maxnet,
 #   |=====================================================================| 100%
 # All selected models have significant pROC values.
 ```
+
+<br>
 
 The `calibration()` function returns a `calibration_results` object, a list containing various essential pieces of information from the model calibration process. The elements of the `calibration_results` object can be explored by indexing them. For example, all evaluation metrics are stored within the `calibration_results` element:
 
@@ -155,6 +160,8 @@ print(m_maxnet)
 <br>
 
 In this example, of the 300 candidate **maxnet** models fitted, two was selected based on a significant pROC value, a low omission error (<10%), and a low AIC score (<2). 
+
+<br>
 
 ### GLM Models
 
@@ -190,6 +197,8 @@ Now, instead of two selected models, we have only one:
 ```{r selected models in glm}
 m_glm
 ```
+
+<br>
 
 ### Concave curves
 
@@ -239,6 +248,8 @@ m_unimodal <- calibration(data = d_maxnet,
 # All selected models have significant pROC values.
 ```
 
+<br>
+
 Note that the process is now divided into two tasks:
 
 * Task 1/2: Only candidate models that include quadratic terms are fitted. For Maxent models (using the maxnet algorithm), the function first fits the candidate model with the highest regularization multiplier (e.g., 5) for each formula. This approach is used because if a particular formula produces a concave response at a high regularization value, it will also produce concave responses at lower regularization values. By checking the model with the highest regularization first, the function can skip fitting the other models with the same formula but lower regularization values, saving time and computation.
@@ -263,6 +274,7 @@ head(m_maxnet$calibration_results$Summary[,c("ID", "Mean_AUC_ratio_at_10.mean",
 m_maxnet$selected_models[,c("ID", "Mean_AUC_ratio_at_10.mean",
                                  "pval_pROC_at_10.mean")]
 ```
+
 <br>
 
 When pROC is not calculated for all models during `calibration()`, the `select_models()` function requires the `prepared_data` used during the calibration step, and `compute_proc` must be set to `TRUE`.
