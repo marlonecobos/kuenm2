@@ -362,7 +362,7 @@ projection_mop <- function(data,
       }
     }
 
-    mop_i <- mop::mop(m = m, g = r, type = type,
+    mop_i <- mop::mop(m = m, g = r[[names(m)]], type = type,
                       calculate_distance = calculate_distance,
                       where_distance = where_distance, distance = distance,
                       scale = scale, center = center, fix_NA = fix_NA,
