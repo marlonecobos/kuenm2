@@ -35,6 +35,7 @@ Imports:
     doSNOW, 
     enmpa (>= 0.2.1),
     foreach (>= 1.5),
+    fpROC (>= 0.1.0),
     glmnet (>= 4.1),
     grDevices,
     graphics,
