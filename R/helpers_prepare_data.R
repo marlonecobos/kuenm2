@@ -71,36 +71,80 @@ handle_missing_data <- function(occ_bg, weights) {
 ### Helper function to partition data
 part_data <- function(data,
                       pr_bg = "pr_bg",
-                      train_portion = 0.7,
+                      train_proportion = 0.7,
                       n_replicates = 5,
-                      method = "subsample",
+                      partition_method = "subsample",
                       seed = 1) {
+  if(!inherits(data, "data.frame")){
+    stop("'data' must be data.frame")
+  }
+
+  if(!(pr_bg %in% names(data))){
+    stop("'pr_bg' must be a column in data")
+  }
+
+  if(!(partition_method %in% c("kfolds", "leave-one-out",
+                               "subsample", "bootstrap"))){
+    stop("Invalid 'partition_method'. Available options include 'kfolds',
+'leave-one-out','subsample', and 'bootstrap'")
+  }
+
+  if(!(n_replicates %% 1 == 0) || n_replicates <= 0){
+    stop("'n_replicates' must be a positive numeric integer (e.g., 1, 2, 3...)")
+  }
+
+  if(partition_method %in% c("bootstrap", "subsample")){
+    if(train_proportion > 1 || train_proportion <= 0 ||
+       is.na(train_proportion) || is.null(train_proportion)){
+      stop("'train_proportion' must be a positive numeric between 0 and 1")
+    }
+  }
+
   #Get data
   d <- data[pr_bg]
   #Split presence and absence
   pre <- which(d[, pr_bg] == 1)
   aus <- which(d[, pr_bg] == 0)
 
-  if (method == "kfold") {
+  if (partition_method %in% c("kfolds", "leave-one-out")) {
+    if(partition_method == "leave-one-out"){
+      n_replicates <- length(pre)
+    }
+
     set.seed(seed)
     foldp <- sample(cut(seq(1, length(pre)), breaks = n_replicates,
                         labels = FALSE))
+    set.seed(seed)
     folda <- sample(cut(seq(1, length(aus)), breaks = n_replicates,
                         labels = FALSE))
-    #Join data
-    d$folds <- NA
-    d$folds[which(d[,pr_bg] == 1)] <- foldp
-    d$folds[which(d[,pr_bg] == 0)] <- folda
+    names(foldp) <- pre
+    names(folda) <- aus
+    all <- c(foldp, folda)
+    rep_data <- list()
+    for (i in 1:n_replicates) {
+      rep_data[[paste0("Rep_", i)]] <- as.numeric(names(all[all ==
+                                                          i]))
+    }
 
-    rep_data <- lapply(unique(d$folds), function(f) {
-      which(d$folds != f) })
-    names(rep_data) <- paste0("Rep_", 1:n_replicates)
+    # #Join data
+    # d$folds <- NA
+    # d$folds[which(d[,pr_bg] == 1)] <- foldp
+    # d$folds[which(d[,pr_bg] == 0)] <- folda
+    #
+    # rep_data_p <- lapply(unique(foldp), function(f) {
+    #   which(d$pr_bg == 1 & d$folds != f) })
+    # rep_data_a <- lapply(unique(folda), function(f) {
+    #   which(d$pr_bg == 0 & d$folds != f) })
+    # rep_data <- lapply(1:length(rep_data_p), function(f){
+    #   c(rep_data_p[[f]], rep_data_a[[f]])
+    # })
+
   }
 
-  if (method == "subsample" | method == "bootstrap") {
-    if (method == "subsample") {
+  if (partition_method == "subsample" | partition_method == "bootstrap") {
+    if (partition_method == "subsample") {
       replacement <- FALSE
-    } else if (method == "bootstrap") {
+    } else if (partition_method == "bootstrap") {
       replacement <- TRUE
     }
 
@@ -109,11 +153,15 @@ part_data <- function(data,
     rep_data <- lapply(1:n_replicates, function(i) {
       set.seed(seed * i)
       foldp <- sample(pre,
-                      size = floor(train_portion * length(pre)),
-                      replace = replacement) #Always false
+                      size = floor(train_proportion * length(pre)),
+                      replace = replacement)
+      foldp <- setdiff(pre, foldp)
+
+      set.seed(seed * i)
       folda <- sample(aus,
-                      size = floor(train_portion * length(aus)),
-                      replace = replacement) #Always false
+                      size = floor(train_proportion * length(aus)),
+                      replace = replacement)
+      folda <- setdiff(aus, folda)
       foldpa <- c(foldp, folda)
       return(foldpa)
     })
@@ -121,8 +169,6 @@ part_data <- function(data,
   }
   return(rep_data)
 }
-
-
 
 #### Helper functions to create formula grid ####
 calibration_grid <- function(occ_bg,

@@ -41,7 +41,8 @@
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom foreach foreach `%dopar%`
-#' @importFrom enmpa predict_glm proc_enm
+#' @importFrom enmpa predict_glm
+#' @importFrom fpROC auc_metrics
 #'
 #' @export
 #'
@@ -109,7 +110,7 @@ partial_roc <- function(formula_grid, data, omission_rate = 10,
     doSNOW::registerDoSNOW(cl)
 
     res_proc <- foreach::foreach(
-      x = 1:n_tot, .packages = c("glmnet", "enmpa"),
+      x = 1:n_tot, .packages = c("glmnet", "enmpa", "fpROC"),
       .options.snow = opts) %dopar% {
         proc(x, formula_grid, data, omission_rate, addsamplestobackground,
              weights, algorithm)

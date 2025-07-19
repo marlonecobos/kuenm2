@@ -74,7 +74,8 @@
 #' @importFrom utils txtProgressBar setTxtProgressBar read.csv head write.csv
 #' @importFrom stats aggregate glm as.formula
 #' @importFrom glmnet glmnet.control glmnet
-#' @importFrom enmpa proc_enm
+#' @importFrom enmpa predict_glm
+#' @importFrom fpROC auc_metrics
 #'
 #' @export
 #'
@@ -129,22 +130,38 @@
 #' Warren and Seifert (2011).
 #'
 #' @examples
-#' # Import prepared data for maxnet models
-#' data(sp_swd, package = "kuenm2")
+#' # Import occurrences
+#' data(occ_data, package = "kuenm2")
 #'
+#' # Import raster layers
+#' var <- terra::rast(system.file("extdata", "Current_variables.tif",
+#'                                package = "kuenm2"))
+#' # Use only continuous variables
+#' var <- var[[c("bio_1", "bio_7", "bio_12", "bio_15")]]
+#'
+#' # Prepare data for maxnet model
+#' sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
+#'                        x = "x", y = "y",
+#'                        raster_variables = var,
+#'                        species = occ_data[1, 1],
+#'                        n_background = 100, ,
+#'                        features = c("l", "lq"),
+#'                        r_multiplier = 1,
+#'                        partition_method = "kfolds")
 #' # Model calibration (maxnet)
 #' m <- calibration(data = sp_swd, error_considered = 10)
-#'
 #' m
 #'
-#' # Import prepared data for GLM models
-#' data(sp_swd_glm, package = "kuenm2")
-#'
-#' ## Model calibration (GLM)
+#' # Prepare data for glm model
+#' sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
+#'                            x = "x", y = "y",
+#'                            raster_variables = var,
+#'                            species = occ_data[1, 1],
+#'                            n_background = 100,
+#'                            features = c("l", "lq"),
+#'                            partition_method = "kfolds")
 #' m_glm <- calibration(data = sp_swd_glm, error_considered = 10)
-#'
 #' m_glm
-
 
 calibration <- function(data,
                         error_considered,
@@ -260,7 +277,15 @@ calibration <- function(data,
       message("Task 1/2: checking for concave responses in models:")
     }
 
-    q_grids <- formula_grid[grepl("q", formula_grid$Features), ]
+    #Get maximum reg multipliers (if algorithm is maxnet)
+    if(algorithm == "maxnet"){
+    max_reg <- max(formula_grid$R_multiplier)
+    q_grids <- formula_grid[grepl("q", formula_grid$Features) &
+                              formula_grid$R_multiplier == max_reg, ]
+    } else {
+      q_grids <- formula_grid[grepl("q", formula_grid$Features), ]
+    }
+    #Get total number of models to test
     n_tot <- nrow(q_grids)
 
     if (n_tot == 0) {

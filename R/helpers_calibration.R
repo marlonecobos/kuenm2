@@ -118,13 +118,13 @@ empty_replicates <- function(error_considered, n_row, replicates,
 
   # Define column names based on model type
   if (algorithm == "maxnet") {
-    column_names <- c("Fold",
+    column_names <- c("Replicate",
                       paste0("Omission_rate_at_", error_considered),
                       paste0("Mean_AUC_ratio_at_", error_considered),
                       paste0("pval_pROC_at_", error_considered),
                       "AICc", "Parameters", "Is_concave")
   } else if (algorithm == "glm") {
-    column_names <- c("Fold",
+    column_names <- c("Replicate",
                       paste0("Omission_rate_at_", error_considered),
                       paste0("Mean_AUC_ratio_at_", error_considered),
                       paste0("pval_pROC_at_", error_considered),
@@ -137,8 +137,8 @@ empty_replicates <- function(error_considered, n_row, replicates,
   df_eval_q <- data.frame(matrix(NA, nrow = n_row, ncol = length(column_names)))
   colnames(df_eval_q) <- column_names
 
-  # Assign Fold values and concavity status
-  df_eval_q$Fold <- replicates
+  # Assign Replicate values and concavity status
+  df_eval_q$Replicate <- replicates
   df_eval_q$Is_concave <- is_c
 
   return(df_eval_q)
@@ -354,8 +354,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
     }
 
     df_eval_q <- empty_replicates(error_considered = error_considered,
-                                  n_row = nrow(grid_q) * length(data$kfolds),
-                                  replicates = names(data$kfolds),
+                                  n_row = nrow(grid_q) * length(data$part_data),
+                                  replicates = names(data$part_data),
                                   is_c = is_c,
                                   algorithm = algorithm)
     # Remove row.names from grid_q
@@ -369,8 +369,8 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
   } else {
     # If not concave, calculate metrics
     bgind <- which(data$calibration_data == 0)
-    mods <- lapply(1:length(data$kfolds), function(i) {
-      notrain <- -data$kfolds[[i]]
+    mods <- lapply(1:length(data$part_data), function(i) {
+      notrain <- -data$part_data[[i]]
       data_i <- data$calibration_data[notrain, ]
 
       if (!is.null(data$weights)) {
@@ -407,13 +407,21 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
       #Calculate PROC? ...
       if (proc_for_all) {
         proc_i <- lapply(error_considered, function(omr) {
-          proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                      prediction = pred_i,
-                                      threshold = omr)$pROC_summary
+          proc_omr <- fpROC::auc_metrics(test_prediction = suit_val_eval,
+                                         prediction = pred_i,
+                                         threshold = omr)$summary[, 4:5]
           names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
                                paste0("pval_pROC_at_", omr))
           return(proc_omr)
         })
+        # proc_i <- lapply(error_considered, function(omr) {
+        #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+        #                               prediction = pred_i,
+        #                               threshold = omr)$pROC_summary
+        #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+        #                        paste0("pval_pROC_at_", omr))
+        #   return(proc_omr)
+        # })
         proc_i <- unlist(proc_i)} else {
           #Or fill PROC with NA
           proc_i <- rep(NA, length(error_considered) * 2)
@@ -424,7 +432,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
 
 
       df_eval_q <-  if (algorithm == "maxnet") {
-        data.frame(Fold = i,
+        data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
                    AICc = AICc,
@@ -432,7 +440,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
                    Is_concave = is_c,
                    row.names = NULL)
       } else {
-        data.frame(Fold = i,
+        data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
                    AIC = m_aic$aic,
@@ -442,7 +450,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
       }
       return(cbind(grid_x, df_eval_q))
     })
-    names(mods) <- names(data$kfolds)
+    names(mods) <- names(data$part_data)
     eval_final_q <- do.call("rbind", mods)
     eval_final_q_summary <- reorder_stats_columns(eval_stats(eval_final_q,
                                                              error_considered,
@@ -591,12 +599,12 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
     # Get background index
     bgind <- which(data$calibration_data == 0)
 
-    # Fit models using k-fold cross-validation
-    mods <- try(lapply(1:length(data$kfolds), function(i) {
-      notrain <- -data$kfolds[[i]]
+    # Fit models using cross-validation
+    mods <- try(lapply(1:length(data$part_data), function(i) {
+      notrain <- -data$part_data[[i]]
       data_i <- data$calibration_data[notrain,]
 
-      # Set weights per k-fold
+      # Set weights per replicate
       if (!is.null(weights)) {
         weights_i <- weights[notrain]
       } else {
@@ -606,9 +614,9 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
       if (algorithm == "maxnet") {
         # Run maxnet model
         mod_i <- try(glmnet_mx(p = data_i$pr_bg, data = data_i,
-                           f = formula_x, regmult = reg_x,
-                           addsamplestobackground = addsamplestobackground,
-                           weights = weights_i, calculate_AIC = FALSE))
+                               f = formula_x, regmult = reg_x,
+                               addsamplestobackground = addsamplestobackground,
+                               weights = weights_i, calculate_AIC = FALSE))
       } else {
         # Run glm model
         mod_i <- try(glm_mx(formula = formula_x,
@@ -640,14 +648,22 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
 
       #Calculate PROC? ...
       if(proc_for_all & !inherits(mod_i, "try-error")) {
-        proc_i <- lapply(omission_rate, function(omr) {
-          proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                      prediction = pred_i,
-                                      threshold = omr)$pROC_summary
+        proc_i <- lapply(error_considered, function(omr) {
+          proc_omr <- fpROC::auc_metrics(test_prediction = suit_val_eval,
+                                         prediction = pred_i,
+                                         threshold = omr)$summary[, 4:5]
           names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
                                paste0("pval_pROC_at_", omr))
           return(proc_omr)
         })
+        # proc_i <- lapply(omission_rate, function(omr) {
+        #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
+        #                               prediction = pred_i,
+        #                               threshold = omr)$pROC_summary
+        #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
+        #                        paste0("pval_pROC_at_", omr))
+        #   return(proc_omr)
+        # })
         proc_i <- unlist(proc_i)} else {
           #Or fill PROC with NA
           proc_i <- rep(NA, length(error_considered) * 2)
@@ -658,7 +674,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
 
       # Save metrics in a dataframe
       df_eval <-  if (algorithm == "maxnet") {
-        data.frame(Fold = i,
+        data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
                    AICc = AICc,
@@ -666,7 +682,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
                    Is_concave = is_c,
                    row.names = NULL)
       } else if (algorithm == "glm") {
-        data.frame(Fold = i,
+        data.frame(Replicate = i,
                    t(om_rate),
                    t(proc_i),
                    AIC = m_aic$aic,
@@ -682,12 +698,12 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
   if (inherits(mods, "try-error")) {
     eval_final <- cbind(grid_x,
                         empty_replicates(error_considered = error_considered,
-                                         n_row = length(data$kfolds),
-                                         replicates = names(data$kfolds),
+                                         n_row = length(data$part_data),
+                                         replicates = names(data$part_data),
                                          is_c = is_c, algorithm = algorithm))
   } else {
     # Combine evaluation results
-    names(mods) <- names(data$kfolds)
+    names(mods) <- names(data$part_data)
     eval_final <- do.call("rbind", mods)
   }
 
@@ -778,7 +794,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
     best_regm <- best_model$R_multiplier  # Regularization multiplier for maxnet
   }
 
-  # Select data for the Fold, or use the entire calibration data
+  # Select data for the replicate, or use the entire calibration data
   # if n_replicates == 1
   if (n_replicates > 1) {
     rep_i <- rep_data[[rep_x]]
@@ -806,7 +822,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
 
     #mod_x$data <- NULL # avoid store redundant info
   }
-  # Assign model ID and Fold number for tracking
+  # Assign model ID and replicate number for tracking
   mod_x$checkModel <- m_id
   mod_x$checkReplicate <- rep_x
 
@@ -919,12 +935,12 @@ proc <- function(x, formula_grid, data, error_considered = 10,
   # Get background index
   bgind <- which(data$calibration_data$pr_bg == 0)
 
-  # Fit models using k-fold cross-validation
-  mods <- try(lapply(1:length(data$kfolds), function(i) {
-    notrain <- -data$kfolds[[i]]
+  # Fit models using cross-validation
+  mods <- try(lapply(1:length(data$part_data), function(i) {
+    notrain <- -data$part_data[[i]]
     data_i <- data$calibration_data[notrain,]
 
-    # Set weights per k-fold
+    # Set weights per replicate
     if (!is.null(weights)) {
       weights_i <- weights[notrain]
     } else {
@@ -961,22 +977,23 @@ proc <- function(x, formula_grid, data, error_considered = 10,
 
     #Proc
     proc_i <- lapply(error_considered, function(omr) {
-      proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-                                  prediction = pred_i,
-                                  threshold = omr)$pROC_summary
+      proc_omr <- fpROC::auc_metrics(test_prediction = suit_val_eval,
+                                     prediction = pred_i,
+                                     threshold = omr)$summary[, 4:5]
       names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
                            paste0("pval_pROC_at_", omr))
       return(proc_omr)
     })
+
     proc_i <- unlist(proc_i)
 
     # Save metrics in a dataframe
     df_proc <-  if (algorithm == "maxnet") {
-      data.frame(Fold = i,
+      data.frame(Replicate = i,
                  t(proc_i),
                  row.names = NULL)
     } else if (algorithm == "glm") {
-      data.frame(Fold = i,
+      data.frame(Replicate = i,
                  t(proc_i),
                  row.names = NULL)
     }
@@ -986,7 +1003,7 @@ proc <- function(x, formula_grid, data, error_considered = 10,
   proc_df <- do.call("rbind", mods)
 
   #Get means and sd
-  means <- sapply(proc_df[, -1], mean)  # Excluindo a coluna Fold
+  means <- sapply(proc_df[, -1], mean)  # Excluindo a coluna replicate
   sds <- sapply(proc_df[, -1], sd)
 
   #Create new dataframe

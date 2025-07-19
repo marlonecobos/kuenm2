@@ -99,8 +99,13 @@ print.prepared_data <- function(x, ...) {
   cat("  - Presence:", table(x$calibration_data$pr_bg)[2], "\n")
   cat("  - Background:", table(x$calibration_data$pr_bg)[1], "\n")
 
-  cat("Training-Testing Method:\n")
-  cat("  - k-fold Cross-validation:", length(x$kfolds), "folds\n")
+  cat("Partition Method:", x$partition_method, "\n")
+  if(x$partition_method %in% c("kfolds", "leave-one-out"))
+    cat("  - Number of kfolds:", length(x$part_data), "\n")
+  if(x$partition_method%in% c("subsample", "bootstrap")){
+    cat("  - Number of replicates:", x$n_replicates, "\n")
+    cat("  - Train proportion:", x$train_proportion, "\n")
+  }
 
   cat("Continuous Variables:\n")
   cat("  -", paste(x$continuous_variables, collapse = ", "), "\n")

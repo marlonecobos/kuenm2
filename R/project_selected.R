@@ -107,7 +107,7 @@
 #' pr <- prepare_projection(models = fitted_model_maxnet,
 #'                          present_dir = out_dir_current,
 #'                          future_dir = out_dir_future,
-#'                          future_period = c("2041-2060", "2081-2100"),
+#'                          future_period = c("2081-2100"),
 #'                          future_pscen = c("ssp126", "ssp585"),
 #'                          future_gcm = c("ACCESS-CM2", "MIROC6"),
 #'                          raster_pattern = ".tif*")

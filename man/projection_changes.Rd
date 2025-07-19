@@ -68,7 +68,8 @@ will return a NULL object. Setting this argument to TRUE while using multiple
 GCMs at a large extent and fine resolution may overload the RAM.}
 }
 \value{
-If return_raster = TRUE,  the function returns a list containing the
+A \code{changes_projections} object.
+If return_raster = TRUE, the function returns a list containing the
 SpatRasters with the computed changes. The list includes the following
 elements:
 \itemize{
@@ -78,8 +79,11 @@ elements:
 change.
 \item Summary_changes: A general summary that indicates how many GCMs project
 gain, loss, and stability for each scenario
-If return_raster = FALSE, the function returns a NULL object.
+\item root_directory: the path to the directory where the results were saved if
+write_results was set to TRUE
 }
+
+If return_raster = FALSE, the function returns a NULL object.
 }
 \description{
 This function performs map algebra operations to represent how and where
@@ -89,17 +93,26 @@ If multiple climate models (GCM) are used, it calculates the level of
 agreement among them for each emission scenario.
 }
 \details{
-When comparing changes in binarized prodictions over time, there are four
-possible outcomes:
+When projecting a niche model to different temporal scenarios (past or
+future), species’ areas can be classified into three categories relative to
+the current baseline: \strong{gain}, \strong{loss} and \strong{stability}. The
+interpretation of these categories depends on the temporal direction of the projection.
+\strong{When projecting to future scenarios}:
 \itemize{
-\item Stable-Suitable: the area remains suitable in both the current and
-projected times.
-\item Stable-Unsuitable: the area remains unsuitable in both the current and
-projected times.
-\item Gain: the area is unsuitable in the current time but becomes suitable in
-the projected time (indicating expansion).
-\item Loss: The area is suitable in the current time but becomes unsuitable in
-the projected time (indicating contraction).
+\item \emph{Gain}: Areas that are currently unsuitable become suitable in the future.
+\item \emph{Loss}: Areas that are currently suitable become unsuitable in the future.
+\item \emph{Stability}: Areas that retain their current classification in the future,
+whether suitable or unsuitable.
+}
+
+\strong{When projecting to past scenarios}:
+\itemize{
+\item \emph{Gain}: Areas that were unsuitable in the past are now suitable in the
+present.
+\item \emph{Loss}: Areas that were suitable in the past are now unsuitable in the
+present.
+\item \emph{Stability}: Areas that retain their past classification in the present,
+whether suitable or unsuitable.
 }
 
 The reference scenario (current conditions) can be accessed in the paths
@@ -148,8 +161,8 @@ data(fitted_model_maxnet, package = "kuenm2")
 pr <- prepare_projection(models = fitted_model_maxnet,
                          present_dir = out_dir_current,
                          future_dir = out_dir_future,
-                         future_period = c("2041-2060", "2081-2100"),
-                         future_pscen = c("ssp126", "ssp585"),
+                         future_period = c("2081-2100"),
+                         future_pscen = c("ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
 
@@ -170,7 +183,7 @@ changes <- projection_changes(model_projections = p, write_results = FALSE,
 terra::plot(changes$Binarized)  # SpatRaster with the binarized predictions
 terra::plot(changes$Results_by_gcm)  # SpatRaster with changes by GCM
 changes$Results_by_change  # List of SpatRaster(s) by changes with GCM agreement
-terra::plot(changes$Results_by_change$`Future_2041-2060_ssp585`)  # an example of the previous
+terra::plot(changes$Results_by_change$`Future_2081-2100_ssp585`)  # an example of the previous
 terra::plot(changes$Summary_changes)  # SpatRaster with a general summary
 }
 \seealso{

@@ -1,7 +1,9 @@
 url: https://marlonecobos.github.io/kuenm2/
 template:
   params:
-    bootswatch: cosmo
+    bootswatch: united
+  bootstrap: 5
+
 # navigation bar configuration
 navbar:
   left:
@@ -24,6 +26,11 @@ navbar:
          href: articles/model_predictions.html
       -  text: "6. Project models to multiple scenarios"
          href: articles/model_projections.html
+      -  text: "7. Exploring Model Uncertainty and Variability"
+         href: articles/variability_and_uncertainty.html
+      -  text: "8. Organize projections manually"
+         href: articles/organize_past_chelsa.html
+
   components:
     home: ~
 

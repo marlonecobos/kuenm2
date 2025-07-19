@@ -4,17 +4,19 @@
 \alias{projection_mop}
 \title{Analysis of extrapolation risks in projections using the MOP metric}
 \usage{
-projection_mop(data, projection_data, out_dir, fitted_models = NULL,
-               subset_variables = TRUE, mask = NULL,  type = "basic",
-               calculate_distance = FALSE, where_distance = "in_range",
-               distance = "euclidean", scale = FALSE, center = FALSE,
-               fix_NA = TRUE, percentage = 1, comp_each = 2000, tol = NULL,
-               rescale_distance = FALSE, parallel = FALSE, ncores = NULL,
-               progress_bar = TRUE, overwrite = FALSE)
+projection_mop(data, projection_data, out_dir,
+               subset_variables = FALSE, mask = NULL, type = "basic",
+               na_in_range = TRUE, calculate_distance = FALSE,
+               where_distance = "in_range", distance = "euclidean",
+               scale = FALSE, center = FALSE, fix_NA = TRUE, percentage = 1,
+               comp_each = 2000, tol = NULL, rescale_distance = FALSE,
+               parallel = FALSE, ncores = NULL, progress_bar = TRUE,
+               overwrite = FALSE)
 }
 \arguments{
-\item{data}{an object of class \code{prepared_data} returned by the
-\code{\link[=prepare_data]{prepare_data()}} function.}
+\item{data}{an object of class \code{fitted_models} returned by the
+\code{\link[=fit_selected]{fit_selected()}} function or an object of class \code{prepared_data} returned by
+the \code{\link[=prepare_data]{prepare_data()}} function.}
 
 \item{projection_data}{an object of class \code{projection_data} returned by the
 \code{\link[=prepare_projection]{prepare_projection()}}function. This file contains the paths to
@@ -23,11 +25,8 @@ the rasters representing each scenario.}
 \item{out_dir}{(character) a path to a root directory for saving the raster
 file of each projection.}
 
-\item{fitted_models}{an object of class \code{fitted_models} returned by the
-\code{\link[=fit_selected]{fit_selected()}} function.}
-
 \item{subset_variables}{(logical) whether to include in the analysis only the
-variables present in the selected models. Default is TRUE.}
+variables present in the selected models. Default is FALSE}
 
 \item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
 mask the variables (optional). Default is NULL.}
@@ -35,6 +34,12 @@ mask the variables (optional). Default is NULL.}
 \item{type}{(character) type of MOP analysis to be performed. Options
 available are "basic", "simple" and "detailed". See Details for further
 information.}
+
+\item{na_in_range}{(logical) whether to assign \code{NA} to regions within the
+projected area (G) where environmental conditions fall within the range of
+the calibration data (M). If \code{TRUE} (default), these regions are assigned
+\code{NA}. If \code{FALSE}, they are assigned \code{0} in the simple and basic MOP outputs,
+and \code{"within ranges"} in the detailed MOP output.}
 
 \item{calculate_distance}{(logical) whether to calculate distances
 (dissimilarities) between m and g. The default, FALSE, runs rapidly and does
@@ -176,10 +181,7 @@ scaling and centering are recommended. This step is only valid when Euclidean
 distances are used.
 }
 \examples{
-# Step 1: Import prepared data to serve as a base for MOP comparisons
-data(sp_swd_cat, package = "kuenm2")
-
-# Step 2: Organize variables for current projection
+# Step 1: Organize variables for current projection
 ## Import current variables (used to fit models)
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
@@ -192,7 +194,7 @@ dir.create(out_dir_current, recursive = TRUE)
 terra::writeRaster(var, file.path(out_dir_current, "Variables.tif"))
 
 
-# Step 3: Organize future climate variables (example with WorldClim)
+# Step 2: Organize future climate variables (example with WorldClim)
 ## Directory containing the downloaded future climate variables (example)
 in_dir <- system.file("extdata", package = "kuenm2")
 
@@ -204,7 +206,7 @@ out_dir_future <- file.path(tempdir(), "Future_raw4")
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
                           name_format = "bio_", fixed_variables = var$SoilType)
 
-# Step 4: Prepare data to run multiple projections
+# Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
 ## Import example of fitted_models (output of fit_selected())
 data(fitted_model_maxnet, package = "kuenm2")
@@ -218,15 +220,14 @@ pr <- prepare_projection(models = fitted_model_maxnet,
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
 
-# Step 5: Perform MOP for all projection scenarios
+# Step 4: Perform MOP for all projection scenarios
 ## Create a folder to save MOP results
 out_dir <- file.path(tempdir(), "MOPresults")
 dir.create(out_dir, recursive = TRUE)
 
 ## Run MOP
-kmop <- projection_mop(data = sp_swd_cat, projection_data = pr,
-                       out_dir = out_dir, fitted_models = fitted_model_maxnet,
-                       type = "detailed")
+kmop <- projection_mop(data = fitted_model_maxnet, projection_data = pr,
+                       out_dir = out_dir, type = "detailed")
 }
 \seealso{
 \code{\link[=organize_future_worldclim]{organize_future_worldclim()}}, \code{\link[=prepare_projection]{prepare_projection()}}

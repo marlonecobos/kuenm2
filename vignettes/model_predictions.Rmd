@@ -105,11 +105,11 @@ plot(p_maxnet$General_consensus)
 We can also plot the results for each replicate and the consensus for each model:
 
 ```{r plot models maxnet}
-#Predictions for each replicate from model 159
-plot(p_maxnet$Model_159$Replicates)
+#Predictions for each replicate from model 192
+plot(p_maxnet$Model_192$Replicates)
 
-#Consensus across each replicate from model 159
-plot(p_maxnet$Model_159$Model_consensus)
+#Consensus across each replicate from model 192
+plot(p_maxnet$Model_192$Model_consensus)
 ```
 
 <br>
@@ -153,11 +153,11 @@ p_df <- predict_selected(models = fitted_model_maxnet,
 Now, instead of `SpatRaster` objects, the function returns `data.frame` objects with the predictions:
 
 ```{r predict df results}
-#Results by replicate of the model 159
-head(p_df$Model_159$Replicates)
+#Results by replicate of the model 192
+head(p_df$Model_192$Replicates)
 
-#Consensus across replicates of the model 159
-head(p_df$Model_159$Model_consensus)
+#Consensus across replicates of the model 192
+head(p_df$Model_192$Model_consensus)
 
 #General consensus across all models
 head(p_df$General_consensus)
@@ -180,7 +180,7 @@ fitted_model_maxnet$omission_rate
 fitted_model_glm$omission_rate
 ```
 
-In both models, the omission error rate used to calculate the thresholds was 5%. This means that when the predictions are binarized, approximately 5% of the presence records used to calibrate the models will fall into cells classified as unsuitable.
+In both models, a 10% omission error rate was used to calculate the thresholds. This means that when predictions are binarized, approximately 10% of the presence records used in model calibration will fall into areas classified as unsuitable.
 
 The thresholds are summarized in two ways: the mean and median across replicates for each model, and the consensus mean and median across all selected models (when more than one model is selected). Let's check the thresholds for the general consensus:
 
@@ -241,8 +241,8 @@ new_var$bio_7 <- new_bio7
 
 #Plot the differences
 par(mfrow = c(1,2))
-plot(var$bio_7, main = "Original bio_7")
-plot(new_var$bio_7, main = "New bio_7")
+plot(var$bio_7, main = "Original bio_7", range = c(5, 25))
+plot(new_var$bio_7, main = "New bio_7", range = c(5, 25))
 on.exit() #Reinitiate grid
 ```
 
@@ -363,5 +363,12 @@ p_save <- predict_selected(models = fitted_model_maxnet,
                            write_replicates = TRUE, #To save predictions for each replicate
                            out_dir = tempdir(), #A path to save the resuls (here, the temporary directory)
                            progress_bar = FALSE)
+```
+
+Alternatively, we can use `writeRaster()` to save specific output predictions manually. For example, to save only the mean layer from the general consensus results:
+
+```{r writeRaster, eval = FALSE}
+writeRaster(p_maxnet$General_consensus$mean, 
+            filename = file.path(tempdir(), "Mean_consensus.tif"))
 ```
 

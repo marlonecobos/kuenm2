@@ -14,8 +14,8 @@ import_projections(
   future_pscen = NULL,
   future_gcm = NULL,
   change_types = c("summary", "by_gcm", "by_change"),
-  mop_types = c("simple", "basic", "towards_high_combined", "towards_low_combined",
-    "towards_high_end", "towards_low_end")
+  mop_types = c("distances", "simple", "basic", "towards_high_combined",
+    "towards_low_combined", "towards_high_end", "towards_low_end")
 )
 }
 \arguments{
@@ -53,12 +53,13 @@ available future scenarios will be imported.}
 future GCMs will be imported.}
 
 \item{change_types}{(character) names of the type of computed changes to
-import. Available options are: 'summary', 'by_gcm', and 'by_change'. Default
-is c("summary", "by_gcm", "by_change"), importing all types. Only applicable
-if projection is a \code{changes_projections} object.}
+import. Available options are: 'summary', 'by_gcm', 'by_change' and
+'binarized'. Default is c("summary", "by_gcm", "by_change"),
+importing all types. Only applicable if projection is a \code{changes_projections}
+object.}
 
 \item{mop_types}{(character) type(s) of MOP to import. Available options are:
-basic', 'simple', 'towards_high_combined', 'towards_low_combined',
+'basic', 'simple', 'towards_high_combined', 'towards_low_combined',
 towards_high_end', and 'towards_low_end'. Default is NULL, meaning all
 available MOPs will be imported. Only applicable if projection is a
 \code{mop_projections} object.}
@@ -121,7 +122,7 @@ data(fitted_model_maxnet, package = "kuenm2")
 pr <- prepare_projection(models = fitted_model_maxnet,
                          present_dir = out_dir_current,
                          future_dir = out_dir_future,
-                         future_period = c("2041-2060", "2081-2100"),
+                         future_period = "2041-2060",
                          future_pscen = c("ssp126", "ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
@@ -138,51 +139,6 @@ p <- project_selected(models = fitted_model_maxnet, projection_data = pr,
 # Use import_projections to import results:
 raster_p <- import_projections(projection = p, consensus = "mean")
 plot(raster_p)
-
-# Step 5: Identify areas of change in projections
-## Contraction, expansion and stability
-changes <- projection_changes(model_projections = p, output_dir = out_dir,
-                              overwrite = TRUE)
-# Use import_projections to import results:
-raster_changes <- import_projections(projection = changes,
-                                     change_type = c("summary", "by_gcm"))
-
-plot(raster_changes$by_gcm)
-plot(raster_changes$Summary)
-
-# Step 6: Perform MOP for all projection scenarios
-## Create a folder to save MOP results
-out_dir <- file.path(tempdir(), "MOP_results")
-dir.create(out_dir, recursive = TRUE)
-
-#Import prepared data to serve as a base for MOP comparisons
-data(sp_swd_cat, package = "kuenm2")
-
-## Run MOP
-kmop <- projection_mop(data = sp_swd_cat, projection_data = pr,
-                       out_dir = out_dir, fitted_models = fitted_model_maxnet,
-                       type = "detailed")
-# Use import_projections to import results:
-raster_mop <- import_projections(projection = kmop,
-                                 mop_types = c("simple", "basic",
-                                               "towards_high_combined",
-                                               "towards_low_combined"))
-plot(raster_mop$simple)
-plot(raster_mop$basic)
-plot(raster_mop$towards_high_combined)
-plot(raster_mop$towards_low_combined)
-
-# Step 7: Compute variance from distinct sources
-## Set folder to save results
-out_dir <- file.path(tempdir())
-v <- projection_variability(model_projections = p, by_replicate = FALSE,
-                            write_files = TRUE, output_dir = out_dir,
-                            overwrite=TRUE)
-v
-raster_variability <- import_projections(projection = v,
-                                         future_period = "2041-2060")
-plot(raster_variability)
-
 }
 \seealso{
 \code{\link[=prepare_projection]{prepare_projection()}}, \code{\link[=projection_changes]{projection_changes()}}, \code{\link[=projection_variability]{projection_variability()}},

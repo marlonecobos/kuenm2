@@ -9,9 +9,11 @@
 #' @usage
 #' prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
 #'              mask = NULL, n_background = 1000, features = c("lq", "lqp"),
-#'              r_multiplier = c(0.1, 0.5, 1, 2, 3), kfolds = 4,
-#'              categorical_variables = NULL, do_pca = FALSE, center = TRUE,
-#'              scale = TRUE, exclude_from_pca = NULL, variance_explained = 95,
+#'              r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method,
+#'              n_replicates = 4, train_proportion = 0.7,
+#'              categorical_variables = NULL,
+#'              do_pca = FALSE, center = TRUE, scale = TRUE,
+#'              exclude_from_pca = NULL, variance_explained = 95,
 #'              min_explained = 5, min_number = 2, min_continuous = NULL,
 #'              bias_file = NULL, bias_effect = NULL, weights = NULL,
 #'              include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
@@ -65,8 +67,16 @@
 #' "direct", higher values in bias file increase the likelihood of selecting
 #' background points. If "inverse", higher values decrease the likelihood.
 #' Default = NULL. Must be defined if `bias_file` is provided.
-#' @param kfolds (numeric) the number of groups (folds) the occurrence
-#' data will be split into for cross-validation. Default is 4.
+#' @param partition_method (character) method used for data partitioning.
+#' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
+#' See **Details** for more information.
+#' @param n_replicates (numeric) number of replicates to generate. If
+#' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
+#' of partitions. If `"kfolds"`, it specifies the number of folds. Default is 4.
+#' @param train_proportion (numeric) proportion of occurrence and background
+#' points to be used for model training in each replicate. Only applicable when
+#'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
+#'  70% for training and 30% for testing).
 #' @param weights (numeric) a numeric vector specifying weights for the
 #' occurrence records. Default is NULL.
 #' @param min_number (numeric) the minimum number of variables to be included in
@@ -88,14 +98,22 @@
 #' @param seed (numeric) integer value to specify an initial seed to split the
 #' data and extract background. Default is 1.
 #'
+#' @details
+#' The available data partitioning methods are:
+#'
+#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
+#' - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
+#' - **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
+#' - **"leave-one-out"**: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
+#'
 #' @return
 #' An object of class `prepared_data` containing all elements to run a model
 #' calibration routine. The elements include: species, calibration data,
-#' a grid of model parameters, indices of k-folds for cross validation,
+#' a grid of model parameters, indices of test data for cross validation,
 #' xy coordinates, names of continuous and categorical variables, weights,
 #' results from PCA, and modeling algorithm.
 #'
-#' @importFrom enmpa kfold_partition aux_var_comb
+#' @importFrom enmpa aux_var_comb
 #' @importFrom terra crop prcomp extract as.data.frame nlyr ncell ext res
 #' @importFrom utils combn
 #'
@@ -122,7 +140,8 @@
 #'                        n_background = 500, bias_file = bias,
 #'                        bias_effect = "direct",
 #'                        features = c("l", "q", "p", "lq", "lqp"),
-#'                        r_multiplier = c(0.1, 1, 2, 3, 5))
+#'                        r_multiplier = c(0.1, 1, 2, 3, 5),
+#'                        partition_method = "kfolds")
 #' print(sp_swd)
 #'
 #' # Prepare data for glm model
@@ -133,7 +152,8 @@
 #'                            categorical_variables = "SoilType",
 #'                            n_background = 500, bias_file = bias,
 #'                            bias_effect = "direct",
-#'                            features = c("l", "q", "p", "lq", "lqp"))
+#'                            features = c("l", "q", "p", "lq", "lqp"),
+#'                            partition_method = "kfolds")
 #' print(sp_swd_glm)
 
 prepare_data <- function(algorithm,
@@ -146,7 +166,9 @@ prepare_data <- function(algorithm,
                          n_background = 1000,
                          features = c("lq", "lqp"),
                          r_multiplier = c(0.1, 0.5, 1, 2, 3),
-                         kfolds = 4,
+                         partition_method,
+                         n_replicates = 4,
+                         train_proportion = 0.7,
                          categorical_variables = NULL,
                          do_pca = FALSE,
                          center = TRUE,
@@ -290,6 +312,23 @@ prepare_data <- function(algorithm,
     }
   }
 
+  if(!(partition_method %in% c("kfolds", "leave-one-out",
+                               "subsample", "bootstrap"))){
+    stop("Invalid 'partition_method'. Available options include 'kfolds',
+'leave-one-out','subsample', and 'bootstrap'")
+  }
+
+  if(!(n_replicates %% 1 == 0) || n_replicates <= 0){
+    stop("'n_replicates' must be a positive numeric integer (e.g., 1, 2, 3...)")
+  }
+
+  if(partition_method %in% c("bootstrap", "subsample")){
+    if(train_proportion > 1 || train_proportion <= 0 ||
+       is.na(train_proportion) || is.null(train_proportion)){
+      stop("'train_proportion' must be a positive numeric between 0 and 1")
+    }
+  }
+
   sp_name <- species
 
   if (!is.null(mask)) {
@@ -340,8 +379,15 @@ prepare_data <- function(algorithm,
   }
 
 
-  k_f <- enmpa::kfold_partition(data = occ_bg, dependent = "pr_bg", k = kfolds,
-                                seed = seed)
+  # k_f <- enmpa::kfold_partition(data = occ_bg, dependent = "pr_bg", k = kfolds,
+  #                               seed = seed)
+
+  #Partitione data
+  pd <- part_data(data = occ_bg, pr_bg = "pr_bg",
+                  train_proportion = train_proportion,
+                  n_replicates = n_replicates,
+                  partition_method = partition_method,
+                  seed = seed)
 
   #Formula grid
   formula_grid <- calibration_grid(occ_bg = occ_bg, min_number = min_number,
@@ -350,9 +396,18 @@ prepare_data <- function(algorithm,
                                    features = features, algorithm = algorithm,
                                    r_multiplier = r_multiplier)
 
+  #Prepare final data
+  if(partition_method %in% c("kfolds", "leave-one-out")){
+    train_proportion <- NULL
+  }
+
+
   data <- new_prepared_data(species = species, calibration_data = occ_bg,
                             formula_grid = formula_grid,
-                            kfolds = k_f, data_xy = occ_bg_xy,
+                            part_data = pd, partition_method = partition_method,
+                            n_replicates = n_replicates,
+                            train_proportion = train_proportion,
+                            data_xy = occ_bg_xy,
                             continuous_variables = continuous_variable_names,
                             categorical_variables = categorical_variables,
                             weights = weights, pca = pca$pca,
