@@ -33,11 +33,12 @@
 #' (GCMs) from the future to import. Default is NULL, meaning all available
 #' future GCMs will be imported.
 #' @param change_types (character) names of the type of computed changes to
-#' import. Available options are: 'summary', 'by_gcm', and 'by_change'. Default
-#' is c("summary", "by_gcm", "by_change"), importing all types. Only applicable
-#' if projection is a `changes_projections` object.
+#' import. Available options are: 'summary', 'by_gcm', 'by_change' and
+#' 'binarized'. Default is c("summary", "by_gcm", "by_change"),
+#' importing all types. Only applicable if projection is a `changes_projections`
+#' object.
 #' @param mop_types (character) type(s) of MOP to import. Available options are:
-#' basic', 'simple', 'towards_high_combined', 'towards_low_combined',
+#' 'basic', 'simple', 'towards_high_combined', 'towards_low_combined',
 #' towards_high_end', and 'towards_low_end'. Default is NULL, meaning all
 #' available MOPs will be imported. Only applicable if projection is a
 #' `mop_projections` object.
@@ -100,7 +101,7 @@
 #' pr <- prepare_projection(models = fitted_model_maxnet,
 #'                          present_dir = out_dir_current,
 #'                          future_dir = out_dir_future,
-#'                          future_period = c("2041-2060", "2081-2100"),
+#'                          future_period = "2041-2060",
 #'                          future_pscen = c("ssp126", "ssp585"),
 #'                          future_gcm = c("ACCESS-CM2", "MIROC6"),
 #'                          raster_pattern = ".tif*")
@@ -117,51 +118,6 @@
 #' # Use import_projections to import results:
 #' raster_p <- import_projections(projection = p, consensus = "mean")
 #' plot(raster_p)
-#'
-#' # Step 5: Identify areas of change in projections
-#' ## Contraction, expansion and stability
-#' changes <- projection_changes(model_projections = p, output_dir = out_dir,
-#'                               overwrite = TRUE)
-#' # Use import_projections to import results:
-#' raster_changes <- import_projections(projection = changes,
-#'                                      change_type = c("summary", "by_gcm"))
-#'
-#' plot(raster_changes$by_gcm)
-#' plot(raster_changes$Summary)
-#'
-#' # Step 6: Perform MOP for all projection scenarios
-#' ## Create a folder to save MOP results
-#' out_dir <- file.path(tempdir(), "MOP_results")
-#' dir.create(out_dir, recursive = TRUE)
-#'
-#' #Import prepared data to serve as a base for MOP comparisons
-#' data(sp_swd_cat, package = "kuenm2")
-#'
-#' ## Run MOP
-#' kmop <- projection_mop(data = sp_swd_cat, projection_data = pr,
-#'                        out_dir = out_dir, fitted_models = fitted_model_maxnet,
-#'                        type = "detailed")
-#' # Use import_projections to import results:
-#' raster_mop <- import_projections(projection = kmop,
-#'                                  mop_types = c("simple", "basic",
-#'                                                "towards_high_combined",
-#'                                                "towards_low_combined"))
-#' plot(raster_mop$simple)
-#' plot(raster_mop$basic)
-#' plot(raster_mop$towards_high_combined)
-#' plot(raster_mop$towards_low_combined)
-#'
-#' # Step 7: Compute variance from distinct sources
-#' ## Set folder to save results
-#' out_dir <- file.path(tempdir())
-#' v <- projection_variability(model_projections = p, by_replicate = FALSE,
-#'                             write_files = TRUE, output_dir = out_dir,
-#'                             overwrite=TRUE)
-#' v
-#' raster_variability <- import_projections(projection = v,
-#'                                          future_period = "2041-2060")
-#' plot(raster_variability)
-#'
 import_projections <- function(projection,
                                consensus = c("median", "range", "mean", "stdev"),
                                present = TRUE,
@@ -171,7 +127,7 @@ import_projections <- function(projection,
                                future_pscen = NULL,
                                future_gcm = NULL,
                                change_types = c("summary", "by_gcm", "by_change"),
-                               mop_types = c("simple", "basic",
+                               mop_types = c("distances", "simple", "basic",
                                              "towards_high_combined",
                                              "towards_low_combined",
                                              "towards_high_end",
@@ -260,7 +216,7 @@ import_projections <- function(projection,
 
     #Check ssps
     if(!is.null(future_pscen)){
-      available_future_pscen <- na.omit(unique(projection$paths$ssp))
+      available_future_pscen <- na.omit(unique(projection$paths$Scenario))
       future_pscen_out <- setdiff(future_pscen, available_future_pscen)
       if (length(future_pscen_out) > 0) {
         stop("Invalid 'future_pscen' provided.",
@@ -275,15 +231,15 @@ import_projections <- function(projection,
 
   if(inherits(projection, "mop_projections")){
     #Check data
-    mop_out <- setdiff(mop_types, c("simple", "basic",
+    mop_out <- setdiff(mop_types, c("distances", "simple", "basic",
                                     "towards_high_combined",
                                     "towards_low_combined",
                                     "towards_high_end",
                                     "towards_low_end"))
     if(length(mop_out) > 0)
-      stop("One of the mop_types provided is not valid. The options are 'simple',
-           'basic', 'towards_high_combined', 'towards_low_combined',
-           'towards_high_end', and 'towards_low_end'.")
+      stop("One of the mop_types provided is not valid. The options are:
+      'distances', 'simple', 'basic', 'towards_high_combined', 'towards_low_combined',
+       'towards_high_end', and 'towards_low_end'.")
 
     #Check if root_directory exists
     if(is.null(projection$root_directory)){
@@ -335,7 +291,7 @@ import_projections <- function(projection,
       future_paths <- future_paths[future_paths$Period %in% future_period,]
 
     if(!is.null(future_pscen))
-      future_paths <- future_paths[future_paths$ssp %in% future_pscen,]
+      future_paths <- future_paths[future_paths$Scenario %in% future_pscen,]
 
     if(!is.null(future_gcm))
       future_paths <- future_paths[future_paths$GCM %in% future_gcm,]
@@ -354,7 +310,7 @@ import_projections <- function(projection,
       r_i <- r_i[[consensus]]
       #Rename
       new_name <- paste(na.omit(c(p_paths$Time[i], p_paths$Period[i],
-                                  p_paths$Scenario[i], p_paths$ssp[i],
+                                  p_paths$Scenario[i],
                                   p_paths$GCM[i])),
                         collapse = "_")
       if(new_name == "Present_Present_Present")
@@ -384,7 +340,8 @@ import_projections <- function(projection,
 
       # Construct the filename pattern based on the dataframe information
       if (mop_type == "towards_high_combined" || mop_type == "towards_low_combined" ||
-          mop_type == "towards_high_end" || mop_type == "towards_low_end") {
+          mop_type == "towards_high_end" || mop_type == "towards_low_end" ||
+          mop_type == "distances") {
         mop_suffix <- paste0("_mop_", mop_type, ".tif$")
       } else {
         mop_suffix <- paste0("_mop", mop_type, ".tif$")
@@ -401,11 +358,11 @@ import_projections <- function(projection,
         file_partial_path <- paste0(
           row_info$Time, "/",
           row_info$Period, "/",
-          row_info$ssp, "/",
+          row_info$Scenario, "/",
           row_info$GCM, mop_suffix
         )
         # Construct the name for the raster (e.g., "Future_2081-2100_ssp126_ACCESS-CM2")
-        raster_name_id <- paste(row_info$Time, row_info$Period, row_info$ssp,
+        raster_name_id <- paste(row_info$Time, row_info$Period, row_info$Scenario,
                                 row_info$GCM, sep = "_")
       }
 
@@ -436,7 +393,7 @@ import_projections <- function(projection,
     output_rasters[[mop_type]] <- current_mop_rasters
 
     # Combine if mop_type is simple, basic, or a combined type
-    if (mop_type %in% c("basic", "simple", "towards_high_combined",
+    if (mop_type %in% c("distances", "basic", "simple", "towards_high_combined",
                         "towards_low_combined")) {
       # If the temporary list is not empty, combine the rasters
       if (length(output_rasters[[mop_type]]) > 0) {
@@ -453,10 +410,11 @@ import_projections <- function(projection,
   #### projection_changes ####
   if(inherits(projection, "changes_projections")){
     #Check change types
-    change_out <- setdiff(change_types, c("summary", "by_gcm", "by_change"))
+    change_out <- setdiff(change_types, c("summary", "by_gcm", "by_change",
+                                          "binarized"))
     if(length(change_out) > 0){
       stop("One or more of the 'change_types' provided are not valid.
-      Available options are: 'summary', 'by_gcm', and 'by_change'.")
+      Available options are: 'summary', 'by_gcm', 'by_change', and 'binarized'.")
     }
 
     #Check if root_directory exists
@@ -478,12 +436,45 @@ import_projections <- function(projection,
     output_rasters <- list()
 
     #If by_gcm
+    if("binarized" %in% change_types){
+      #Get file
+      f_bin <- file.path(projection$root_directory, "Binarized.tif")
+      #Check if file exists
+      if(file.exists(f_bin)){
+        output_rasters[["Binarized"]] <- terra::rast(f_bin)
+        #Subset if necessary
+        if(!present){
+          to_remove <- !grepl("Present", names(output_rasters[["Binarized"]]))
+          output_rasters[["Binarized"]] <- output_rasters[["Binarized"]][[to_remove]]
+        }
+        #By period
+        all_periods <- c(past_period, future_period)
+        if(!is.null(all_periods)){
+          period_to_remove <- paste(all_periods, collapse = "|")
+          period_to_remove <- !grepl(period_to_remove,
+                                     names(output_rasters[["Binarized"]]))
+          output_rasters[["Binarized"]] <- output_rasters[["Binarized"]][[period_to_remove]]
+        }
+
+        #By scenario
+        if(!is.null(future_pscen)){
+          pscen_to_remove <- paste(future_pscen, collapse = "|")
+          pscen_to_remove <- !grepl(future_pscen,
+                                     names(output_rasters[["Binarized"]]))
+          output_rasters[["Binarized"]] <- output_rasters[["Binarized"]][[pscen_to_remove]]
+        }
+      } else {
+        warning("Binarized.tif not found in root directory. Ensure you run 'projection_changes()' with 'write_files' = TRUE and 'write_bin_models = TRUE'")
+      }
+    }
+
+    #If by_gcm
     if("by_gcm" %in% change_types){
       #Get file
       f_gcm <- file.path(projection$root_directory, "Changes_by_GCM.tif")
       #Check if file exists
       if(file.exists(f_gcm)){
-        output_rasters[["by_gcm"]] <- terra::rast(f_gcm)
+        output_rasters[["Results_by_gcm"]] <- terra::rast(f_gcm)
       } else {
         warning("Changes_by_GCM.tif not found in root directory")
       }
@@ -526,7 +517,7 @@ import_projections <- function(projection,
         names(r) <- paste(df$Time, df$Period, df$ssp, sep = "_")
 
         #Store results
-        output_rasters[["by_change"]] <- r
+        output_rasters[["Results_by_change"]] <- r
       } else {
         warning("Changes_by_GCM.tif not found in root directory")
       }
@@ -538,15 +529,35 @@ import_projections <- function(projection,
       f_summary <- file.path(projection$root_directory, "Changes_summary.tif")
       #Check if file exists
       if(file.exists(f_summary)){
-        output_rasters[["Summary"]] <- terra::rast(f_summary)
+        output_rasters[["Summary_changes"]] <- terra::rast(f_summary)
       } else {
         warning("Changes_summary.tif not found in root directory")
       }
     }
 
+    #Subset by period or pscen
+    if(!is.null(future_period)){
+      get_period <- grepl(paste(future_period, collapse = "|"),
+                          names(output_rasters$Summary))
+      if(sum(get_period) == 0){
+        stop("None of the future_period values provided are available.")
+      }
+      output_rasters$Summary <- output_rasters$Summary[[get_period]]
+    }
+
+    if(!is.null(future_pscen)){
+      get_pscen <- grepl(paste(future_pscen, collapse = "|"),
+                          names(output_rasters$Summary))
+      if(sum(get_pscen) == 0){
+        stop("None of the future_pscen values provided are available.")
+      }
+      output_rasters$Summary <- output_rasters$Summary[[get_pscen]]
+    }
+
     #Append root directory
     output_rasters[["root_directory"]] <- projection$root_directory
-
+    #Set class
+    class(output_rasters) <- "changes_projections"
   } #End of changes
 
 
@@ -589,8 +600,8 @@ import_projections <- function(projection,
 
     #Convert do dataframe to subset periods
     df <- as.data.frame(t(sapply(f_split, `[`, 1:3))) #Convert to dataframe
-    colnames(df) <- c("Time", "Period", "ssp") #Rename columns
-    df$ssp <- gsub("\\.tif", "", df$ssp) #Remove tif
+    colnames(df) <- c("Time", "Period", "Scenario") #Rename columns
+    df$Scenario <- gsub("\\.tif", "", df$Scenario) #Remove tif
 
     #Subset if necessary
     #By period
@@ -600,11 +611,12 @@ import_projections <- function(projection,
 
     #By scenario
     if(!is.null(future_pscen)){
-      df <- df[df$ssp %in% future_pscen | is.na(df$ssp), ]
+      df <- df[df$Scenario %in% future_pscen | is.na(df$Scenario), ]
     }
 
     #Get files to read
-    files_to_read <- paste0(paste(df$Time, df$Period, df$ssp, sep = "_"),
+    files_to_read <- paste0(paste(df$Time, df$Period, df$Scenario,
+                                  sep = "_"),
                             ".tif")
     files_to_read <- file.path(rd, files_to_read)
     #Read
