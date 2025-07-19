@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 
 After the best performing models have been selected, users need to fit this models (using `fit_selected()`) in order to explore their characteristics and continue with the next steps. Fitted models can then be used to assess variable importance in models, as well as to explore variable response curves. 
 
-To fit the selected models, we need a `calibration_results` object. For more details in model calibration, please refer to the vignette [Model Calibration](/articles/model_calibration.html). The `calibration_results` object generated in this vignette is available as a data example in the package. Let's load it.
+To fit the selected models, we need a `calibration_results` object. For more details in model calibration, please refer to the vignette [Model Calibration](model_calibration.html). The `calibration_results` object generated in this vignette is available as a data example in the package. Let's load it.
 
 ```{r import calibration results, warning=FALSE}
 #Load packages
@@ -54,18 +54,19 @@ Note that the `calibration_results` object stores only the information related t
 
 To obtain the final fitted models, we need to use the `fit_selected()` function. By default, this function fits a full model (i.e., without replicates and without splitting the data into training and testing sets). However, you can configure it to fit final models with replicates if desired.
 
-In this example, we'll fit the final models using the same replication settings (4-fold cross-validation) as used in the [Model Calibration](/articles/model_calibration.html) vignette.
+In this example, we'll fit the final models using the same replication settings (4-fold cross-validation) as used in the [Model Calibration](model_calibration.html) vignette.
 
 ```{r fit_selected not echo, warning=FALSE, echo=FALSE}
 # Fit models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet, 
-                   n_replicates = 4, verbose = FALSE, progress_bar = FALSE)
+                   partition_method = "kfolds", n_replicates = 4, 
+                   verbose = FALSE, progress_bar = FALSE)
 ```
 
 ```{r fit_selected not eval, warning=FALSE, eval=FALSE}
 # Fit selected models using calibration results
-fm <- fit_selected(calibration_results = calib_results_maxnet, #or calib_results_glm
-                   n_replicates = 4)
+fm <- fit_selected(calibration_results = calib_results_maxnet, 
+                   partition_method = "kfolds", n_replicates = 4)
 # Fitting replicates...
 #   |========================================================================| 100%
 # Fitting full models...
@@ -75,14 +76,14 @@ fm <- fit_selected(calibration_results = calib_results_maxnet, #or calib_results
 
 The `fit_selected()` function returns a `fitted_models` object, a list that contains essential information from the fitted models, which is required for the subsequent steps.
 
-You can explore the contents of the `fitted_models` object by indexing its elements. For example, the fitted `maxnet` (or `glm`) model objects are stored within the `Models` element. Note that `Models` is a nested list: for each selected model (in this case, models 159 and 189), it includes both the replicates (if fitted with replicates) and the full model.
+You can explore the contents of the `fitted_models` object by indexing its elements. For example, the fitted `maxnet` (or `glm`) model objects are stored within the `Models` element. Note that `Models` is a nested list: for each selected model (in this case, models 192 and 219), it includes both the replicates (if fitted with replicates) and the full model.
 
 ```{r explore  fitted}
 #See names of selected models
 names(fm$Models)
 
-#See models inside Model 189
-names(fm$Models$Model_189)
+#See models inside Model 192
+names(fm$Models$Model_192)
 ```
 
 The `fitted_models` object also stores the thresholds that can be used to binarize the models into suitable and unsuitable areas. These thresholds correspond to the omission error used during model selection (e.g., 5% or 10%).
@@ -93,7 +94,7 @@ You can access the omission error used to calculate the thresholds directly from
 #Get omission error used to select models and calculate the thesholds
 fm$omission_rate
 ```
-The omission error used to calculate the thresholds was 5%, meaning that when the predictions are binarized, approximately 5% of the presence records used to calibrate the models will fall into cells with predicted values below the threshold.
+The omission error used to calculate the thresholds was 10%, meaning that when the predictions are binarized, approximately 10% of the presence records used to calibrate the models will fall into cells with predicted values below the threshold.
 
 The thresholds are summarized in two ways: the mean and median across replicates for each model, and the consensus mean and median across all selected models (when more than one model is selected):
 
@@ -117,15 +118,16 @@ Let's check which variables are available to plot by examining the coefficients 
 fm$Models[[1]]$Full_model$betas #From the first model selected
 fm$Models[[2]]$Full_model$betas #From the second model selected
 ```
-The variables `bio_1`, `bio_7`, and `bio_12` have non-zero coefficient values, which means they contribute to the model and are available for generating response curves.
+The variables `bio_1`, `bio_7`, `bio_12` and `bio_15 `have non-zero coefficient values, which means they contribute to the model and are available for generating response curves.
 
 By default, response curves are computed using all selected models. The resulting plots include a line for the mean response, along with a shaded area representing the 95% confidence interval.
 
 ```{r response curve, fig.height=3.5}
-par(mfrow = c(1, 3)) #Set grid of plot
+par(mfrow = c(2, 2)) #Set grid of plot
 response_curve(models = fm, variable = "bio_1")
 response_curve(models = fm, variable = "bio_7")
 response_curve(models = fm, variable = "bio_12")
+response_curve(models = fm, variable = "bio_15")
 on.exit() #Reinitiate grid
 ```
 
@@ -134,13 +136,13 @@ We can also specify which of the selected models should be used to generate the 
 ```{r response ID}
 par(mfrow = c(2, 2)) #Set grid of plot
 response_curve(models = fm, variable = "bio_1",
-               modelID = "Model_159", main = "Model_159")
+               modelID = "Model_192", main = "Model_192")
 response_curve(models = fm, variable = "bio_1", 
-               modelID = "Model_189", main = "Model_189")
+               modelID = "Model_219", main = "Model_219")
 response_curve(models = fm, variable = "bio_7", 
-               modelID = "Model_159", main = "Model_159")
+               modelID = "Model_192", main = "Model_192")
 response_curve(models = fm, variable = "bio_7", 
-               modelID = "Model_189", main = "Model_189")
+               modelID = "Model_219", main = "Model_219")
 on.exit() #Reinitiate grid
 ```
 
@@ -151,10 +153,11 @@ If `extrapolation = FALSE`, no extrapolation occurs, and the plot limits match t
 We can increase the extrapolation factor to allow a broader range beyond the observed data. Below is the response curve plotted with an extrapolation factor of 2:
 
 ```{r extrapolation factor, fig.height=3.5}
-par(mfrow = c(1, 3)) #Set grid of plot
+par(mfrow = c(2, 2)) #Set grid of plot
 response_curve(models = fm, variable = "bio_1", extrapolation_factor = 2)
 response_curve(models = fm, variable = "bio_7", extrapolation_factor = 2)
 response_curve(models = fm, variable = "bio_12", extrapolation_factor = 2)
+response_curve(models = fm, variable = "bio_15", extrapolation_factor = 2)
 on.exit() #Reinitiate grid
 ```
 
@@ -219,10 +222,10 @@ If variable importance is computed for a single model, the plot displays a barpl
 
 ```{r one model importance}
 # Calculate variable importance for a specific selected Model
-imp_189 <- variable_importance(models = fm, modelID = "Model_189", 
+imp_192<- variable_importance(models = fm, modelID = "Model_192", 
                                progress_bar = FALSE)
-#Plot variable contribution for model 189
-plot_importance(imp_189, main = "Variable importance - Model 189")
+#Plot variable contribution for model 192
+plot_importance(imp_192, main = "Variable importance - Model 192")
 ```
 <br>
 

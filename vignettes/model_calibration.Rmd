@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 
 Model calibration is the most computationally challenging process automated in **kuenm2**. In this step, candidate models are trained and tested using a k-fold cross-validation approach. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. The main function used in this step is `calibration()`.
 
-To start the calibration process, we need a `prepared_data` object. For more details in data preparation, please refer to the vignette [prepare data for model calibration](prepared_data.html).
+To start the calibration process, we need a `prepared_data` object. For more details in data preparation, please refer to the vignette [prepare data for model calibration](prepare_data.html).
 
 To start, let's create two `prepared_data` object: one using the maxnet as algorithm, and another with GLM:
 
@@ -52,20 +52,26 @@ d_maxnet <- prepare_data(algorithm = "maxnet",
                          x = "x", y = "y",
                          raster_variables = var,
                          species = "Myrcia hatschbachii",
-                         categorical_variables = "SoilType",
-                         n_background = 300,
+                         categorical_variables = "SoilType", 
+                         partition_method = "kfolds", 
+                         n_replicates = 4,
+                         n_background = 1000,
                          features = c("l", "q", "lq", "lqp"),
                          r_multiplier = c(0.1, 1, 2))
 
 # Prepare data for glm model
 d_glm <- prepare_data(algorithm = "glm",
-                         occ = occ_data,
-                         x = "x", y = "y",
-                         raster_variables = var,
-                         species = "Myrcia hatschbachii",
-                         categorical_variables = "SoilType",
-                         n_background = 300,
-                         features = c("l", "q", "lq", "lqp"))
+                      occ = occ_data,
+                      x = "x", y = "y",
+                      raster_variables = var,
+                      species = "Myrcia hatschbachii",
+                      categorical_variables = "SoilType", 
+                      partition_method = "bootstrap", 
+                      n_replicates = 10, 
+                      train_proportion = 0.7,
+                      n_background = 300,
+                      features = c("l", "q", "p", "lq", "lqp"),
+                      r_multiplier = NULL) #Not necessary with glms
 ```
 
 <br>
@@ -101,7 +107,7 @@ m_maxnet <- kuenm2::calib_results_maxnet
 #Calibrate maxnet models
 m_maxnet <- calibration(data = d_maxnet, 
                  error_considered = c(5, 10),
-                 omission_rate = 5,
+                 omission_rate = 10,
                  parallel = FALSE, #Set TRUE to run in parallel
                  ncores = 1) #Define number of cores to run in parallel
 # Task 1/1: fitting and evaluating models:
@@ -113,7 +119,7 @@ m_maxnet <- calibration(data = d_maxnet,
 # 
 # Filtering 300 models.
 # Removing 0 model(s) because they failed to fit.
-# 153 models were selected with omission rate below 5%.
+# 135 models were selected with omission rate below 10%.
 # Selecting 2 final model(s) with delta AIC <2.
 # Validating pROC of selected models...
 #   |=====================================================================| 100%
@@ -121,6 +127,7 @@ m_maxnet <- calibration(data = d_maxnet,
 ```
 
 The `calibration()` function returns a `calibration_results` object, a list containing various essential pieces of information from the model calibration process. The elements of the `calibration_results` object can be explored by indexing them. For example, all evaluation metrics are stored within the `calibration_results` element:
+
 ```{r explore calibration}
 # See first rows of the summary of calibration results
 head(m_maxnet$calibration_results$Summary[,c("ID", "Omission_rate_at_10.mean", "AICc",
@@ -161,24 +168,25 @@ m_glm <- kuenm2::calib_results_glm
 #Calibrate maxnet models
 m_glm <- calibration(data = d_glm, 
                      error_considered = c(5, 10),
-                     omission_rate = 5,
+                     omission_rate = 10,
                      parallel = FALSE, #Set TRUE to run in parallel
                      ncores = 1) #Define number of cores to run in parallel
 # Task 1/1: fitting and evaluating models:
 #   |=====================================================================| 100%
 # Model selection step:
-# Selecting best among 100 models.
+# Selecting best among 122 models.
 # Calculating pROC...
 # 
-# Filtering 100 models.
+# Filtering 122 models.
 # Removing 0 model(s) because they failed to fit.
-# 50 models were selected with omission rate below 5%.
+# 21 models were selected with omission rate below 10%.
 # Selecting 1 final model(s) with delta AIC <2.
 # Validating pROC of selected models...
 #   |=====================================================================| 100%
 # All selected models have significant pROC values.
 ```
 Now, instead of two selected models, we have only one:
+
 ```{r selected models in glm}
 m_glm
 ```
@@ -210,7 +218,7 @@ However, occasionally, a model with concave curves might be selected if it has s
 m_unimodal <- calibration(data = d_maxnet, 
                           remove_concave = TRUE, # Ensures concave models are not selected
                           error_considered = c(5, 10),
-                          omission_rate = 5)
+                          omission_rate = 10)
 # Task 1/2: checking for concave responses in models:
 #   |=====================================================================| 100%
 # 
@@ -218,13 +226,13 @@ m_unimodal <- calibration(data = d_maxnet,
 #   |=====================================================================| 100%
 # 
 # Model selection step:
-# Selecting best among 370 models.
+# Selecting best among 300 models.
 # Calculating pROC...
 # 
-# Filtering 370 models.
+# Filtering 300 models.
 # Removing 0 model(s) because they failed to fit.
-# Removing 105 model(s) with concave curves.
-# 129 models were selected with omission rate below 5%.
+# Removing 39 model(s) with concave curves.
+# 110 models were selected with omission rate below 10%.
 # Selecting 2 final model(s) with delta AIC <2.
 # Validating pROC of selected models...
 #   |=====================================================================| 100%
@@ -259,24 +267,24 @@ m_maxnet$selected_models[,c("ID", "Mean_AUC_ratio_at_10.mean",
 
 When pROC is not calculated for all models during `calibration()`, the `select_models()` function requires the `prepared_data` used during the calibration step, and `compute_proc` must be set to `TRUE`.
 
-For instance, let's re-select the maxnet models from the calibration results, applying an omission rate of 10% instead 5%:
+For instance, let's re-select the maxnet models from the calibration results, applying an omission rate of 5% instead 10%:
 
 ```{r}
 #Re-select maxnet models
 new_m_maxnet <- select_models(calibration_results = m_maxnet, 
-                       data = d_maxnet, #Necessary for computing pROC
-                       compute_proc = TRUE, 
-                       omission_rate = 10) # New omission rate
+                              data = d_maxnet, #Necessary for computing pROC
+                              compute_proc = TRUE, 
+                              omission_rate = 5) # New omission rate
 print(new_m_maxnet)
 ```
 
 <br>
 
-If a `calibration_results` object is provided, `select_models()` will return a `calibration_results` output with the selected models and summary updated. Note that we now have only 1 model selected with the maxnet algoritm:
+If a `calibration_results` object is provided, `select_models()` will return a `calibration_results` output with the selected models and summary updated. Note that we now have different selected models with the maxnet algoritm:
 
 ```{r selected models or5}
 new_m_maxnet$selected_models[,c("ID", "Formulas", "R_multiplier", 
-                     "Omission_rate_at_5.mean", "Mean_AUC_ratio_at_10.mean",
+                     "Omission_rate_at_5.mean", "Mean_AUC_ratio_at_5.mean",
                      "AICc", "Is_concave")]
 ```
 
@@ -289,14 +297,14 @@ You can also provide a `data.frame` containing the evaluation metrics for each c
 new_summary <- select_models(candidate_models = m_maxnet$calibration_results$Summary,
                              data = d_maxnet, #Necessary for computing pROC
                              compute_proc = TRUE, 
-                             omission_rate = 10)
+                             omission_rate = 5)
 
 #Get class of object
 class(new_summary)
 
 #See selected models
 new_summary$selected_models[,c("ID", "Formulas", "R_multiplier", 
-                     "Omission_rate_at_5.mean", "Mean_AUC_ratio_at_10.mean",
+                     "Omission_rate_at_5.mean", "Mean_AUC_ratio_at_5.mean",
                      "AICc", "Is_concave")]
 ```
 
