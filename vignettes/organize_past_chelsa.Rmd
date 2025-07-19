@@ -16,18 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
--   [Introduction](#introduction)
--   [Standardize Raster File Names for Model Projections](#standardize-raster-file-names-for-model-projections)
--   [Getting variables from CHELSA](#getting-variables-from-chelsa)
-    -   [Download variables from LGM](#download-variables-from-lgm)
-    -   [Download variables from Current Period](#download-variables-from-current-period)
-    -   [Merge and Rename Variables from the Same Scenario](#merge-and-rename-variables-from-the-same-scenario)
--   [Organize and structure variables](#organize-and-structure-variables)
--   [Preparation of data for model projections](#preparation-of-data-for-model-projections)
--   [Project selected models to multiple scenarios](#project-selected-models-to-multiple-scenarios)
--   [Compute changes](#compute-changes)
-
-
 # Introduction
 
 ```{r load packages, results='hide', warning=FALSE}
@@ -35,7 +23,6 @@ knitr::opts_chunk$set(
 library(kuenm2)
 library(terra)
 ```
-
 
 In the ["Project models to multiple scenarios"](model_projections.html) vignette, we show how to predict the models to multiple scenarios at once. We used as example the future scenarios available in [WorldClim](https://worldclim.org/data/cmip6/cmip6climate.html), which have an specific function (`organize_future_worldclim`) to organize the files in the specific hierarchical manner compatible with `kuenm2`. 
 
