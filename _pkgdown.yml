@@ -15,7 +15,7 @@ navbar:
       text: "Articles"
       menu:
       -  text: "1. Occurrence Data Cleaning"
-         href: articles/basic_bata_cleaning.html
+         href: articles/basic_data_cleaning.html
       -  text: "2. Prepare Data for Model Calibration"
          href: articles/prepare_data.html
       -  text: "3. Model Calibration"
