@@ -116,7 +116,7 @@ Now, we can organize and structure the files using the `organize_future_worldcli
 
 ### Format for renaming
 
-An important argument is `name_format`, which defines the format for renaming variables. The names of the variables in the `SpatRaster` must precisely match those used for model calibration or when running PCA (if `do_pca = TRUE` was set in the `prepare_data()` function; see [Prepare Data for Model Calibration](prepared_data.html) for more details).
+An important argument is `name_format`, which defines the format for renaming variables. The names of the variables in the `SpatRaster` must precisely match those used for model calibration or when running PCA (if `do_pca = TRUE` was set in the `prepare_data()` function; see [Prepare Data for Model Calibration](prepare_data.html) for more details).
 
 Therefore, if the variables used to calibrate the models are named "bio_1", "bio_2", etc., the variables in the future raster layers must also be named "bio_1", "bio_2", etc. However, if the variables have a different pattern, such as starting with uppercase letters and using zeros before single-digit numbers (e.g., "Bio_01", "Bio_02", etc.), they must be named "Bio_01", "Bio_02", etc. The function provides four options:
 
@@ -257,7 +257,7 @@ View(pr)
 
 After preparing the data, we can use the `project_selected()` function to predict the selected models across the multiple scenarios specified in `prepare_projections`:
 
-```{r prepare_projections}
+```{r project selected}
 ## Create a folder to save projection results
 #Here, in a temporary directory
 out_dir <- file.path(tempdir(), "Projection_results/maxnet")
@@ -267,6 +267,7 @@ dir.create(out_dir, recursive = TRUE)
 p <- project_selected(models = fitted_model_maxnet, 
                       projection_data = pr,
                       out_dir = out_dir, 
+                      write_replicates = TRUE,
                       progress_bar = FALSE) #Do not print progress bar
 ```
 
@@ -280,55 +281,75 @@ Note that the results were saved hierarchically in nested subfolders, each repre
 
 ```{r print results, eval=FALSE}
 dir_tree(out_dir)
-#> Temp\RtmpkhmGWN/Projection_results/maxnet
+#> Temp\Projection_results/maxnet
 #> ├── Future
 #> │   ├── 2041-2060
 #> │   │   ├── ssp126
 #> │   │   │   ├── ACCESS-CM2
 #> │   │   │   │   ├── General_consensus.tif
-#> │   │   │   │   ├── Model_159_consensus.tif
-#> │   │   │   │   └── Model_189_consensus.tif
+#> │   │   │   │   ├── Model_192_consensus.tif
+#> │   │   │   │   ├── Model_192_replicates.tif
+#> │   │   │   │   ├── Model_219_consensus.tif
+#> │   │   │   │   └── Model_219_replicates.tif
 #> │   │   │   └── MIROC6
 #> │   │   │       ├── General_consensus.tif
-#> │   │   │       ├── Model_159_consensus.tif
-#> │   │   │       └── Model_189_consensus.tif
+#> │   │   │       ├── Model_192_consensus.tif
+#> │   │   │       ├── Model_192_replicates.tif
+#> │   │   │       ├── Model_219_consensus.tif
+#> │   │   │       └── Model_219_replicates.tif
 #> │   │   └── ssp585
 #> │   │       ├── ACCESS-CM2
 #> │   │       │   ├── General_consensus.tif
-#> │   │       │   ├── Model_159_consensus.tif
-#> │   │       │   └── Model_189_consensus.tif
+#> │   │       │   ├── Model_192_consensus.tif
+#> │   │       │   ├── Model_192_replicates.tif
+#> │   │       │   ├── Model_219_consensus.tif
+#> │   │       │   └── Model_219_replicates.tif
 #> │   │       └── MIROC6
 #> │   │           ├── General_consensus.tif
-#> │   │           ├── Model_159_consensus.tif
-#> │   │           └── Model_189_consensus.tif
+#> │   │           ├── Model_192_consensus.tif
+#> │   │           ├── Model_192_replicates.tif
+#> │   │           ├── Model_219_consensus.tif
+#> │   │           └── Model_219_replicates.tif
 #> │   └── 2081-2100
 #> │       ├── ssp126
 #> │       │   ├── ACCESS-CM2
 #> │       │   │   ├── General_consensus.tif
-#> │       │   │   ├── Model_159_consensus.tif
-#> │       │   │   └── Model_189_consensus.tif
+#> │       │   │   ├── Model_192_consensus.tif
+#> │       │   │   ├── Model_192_replicates.tif
+#> │       │   │   ├── Model_219_consensus.tif
+#> │       │   │   └── Model_219_replicates.tif
 #> │       │   └── MIROC6
 #> │       │       ├── General_consensus.tif
-#> │       │       ├── Model_159_consensus.tif
-#> │       │       └── Model_189_consensus.tif
+#> │       │       ├── Model_192_consensus.tif
+#> │       │       ├── Model_192_replicates.tif
+#> │       │       ├── Model_219_consensus.tif
+#> │       │       └── Model_219_replicates.tif
 #> │       └── ssp585
 #> │           ├── ACCESS-CM2
 #> │           │   ├── General_consensus.tif
-#> │           │   ├── Model_159_consensus.tif
-#> │           │   └── Model_189_consensus.tif
+#> │           │   ├── Model_192_consensus.tif
+#> │           │   ├── Model_192_replicates.tif
+#> │           │   ├── Model_219_consensus.tif
+#> │           │   └── Model_219_replicates.tif
 #> │           └── MIROC6
 #> │               ├── General_consensus.tif
-#> │               ├── Model_159_consensus.tif
-#> │               └── Model_189_consensus.tif
+#> │               ├── Model_192_consensus.tif
+#> │               ├── Model_192_replicates.tif
+#> │               ├── Model_219_consensus.tif
+#> │               └── Model_219_replicates.tif
 #> ├── Present
 #> │   └── Present
 #> │       ├── General_consensus.tif
-#> │       ├── Model_159_consensus.tif
-#> │       └── Model_189_consensus.tif
+#> │       ├── Model_192_consensus.tif
+#> │       ├── Model_192_replicates.tif
+#> │       ├── Model_219_consensus.tif
+#> │       └── Model_219_replicates.tif
 #> └── Projection_paths.RDS
 ```
 
 By default, for each scenario, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its replicates (if more than one model was selected), as well as a general consensus across all models.
+
+Note that each selected model can also have replicates. By default, the function does not output these individual replicates unless `write_replicates = TRUE` is set. It is important to write the replicates if you intend to compute the variability across them using `projection_variability()`. For more details, check the vignette on [Explore Variability and Uncertainty in Projections](variability_and_uncertainty.html).
 
 The function accepts several other parameters that control the predictions in `predict_selected()`, such as the consensus to compute, the extrapolation type (free extrapolation (`E`), extrapolation with clamping (`EC`), and no extrapolation (`NE`)), variables to clamp, and the format of prediction values (`raw`, `cumulative`, `logistic`, or the default `cloglog`). For more details, consult the vignette for [Predict models to single scenario](model_predictions.html).
 
