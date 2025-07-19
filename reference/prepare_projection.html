@@ -21,7 +21,7 @@ storing the paths to the rasters representing each scenario."></head><body>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">1. Occurrence Data Cleaning</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
@@ -191,7 +191,7 @@ be returned. See <code>?stats::prcomp()</code> for details.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp84yYOV/Future_raw</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp1iMYwD/Future_raw</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Prepare projections using fitted models to check variables</span></span></span>
 <span class="r-in"><span><span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu">prepare_projection</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span></span>
@@ -215,7 +215,7 @@ be returned. See <code>?stats::prcomp()</code> for details.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Scenarios: ssp126 | ssp585 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - GCMs: ACCESS-CM2 | MIROC6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All variables are located in the following root directory:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp84yYOV</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp1iMYwD</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Prepare projections using variables names</span></span></span>
 <span class="r-in"><span><span class="va">pr_b</span> <span class="op">&lt;-</span> <span class="fu">prepare_projection</span><span class="op">(</span>models <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
@@ -240,7 +240,7 @@ be returned. See <code>?stats::prcomp()</code> for details.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Scenarios: ssp126 | ssp585 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - GCMs: ACCESS-CM2 | MIROC6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All variables are located in the following root directory:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp84yYOV</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmp1iMYwD</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

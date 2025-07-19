@@ -34,7 +34,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">1. Occurrence Data Cleaning</a></li>
+<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
@@ -309,7 +309,7 @@ future scenarios:</p>
 <span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpQrieUD/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/RtmpMf8IBE/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Check files organized</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="va">out_dir_future</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -418,7 +418,7 @@ where the predictor rasters are stored:</p>
 <span><span class="co">#&gt;   - Scenarios: ssp126 | ssp585 </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All variables are located in the following root directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpQrieUD</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/RtmpMf8IBE</span></span></code></pre></div>
 <p>If we check the structure of the <code>prepared_projection</code>
 object, we can see it’s a list containing:</p>
 <ul>
@@ -468,7 +468,7 @@ resulting projection rasters were saved.</p>
 <span><span class="co">#&gt;   - Scenarios:  </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All raster files containing the projection results are located in the following root directory:</span></span>
-<span><span class="co">#&gt;  /tmp/RtmpQrieUD/Projection_results/maxnet</span></span></code></pre></div>
+<span><span class="co">#&gt;  /tmp/RtmpMf8IBE/Projection_results/maxnet</span></span></code></pre></div>
 <p>Note that the results were saved hierarchically in nested subfolders,
 each representing a distinct scenario. In the root directory, the
 function also saves a file named “Projection_paths.RDS”, which is the
