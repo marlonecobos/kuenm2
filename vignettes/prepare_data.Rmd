@@ -26,6 +26,9 @@ knitr::opts_chunk$set(
   - [Using a bias file](#using-a-bias-file)  
   - [PCA for variables](#pca-for-variables)
 - [Prepare user pre-processed data](#prepare-user-pre-processed-data)
+- [Using Custom Data Partitions](#using-custom-data-partitions)
+  - [Spatial Partitioning with ENMeval](#spatial-partitioning-with-enmeval)
+  - [Spatial Partitioning with flexsdm](#spatial-partitioning-with-flexsdm)
 - [Saving a prepared_data object](#saving-a-prepared_data-object)
 
 <hr>
@@ -103,10 +106,10 @@ The function `prepare_data()` is central to getting data ready for model calibra
 * **Generating background points**: Background points area sampled from raster layers, unless provided by the user. These points serve as a reference to contrast presence records.
 * **Principal component analysis (PCA)**: An optional step that can be applied to the set of predictors in PCA.
 * **Preparing calibration data**: Presence records and background points are associate with predictor values and put together in a `data.frame` to be used in the ENM.
-* **Data partitioning**: The function divides your data using `k-folds` to prepare training and testing sets via a cross-validation process.
+* **Data partitioning**: The function divides your data to prepare training and testing sets via a cross-validation process. The partitioning methods available includes `kfolds`, `subsample`, `bootstrap`, and `leave-one-out`.
 * **Defining grid of model parameters**: This helps setting up combinations of feature classes (FCs), regularization multiplier (RM) values (for Maxnet), and sets of predictor variables. An explanation of the roles of RMs and FCs in Maxent models see [Merow et al. 2013](https://doi.org/10.1111/j.1600-0587.2013.07872.x).
 
-As with any function, we recommend consulting the documentation for more detailed explanations (e.g., `help(prepare_data)`). Now, let's prepare our data for model calibration using `prepare_data()`:
+As with any function, we recommend consulting the documentation for more detailed explanations (e.g., `help(prepare_data)`). Now, let's prepare our data for model calibration using `prepare_data()`, using 4 k-folds as the partitioning method:
 
 ```{r simple prepare data}
 # Prepare data for maxnet model
@@ -115,10 +118,12 @@ d <- prepare_data(algorithm = "maxnet",
                   x = "x", y = "y",
                   raster_variables = var,
                   species = "Myrcia hatschbachii",
-                  categorical_variables = "SoilType",
+                  categorical_variables = "SoilType", 
+                  partition_method = "kfolds", 
+                  n_replicates = 4,
                   n_background = 1000,
-                  features = c("l", "q", "p", "lq", "lqp"),
-                  r_multiplier = c(0.1, 1, 2, 3, 5))
+                  features = c("l", "q", "lq", "lqp"),
+                  r_multiplier = c(0.1, 1, 2))
 ```
 
 <br>
@@ -145,13 +150,18 @@ head(d$formula_grid)
 
 By default, `prepare_data()` prepares an object for fitting models using `maxnet`. However, this can be changed to use GLM instead. When using GLM, it is not necessary to set regularization multipliers, as this algorithm does not utilize them.
 
+Let's create an object for fitting models using `glm`, this time using the `subsample` partitioning method, with 10 replicates and 70% of the dataset used for training.
+
 ```{r prepare glm}
 d_glm <- prepare_data(algorithm = "glm",
                       occ = occ_data,
                       x = "x", y = "y",
                       raster_variables = var,
                       species = "Myrcia hatschbachii",
-                      categorical_variables = "SoilType",
+                      categorical_variables = "SoilType", 
+                      partition_method = "subsample", 
+                      n_replicates = 10, 
+                      train_proportion = 0.7,
                       n_background = 300,
                       features = c("l", "q", "p", "lq", "lqp"),
                       r_multiplier = NULL) #Not necessary with glms
@@ -185,7 +195,7 @@ d_buffer <- prepare_data(algorithm = "maxnet",
                          mask = b, #Polygon to mask variables
                          species = "Myrcia hatschbachii",
                          categorical_variables = "SoilType",
-                         n_background = 1000,
+                         n_background = 1000, partition_method = "kfolds",
                          features = c("l", "q", "p", "lq", "lqp"),
                          r_multiplier = c(0.1, 1, 2, 3, 5))
 ```
@@ -253,7 +263,8 @@ d_bias_direct <- prepare_data(algorithm = "maxnet",
                               raster_variables = var,
                               species = "Myrcia hatschbachii",
                               categorical_variables = "SoilType",
-                              n_background = 1000,
+                              n_background = 1000, 
+                              partition_method = "kfolds",
                               bias_file = bias, bias_effect = "direct",  # bias parameters
                               features = c("l", "q", "p", "lq", "lqp"),
                               r_multiplier = c(0.1, 1, 2, 3, 5))
@@ -266,6 +277,7 @@ d_bias_inverse <- prepare_data(algorithm = "maxnet",
                                species = "Myrcia hatschbachii",
                                categorical_variables = "SoilType",
                                n_background = 1000,
+                               partition_method = "kfolds",
                                bias_file = bias, bias_effect = "inverse",   # bias parameters
                                features = c("l", "q", "p", "lq", "lqp"),
                                r_multiplier = c(0.1, 1, 2, 3, 5))
@@ -313,6 +325,7 @@ d_pca <- prepare_data(algorithm = "maxnet",
                       species = "Myrcia hatschbachii",
                       categorical_variables = "SoilType",
                       n_background = 1000,
+                      partition_method = "kfolds",
                       features = c("l", "q", "p", "lq", "lqp"),
                       r_multiplier = c(0.1, 1, 2, 3, 5))
 
@@ -365,8 +378,9 @@ d_pca_extern <- prepare_data(algorithm = "maxnet",
                              raster_variables = pca_var$env,  # Output of perform_pca()
                              do_pca = FALSE,  # Set to FALSE because variables are PCs
                              species = "Myrcia hatschbachii",
-                             categorical_variables = "SoilType",
-                             n_background = 1000,
+                             categorical_variables = "SoilType", 
+                             n_background = 1000, 
+                             partition_method = "kfolds",
                              features = c("l", "q", "p", "lq", "lqp"),
                              r_multiplier = c(0.1, 1, 2, 3, 5))
 
@@ -399,7 +413,7 @@ head(user_data)
 
 <br> 
 
-The `prepare_user_data()` function operates similarly to `prepare_data()`, but with a key difference; instead of requiring a `data.frame` of occurrence coordinates and a `SpatRaster` of predictor variables, it takes your already prepared user `data.frame` (see below). See full documentation with `help(prepare_user_data)`.
+The `prepare_user_data()` function operates similarly to `prepare_data()`, but with a key difference: instead of requiring a `data.frame` of occurrence coordinates and a `SpatRaster` of predictor variables, it takes your already prepared user `data.frame` (see below). See full documentation with `help(prepare_user_data)`.
 
 ```{r prepare user data}
 # Prepare data for maxnet model
@@ -408,17 +422,255 @@ data_user <- prepare_user_data(algorithm = "maxnet",
                                pr_bg = "pr_bg",
                                species = "Myrcia hatschbachii",
                                categorical_variables = "SoilType",
+                               partition_method = "bootstrap",
                                features = c("l", "q", "p", "lq", "lqp"),
                                r_multiplier = c(0.1, 1, 2, 3, 5))
 
 data_user 
 ```
 
-This function also allows you to provide a list of folds for cross-validation to be used during model calibration. If `user_folds` is `NULL`, the function will automatically split your data based on the number of folds specified by the `kfolds` argument. Internal PCA for variables is also available with this function.
+This function also allows you to provide a list of index identifying test points for cross-validation to be used during model calibration. If `user_folds` is NULL, the function will automatically partition the data according to the specified `partition_method`, `n_replicates`, and `train_proportion`.
+
+# Using Custom Data Partitions
+
+The functions `prepare_data()` and `prepare_user_data()` in the `kuenm2` package include four built-in methods for randomly partitioning data:
+
+- **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
+
+- **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
+
+- **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
+
+- **"leave-one-out"**: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
+
+Other methods for data partitioning are also available, including those based on spatial rules ([Radosavljevic and Anderson, 2014](https://onlinelibrary.wiley.com/doi/pdf/10.1111/jbi.12227)). Although `kuenm2` does not currently implement spatial partitioning techniques, it is possible to apply them using other R packages and then incorporate the resulting partitions into the `prepared_data` object for model calibration within the `kuenm2` framework.
+
+The [ENMeval](https://jamiemkass.github.io/ENMeval/articles/ENMeval-2.0-vignette.html#partition) and [flexsdm](https://sjevelazco.github.io/flexsdm/articles/v01_pre_modeling.html#data-partitioning) R packages offers some options. Below, we provide examples on how to split the data using this packages and include this partition into the `prepared_data` object to run with `kuenm2`.
+
+## Spatial Partitioning with ENMeval
+
+The ENMeval package ([Kass et al. 2021](https://besjournals.onlinelibrary.wiley.com/doi/pdfdirect/10.1111/2041-210X.13628)) provides three spatial partitioning methods:
+
+- **Spatial block**: Divides occurrence data into four groups based on latitude and longitude lines, aiming for groups of roughly equal size.
+
+- **Checkerboard 1 (basic)**: Generates a checkerboard grid over the study area and assigns points to groups based on their location in the grid.
+
+- **Checkerboard 2 (hierarchical)**: Aggregates the input raster at two hierarchical spatial scales using specified aggregation factors. Points are then grouped based on their position in the resulting hierarchical checkerboard.
+
+
+As an example, let's use the **spatial block** method to partition our dataset. For this example, we will use the object `d`, which corresponds to the `prepared_data` created in previous steps.
+
+```{r import enmeval_block, echo=FALSE}
+data(enmeval_block, package = "kuenm2")
+```
+
+```{r spatial block enmeval, eval=FALSE}
+# Install ENMeval if not already installed
+if(!require("ENMeval")){
+  install.packages("ENMeval")
+}
+
+# Extract calibration data from the prepared_data object and separate presence and background records
+calib_occ <- d$calibration_data[d$calibration_data$pr_bg == 1,] #Presences
+calib_bg <- d$calibration_data[d$calibration_data$pr_bg == 0,] #Background
+
+# Apply spatial block partitioning using ENMeval
+enmeval_block <- get.block(occs = calib_occ, bg = calib_bg)
+
+# Inspect the structure of the output
+str(enmeval_block)
+#> List of 2
+#>  $ occs.grp: num [1:51] 2 1 1 3 1 4 1 1 3 3 ...
+#>   $ bg.grp  : num [1:957] 3 3 3 3 3 3 3 1 3 1 ...
+```
+
+Note that the output of `get.block()` is a list with two elements: `occs.grp` and `bg.grp`. The `occs.grp` vector has the same length as the number of occurrence records, and `bg.grp` has the same length as the background points. Both vectors contain numeric values from 1 to 4, indicating the spatial group to which each point belongs. For example, an occurrence labeled with `1` belongs to the first spatial block, `2` to the second block, and so on.
+
+In contrast, `kuenm2` stores partitioned data in a different format: it expects a **list of vectors**, where each element corresponds to a replicate and contains the **indices of the test points** for that replicate.
+
+
+```{r index part kuenm2}
+str(d$part_data)
+```
+
+We can convert the spatial group information stored in `enmeval_block` into a format compatible with `kuenm2`:
+
+```{r transform enmeval_block}
+# Identify unique spatial blocks
+id_blocks <- sort(unique(unlist(enmeval_block)))
+
+# Create a list of test indices for each spatial block
+new_part_data <- lapply(id_blocks, function(i) {
+  # Indices of occurrence records in group i
+  rep_i_presence <- which(enmeval_block$occs.grp == i)
+  
+  # Indices of background records in group i
+  rep_i_bg <- which(enmeval_block$bg.grp == i)
+  
+  # Combine presence and background indices for the test set
+  c(rep_i_presence, rep_i_bg)
+})
+
+# Assign names to each replicate
+names(new_part_data) <- paste0("Rep_", id_blocks)
+
+# Inspect the structure of the new partitioned data
+str(new_part_data)
+```
+
+We now have a list containing four vectors, each storing the indices of test data defined using the `get.block()` function from the `ENMeval` package. The final step is to replace the original `part_data` in the `prepared_data` object with `new_part_data`. We should also update the partitioning method to reflect this change.
+
+```{r replace part_data}
+# Replace the original partition data with the new spatial blocks
+d$part_data <- new_part_data
+
+# Update the partitioning method to reflect the new approach
+d$partition_method <- "Spatial block (ENMeval)"  # You can use any descriptive name
+
+# Print the updated prepared_data object
+print(d)
+```
+
+Alternatively, if you have already prepared calibration data, you can define custom data partitioning using the `prepare_user_data()` function. For example, we can use the `user_data` dataset included with the package:
+
+```{r spatial block user data, eval=FALSE}
+# Extract presence and background points from the user_data object
+user_occ <- user_data[user_data$pr_bg == 1, ]  # Presence records
+user_bg  <- user_data[user_data$pr_bg == 0, ]  # Background records
+
+# Apply spatial block partitioning using ENMeval
+enmeval_block_user <- get.block(occs = user_occ, bg = user_bg)
+
+# Identify unique spatial blocks
+id_blocks <- sort(unique(unlist(enmeval_block_user)))
+
+# Create a list of test indices for each spatial block
+user_part_data <- lapply(id_blocks, function(i) {
+  # Indices of presence points in block i
+  rep_i_presence <- which(enmeval_block_user$occs.grp == i)
+  # Indices of background points in block i
+  rep_i_bg <- which(enmeval_block_user$bg.grp == i)
+  # Combine presence and background indices
+  c(rep_i_presence, rep_i_bg)
+})
+
+# Name each partition replicate
+names(user_part_data) <- paste0("Rep_", id_blocks)
+
+# Prepare user data with custom partitions using prepare_user_data()
+data_user_block <- prepare_user_data(
+  algorithm = "maxnet",
+  user_data = user_data,              # User-provided data frame
+  pr_bg = "pr_bg",
+  species = "Myrcia hatschbachii",
+  categorical_variables = "SoilType",
+  user_part = user_part_data,         # Custom partition list
+  features = c("l", "q", "p", "lq", "lqp"),
+  r_multiplier = c(0.1, 1, 2, 3, 5)
+)
+
+# Update partition method description
+data_user_block$partition_method <- "Spatial block (ENMeval)"  # Descriptive name
+
+# Display the prepared data object
+print(data_user_block)
+#> prepared_data object summary
+#> ============================
+#> Species: Myrcia hatschbachii 
+#> Number of Records: 527 
+#>   - Presence: 51 
+#>   - Background: 476 
+#> Partition Method: Spatial block (ENMeval) 
+#> Continuous Variables:
+#>   - bio_1, bio_7, bio_12, bio_15 
+#> Categorical Variables:
+#>   - SoilType 
+#> PCA Information: PCA not performed
+#> Weights: No weights provided
+#> Calibration Parameters:
+#>   - Algorithm: maxnet 
+#>   - Number of candidate models: 610 
+#>   - Features classes (responses): l, q, p, lq, lqp 
+#>   - Regularization multipliers: 0.1, 1, 2, 3, 5 
+```
+
+## Spatial Partitioning with flexsdm
+
+The `flexsdm` ([Velazco et al. 2022](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13874)) offers similar spatial partitioning methods. However, it determines the number or size of bands or blocks based on spatial autocorrelation, environmental similarity, and the number of presence and background records within each partition. For more details, please visit the [package website](https://sjevelazco.github.io/flexsdm/articles/v01_pre_modeling.html#data-partitioning).
+
+As an example, we will use the Spatial Block method, which evaluates different raster cell sizes to identify the optimal block configuration for the dataset.
+
+```{r import flexsdm_block, echo=FALSE}
+data(flexsdm_block, package = "kuenm2")
+```
+
+```{r spatial block flexsdm, eval=FALSE}
+# Install flexsdm if not already installed
+if (!require("flexsdm")) {
+  install.packages("flexsdm")
+}
+
+# Combine calibration data with spatial coordinates
+calib_data <- cbind(d$data_xy, d$calibration_data)
+
+# Split data in test and train using flexsdm
+flexsdm_block <- part_sblock(env_layer = var, data = calib_data, 
+                             x = "x", y = "y",
+                             pr_ab = "pr_bg", min_res_mult = 1,
+                             max_res_mult = 500, num_grids = 30, n_part = 4, 
+                             prop = 0.5)
+#> The following grid cell sizes will be tested:
+#> 0.17 | 3.03 | 5.9 | 8.77 | 11.64 | 14.51 | 17.37 | 20.24 | 23.11 | 25.98 | 
+#> 28.84 | 31.71 | 34.58 | 37.45 | 40.32 | 43.18 | 46.05 | 48.92 | 51.79 | 
+#> 54.66 | 57.52 | 60.39 | 63.26 | 66.13 | 68.99 | 71.86 | 74.73 | 77.6 | 
+#> 80.47 | 83.33
+#> 
+#> Creating basic raster mask...
+#> 
+#> Searching for the optimal grid size...
+
+# See the structure of the object
+str(flexsdm_block$part)
+#> Classes ‘tbl_df’, ‘tbl’ and 'data.frame':	1008 obs. of  4 variables:
+#>  $ x    : num  -51.3 -50.6 -49.3 -49.8 -50.2 ...
+#>  $ y    : num  -29 -27.6 -27.8 -26.9 -28.2 ...
+#>  $ pr_ab: num  1 1 1 1 1 1 1 1 1 1 ...
+#>  $ .part: int  3 1 3 2 3 3 1 4 4 3 ...
+```
+
+The output from `flexsdm` differs from that of `ENMeval`. Instead of returning a list with vectors of spatial group IDs for occurrences and background points separately, `flexsdm` appends the group assignments as a new column within the `part` element of its output.
+
+As with the ENMeval example, we can transform the spatial group information stored in `flexsdm_block` into a format compatible with `kuenm2`:
+
+```{r transform flexsdm_block}
+# Identify unique spatial blocks from flexsdm output
+id_blocks <- sort(unique(flexsdm_block$part$.part))
+
+# Create a list of test indices for each spatial block
+new_part_data_flexsdm <- lapply(id_blocks, function(i) {
+  # Indices of occurrences and background points in group i
+  which(flexsdm_block$part$.part == i)
+})
+
+# Assign names to each partition replicate
+names(new_part_data_flexsdm) <- paste0("Rep_", id_blocks)
+
+# Inspect the structure of the new partitioned data
+str(new_part_data_flexsdm)
+
+# Replace the partition data in the prepared_data object
+d$part_data <- new_part_data_flexsdm
+
+# Update the partition method description
+d$partition_method <- "Spatial block (flexsdm)"  # You can choose any descriptive name
+
+# Display the updated prepared_data object
+print(d)
+```
 
 <br>
 
-## Saving a prepared_data object
+# Saving a prepared_data object
 
 The `prepared_data` object is crucial for the next step in the ENM workflow in **kuenm2**, model calibration. As this object is essentially a list, users can save it to a local directory using `saveRDS()`. Saving the object facilitates loading it back into your R session later using `readRDS()`. See an example below:
 
