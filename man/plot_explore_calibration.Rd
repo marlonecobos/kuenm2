@@ -75,10 +75,10 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
 
 # Import occurrences
-data(sp_swd_cat, package = "kuenm2")
+data(sp_swd, package = "kuenm2")
 
 # Explore calibration data
-calib_hist <- explore_calibration_hist(data = sp_swd_cat,
+calib_hist <- explore_calibration_hist(data = sp_swd,
                                        raster_variables = var,
                                        include_m = TRUE)
 

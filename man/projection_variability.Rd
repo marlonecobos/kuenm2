@@ -98,8 +98,8 @@ data(fitted_model_maxnet, package = "kuenm2")
 pr <- prepare_projection(models = fitted_model_maxnet,
                          present_dir = out_dir_current,
                          future_dir = out_dir_future,
-                         future_period = c("2041-2060", "2081-2100"),
-                         future_pscen = c("ssp126", "ssp585"),
+                         future_period = "2041-2060",
+                         future_pscen = "ssp126",
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
 

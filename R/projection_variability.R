@@ -93,8 +93,8 @@
 #' pr <- prepare_projection(models = fitted_model_maxnet,
 #'                          present_dir = out_dir_current,
 #'                          future_dir = out_dir_future,
-#'                          future_period = c("2041-2060", "2081-2100"),
-#'                          future_pscen = c("ssp126", "ssp585"),
+#'                          future_period = "2041-2060",
+#'                          future_pscen = "ssp126",
 #'                          future_gcm = c("ACCESS-CM2", "MIROC6"),
 #'                          raster_pattern = ".tif*")
 #'
@@ -172,8 +172,8 @@ projection_variability <- function(model_projections,
   d <- model_projections[["paths"]]
 
 
-  # Get unique combinations of Time, Period, ssp and Scenario
-  uc <- unique(d[, c("Time", "Period", "ssp", "Scenario")])
+  # Get unique combinations of Time, Period, and Scenario
+  uc <- unique(d[, c("Time", "Period", "Scenario")])
 
   #Show progress bar?
   if (progress_bar) {
@@ -186,14 +186,12 @@ projection_variability <- function(model_projections,
 
     #To test
     #z = 1
-    ssp <- uc$ssp[z]
-    period <- uc$Period[z]
     time <- uc$Time[z]
+    period <- uc$Period[z]
     scenario <- uc$Scenario[z]
 
     # Filter dataframe to current combination
-    d_p <- d[(is.na(d$ssp) | d$ssp == ssp) &
-               (is.na(d$Period) | d$Period == period) &
+    d_p <- d[(is.na(d$Period) | d$Period == period) &
                (is.na(d$Scenario) | d$Scenario == scenario) &
                (is.na(d$Time) | d$Time == time), ]
 
@@ -251,7 +249,7 @@ projection_variability <- function(model_projections,
     #Write results
     if (write_files) {
       #Name of raster
-      nr <- gsub("_NA", "", paste(time, period, scenario, ssp, sep = "_"))
+      nr <- gsub("_NA", "", paste(time, period, scenario, sep = "_"))
       if (nr == "Present_Present_Present") {
         nr <- "Present"
       }
@@ -275,7 +273,7 @@ projection_variability <- function(model_projections,
   if (return_rasters) {
     names(res) <- gsub("Present_Present_Present", "Present",
                        gsub("_NA", "",
-                       paste(uc$Time, uc$Period, uc$ssp, uc$Scenario, sep = "_")))
+                       paste(uc$Time, uc$Period, uc$Scenario, sep = "_")))
     #Append directory
     res[["root_directory"]] <- out_dir
 
@@ -283,5 +281,14 @@ projection_variability <- function(model_projections,
     res <- list("root_directory" = out_dir)
   }
   class(res) <- "variability_projections"
+
+  #Save variability_projections object (only root directory)
+  if(write_files){
+    res_to_write <- res["root_directory"]
+    class(res_to_write) <- "variability_projections"
+    saveRDS(res_to_write,
+            file.path(out_dir, "variability_projections.rds"))
+  }
+
   return(res)
 } #End of function

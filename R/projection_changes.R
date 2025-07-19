@@ -58,16 +58,23 @@
 #' GCMs at a large extent and fine resolution may overload the RAM.
 #'
 #' @details
-#' When comparing changes in binarized prodictions over time, there are four
-#' possible outcomes:
-#' - Stable-Suitable: the area remains suitable in both the current and
-#' projected times.
-#' - Stable-Unsuitable: the area remains unsuitable in both the current and
-#' projected times.
-#' - Gain: the area is unsuitable in the current time but becomes suitable in
-#' the projected time (indicating expansion).
-#' - Loss: The area is suitable in the current time but becomes unsuitable in
-#' the projected time (indicating contraction).
+#' When projecting a niche model to different temporal scenarios (past or
+#' future), species’ areas can be classified into three categories relative to
+#' the current baseline: **gain**, **loss** and **stability**. The
+#' interpretation of these categories depends on the temporal direction of the projection.
+#' **When projecting to future scenarios**:
+#' - *Gain*: Areas that are currently unsuitable become suitable in the future.
+#' - *Loss*: Areas that are currently suitable become unsuitable in the future.
+#' - *Stability*: Areas that retain their current classification in the future,
+#' whether suitable or unsuitable.
+#'
+#' **When projecting to past scenarios**:
+#' - *Gain*: Areas that were unsuitable in the past are now suitable in the
+#' present.
+#' - *Loss*: Areas that were suitable in the past are now unsuitable in the
+#' present.
+#' - *Stability*: Areas that retain their past classification in the present,
+#' whether suitable or unsuitable.
 #'
 #' The reference scenario (current conditions) can be accessed in the paths
 #' element of the model_projections object (model_projections$path). The ID will
@@ -80,7 +87,9 @@
 #' 'include_id = -c(3, 5, 7)' will exclude scenarios 3, 5, and 7 from the
 #' analysis.
 #'
-#' @return If return_raster = TRUE,  the function returns a list containing the
+#' @return
+#' A `changes_projections` object.
+#' If return_raster = TRUE, the function returns a list containing the
 #' SpatRasters with the computed changes. The list includes the following
 #' elements:
 #'  - Binarized: binarized models for each GCM.
@@ -89,6 +98,9 @@
 #'  change.
 #'  - Summary_changes: A general summary that indicates how many GCMs project
 #'  gain, loss, and stability for each scenario
+#'  - root_directory: the path to the directory where the results were saved if
+#'  write_results was set to TRUE
+#'
 #'  If return_raster = FALSE, the function returns a NULL object.
 #'
 #' @export
@@ -134,8 +146,8 @@
 #' pr <- prepare_projection(models = fitted_model_maxnet,
 #'                          present_dir = out_dir_current,
 #'                          future_dir = out_dir_future,
-#'                          future_period = c("2041-2060", "2081-2100"),
-#'                          future_pscen = c("ssp126", "ssp585"),
+#'                          future_period = c("2081-2100"),
+#'                          future_pscen = c("ssp585"),
 #'                          future_gcm = c("ACCESS-CM2", "MIROC6"),
 #'                          raster_pattern = ".tif*")
 #'
@@ -156,7 +168,7 @@
 #' terra::plot(changes$Binarized)  # SpatRaster with the binarized predictions
 #' terra::plot(changes$Results_by_gcm)  # SpatRaster with changes by GCM
 #' changes$Results_by_change  # List of SpatRaster(s) by changes with GCM agreement
-#' terra::plot(changes$Results_by_change$`Future_2041-2060_ssp585`)  # an example of the previous
+#' terra::plot(changes$Results_by_change$`Future_2081-2100_ssp585`)  # an example of the previous
 #' terra::plot(changes$Summary_changes)  # SpatRaster with a general summary
 
  projection_changes <- function(model_projections,
@@ -190,7 +202,7 @@
   #Get time of reference id
   time_reference <- model_projections$paths$Time[model_projections$paths$id ==
                                                    reference_id]
-  if (time_reference != "Present") {  # Weverton check this please
+  if (time_reference != "Present") {
     warning("Reference scenario is ", time_reference, ", not the present time.\n",
             "To set the present time as reference scenario, check the IDS in model_projections$path")
   }
@@ -309,7 +321,7 @@
     return(r_change)
   }))
   #Rename binarizes scenarions
-  names(proj_bin) <- paste(pp$Time, pp$Period, pp$ssp, pp$GCM, sep = "_")
+  names(proj_bin) <- paste(pp$Time, pp$Period, pp$Scenario, pp$GCM, sep = "_")
   names(proj_bin) <- gsub("_NA_", "_", names(proj_bin))
 
   if (write_bin_models) {
@@ -320,7 +332,7 @@
 
 
   #Get single scenarios by Time and period
-  sc <- unique(pp[, c("Time", "Period", "ssp")])
+  sc <- unique(pp[, c("Time", "Period", "Scenario")])
 
   ####Identify changes by scenario####
   if (by_gcm | by_change) {
@@ -330,11 +342,21 @@
     # #plot(r2)
 
     #Table to set levels in raster
-    cls <- data.frame(id = c(1, 2, 3, 0),
+    cls_future <- data.frame(id = c(1, 2, 3, 0),
                       Result = c("Gain", "Loss", "Suitable-stable",
                                  "Unsuitable-stable"))
+    cls_past <- data.frame(id = c(1, 2, 3, 0),
+                             Result = c("Loss", "Gain", "Suitable-stable",
+                                        "Unsuitable-stable"))
 
     res_by_gcm <- lapply(proj_bin, function(i) {
+      #Get levels (past or future)
+      if(grepl("Future", names(i))){
+        cls <- cls_future
+      } else if(grepl("Past", names(i))){
+        cls <- cls_past
+      }
+
       #Compute changes
       r_result <- r_bin + i
       #Get legend
@@ -362,8 +384,15 @@
   if (by_change) {
     res_by_change <- lapply(1:nrow(sc), function(i) {
       sc_i <- sc[i, ]
-      scenario_i <- paste(sc_i$Time, sc_i$Period, sc_i$ssp, sep = "_")
+      scenario_i <- paste(sc_i$Time, sc_i$Period, sc_i$Scenario, sep = "_")
       scenario_i <- gsub("_NA", "_", scenario_i)
+      #Get levels (past or future)
+      if(grepl("Future", sc_i$Time)){
+        cls <- cls_future
+      } else if(grepl("Past", sc_i$Time)){
+        cls <- cls_past
+      }
+
       #Subset results
       res_i <- res_by_gcm[[grep(scenario_i, names(res_by_gcm))]]
       #Looping throught changes
@@ -389,7 +418,7 @@
     })
     #Set names by scenarion
     names(res_by_change) <- gsub("_NA", "",
-                                 paste(sc$Time, sc$Period, sc$ssp, sep = "_"))
+                                 paste(sc$Time, sc$Period, sc$Scenario, sep = "_"))
 
     #Save results
     if (write_results) {
@@ -410,8 +439,16 @@
   if (general_summary) {
     res_summary <- lapply(1:nrow(sc), function(i) {
       sc_i <- sc[i, ]
-      scenario_i <- paste(sc_i$Time, sc_i$Period, sc_i$ssp, sep = "_")
+      scenario_i <- paste(sc_i$Time, sc_i$Period, sc_i$Scenario, sep = "_")
       scenario_i <- gsub("_NA", "_", scenario_i)
+
+      #Get levels (past or future)
+      if(grepl("Future", sc_i$Time)){
+        cls <- cls_future
+      } else if(grepl("Past", sc_i$Time)){
+        cls <- cls_past
+      }
+
       #Subset results
       res_i <- proj_bin[[grep(scenario_i, names(proj_bin))]]
       #Presence value in present (number of gcms + 1)
@@ -432,15 +469,34 @@
 
       vals <- seq(0, (n_gcms*2 - 1), 1)
 
-      loss <- ceiling(max(vals)/2)
-      l_val <- c(loss, vals[vals > loss & vals != max(vals)])
-      g_val <- vals[vals < loss & vals != 0]
-      gains <- paste0("gain in ", g_val, " GCMs")
-      gains[gains == paste0("gain in ", n_gcms - 1, " GCMs")] <- "gain in all GCMs"
-      losses <- paste0("loss in ", max(vals) - l_val, " GCMs")
-      losses[losses == paste0("loss in ", n_gcms - 1, " GCMs")] <- "loss in all GCMs"
-      descriptions <- c("stable, unsuitable in current period and all GCMs", gains,
-                        losses, "stable, suitable in current period and all GCMs")
+      #Add category
+      if(grepl("Past", sc_i$Time)){
+        gain <- ceiling(max(vals)/2)
+        g_val <- c(gain, vals[vals > gain & vals != max(vals)])
+        l_val <- vals[vals < gain & vals != 0]
+        gains <- paste0("gain in ", max(vals) - g_val, " GCMs")
+        gains[gains == paste0("gain in ", n_gcms - 1, " GCMs")] <- "gain in all GCMs"
+        losses <- paste0("loss in ", l_val, " GCMs")
+        losses[losses == paste0("loss in ", n_gcms - 1, " GCMs")] <- "loss in all GCMs"
+        descriptions <- c("stable, unsuitable in current period and all GCMs",
+                          losses,
+                          gains,
+                          "stable, suitable in current period and all GCMs")
+
+      }
+
+      if(grepl("Future", sc_i$Time)){
+        loss <- ceiling(max(vals)/2)
+        l_val <- c(loss, vals[vals > loss & vals != max(vals)])
+        g_val <- vals[vals < loss & vals != 0]
+        gains <- paste0("gain in ", g_val, " GCMs")
+        gains[gains == paste0("gain in ", n_gcms - 1, " GCMs")] <- "gain in all GCMs"
+        losses <- paste0("loss in ", max(vals) - l_val, " GCMs")
+        losses[losses == paste0("loss in ", n_gcms - 1, " GCMs")] <- "loss in all GCMs"
+        descriptions <- c("stable, unsuitable in current period and all GCMs", gains,
+                          losses, "stable, suitable in current period and all GCMs")
+      }
+
       res_table <- data.frame(Raster_value = vals, Description = descriptions)
 
       #Set levels
@@ -449,9 +505,9 @@
       return(res_sum)
     })
     #Set names by scenario
-    names(res_summary) <- gsub("_NA", "",
-                               paste(sc$Time, sc$Period, sc$ssp, sep = "_"))
     res_summary <- terra::rast(res_summary) #Rasterize
+    names(res_summary) <- gsub("_NA", "",
+                               paste(sc$Time, sc$Period, sc$Scenario, sep = "_"))
 
     if (write_results) {
       terra::writeRaster(x = res_summary,
@@ -476,6 +532,13 @@
     res_final <- list(root_directory = output_dir)
   }
   class(res_final) <- "changes_projections"
+  #Save changes_projections object (only root directory)
+  if(write_results){
+    res_to_write <- res_final["root_directory"]
+    class(res_to_write) <- "changes_projections"
+    saveRDS(res_to_write,
+            file.path(output_dir, "changes_projections.rds"))
+  }
   return(res_final)
 } #End of function
 
