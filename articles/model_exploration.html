@@ -4,98 +4,69 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Fit and Explore Selected Models • kuenm2</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Fit and Explore Selected Models">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Fit and Explore Selected Models">
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">kuenm2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.10</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Functions</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="fas fa-book"></span>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
 
-    Articles
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/basic_bata_cleaning.html">1. Occurrence Data Cleaning</a>
-    </li>
-    <li>
-      <a href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a>
-    </li>
-    <li>
-      <a href="../articles/model_calibration.html">3. Model Calibration</a>
-    </li>
-    <li>
-      <a href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a>
-    </li>
-    <li>
-      <a href="../articles/model_predictions.html">5. Predict models to single scenario</a>
-    </li>
-    <li>
-      <a href="../articles/model_projections.html">6. Project models to multiple scenarios</a>
-    </li>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../index.html"><span class="fa fa-home"></span></a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">1. Occurrence Data Cleaning</a></li>
+    <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
+    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+      </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
 
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Fit and Explore Selected Models</h1>
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Fit and Explore Selected Models</h1>
             
       
 
-      <div class="hidden name"><code>model_exploration.Rmd</code></div>
-
+      <div class="d-none name"><code>model_exploration.Rmd</code></div>
     </div>
 
     
@@ -118,7 +89,7 @@ can then be used to assess variable importance in models, as well as to
 explore variable response curves.</p>
 <p>To fit the selected models, we need a
 <code>calibration_results</code> object. For more details in model
-calibration, please refer to the vignette <a href="/articles/model_calibration.html">Model Calibration</a>. The
+calibration, please refer to the vignette <a href="model_calibration.html">Model Calibration</a>. The
 <code>calibration_results</code> object generated in this vignette is
 available as a data example in the package. Let’s load it.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -136,22 +107,25 @@ available as a data example in the package. Let’s load it.</p>
 <span><span class="co">#&gt; Species: Myrcia hatschbachii </span></span>
 <span><span class="co">#&gt; Number of candidate models: 300 </span></span>
 <span><span class="co">#&gt;   - Models removed because they failed to fit: 0 </span></span>
-<span><span class="co">#&gt;   - Models identified with concave curves: 35 </span></span>
+<span><span class="co">#&gt;   - Models identified with concave curves: 39 </span></span>
 <span><span class="co">#&gt;   - Model with concave curves not removed </span></span>
 <span><span class="co">#&gt;   - Models removed with non-significant values of pROC: 0 </span></span>
-<span><span class="co">#&gt;   - Models removed with omission error &gt; 5%: 147 </span></span>
-<span><span class="co">#&gt;   - Models removed with delta AIC &gt; 2: 151 </span></span>
+<span><span class="co">#&gt;   - Models removed with omission error &gt; 10%: 165 </span></span>
+<span><span class="co">#&gt;   - Models removed with delta AIC &gt; 2: 133 </span></span>
 <span><span class="co">#&gt; Selected models: 2 </span></span>
 <span><span class="co">#&gt;   - Up to 5 printed here:</span></span>
-<span><span class="co">#&gt;      ID                                                           Formulas</span></span>
-<span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
-<span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
-<span><span class="co">#&gt;     Features R_multiplier pval_pROC_at_5.mean Omission_rate_at_5.mean      dAIC</span></span>
-<span><span class="co">#&gt; 159       lq          0.1                   0                  0.0192 0.4418045</span></span>
-<span><span class="co">#&gt; 189       lq          0.1                   0                  0.0192 0.0000000</span></span>
-<span><span class="co">#&gt;     Parameters</span></span>
-<span><span class="co">#&gt; 159          3</span></span>
-<span><span class="co">#&gt; 189          5</span></span></code></pre></div>
+<span><span class="co">#&gt;      ID</span></span>
+<span><span class="co">#&gt; 192 192</span></span>
+<span><span class="co">#&gt; 219 219</span></span>
+<span><span class="co">#&gt;                                                                                      Formulas</span></span>
+<span><span class="co">#&gt; 192                        ~bio_1 + bio_7 + bio_15 + I(bio_1^2) + I(bio_7^2) + I(bio_15^2) -1</span></span>
+<span><span class="co">#&gt; 219 ~bio_1 + bio_7 + bio_12 + bio_15 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) + I(bio_15^2) -1</span></span>
+<span><span class="co">#&gt;     Features R_multiplier pval_pROC_at_10.mean Omission_rate_at_10.mean</span></span>
+<span><span class="co">#&gt; 192       lq          0.1                    0                   0.0769</span></span>
+<span><span class="co">#&gt; 219       lq          0.1                    0                   0.0962</span></span>
+<span><span class="co">#&gt;         dAIC Parameters</span></span>
+<span><span class="co">#&gt; 192 0.000000          6</span></span>
+<span><span class="co">#&gt; 219 1.179293          7</span></span></code></pre></div>
 <p>This object contains the results of candidate models calibrated using
 the <code>maxnet</code> algorithm. The package also provides a similar
 example using the <code>glm</code> algorithm, which works in exactly the
@@ -164,21 +138,19 @@ same way.</p>
 <span><span class="co">#&gt; calibration_results object summary (glm)</span></span>
 <span><span class="co">#&gt; =============================================================</span></span>
 <span><span class="co">#&gt; Species: Myrcia hatschbachii </span></span>
-<span><span class="co">#&gt; Number of candidate models: 100 </span></span>
+<span><span class="co">#&gt; Number of candidate models: 122 </span></span>
 <span><span class="co">#&gt;   - Models removed because they failed to fit: 0 </span></span>
 <span><span class="co">#&gt;   - Models identified with concave curves: 18 </span></span>
 <span><span class="co">#&gt;   - Model with concave curves not removed </span></span>
 <span><span class="co">#&gt;   - Models removed with non-significant values of pROC: 0 </span></span>
-<span><span class="co">#&gt;   - Models removed with omission error &gt; 5%: 50 </span></span>
-<span><span class="co">#&gt;   - Models removed with delta AIC &gt; 2: 49 </span></span>
+<span><span class="co">#&gt;   - Models removed with omission error &gt; 10%: 101 </span></span>
+<span><span class="co">#&gt;   - Models removed with delta AIC &gt; 2: 20 </span></span>
 <span><span class="co">#&gt; Selected models: 1 </span></span>
 <span><span class="co">#&gt;   - Up to 5 printed here:</span></span>
-<span><span class="co">#&gt;    ID</span></span>
-<span><span class="co">#&gt; 86 86</span></span>
-<span><span class="co">#&gt;                                                                                                       Formulas</span></span>
-<span><span class="co">#&gt; 86 ~bio_1 + bio_7 + bio_15 + I(bio_1^2) + I(bio_7^2) + I(bio_15^2) + bio_1:bio_7 + bio_1:bio_15 + bio_7:bio_15</span></span>
-<span><span class="co">#&gt;    Features pval_pROC_at_5.mean Omission_rate_at_5.mean dAIC Parameters</span></span>
-<span><span class="co">#&gt; 86      lqp                   0                  0.0192    0          9</span></span></code></pre></div>
+<span><span class="co">#&gt;    ID                                                        Formulas Features</span></span>
+<span><span class="co">#&gt; 85 85 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2)       lq</span></span>
+<span><span class="co">#&gt;    pval_pROC_at_10.mean Omission_rate_at_10.mean dAIC Parameters</span></span>
+<span><span class="co">#&gt; 85                    0                   0.0904    0          6</span></span></code></pre></div>
 <p>Note that the <code>calibration_results</code> object stores only the
 information related to the calibration process and model evaluation—it
 does not include the fitted <code>maxnet</code> (or <code>glm</code>)
@@ -189,12 +161,11 @@ full model (i.e., without replicates and without splitting the data into
 training and testing sets). However, you can configure it to fit final
 models with replicates if desired.</p>
 <p>In this example, we’ll fit the final models using the same
-replication settings (4-fold cross-validation) as used in the <a href="/articles/model_calibration.html">Model Calibration</a>
-vignette.</p>
+replication settings (4-fold cross-validation) as used in the <a href="model_calibration.html">Model Calibration</a> vignette.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit selected models using calibration results</span></span>
-<span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_selected.html">fit_selected</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_maxnet</span>, <span class="co">#or calib_results_glm</span></span>
-<span>                   n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_selected.html">fit_selected</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_maxnet</span>, </span>
+<span>                   partition_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co"># Fitting replicates...</span></span>
 <span><span class="co">#   |========================================================================| 100%</span></span>
 <span><span class="co"># Fitting full models...</span></span>
@@ -208,16 +179,16 @@ steps.</p>
 by indexing its elements. For example, the fitted <code>maxnet</code>
 (or <code>glm</code>) model objects are stored within the
 <code>Models</code> element. Note that <code>Models</code> is a nested
-list: for each selected model (in this case, models 159 and 189), it
+list: for each selected model (in this case, models 192 and 219), it
 includes both the replicates (if fitted with replicates) and the full
 model.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#See names of selected models</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Model_159" "Model_189"</span></span>
+<span><span class="co">#&gt; [1] "Model_192" "Model_219"</span></span>
 <span></span>
-<span><span class="co">#See models inside Model 189</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">$</span><span class="va">Model_189</span><span class="op">)</span></span>
+<span><span class="co">#See models inside Model 192</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">$</span><span class="va">Model_192</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Rep_1"      "Rep_2"      "Rep_3"      "Rep_4"      "Full_model"</span></span></code></pre></div>
 <p>The <code>fitted_models</code> object also stores the thresholds that
 can be used to binarize the models into suitable and unsuitable areas.
@@ -228,9 +199,9 @@ directly from the object:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Get omission error used to select models and calculate the thesholds</span></span>
 <span><span class="va">fm</span><span class="op">$</span><span class="va">omission_rate</span></span>
-<span><span class="co">#&gt; [1] 5</span></span></code></pre></div>
-<p>The omission error used to calculate the thresholds was 5%, meaning
-that when the predictions are binarized, approximately 5% of the
+<span><span class="co">#&gt; [1] 10</span></span></code></pre></div>
+<p>The omission error used to calculate the thresholds was 10%, meaning
+that when the predictions are binarized, approximately 10% of the
 presence records used to calibrate the models will fall into cells with
 predicted values below the threshold.</p>
 <p>The thresholds are summarized in two ways: the mean and median across
@@ -238,28 +209,28 @@ replicates for each model, and the consensus mean and median across all
 selected models (when more than one model is selected):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fm</span><span class="op">$</span><span class="va">thresholds</span></span>
-<span><span class="co">#&gt; $Model_159</span></span>
-<span><span class="co">#&gt; $Model_159$mean</span></span>
-<span><span class="co">#&gt; [1] 0.2976193</span></span>
+<span><span class="co">#&gt; $Model_192</span></span>
+<span><span class="co">#&gt; $Model_192$mean</span></span>
+<span><span class="co">#&gt; [1] 0.3114352</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Model_159$median</span></span>
-<span><span class="co">#&gt; [1] 0.314841</span></span>
+<span><span class="co">#&gt; $Model_192$median</span></span>
+<span><span class="co">#&gt; [1] 0.2585349</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Model_189</span></span>
-<span><span class="co">#&gt; $Model_189$mean</span></span>
-<span><span class="co">#&gt; [1] 0.3298963</span></span>
+<span><span class="co">#&gt; $Model_219</span></span>
+<span><span class="co">#&gt; $Model_219$mean</span></span>
+<span><span class="co">#&gt; [1] 0.3094853</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $Model_189$median</span></span>
-<span><span class="co">#&gt; [1] 0.3491305</span></span>
+<span><span class="co">#&gt; $Model_219$median</span></span>
+<span><span class="co">#&gt; [1] 0.2605331</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $consensus</span></span>
 <span><span class="co">#&gt; $consensus$mean</span></span>
-<span><span class="co">#&gt; [1] 0.315051</span></span>
+<span><span class="co">#&gt; [1] 0.3095083</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $consensus$median</span></span>
-<span><span class="co">#&gt; [1] 0.336047</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.259534</span></span></code></pre></div>
 <p>Now, we can use the <code>fitted_models</code> object to generate
 response curves and compute variable importance.</p>
 <p><br></p>
@@ -281,23 +252,26 @@ coefficients of the full models:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Get variables with non-zero coefficients in the models</span></span>
 <span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span> <span class="co">#From the first model selected</span></span>
-<span><span class="co">#&gt;       bio_1  I(bio_1^2)  I(bio_7^2) </span></span>
-<span><span class="co">#&gt; 15.52377637 -0.46828240 -0.01261841</span></span>
+<span><span class="co">#&gt;        bio_1        bio_7       bio_15   I(bio_1^2)   I(bio_7^2)  I(bio_15^2) </span></span>
+<span><span class="co">#&gt; 11.572321659  0.215970079  0.369077970 -0.356605446 -0.020306099 -0.006200151</span></span>
 <span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span> <span class="co">#From the second model selected</span></span>
-<span><span class="co">#&gt;         bio_1        bio_12    I(bio_1^2)    I(bio_7^2)   I(bio_12^2) </span></span>
-<span><span class="co">#&gt;  1.462835e+01  3.592615e-02 -4.407921e-01 -1.208573e-02 -1.152889e-05</span></span></code></pre></div>
-<p>The variables <code>bio_1</code>, <code>bio_7</code>, and
-<code>bio_12</code> have non-zero coefficient values, which means they
-contribute to the model and are available for generating response
-curves.</p>
+<span><span class="co">#&gt;         bio_1        bio_12        bio_15    I(bio_1^2)    I(bio_7^2) </span></span>
+<span><span class="co">#&gt;  1.178814e+01  1.638570e-02  3.406100e-01 -3.625405e-01 -1.440450e-02 </span></span>
+<span><span class="co">#&gt;   I(bio_12^2)   I(bio_15^2) </span></span>
+<span><span class="co">#&gt; -5.261860e-06 -5.623987e-03</span></span></code></pre></div>
+<p>The variables <code>bio_1</code>, <code>bio_7</code>,
+<code>bio_12</code> and <code>bio_15</code>have non-zero coefficient
+values, which means they contribute to the model and are available for
+generating response curves.</p>
 <p>By default, response curves are computed using all selected models.
 The resulting plots include a line for the mean response, along with a
 shaded area representing the 95% confidence interval.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/response%20curve-1.png" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
@@ -306,13 +280,13 @@ generate the response curves:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_159"</span>, main <span class="op">=</span> <span class="st">"Model_159"</span><span class="op">)</span></span>
+<span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, main <span class="op">=</span> <span class="st">"Model_192"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, </span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_189"</span>, main <span class="op">=</span> <span class="st">"Model_189"</span><span class="op">)</span></span>
+<span>               modelID <span class="op">=</span> <span class="st">"Model_219"</span>, main <span class="op">=</span> <span class="st">"Model_219"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_159"</span>, main <span class="op">=</span> <span class="st">"Model_159"</span><span class="op">)</span></span>
+<span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, main <span class="op">=</span> <span class="st">"Model_192"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_189"</span>, main <span class="op">=</span> <span class="st">"Model_189"</span><span class="op">)</span></span></code></pre></div>
+<span>               modelID <span class="op">=</span> <span class="st">"Model_219"</span>, main <span class="op">=</span> <span class="st">"Model_219"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/response%20ID-1.png" width="672"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
@@ -328,10 +302,11 @@ the plot limits match the calibration data range exactly.</p>
 beyond the observed data. Below is the response curve plotted with an
 extrapolation factor of 2:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/extrapolation%20factor-1.png" width="672"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
@@ -393,15 +368,20 @@ contribution of each variable. If multiple models are included in the
 distinct model.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imp</span></span>
-<span><span class="co">#&gt;     predictor contribution    Models</span></span>
-<span><span class="co">#&gt; 1  I(bio_1^2)  0.515387743 Model_159</span></span>
-<span><span class="co">#&gt; 2       bio_1  0.482802883 Model_159</span></span>
-<span><span class="co">#&gt; 3  I(bio_7^2)  0.001809375 Model_159</span></span>
-<span><span class="co">#&gt; 4  I(bio_1^2)  0.444939057 Model_189</span></span>
-<span><span class="co">#&gt; 5       bio_1  0.425438027 Model_189</span></span>
-<span><span class="co">#&gt; 6 I(bio_12^2)  0.065575776 Model_189</span></span>
-<span><span class="co">#&gt; 7      bio_12  0.062618167 Model_189</span></span>
-<span><span class="co">#&gt; 8  I(bio_7^2)  0.001428973 Model_189</span></span></code></pre></div>
+<span><span class="co">#&gt;      predictor contribution    Models</span></span>
+<span><span class="co">#&gt; 1   I(bio_1^2)  0.330546900 Model_192</span></span>
+<span><span class="co">#&gt; 2        bio_1  0.295001412 Model_192</span></span>
+<span><span class="co">#&gt; 3       bio_15  0.209668355 Model_192</span></span>
+<span><span class="co">#&gt; 4  I(bio_15^2)  0.156926301 Model_192</span></span>
+<span><span class="co">#&gt; 5   I(bio_7^2)  0.006279520 Model_192</span></span>
+<span><span class="co">#&gt; 6        bio_7  0.001577512 Model_192</span></span>
+<span><span class="co">#&gt; 7   I(bio_1^2)  0.368476226 Model_219</span></span>
+<span><span class="co">#&gt; 8        bio_1  0.332782286 Model_219</span></span>
+<span><span class="co">#&gt; 9       bio_15  0.155708606 Model_219</span></span>
+<span><span class="co">#&gt; 10 I(bio_15^2)  0.095186390 Model_219</span></span>
+<span><span class="co">#&gt; 11 I(bio_12^2)  0.022722557 Model_219</span></span>
+<span><span class="co">#&gt; 12      bio_12  0.021793617 Model_219</span></span>
+<span><span class="co">#&gt; 13  I(bio_7^2)  0.003330318 Model_219</span></span></code></pre></div>
 <p>We can visualize variable importance using the
 <code><a href="../reference/plot_importance.html">plot_importance()</a></code> function. When the
 <code>fitted_models</code> object contains more than one selected model,
@@ -414,10 +394,10 @@ contribution and the number (N) of fitted models.</p>
 displays a barplot instead of a boxplot:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate variable importance for a specific selected Model</span></span>
-<span><span class="va">imp_189</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_189"</span>, </span>
+<span><span class="va">imp_192</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_192"</span>, </span>
 <span>                               progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#Plot variable contribution for model 189</span></span>
-<span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_189</span>, main <span class="op">=</span> <span class="st">"Variable importance - Model 189"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#Plot variable contribution for model 192</span></span>
+<span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_192</span>, main <span class="op">=</span> <span class="st">"Variable importance - Model 192"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/one%20model%20importance-1.png" width="672"><br></p>
 </div>
 <div class="section level2">
@@ -439,29 +419,22 @@ using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" 
 <span><span class="co"># Import data</span></span>
 <span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir_to_save</span>, <span class="st">"fitted_models.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-      </div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
-
 
 
 

@@ -4,98 +4,69 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Project models to multiple scenarios • kuenm2</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Project models to multiple scenarios">
-<!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
-<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-<![endif]-->
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Project models to multiple scenarios">
 </head>
-<body data-spy="scroll" data-target="#toc">
+<body>
+    <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <div class="container template-article">
-      <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">kuenm2</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.10</span>
-      </span>
-    </div>
+    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
 
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fa fa-home"></span>
+    <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-  </a>
-</li>
-<li>
-  <a href="../reference/index.html">Functions</a>
-</li>
-<li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <span class="fas fa-book"></span>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
 
-    Articles
 
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/basic_bata_cleaning.html">1. Occurrence Data Cleaning</a>
-    </li>
-    <li>
-      <a href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a>
-    </li>
-    <li>
-      <a href="../articles/model_calibration.html">3. Model Calibration</a>
-    </li>
-    <li>
-      <a href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a>
-    </li>
-    <li>
-      <a href="../articles/model_predictions.html">5. Predict models to single scenario</a>
-    </li>
-    <li>
-      <a href="../articles/model_projections.html">6. Project models to multiple scenarios</a>
-    </li>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="navbar" class="collapse navbar-collapse ms-3">
+      <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../index.html"><span class="fa fa-home"></span></a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/basic_bata_cleaning.html">1. Occurrence Data Cleaning</a></li>
+    <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
+    <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
+    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="navbar-nav">
+<li class="nav-item"><form class="form-inline" role="search">
+ <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
+</form></li>
+      </ul>
 </div>
-<!--/.nav-collapse -->
+
+
   </div>
-<!--/.container -->
-</div>
-<!--/.navbar -->
+</nav><div class="container template-article">
 
 
 
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Project models to multiple scenarios</h1>
+
+<div class="row">
+  <main id="main" class="col-md-9"><div class="page-header">
+
+      <h1>Project models to multiple scenarios</h1>
             
       
 
-      <div class="hidden name"><code>model_projections.Rmd</code></div>
-
+      <div class="d-none name"><code>model_projections.Rmd</code></div>
     </div>
 
     
@@ -201,15 +172,24 @@ GCMs (ACCESS-CM2 and MIROC6), at 10 arc-minutes resolution.</p>
 <span><span class="va">in_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">in_dir</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "bias_file.tif"                                 </span></span>
-<span><span class="co">#&gt;  [2] "Current_variables.tif"                         </span></span>
-<span><span class="co">#&gt;  [3] "wc2.1_10m_bioc_ACCESS-CM2_ssp126_2041-2060.tif"</span></span>
-<span><span class="co">#&gt;  [4] "wc2.1_10m_bioc_ACCESS-CM2_ssp126_2081-2100.tif"</span></span>
-<span><span class="co">#&gt;  [5] "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2041-2060.tif"</span></span>
-<span><span class="co">#&gt;  [6] "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2081-2100.tif"</span></span>
-<span><span class="co">#&gt;  [7] "wc2.1_10m_bioc_MIROC6_ssp126_2041-2060.tif"    </span></span>
-<span><span class="co">#&gt;  [8] "wc2.1_10m_bioc_MIROC6_ssp126_2081-2100.tif"    </span></span>
-<span><span class="co">#&gt;  [9] "wc2.1_10m_bioc_MIROC6_ssp585_2041-2060.tif"    </span></span>
-<span><span class="co">#&gt; [10] "wc2.1_10m_bioc_MIROC6_ssp585_2081-2100.tif"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [2] "CHELSA_LGM_CCSM4.tif"                          </span></span>
+<span><span class="co">#&gt;  [3] "CHELSA_LGM_CNRM-CM5.tif"                       </span></span>
+<span><span class="co">#&gt;  [4] "CHELSA_LGM_FGOALS-g2.tif"                      </span></span>
+<span><span class="co">#&gt;  [5] "CHELSA_LGM_IPSL-CM5A-LR.tif"                   </span></span>
+<span><span class="co">#&gt;  [6] "CHELSA_LGM_MIROC-ESM.tif"                      </span></span>
+<span><span class="co">#&gt;  [7] "CHELSA_LGM_MPI-ESM-P.tif"                      </span></span>
+<span><span class="co">#&gt;  [8] "CHELSA_LGM_MRI-CGCM3.tif"                      </span></span>
+<span><span class="co">#&gt;  [9] "Current_CHELSA.tif"                            </span></span>
+<span><span class="co">#&gt; [10] "Current_variables.tif"                         </span></span>
+<span><span class="co">#&gt; [11] "m.gpkg"                                        </span></span>
+<span><span class="co">#&gt; [12] "wc2.1_10m_bioc_ACCESS-CM2_ssp126_2041-2060.tif"</span></span>
+<span><span class="co">#&gt; [13] "wc2.1_10m_bioc_ACCESS-CM2_ssp126_2081-2100.tif"</span></span>
+<span><span class="co">#&gt; [14] "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2041-2060.tif"</span></span>
+<span><span class="co">#&gt; [15] "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2081-2100.tif"</span></span>
+<span><span class="co">#&gt; [16] "wc2.1_10m_bioc_MIROC6_ssp126_2041-2060.tif"    </span></span>
+<span><span class="co">#&gt; [17] "wc2.1_10m_bioc_MIROC6_ssp126_2081-2100.tif"    </span></span>
+<span><span class="co">#&gt; [18] "wc2.1_10m_bioc_MIROC6_ssp585_2041-2060.tif"    </span></span>
+<span><span class="co">#&gt; [19] "wc2.1_10m_bioc_MIROC6_ssp585_2081-2100.tif"</span></span></code></pre></div>
 <p>Note that all variables are in the same folder and retain the
 original names provided by WorldClim. You can download these variables
 directly from <a href="https://worldclim.org/data/cmip6/cmip6climate.html" class="external-link">WorldClim</a>
@@ -263,8 +243,8 @@ or by using the <code>geodata</code> R package:</p>
 format for renaming variables. The names of the variables in the
 <code>SpatRaster</code> must precisely match those used for model
 calibration or when running PCA (if <code>do_pca = TRUE</code> was set
-in the <code><a href="../reference/prepare_data.html">prepare_data()</a></code> function; see <a href="prepared_data.html">Prepare Data for Model Calibration</a> for
-more details).</p>
+in the <code><a href="../reference/prepare_data.html">prepare_data()</a></code> function; see <a href="prepare_data.html">Prepare Data for Model Calibration</a> for more
+details).</p>
 <p>Therefore, if the variables used to calibrate the models are named
 “bio_1”, “bio_2”, etc., the variables in the future raster layers must
 also be named “bio_1”, “bio_2”, etc. However, if the variables have a
@@ -329,7 +309,7 @@ future scenarios:</p>
 <span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpUfq29D/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/RtmpkG58jb/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Check files organized</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="va">out_dir_future</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -438,7 +418,7 @@ where the predictor rasters are stored:</p>
 <span><span class="co">#&gt;   - Scenarios: ssp126 | ssp585 </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All variables are located in the following root directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpUfq29D</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/RtmpkG58jb</span></span></code></pre></div>
 <p>If we check the structure of the <code>prepared_projection</code>
 object, we can see it’s a list containing:</p>
 <ul>
@@ -472,6 +452,7 @@ across the multiple scenarios specified in
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project_selected.html">project_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
 <span>                      projection_data <span class="op">=</span> <span class="va">pr</span>,</span>
 <span>                      out_dir <span class="op">=</span> <span class="va">out_dir</span>, </span>
+<span>                      write_replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co">#Do not print progress bar</span></span></code></pre></div>
 <p>The function returns a <code>model_projections</code> object. This
 object is similar to the <code>prepared_data</code> object, storing
@@ -484,10 +465,10 @@ resulting projection rasters were saved.</p>
 <span><span class="co">#&gt; Models projected for Present and Future </span></span>
 <span><span class="co">#&gt; Future projections contain the following periods, scenarios and GCMs:</span></span>
 <span><span class="co">#&gt;   - Periods: 2041-2060 | 2081-2100 </span></span>
-<span><span class="co">#&gt;   - Scenarios: ssp126 | ssp585 </span></span>
+<span><span class="co">#&gt;   - Scenarios:  </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All raster files containing the projection results are located in the following root directory:</span></span>
-<span><span class="co">#&gt;  /tmp/RtmpUfq29D/Projection_results/maxnet</span></span></code></pre></div>
+<span><span class="co">#&gt;  /tmp/RtmpkG58jb/Projection_results/maxnet</span></span></code></pre></div>
 <p>Note that the results were saved hierarchically in nested subfolders,
 each representing a distinct scenario. In the root directory, the
 function also saves a file named “Projection_paths.RDS”, which is the
@@ -496,56 +477,81 @@ R using
 <code>readRDS(file.path(out_dir, "Projection_paths.RDS"))</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">out_dir</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Temp\RtmpkhmGWN/Projection_results/maxnet</span></span>
+<span><span class="co">#&gt; Temp\Projection_results/maxnet</span></span>
 <span><span class="co">#&gt; ├── Future</span></span>
 <span><span class="co">#&gt; │   ├── 2041-2060</span></span>
 <span><span class="co">#&gt; │   │   ├── ssp126</span></span>
 <span><span class="co">#&gt; │   │   │   ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │   │   │   │   ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │   │   ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │   │   └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │   │   │   ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │   │   │   ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │   │   │   │   ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │   │   │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │   │   └── MIROC6</span></span>
 <span><span class="co">#&gt; │   │   │       ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │       ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │       └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │   │       ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │   │       ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │   │   │       ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │   │       └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │   └── ssp585</span></span>
 <span><span class="co">#&gt; │   │       ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │   │       │   ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │       │   ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │       │   └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │       │   ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │       │   ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │   │       │   ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │       │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │       └── MIROC6</span></span>
 <span><span class="co">#&gt; │   │           ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │           ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │           └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │           ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │           ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │   │           ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │   │           └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   └── 2081-2100</span></span>
 <span><span class="co">#&gt; │       ├── ssp126</span></span>
 <span><span class="co">#&gt; │       │   ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │       │   │   ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │   │   ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │   │   └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │       │   │   ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │       │   │   ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │       │   │   ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │       │   │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │       │   └── MIROC6</span></span>
 <span><span class="co">#&gt; │       │       ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │       ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │       └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │       │       ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │       │       ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │       │       ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │       │       └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │       └── ssp585</span></span>
 <span><span class="co">#&gt; │           ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │           │   ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │           │   ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │           │   └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │           │   ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │           │   ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │           │   ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │           │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │           └── MIROC6</span></span>
 <span><span class="co">#&gt; │               ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │               ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │               └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │               ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │               ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │               ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │               └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; ├── Present</span></span>
 <span><span class="co">#&gt; │   └── Present</span></span>
 <span><span class="co">#&gt; │       ├── General_consensus.tif</span></span>
-<span><span class="co">#&gt; │       ├── Model_159_consensus.tif</span></span>
-<span><span class="co">#&gt; │       └── Model_189_consensus.tif</span></span>
+<span><span class="co">#&gt; │       ├── Model_192_consensus.tif</span></span>
+<span><span class="co">#&gt; │       ├── Model_192_replicates.tif</span></span>
+<span><span class="co">#&gt; │       ├── Model_219_consensus.tif</span></span>
+<span><span class="co">#&gt; │       └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; └── Projection_paths.RDS</span></span></code></pre></div>
 <p>By default, for each scenario, the function computes consensus
 metrics (mean, median, range, and standard deviation) for each model
 across its replicates (if more than one model was selected), as well as
 a general consensus across all models.</p>
+<p>Note that each selected model can also have replicates. By default,
+the function does not output these individual replicates unless
+<code>write_replicates = TRUE</code> is set. It is important to write
+the replicates if you intend to compute the variability across them
+using <code><a href="../reference/projection_variability.html">projection_variability()</a></code>. For more details, check the
+vignette on <a href="variability_and_uncertainty.html">Explore
+Variability and Uncertainty in Projections</a>.</p>
 <p>The function accepts several other parameters that control the
 predictions in <code><a href="../reference/predict_selected.html">predict_selected()</a></code>, such as the consensus to
 compute, the extrapolation type (free extrapolation (<code>E</code>),
@@ -591,29 +597,22 @@ extrapolation risks (see <code>projection_mop</code>). For more details,
 check the vignette on <a href="variability_and_uncertainty.html">Explore
 Variability and Uncertainty in Projections</a>.</p>
 </div>
-  </div>
-
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
-      </div>
-
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
 
-      <footer><div class="copyright">
-  <p></p>
-<p>Developed by Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson.</p>
+    <footer><div class="pkgdown-footer-left">
+  <p>Developed by Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson.</p>
 </div>
 
-<div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+<div class="pkgdown-footer-right">
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
-      </footer>
+    </footer>
 </div>
-
 
 
 
