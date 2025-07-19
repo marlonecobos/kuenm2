@@ -6,9 +6,11 @@
 \usage{
 prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
              mask = NULL, n_background = 1000, features = c("lq", "lqp"),
-             r_multiplier = c(0.1, 0.5, 1, 2, 3), kfolds = 4,
-             categorical_variables = NULL, do_pca = FALSE, center = TRUE,
-             scale = TRUE, exclude_from_pca = NULL, variance_explained = 95,
+             r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method,
+             n_replicates = 4, train_proportion = 0.7,
+             categorical_variables = NULL,
+             do_pca = FALSE, center = TRUE, scale = TRUE,
+             exclude_from_pca = NULL, variance_explained = 95,
              min_explained = 5, min_number = 2, min_continuous = NULL,
              bias_file = NULL, bias_effect = NULL, weights = NULL,
              include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
@@ -45,8 +47,18 @@ for the model. Default is 1000.}
 \item{r_multiplier}{(numeric) a vector of regularization parameters for maxnet.
 Default is c(0.1, 1, 2, 3, 5).}
 
-\item{kfolds}{(numeric) the number of groups (folds) the occurrence
-data will be split into for cross-validation. Default is 4.}
+\item{partition_method}{(character) method used for data partitioning.
+Available options are \code{"kfolds"}, \code{"subsample"}, and \code{"bootstrap"}.
+See \strong{Details} for more information.}
+
+\item{n_replicates}{(numeric) number of replicates to generate. If
+\code{partition_method} is \code{"subsample"} or \code{"bootstrap"}, this defines the number
+of partitions. If \code{"kfolds"}, it specifies the number of folds. Default is 4.}
+
+\item{train_proportion}{(numeric) proportion of occurrence and background
+points to be used for model training in each replicate. Only applicable when
+\code{partition_method} is \code{"subsample"} or \code{"bootstrap"}. Default is 0.7 (i.e.,
+70\% for training and 30\% for testing).}
 
 \item{categorical_variables}{(character) names of the variables that are
 categorical. Default is NULL.}
@@ -116,7 +128,7 @@ data and extract background. Default is 1.}
 \value{
 An object of class \code{prepared_data} containing all elements to run a model
 calibration routine. The elements include: species, calibration data,
-a grid of model parameters, indices of k-folds for cross validation,
+a grid of model parameters, indices of test data for cross validation,
 xy coordinates, names of continuous and categorical variables, weights,
 results from PCA, and modeling algorithm.
 }
@@ -125,6 +137,15 @@ This function prepares data for model calibration, including optional PCA,
 background point generation, k-fold partitioning, and the creation of a grid
 of parameter combinations, including regularization multiplier values,
 feature classes, and sets of environmental variables.
+}
+\details{
+The available data partitioning methods are:
+\itemize{
+\item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
+\item \strong{"bootstrap"}: Creates the training dataset by sampling observations from the original dataset \emph{with replacement} (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
+\item \strong{"subsample"}: Similar to bootstrap, but the training set is created by sampling \emph{without replacement} (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
+\item \strong{"leave-one-out"}: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
+}
 }
 \examples{
 # Import occurrences
@@ -147,7 +168,8 @@ sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        n_background = 500, bias_file = bias,
                        bias_effect = "direct",
                        features = c("l", "q", "p", "lq", "lqp"),
-                       r_multiplier = c(0.1, 1, 2, 3, 5))
+                       r_multiplier = c(0.1, 1, 2, 3, 5),
+                       partition_method = "kfolds")
 print(sp_swd)
 
 # Prepare data for glm model
@@ -158,6 +180,7 @@ sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            categorical_variables = "SoilType",
                            n_background = 500, bias_file = bias,
                            bias_effect = "direct",
-                           features = c("l", "q", "p", "lq", "lqp"))
+                           features = c("l", "q", "p", "lq", "lqp"),
+                           partition_method = "kfolds")
 print(sp_swd_glm)
 }

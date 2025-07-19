@@ -5,20 +5,23 @@
 #' using the function [calibration()].
 #'
 #' @usage
-#' fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
-#'              train_portion = 0.7, write_models = FALSE, file_name = NULL,
-#'              parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-#'              verbose = TRUE, seed = 1)
+#' fit_selected(calibration_results, partition_method = "kfolds",
+#'              n_replicates = 1, train_proportion = 0.7, write_models = FALSE,
+#'              file_name = NULL, parallel = FALSE, ncores = NULL,
+#'              progress_bar = TRUE, verbose = TRUE, seed = 1)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the [calibration()] function.
-#' @param n_replicates (numeric) the number of model replicates. Using the
-#' default, 1, implies that one replicate is fit with all the data.
-#' @param rep_type (character) the replicate type. It can be: "kfold", "bootstrap",
-#' or "subsample". Default is "kfold".
-#' @param train_portion (numeric) the proportion of occurrence records used to
-#' train the model in each replicate. This parameter is applicable only when
-#' `rep_type` is set to "bootstrap" or "subsample". Default is 0.7.
+#' @param partition_method (character) method used for data partitioning.
+#' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
+#' See **Details** for more information.
+#' @param n_replicates (numeric) number of replicates to generate. If
+#' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
+#' of partitions. If `"kfolds"`, it specifies the number of folds. Default is 4.
+#' @param train_proportion (numeric) proportion of occurrence and background
+#' points to be used for model training in each replicate. Only applicable when
+#'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
+#'  70% for training and 30% for testing).
 #' @param write_models (logical) whether to save the final fitted models to disk.
 #' Default is FALSE.
 #' @param file_name (character) the file name, with or without a path, for saving
@@ -77,7 +80,7 @@
 #'
 #' # Fit models using calibration results
 #' fm <- fit_selected(calibration_results = calib_results_maxnet,
-#'                    n_replicates = 2)
+#'                    n_replicates = 4)
 #'
 #' # Output the fitted models
 #' fm
@@ -87,15 +90,16 @@
 #'
 #' # Fit models using calibration results
 #' fm_glm <- fit_selected(calibration_results = calib_results_glm,
-#'                        n_replicates = 2)
+#'                        partition_method = "subsample",
+#'                        n_replicates = 5)
 #'
 #' # Output the fitted models
 #' fm_glm
 
 fit_selected <- function(calibration_results,
+                         partition_method = "kfolds",
                          n_replicates = 1,
-                         rep_type = "kfold",
-                         train_portion = 0.7,
+                         train_proportion = 0.7,
                          write_models = FALSE,
                          file_name = NULL,
                          parallel = FALSE,
@@ -130,9 +134,9 @@ fit_selected <- function(calibration_results,
       #Partitioning data
       rep_data <- part_data(data = calibration_results$calibration_data,
                             pr_bg = "pr_bg",
-                            train_portion = train_portion,
+                            train_proportion = train_proportion,
                             n_replicates = n_replicates,
-                            method = rep_type, seed = seed)
+                            partition_method = partition_method, seed = seed)
     } else {
       rep_data <- NULL
     }
@@ -326,6 +330,11 @@ fit_selected <- function(calibration_results,
            thr = calibration_results$summary$omission_rate_thr / 100)
   })
 
+  #Prepare final data
+  if(partition_method %in% c("kfolds", "leave-one-out")){
+    train_proportion <- NULL
+  }
+
   # Prepare final results
   res <- new_fitted_models(
     species = calibration_results$species,
@@ -339,7 +348,10 @@ fit_selected <- function(calibration_results,
     addsamplestobackground = calibration_results$addsamplestobackground,
     omission_rate = calibration_results$summary$omission_rate_thr,
     thresholds = p_thr,
-    algorithm = algorithm
+    algorithm = algorithm,
+    partition_method = partition_method,
+    n_replicates = n_replicates,
+    train_proportion = train_proportion
   )
 
   # Optionally save the fitted models

@@ -10,13 +10,16 @@
 #' @usage
 #' prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
 #'                   y = NULL, features = c("lq", "lqp"),
-#'                   r_multiplier = c(0.1, 0.5, 1, 2, 3), kfolds = 4,
-#'                   user_folds = NULL, categorical_variables = NULL, do_pca = FALSE,
-#'                   center = TRUE, scale = TRUE, exclude_from_pca = NULL,
-#'                   variance_explained = 95, min_explained = 5,
-#'                   min_number = 2, min_continuous = NULL, weights = NULL,
-#'                   include_xy = TRUE, write_pca = FALSE, pca_directory = NULL,
-#'                   write_file = FALSE, file_name = NULL, seed = 1)
+#'                   r_multiplier = c(0.1, 0.5, 1, 2, 3),
+#'                   partition_method = "subsample", n_replicates = 4,
+#'                   train_proportion = 0.7, user_part = NULL,
+#'                   categorical_variables = NULL,
+#'                   do_pca = FALSE, center = TRUE, scale = TRUE,
+#'                   exclude_from_pca = NULL, variance_explained = 95,
+#'                   min_explained = 5, min_number = 2, min_continuous = NULL,
+#'                   weights = NULL, include_xy = TRUE, write_pca = FALSE,
+#'                   pca_directory = NULL, write_file = FALSE, file_name = NULL,
+#'                   seed = 1)
 #'
 #' @param algorithm (character) modeling algorithm, either "glm" or "maxnet".
 #' @param user_data (data frame) A data.frame with a column with presence (1)
@@ -57,11 +60,10 @@
 #' @param pca_directory (character) the path or name of the folder where the PC
 #' raster layers will be saved. This is only applicable if `write_pca = TRUE`.
 #' Default is NULL.
-#' @param kfolds (numeric) the number of groups (folds) the occurrence
-#' data will be split into for cross-validation. Default is 4.
-#' @param user_folds a user provided list with folds for cross-validation to be
-#' used in model calibration. Each element of the list contains indices to split
-#' `use_data` into training and testing sets.
+#' @param user_part a user provided list with replicates or folds for
+#' cross-validation to be used in model calibration. Each element of the list
+#' should contain a vector of indices indicating the test points, which will be
+#' used to split `use_data` into training and testing sets.
 #' @param weights (numeric) a numeric vector specifying weights for the
 #' occurrence records. Default is NULL.
 #' @param min_number (numeric) the minimum number of variables to be included in
@@ -72,6 +74,16 @@
 #' "lq", "lp", "qp", "lqp").
 #' @param r_multiplier (numeric) a vector of regularization parameters for maxnet.
 #' Default is c(0.1, 1, 2, 3, 5).
+#' @param partition_method (character) method used for data partitioning.
+#' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
+#' See **Details** for more information.
+#' @param n_replicates (numeric) number of replicates to generate. If
+#' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
+#' of partitions. If `"kfolds"`, it specifies the number of folds. Default is 4.
+#' @param train_proportion (numeric) proportion of occurrence and background
+#' points to be used for model training in each replicate. Only applicable when
+#'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
+#'  70% for training and 30% for testing).
 #' @param include_xy (logical) whether to include the coordinates (longitude and
 #' latitude) in the results from preparing data. Default is TRUE.
 #' @param write_file (logical) whether to write the resulting prepared_data list
@@ -82,6 +94,14 @@
 #' @param seed (numeric) integer value to specify an initial seed to split the
 #' data. Default is 1.
 #'
+#' @details
+#' The available data partitioning methods are:
+#'
+#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
+#' - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
+#' - **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
+#' - **"leave-one-out"**: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
+#'
 #' @return
 #' An object of class `prepared_data` containing all elements to run a model
 #' calibration routine. The elements include: species, calibration data,
@@ -89,7 +109,7 @@
 #' xy coordinates, names of continuous and categorical variables, weights,
 #' results from PCA, and modeling algorithm.
 #'
-#' @importFrom enmpa kfold_partition aux_var_comb
+#' @importFrom enmpa aux_var_comb
 #' @importFrom terra crop prcomp extract as.data.frame nlyr
 #' @importFrom utils combn
 #' @importFrom stats prcomp predict
@@ -125,8 +145,10 @@ prepare_user_data <- function(algorithm,
                               y = NULL,
                               features = c("lq", "lqp"),
                               r_multiplier = c(0.1, 0.5, 1, 2, 3),
-                              kfolds = 4,
-                              user_folds = NULL,
+                              partition_method = "subsample",
+                              n_replicates = 4,
+                              train_proportion = 0.7,
+                              user_part = NULL,
                               categorical_variables = NULL,
                               do_pca = FALSE,
                               center = TRUE,
@@ -278,11 +300,16 @@ prepare_user_data <- function(algorithm,
   }
 
   #Partition
-  if (is.null(user_folds)) {
-    k_f <- enmpa::kfold_partition(data = user_data, dependent = "pr_bg", k = kfolds,
-                                  seed = seed)
+  if (is.null(user_part)) {
+    #Partitione data
+    pd <- part_data(data = user_data, pr_bg = "pr_bg",
+                    train_proportion = train_proportion,
+                    n_replicates = n_replicates,
+                    partition_method = partition_method,
+                    seed = seed)
   } else {
-    k_f <- user_folds
+    pd <- user_part
+    partition_method <- "User defined"
   }
 
   #Check min_number and min_continuous
@@ -313,11 +340,24 @@ prepare_user_data <- function(algorithm,
     data_xy <- NULL
   }
 
-  data <- new_prepared_data(species, calibration_data = user_data, formula_grid,
-                            kfolds = k_f, data_xy = data_xy,
+
+  #Prepare final data
+  if(partition_method %in% c("kfolds", "leave-one-out")){
+    train_proportion <- NULL
+  }
+
+
+  data <- new_prepared_data(species = species, calibration_data = user_data,
+                            formula_grid = formula_grid,
+                            part_data = pd, partition_method = partition_method,
+                            n_replicates = n_replicates,
+                            train_proportion = train_proportion,
+                            data_xy = data_xy,
                             continuous_variables = continuous_variable_names,
-                            categorical_variables, weights, pca = pca,
-                            algorithm)
+                            categorical_variables = categorical_variables,
+                            weights = weights, pca = pca$pca,
+                            algorithm = algorithm)
+
 
   if (write_file) {
     saveRDS(data, paste0(file_name, ".RDS"))

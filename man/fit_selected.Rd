@@ -4,24 +4,27 @@
 \alias{fit_selected}
 \title{Fit models selected after calibration}
 \usage{
-fit_selected(calibration_results, n_replicates = 1, rep_type = "kfold",
-             train_portion = 0.7, write_models = FALSE, file_name = NULL,
-             parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-             verbose = TRUE, seed = 1)
+fit_selected(calibration_results, partition_method = "kfolds",
+             n_replicates = 1, train_proportion = 0.7, write_models = FALSE,
+             file_name = NULL, parallel = FALSE, ncores = NULL,
+             progress_bar = TRUE, verbose = TRUE, seed = 1)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
 by the \code{\link[=calibration]{calibration()}} function.}
 
-\item{n_replicates}{(numeric) the number of model replicates. Using the
-default, 1, implies that one replicate is fit with all the data.}
+\item{partition_method}{(character) method used for data partitioning.
+Available options are \code{"kfolds"}, \code{"subsample"}, and \code{"bootstrap"}.
+See \strong{Details} for more information.}
 
-\item{rep_type}{(character) the replicate type. It can be: "kfold", "bootstrap",
-or "subsample". Default is "kfold".}
+\item{n_replicates}{(numeric) number of replicates to generate. If
+\code{partition_method} is \code{"subsample"} or \code{"bootstrap"}, this defines the number
+of partitions. If \code{"kfolds"}, it specifies the number of folds. Default is 4.}
 
-\item{train_portion}{(numeric) the proportion of occurrence records used to
-train the model in each replicate. This parameter is applicable only when
-\code{rep_type} is set to "bootstrap" or "subsample". Default is 0.7.}
+\item{train_proportion}{(numeric) proportion of occurrence and background
+points to be used for model training in each replicate. Only applicable when
+\code{partition_method} is \code{"subsample"} or \code{"bootstrap"}. Default is 0.7 (i.e.,
+70\% for training and 30\% for testing).}
 
 \item{write_models}{(logical) whether to save the final fitted models to disk.
 Default is FALSE.}
@@ -81,7 +84,7 @@ data(calib_results_maxnet, package = "kuenm2")
 
 # Fit models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet,
-                   n_replicates = 2)
+                   n_replicates = 4)
 
 # Output the fitted models
 fm
@@ -91,7 +94,8 @@ data(calib_results_glm, package = "kuenm2")
 
 # Fit models using calibration results
 fm_glm <- fit_selected(calibration_results = calib_results_glm,
-                       n_replicates = 2)
+                       partition_method = "subsample",
+                       n_replicates = 5)
 
 # Output the fitted models
 fm_glm
