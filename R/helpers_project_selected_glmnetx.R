@@ -197,7 +197,7 @@ check_pred_scenarios <- function(projection_data, out_dir) {
       d_future <- data.frame(
         Time = df_future$Time,
         Period = df_future$Period,
-        ssp = df_future$ssp,
+        Scenario = df_future$ssp,
         GCM = df_future$GCM,
         input_path = df_future$Path,
         output_path = normalizePath(file.path(future_dir, df_future$Period,
@@ -240,4 +240,85 @@ cumulative_predictions <- function(predictions){
     normalized_cumulative <- (cumulative_sum / max_cumulative_sum) * 100
   }
   return(normalized_cumulative[original_order])
+}
+
+helper_organize_proj <- function(r, mask, variable_names, fixed_variables,
+                                 check_extent, resample_to_present,
+                                 r_present =NULL, file_name){
+
+  #Mask variable, if necessary
+  if(!is.null(mask)){
+    r <- terra::crop(r, mask, mask = TRUE)
+  }
+
+  #Append fixed variables, if necessary
+  if(!is.null(fixed_variables)){
+    #Check if they have the same resolution
+    if(any(terra::res(fixed_variables) != terra::res(r))){
+      stop("Resolution of fixed_variables are different from the resolution of ",
+file_name)
+    }
+
+    if(!is.null(mask)){
+      fixed_variables <- terra::crop(fixed_variables, mask, mask = TRUE)
+    }
+    #Check extent
+    if(check_extent){
+      if(terra::ext(fixed_variables) != terra::ext(r)){
+        terra::ext(fixed_variables) <- terra::ext(r)
+      }
+    }
+    #Append variables
+    r <- c(r, fixed_variables)
+  }
+
+  var_out <- setdiff(variable_names, names(r))
+  if(length(var_out) > 0){
+    stop("The following variable(s) is/are absent from the ", file_name, ":\n",
+         paste(var_out, collapse = ", "))    }
+
+  if(resample_to_present){
+    r <- terra::resample(r, r_present, method = "bilinear")
+  }
+
+  return(r)
+}
+
+#### Helper set rgb colors ###
+set_rgb <- function(l){
+  sapply(1:nrow(l), function(x){
+    col_x <- l$color[x]
+    alpha_x <- l$alpha[x] * 255
+    col_rgb <- grDevices::col2rgb(col = col_x)
+    new_col <- grDevices::rgb(
+      red = col_rgb[1],
+      green = col_rgb[2],
+      blue = col_rgb[3],
+      alpha = alpha_x,
+      maxColorValue = 255
+    )
+    })
+}
+
+#Helper to ser colors by resul change####
+set_colors_by_change <- function(x_i, change, color, min_alpha, max_alpha){
+  #Get levels
+  l_i <- terra::levels(x_i)[[1]]
+  colnames(l_i) <- "value"
+  #Get number of gcms
+  l_i$n_gcms <- gsub("\\D+", "", l_i[,2])
+  #Set alphas
+  a <- data.frame(n_gcms = 0:max(l_i$n_gcms),
+                  alpha = seq(from = min_alpha, to = max_alpha,
+                              length.out = max(as.numeric(l_i$n_gcms)) + 1))
+  l_i <- merge(l_i, a)
+  #Set colors
+  l_i$color <- color
+  #Adjust alpha: 0.1 if 0 gcms
+  l_i$alpha[l_i$n_gcms == 0] <- 0.09
+  #Set colors based on alpha
+  l_i$rgb <- set_rgb(l_i)
+  terra::coltab(x_i) <- data.frame(value = l_i$value,
+                                   col = l_i$rgb)
+  return(x_i)
 }
