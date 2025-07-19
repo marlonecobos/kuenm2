@@ -52,7 +52,7 @@
 #' data(fitted_model_maxnet, package = "kuenm2")
 #'
 #' # Response curve (notice response affected by covariance)
-#' bivariate_response(models = fitted_model_maxnet, modelID = "Model_189",
+#' bivariate_response(models = fitted_model_maxnet, modelID = "Model_219",
 #'                    variable1 = "bio_1", variable2 = "bio_12")
 #'
 #' # Example with glm
@@ -60,7 +60,7 @@
 #' data(fitted_model_glm, package = "kuenm2")
 #'
 #' # Response curve
-#' bivariate_response(models = fitted_model_glm, modelID = "Model_86",
+#' bivariate_response(models = fitted_model_glm, modelID = "Model_85",
 #'                    variable1 = "bio_1", variable2 = "bio_7")
 
 bivariate_response <- function(models,
