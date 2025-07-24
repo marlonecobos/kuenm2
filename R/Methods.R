@@ -65,8 +65,6 @@ predict.glmnet_mx <- function(object, newdata, clamp = FALSE,
   }
 }
 
-
-
 #' Print method for kuenm2 objects
 #'
 #' @name print
