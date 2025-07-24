@@ -9,7 +9,7 @@ predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
                  extrapolation_type = "E", var_to_clamp = NULL,
-                 type = NULL, overwrite = FALSE, progress_bar = TRUE)
+                 type = "cloglog", overwrite = FALSE, progress_bar = TRUE)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
@@ -53,10 +53,9 @@ not extrapolate. Only applicable if extrapolation_type is "EC" or "NE".
 Default is \code{NULL}, meaning all variables will be clamped or not extrapolated.}
 
 \item{type}{(character) the format of prediction values. For \code{maxnet} models,
-valid options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"}. For
-\code{glm} models, valid options are \code{"response"} and \code{"raw"}. If \code{NULL} (default),
-the function uses \code{"cloglog"} for \code{maxnet} models and \code{"response"} for \code{glm}
-models.}
+valid options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"}.
+For \code{glm} models, valid options are \code{"cloglog"}, \code{"response"}, \code{"raw"},
+\code{"cumulative"} and \code{"link"}. Default is "cloglog.}
 
 \item{overwrite}{(logical) whether to overwrite SpatRasters if they already
 exist. Only applicable if \code{write_files = TRUE}. Default is FALSE.}

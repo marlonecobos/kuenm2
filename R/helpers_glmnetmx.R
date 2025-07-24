@@ -104,4 +104,30 @@ maxnet.default.regularization <- function (p, m) {
        tmindev, apply(as.matrix(mm), 2, sd) * classregularization)
 }
 
+# Helper to predict glms
+predict_glm_mx <- function(model, newdata, type = "response"){
+
+  if(type == "response"){
+    return(stats::predict.glm(model, newdata, type))
+  }
+
+  if(type == "cloglog"){
+    exp_p <- stats::predict.glm(model, newdata, type = "link")
+    return(1 - exp(-exp(exp_p)))
+  }
+
+  if(type == "raw"){
+    return(exp(stats::predict.glm(model, newdata, type = "link")))
+  }
+
+  if (type == "cumulative") {
+    return(cumulative_predictions(
+      exp(stats::predict.glm(model, newdata, type = "link"))))
+  }
+
+  if(type == "link"){
+    return(stats::predict.glm(model, newdata, type = "link"))
+  }
+
+}
 

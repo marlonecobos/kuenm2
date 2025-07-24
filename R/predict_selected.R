@@ -12,7 +12,7 @@
 #'                  consensus_per_model = TRUE, consensus_general = TRUE,
 #'                  consensus = c("median", "range", "mean", "stdev"),
 #'                  extrapolation_type = "E", var_to_clamp = NULL,
-#'                  type = NULL, overwrite = FALSE, progress_bar = TRUE)
+#'                  type = "cloglog", overwrite = FALSE, progress_bar = TRUE)
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
@@ -44,10 +44,9 @@
 #' not extrapolate. Only applicable if extrapolation_type is "EC" or "NE".
 #' Default is `NULL`, meaning all variables will be clamped or not extrapolated.
 #' @param type (character) the format of prediction values. For `maxnet` models,
-#' valid options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`. For
-#' `glm` models, valid options are `"response"` and `"raw"`. If `NULL` (default),
-#' the function uses `"cloglog"` for `maxnet` models and `"response"` for `glm`
-#' models.
+#' valid options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`.
+#' For `glm` models, valid options are `"cloglog"`, `"response"`, `"raw"`,
+#' `"cumulative"` and `"link"`. Default is "cloglog.
 #' @param overwrite (logical) whether to overwrite SpatRasters if they already
 #' exist. Only applicable if `write_files = TRUE`. Default is FALSE.
 #' @param progress_bar (logical) whether to display a progress bar during
@@ -109,7 +108,7 @@ predict_selected <- function(models,
                              consensus = c("median", "range", "mean", "stdev"),
                              extrapolation_type = "E",
                              var_to_clamp = NULL,
-                             type = NULL,
+                             type = "cloglog",
                              overwrite = FALSE,
                              progress_bar = TRUE) {
 
@@ -163,13 +162,6 @@ predict_selected <- function(models,
     stop("Argument 'var_to_clamp' must be NULL or 'character'.")
   }
 
-  if(is.null(type)){
-    if(models$algorithm == "maxnet") {
-      type <- "cloglog"
-    } else if (models$algorithm == "glm") {
-      type <- "response"
-    }
-  }
 
   if(!inherits(type, "character")){
     stop("Argument 'type' must be NULL or 'character'.")
@@ -186,12 +178,10 @@ predict_selected <- function(models,
   }
 
   if(models$algorithm == "glm"){
-    if (!any(c("response", "cloglog") %in% type)) {
+    if (!any(c("response", "cloglog", "cumulative", "link", "raw") %in% type)) {
       stop("Invalid 'type' provided.",
-           "\nAvailable options for glm models are 'response' or 'cloglog'.")
+           "\nAvailable options for glm models are 'response', or 'cloglog', or 'cumulative', or 'link', or 'raw'.")
     }
-    if(type == "cloglog")
-      type = "link"
     }
 
   # Analyses start here
@@ -335,15 +325,15 @@ predict_selected <- function(models,
                                        type = type, fun = predict.glmnet_mx)
         } else if (inherits(x, "glm")) {
           prediction <- terra::predict(raster_variables, x, na.rm = TRUE,
-                                       type = type)
+                                       type = type, fun = predict_glm_mx)
         }
       } else if (inherits(raster_variables, "data.frame")) {
         if (inherits(x, "glmnet")) {
           prediction <- as.numeric(predict.glmnet_mx(x, newdata = raster_variables,
                                                      type = type))
         } else if (inherits(x, "glm")) {
-          prediction <- as.numeric(predict(x, newdata = raster_variables,
-                                           type = type))
+          prediction <- as.numeric(predict_glm_mx(x, newdata = raster_variables,
+                                   type = type))
         }
       }
 
