@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Fit and Explore Selected Models">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Fit and Explore Selected Models">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -86,7 +87,9 @@ object</a></li>
 fit this models (using <code><a href="../reference/fit_selected.html">fit_selected()</a></code>) in order to explore
 their characteristics and continue with the next steps. Fitted models
 can then be used to assess variable importance in models, as well as to
-explore variable response curves.</p>
+explore variable response curves. We can also evaluate the selected
+models using independent presence records that were not used during
+model calibration.</p>
 <p>To fit the selected models, we need a
 <code>calibration_results</code> object. For more details in model
 calibration, please refer to the vignette <a href="model_calibration.html">Model Calibration</a>. The
@@ -96,7 +99,7 @@ available as a data example in the package. Let’s load it.</p>
 <code class="sourceCode R"><span><span class="co">#Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.54</span></span>
+<span><span class="co">#&gt; terra 1.8.60</span></span>
 <span></span>
 <span><span class="co">#Import calib_results_maxnet</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"calib_results_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
@@ -230,7 +233,11 @@ selected models (when more than one model is selected):</p>
 <span><span class="co">#&gt; [1] 0.3095083</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $consensus$median</span></span>
-<span><span class="co">#&gt; [1] 0.259534</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.259534</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $type</span></span>
+<span><span class="co">#&gt; [1] "cloglog"</span></span></code></pre></div>
 <p>Now, we can use the <code>fitted_models</code> object to generate
 response curves and compute variable importance.</p>
 <p><br></p>
@@ -401,6 +408,190 @@ displays a barplot instead of a boxplot:</p>
 <p><img src="model_exploration_files/figure-html/one%20model%20importance-1.png" width="672"><br></p>
 </div>
 <div class="section level2">
+<h2 id="evaluate-models-with-independent-data">Evaluate models with independent data<a class="anchor" aria-label="anchor" href="#evaluate-models-with-independent-data"></a>
+</h2>
+<p>We can evaluate the selected models using an independent set of
+presence records that were not used during model calibration. This
+approach is especially useful when new records become available or when
+working with invasive species. In the latter case, models are first
+calibrated using presence data from the native area and subsequently
+evaluated with data from the invaded area.</p>
+<p>The <code><a href="../reference/independent_eval.html">independent_eval()</a></code> function computes the omission
+rate - i.e., the proportion of independent records that fall in
+unsuitable areas, where “unsuitable” is defined according to the
+omission threshold used during model calibration and selection (e.g.,
+10%) - as well as the partial ROC. It also assesses whether the
+environmental conditions in the independent data are analogous (i.e.,
+within the range) to those in the calibration data.</p>
+<p>As example of independent data, let’s use the <code>new_occ</code>
+data example provided in the package. It contains coordinates of the
+<em>Myrcia hatschbachii</em> sourced from NeotropicTree (<a href="http://www.neotroptree.info/" class="external-link">Oliveira-Filho, 2017</a>), and they
+were not part of the <code>occ_data</code>used to train the models.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import independent records</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"new_occ"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
+<span><span class="co"># See data structure</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">new_occ</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Classes 'data.table' and 'data.frame':   82 obs. of  3 variables:</span></span>
+<span><span class="co">#&gt;  $ species: chr  "Myrcia hatschbachii" "Myrcia hatschbachii" "Myrcia hatschbachii" "Myrcia hatschbachii" ...</span></span>
+<span><span class="co">#&gt;  $ x      : num  -48.3 -49.1 -49.9 -49.4 -49.9 ...</span></span>
+<span><span class="co">#&gt;  $ y      : num  -25.2 -25 -24.5 -24.5 -24.8 ...</span></span>
+<span><span class="co">#&gt;  - attr(*, ".internal.selfref")=&lt;externalptr&gt;</span></span></code></pre></div>
+<p>For predicting the model to this new set of occurrence records, we
+need to extract the environmental conditions on this locals. Let’s
+import the variables we used to fit the models and extract to the
+<code>new_occ</code> conditions:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import raster layers</span></span>
+<span><span class="va">var</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Current_variables.tif"</span>,</span>
+<span>                               package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Extract variables to occurrences</span></span>
+<span><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_occurrence_variables.html">extract_occurrence_variables</a></span><span class="op">(</span>occ <span class="op">=</span> <span class="va">new_occ</span>, x <span class="op">=</span> <span class="st">"x"</span>, y <span class="op">=</span> <span class="st">"y"</span>,</span>
+<span>                                         raster_variables <span class="op">=</span> <span class="va">var</span><span class="op">)</span></span>
+<span><span class="co"># See data structure</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 'data.frame':    82 obs. of  8 variables:</span></span>
+<span><span class="co">#&gt;  $ pr_bg   : num  1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span><span class="co">#&gt;  $ x       : num  -48.3 -49.1 -49.9 -49.4 -49.9 ...</span></span>
+<span><span class="co">#&gt;  $ y       : num  -25.2 -25 -24.5 -24.5 -24.8 ...</span></span>
+<span><span class="co">#&gt;  $ bio_1   : num  20.2 18 16.6 17.8 16.7 ...</span></span>
+<span><span class="co">#&gt;  $ bio_7   : num  16.7 18.2 19.9 19.4 20.1 ...</span></span>
+<span><span class="co">#&gt;  $ bio_12  : num  2015 1456 1526 1414 1578 ...</span></span>
+<span><span class="co">#&gt;  $ bio_15  : num  43.8 33.7 29.1 32.2 26.5 ...</span></span>
+<span><span class="co">#&gt;  $ SoilType: num  6 6 6 6 6 10 10 10 10 10 ...</span></span></code></pre></div>
+<p>Especially when using independent records that fall outside the
+calibration area (e.g., in an invaded region on another continent), it
+is common for the environmental conditions in these new records to be
+non-analogous (i.e., outside the range) to those in the calibration
+data.</p>
+<p>To better illustrate this case, let’s add three fake records, in
+which some variables have non-analogous values, either higher than the
+upper limit or lower than the lower limit observed in the calibration
+data.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Add some fake data beyond the limits of calibration ranges</span></span>
+<span><span class="va">fake_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"pr_bg"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"x"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"y"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"bio_1"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">23</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"bio_7"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">16</span>, <span class="fl">20</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"bio_12"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2300</span>, <span class="fl">2000</span>, <span class="fl">1000</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"bio_15"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">50</span><span class="op">)</span>,</span>
+<span>                        <span class="st">"SoilType"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># Bind data</span></span>
+<span><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">new_data</span>, <span class="va">fake_data</span><span class="op">)</span></span></code></pre></div>
+<p>Now, let’s evaluate this independent dataset (keep in mind that the
+last three records are fake):</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Evaluate models with independent data</span></span>
+<span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_eval.html">independent_eval</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
+<span>                            new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span></code></pre></div>
+<p>The output is a list with three elements. The first one,
+<strong>evaluation</strong>, presents the evaluation metrics (omission
+rate and pROC) for each selected model, as well as for the overall
+consensus. We can see that all selected models have significant pROC
+values, but show higher omission rates (around 40% of the independent
+records fall in areas predicted as unsuitable) compared to the threshold
+specified during model calibration (10%).</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_ind</span><span class="op">$</span><span class="va">evaluation</span></span>
+<span><span class="co">#&gt;               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC</span></span>
+<span><span class="co">#&gt; 1         Model_192      mean           0.4352941       1.166789         0</span></span>
+<span><span class="co">#&gt; 2         Model_192    median           0.4000000       1.139045         0</span></span>
+<span><span class="co">#&gt; 3         Model_219      mean           0.4235294       1.190714         0</span></span>
+<span><span class="co">#&gt; 4         Model_219    median           0.4000000       1.138885         0</span></span>
+<span><span class="co">#&gt; 5 General_consensus    median           0.4000000       1.136853         0</span></span>
+<span><span class="co">#&gt; 6 General_consensus      mean           0.4352941       1.180920         0</span></span></code></pre></div>
+<p>When <code>perform_mop</code> is set to <code>TRUE</code>, the
+function also returns the <strong>mop_results</strong>, which is a list
+containing the output of <code><a href="https://rdrr.io/pkg/mop/man/mop.html" class="external-link">mop::mop()</a></code> function. The main
+results of the MOP analysis are appended to the
+<strong>predictions</strong> element of the list.</p>
+<p>For each records, the following information is provided:</p>
+<ul>
+<li>
+<strong>mop_distance</strong>: the distance (i.e., dissimilarity)
+between the environmental conditions in calibration data and those at
+the location of the independent record.</li>
+<li>
+<strong>inside_range</strong>: wheter the environmental conditions
+at the location of the independent record fall within the calibration
+range.</li>
+<li>
+<strong>n_var_out</strong>: the number of variables at the location
+of the independent record that are non-analogous (i.e., fall outside the
+calibration range).</li>
+<li>
+<strong>towards_low</strong>: the names of variables with values
+lower than the minimum observed in the calibration data.</li>
+<li>
+<strong>towards_high</strong>: the names of variables with values
+higher than the maximum observed in the calibration data.</li>
+</ul>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Show the mop results for the last 5 independent records</span></span>
+<span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span> ,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mop_distance"</span>, <span class="st">"inside_range"</span>, <span class="st">"n_var_out"</span>, </span>
+<span>                                  <span class="st">"towards_low"</span>, <span class="st">"towards_high"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;    mop_distance inside_range n_var_out  towards_low towards_high</span></span>
+<span><span class="co">#&gt; 81     7.753558         TRUE         0         &lt;NA&gt;         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 82     6.622770         TRUE         0         &lt;NA&gt;         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 83   157.782905        FALSE         3 bio_7, bio_1       bio_12</span></span>
+<span><span class="co">#&gt; 84    21.045482         TRUE         0         &lt;NA&gt;         &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 85   183.905420        FALSE         2       bio_12        bio_1</span></span></code></pre></div>
+<p>Note that two of the three fake records we added to
+<code>new_data</code> have non-analogous environmental conditions. One
+of them falls in a location where <em>bio_7</em> and <em>bio_1</em> have
+values lower than the minimum observed in the calibration data, while
+<em>bio_12</em> has a value higher than the maximum. Another record is
+in a location where <em>bio_12</em> is below the calibration range, and
+<em>bio_1</em> exceeds the upper limit.</p>
+<p>When we set<code>return_predictions = TRUE</code>, the function also
+returns the continuous predictions for each selected model and for the
+general consensus:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Show the continuous predictions for the last 5 independent records</span></span>
+<span><span class="co"># Round to two decimal places</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/math-generics.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    Model_192.mean Model_192.median Model_219.mean Model_219.median</span></span>
+<span><span class="co">#&gt; 81           0.57             0.63           0.58             0.65</span></span>
+<span><span class="co">#&gt; 82           0.54             0.60           0.55             0.62</span></span>
+<span><span class="co">#&gt; 83           1.00             1.00           0.96             1.00</span></span>
+<span><span class="co">#&gt; 84           1.00             1.00           1.00             1.00</span></span>
+<span><span class="co">#&gt; 85           0.00             0.00           0.00             0.00</span></span>
+<span><span class="co">#&gt;    General_consensus.median General_consensus.mean</span></span>
+<span><span class="co">#&gt; 81                     0.63                   0.58</span></span>
+<span><span class="co">#&gt; 82                     0.61                   0.54</span></span>
+<span><span class="co">#&gt; 83                     1.00                   0.98</span></span>
+<span><span class="co">#&gt; 84                     1.00                   1.00</span></span>
+<span><span class="co">#&gt; 85                     0.00                   0.00</span></span></code></pre></div>
+<p>If we set <code>return_binary = TRUE</code>, the function also
+returns the binary predictions, with values classified as suitable (1)
+or unsuitable (0), based on the threshold calculated using the omission
+rate applied during model evaluation and selection:</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Show the continuous predictions for the last 5 independent records</span></span>
+<span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">binary</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
+<span><span class="co">#&gt;    Model_192.mean Model_192.median Model_219.mean Model_219.median</span></span>
+<span><span class="co">#&gt; 81              1                1              1                1</span></span>
+<span><span class="co">#&gt; 82              1                1              1                1</span></span>
+<span><span class="co">#&gt; 83              1                1              1                1</span></span>
+<span><span class="co">#&gt; 84              1                1              1                1</span></span>
+<span><span class="co">#&gt; 85              0                0              0                0</span></span>
+<span><span class="co">#&gt;    General_consensus.mean General_consensus.median</span></span>
+<span><span class="co">#&gt; 81                      1                        1</span></span>
+<span><span class="co">#&gt; 82                      1                        1</span></span>
+<span><span class="co">#&gt; 83                      1                        1</span></span>
+<span><span class="co">#&gt; 84                      1                        1</span></span>
+<span><span class="co">#&gt; 85                      0                        0</span></span></code></pre></div>
+<p>These results help determine whether the independent data should be
+incorporated into the calibration dataset to re-run the models. If
+omission rates for the independent records are too high, pROC values are
+non-significant, or most of the records fall in locations with
+non-analogous environmental conditions, this suggests it may be a good
+idea to re-run the models, including the independent data this time.</p>
+</div>
+<div class="section level2">
 <h2 id="saving-a-fitted_models-object">Saving a fitted_models object<a class="anchor" aria-label="anchor" href="#saving-a-fitted_models-object"></a>
 </h2>
 <p>After fitting the best-performing models with
@@ -409,11 +600,11 @@ single or multiple scenarios. As this object is essentially a list,
 users can save it to a local directory using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">saveRDS()</a></code>.
 Saving the object facilitates loading it back into your R session later
 using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code>. See an example below:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set directory to save (here, in a temporary directory)</span></span>
 <span><span class="va">dir_to_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Save the data</span></span>
+<span><span class="co"># Save the data:</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">fm</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir_to_save</span>, <span class="st">"fitted_models.rds"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Import data</span></span>
@@ -426,7 +617,7 @@ using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" 
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson.</p>
+  <p>Developed by Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson, Marlon E. Cobos.</p>
 </div>
 
 <div class="pkgdown-footer-right">

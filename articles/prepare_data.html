@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Prepare Data for Model Calibration">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Prepare Data for Model Calibration">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -215,8 +216,7 @@ in a <code>data.frame</code> to be used in the ENM.</li>
 <strong>Data partitioning</strong>: The function divides your data
 to prepare training and testing sets via a cross-validation process. The
 partitioning methods available includes <code>kfolds</code>,
-<code>subsample</code>, <code>bootstrap</code>, and
-<code>leave-one-out</code>.</li>
+<code>subsample</code>, and <code>bootstrap</code>.</li>
 <li>
 <strong>Defining grid of model parameters</strong>: This helps
 setting up combinations of feature classes (FCs), regularization
@@ -785,10 +785,6 @@ in that specific replicate.</p></li>
 training set is created by sampling <em>without replacement</em> (i.e.,
 each observation is selected at most once). The test set includes the
 observations not selected for training.</p></li>
-<li><p><strong>“leave-one-out”</strong>: A special case of kfolds where
-the number of folds equals the number of presence records. In each
-replicate, a single presence is left out to serve as the test set, while
-the remaining observations are used for training.</p></li>
 </ul>
 <p>Other methods for data partitioning are also available, including
 those based on spatial rules (<a href="https://onlinelibrary.wiley.com/doi/pdf/10.1111/jbi.12227" class="external-link">Radosavljevic
@@ -1115,7 +1111,7 @@ example below:</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson.</p>
+  <p>Developed by Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson, Marlon E. Cobos.</p>
 </div>
 
 <div class="pkgdown-footer-right">
