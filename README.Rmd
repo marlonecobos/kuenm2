@@ -1,6 +1,6 @@
 ---
 title: "kuenm2: Detailed Development of Ecological Niche Models"
-author: "Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, and A. Townsend Peterson"
+author: "Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson, and Marlon E. Cobos"
 output: 
   github_document:
     toc: yes
@@ -112,7 +112,7 @@ When projections to multiple scenarios involve a transfer to another time that c
 
 ### Variability and uncertainty
 
-For results of model projections to multiple scenarios, tools for analyses of variability and uncertainty are included in **kuenm2**. Variability in model projections (`projection_variability()`) is represented geographically by exploring the variance that comes from replicates, distinct model parameterizations, and general circulation models (in projections to other times). To represent uncertainty, the Mobility Oriented-Parity (MOP) metric is used to compare all projection scenarios to conditions of model training (`projection_mop()`). 
+For results of model projections to multiple scenarios, tools for analyses of variability and uncertainty are included in **kuenm2**. Variability in model projections (`projection_variability()`) is represented geographically by exploring the variance that comes from replicates, distinct model parameterizations, and general circulation models (in projections to other times). To represent uncertainty, the Mobility Oriented-Parity (MOP) metric is used to compare all projection scenarios to conditions of model training (`projection_mop()`).
 
 <br>
 
@@ -130,17 +130,20 @@ vignette("basic_data_cleaning")
 vignette("prepare_data")
 
 # Guide to train and evaluate candidate models, and select based on performance
-#vignette("model_calibration")  # in progress
+vignette("model_calibration") 
 
 # Guide to explore selected models, variable importance, response curves
-#vignette("model_exploration")  # in progress
+vignette("model_exploration")
 
 # Guide to predict models in geographic space (single scenarios)
-#vignette("model_predictions")  # in progress
+vignette("model_predictions")
 
 # Guide to project models in geographic space (multiple scenarios)
-#vignette("model_projections")  # in progress
+vignette("model_projections") 
 
 # Guide to explore variability and uncertainty in projections (multiple scenarios)
-#vignette("variability_and_uncertainty")  # in progress
+vignette("variability_and_uncertainty")
+
+# Guide to organize projections manually: An example with LGM from CHELSA
+vignette("organize_past_chelsa")
 ```

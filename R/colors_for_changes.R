@@ -169,7 +169,7 @@ colors_for_changes <- function(changes_projections, gain_color = "#009E73",
       l <- merge(l, a)
 
       #Create vector of colors in rgb based on alpha value
-      l$rgb <- set_rgb(l)
+      l$rgb <- set_rgb_adjusted(l)
 
       #Set col to raster
       terra::coltab(i) <- data.frame(value = l$value, col = l$rgb)

@@ -291,6 +291,9 @@ projection_mop <- function(data,
     stop("Argument 'percentage' must be 'numeric'.")
   }
 
+  if(!inherits(calculate_distance, "logical")){
+    stop("Argument 'calculate_distance' must be 'logical'.")
+  }
 
   #Get calibration data
   m <-  data$calibration_data[, -1]

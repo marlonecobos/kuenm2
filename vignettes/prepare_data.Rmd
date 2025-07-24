@@ -106,7 +106,7 @@ The function `prepare_data()` is central to getting data ready for model calibra
 * **Generating background points**: Background points area sampled from raster layers, unless provided by the user. These points serve as a reference to contrast presence records.
 * **Principal component analysis (PCA)**: An optional step that can be applied to the set of predictors in PCA.
 * **Preparing calibration data**: Presence records and background points are associate with predictor values and put together in a `data.frame` to be used in the ENM.
-* **Data partitioning**: The function divides your data to prepare training and testing sets via a cross-validation process. The partitioning methods available includes `kfolds`, `subsample`, `bootstrap`, and `leave-one-out`.
+* **Data partitioning**: The function divides your data to prepare training and testing sets via a cross-validation process. The partitioning methods available includes `kfolds`, `subsample`, and `bootstrap`.
 * **Defining grid of model parameters**: This helps setting up combinations of feature classes (FCs), regularization multiplier (RM) values (for Maxnet), and sets of predictor variables. An explanation of the roles of RMs and FCs in Maxent models see [Merow et al. 2013](https://doi.org/10.1111/j.1600-0587.2013.07872.x).
 
 As with any function, we recommend consulting the documentation for more detailed explanations (e.g., `help(prepare_data)`). Now, let's prepare our data for model calibration using `prepare_data()`, using 4 k-folds as the partitioning method:
@@ -440,8 +440,6 @@ The functions `prepare_data()` and `prepare_user_data()` in the `kuenm2` package
 - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
 
 - **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
-
-- **"leave-one-out"**: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
 
 Other methods for data partitioning are also available, including those based on spatial rules ([Radosavljevic and Anderson, 2014](https://onlinelibrary.wiley.com/doi/pdf/10.1111/jbi.12227)). Although `kuenm2` does not currently implement spatial partitioning techniques, it is possible to apply them using other R packages and then incorporate the resulting partitions into the `prepared_data` object for model calibration within the `kuenm2` framework.
 

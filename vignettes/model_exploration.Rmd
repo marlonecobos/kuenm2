@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-After the best performing models have been selected, users need to fit this models (using `fit_selected()`) in order to explore their characteristics and continue with the next steps. Fitted models can then be used to assess variable importance in models, as well as to explore variable response curves. 
+After the best performing models have been selected, users need to fit this models (using `fit_selected()`) in order to explore their characteristics and continue with the next steps. Fitted models can then be used to assess variable importance in models, as well as to explore variable response curves. We can also evaluate the selected models using independent presence records that were not used during model calibration.
 
 To fit the selected models, we need a `calibration_results` object. For more details in model calibration, please refer to the vignette [Model Calibration](model_calibration.html). The `calibration_results` object generated in this vignette is available as a data example in the package. Let's load it.
 
@@ -229,6 +229,102 @@ plot_importance(imp_192, main = "Variable importance - Model 192")
 ```
 <br>
 
+# Evaluate models with independent data
+
+We can evaluate the selected models using an independent set of presence records that were not used during model calibration. This approach is especially useful when new records become available or when working with invasive species. In the latter case, models are first calibrated using presence data from the native area and subsequently evaluated with data from the invaded area.
+
+The `independent_eval()` function computes the omission rate - i.e., the proportion of independent records that fall in unsuitable areas, where "unsuitable" is defined according to the omission threshold used during model calibration and selection (e.g., 10%) - as well as the partial ROC. It also assesses whether the environmental conditions in the independent data are analogous (i.e., within the range) to those in the calibration data.
+
+As example of independent data, let's use the `new_occ` data example provided in the package. It contains coordinates of the *Myrcia hatschbachii* sourced from NeotropicTree ([Oliveira-Filho, 2017](http://www.neotroptree.info/)), and they were not part of the `occ_data`used to train the models.
+
+```{r import new occ}
+# Import independent records
+data("new_occ", package = "kuenm2")
+# See data structure
+str(new_occ)
+```
+
+For predicting the model to this new set of occurrence records, we need to extract the environmental conditions on this locals. Let's import the variables we used to fit the models and extract to the `new_occ` conditions:
+
+```{r extract var}
+# Import raster layers
+var <- terra::rast(system.file("extdata", "Current_variables.tif",
+                               package = "kuenm2"))
+
+# Extract variables to occurrences
+new_data <- extract_occurrence_variables(occ = new_occ, x = "x", y = "y",
+                                         raster_variables = var)
+# See data structure
+str(new_data)
+```
+
+Especially when using independent records that fall outside the calibration area (e.g., in an invaded region on another continent), it is common for the environmental conditions in these new records to be non-analogous (i.e., outside the range) to those in the calibration data.
+
+To better illustrate this case, let's add three fake records, in which some variables have non-analogous values, either higher than the upper limit or lower than the lower limit observed in the calibration data.
+
+```{r add fake data}
+#Add some fake data beyond the limits of calibration ranges
+fake_data <- data.frame("pr_bg" = c(1, 1, 1),
+                        "x" = c(NA, NA, NA),
+                        "y" = c(NA, NA, NA),
+                        "bio_1" = c(10, 15, 23),
+                        "bio_7" = c(12, 16, 20),
+                        "bio_12" = c(2300, 2000, 1000),
+                        "bio_15" = c(30, 40, 50),
+                        "SoilType" = c(1, 1, 1))
+# Bind data
+new_data <- rbind(new_data, fake_data)
+```
+
+Now, let's evaluate this independent dataset (keep in mind that the last three records are fake):
+
+```{r}
+# Evaluate models with independent data
+res_ind <- independent_eval(fitted_models = fitted_model_maxnet,
+                            new_data = new_data)
+```
+
+The output is a list with three elements. The first one, **evaluation**, presents the evaluation metrics (omission rate and pROC) for each selected model, as well as for the overall consensus.
+We can see that all selected models have significant pROC values, but show higher omission rates (around 40% of the independent records fall in areas predicted as unsuitable) compared to the threshold specified during model calibration (10%).
+
+```{r}
+res_ind$evaluation
+```
+
+When `perform_mop` is set to `TRUE`, the function also returns the **mop_results**, which is a list containing the output of `mop::mop()` function. The main results of the MOP analysis are appended to the **predictions** element of the list.
+
+For each records, the following information is provided:
+
+- **mop_distance**: the distance (i.e., dissimilarity) between the environmental conditions in calibration data and those at the location of the independent record.
+- **inside_range**: wheter the environmental conditions at the location of the independent record fall within the calibration range.
+- **n_var_out**: the number of variables at the location of the independent record that are non-analogous (i.e., fall outside the calibration range).
+- **towards_low**: the names of variables with values lower than the minimum observed in the calibration data.
+- **towards_high**: the names of variables with values higher than the maximum observed in the calibration data.
+
+```{r}
+# Show the mop results for the last 5 independent records
+res_ind$predictions$continuous[81:85 ,c("mop_distance", "inside_range", "n_var_out", 
+                                  "towards_low", "towards_high")]
+```
+Note that two of the three fake records we added to `new_data` have non-analogous environmental conditions. One of them falls in a location where *bio_7* and *bio_1* have values lower than the minimum observed in the calibration data, while *bio_12* has a value higher than the maximum. Another record is in a location where *bio_12* is below the calibration range, and *bio_1* exceeds the upper limit.
+
+When we set` return_predictions = TRUE`, the function also returns the continuous predictions for each selected model and for the general consensus:
+
+```{r}
+# Show the continuous predictions for the last 5 independent records
+# Round to two decimal places
+round(res_ind$predictions$continuous[81:85, 1:6], 2)
+```
+
+If we set `return_binary = TRUE`, the function also returns the binary predictions, with values classified as suitable (1) or unsuitable (0), based on the threshold calculated using the omission rate applied during model evaluation and selection:
+
+```{r}
+# Show the continuous predictions for the last 5 independent records
+res_ind$predictions$binary[81:85, 1:6]
+```
+
+These results help determine whether the independent data should be incorporated into the calibration dataset to re-run the models. If omission rates for the independent records are too high, pROC values are non-significant, or most of the records fall in locations with non-analogous environmental conditions, this suggests it may be a good idea to re-run the models, including the independent data this time.
+
 # Saving a fitted_models object
 
 After fitting the best-performing models with `fit_selected()`, we can proceed to predict the models for single or multiple scenarios. As this object is essentially a list, users can save it to a local directory using `saveRDS()`. Saving the object facilitates loading it back into your R session later using `readRDS()`. See an example below:
@@ -237,7 +333,7 @@ After fitting the best-performing models with `fit_selected()`, we can proceed t
 # Set directory to save (here, in a temporary directory)
 dir_to_save <- file.path(tempdir())
 
-# Save the data
+# Save the data:
 saveRDS(fm, file.path(dir_to_save, "fitted_models.rds"))
 
 # Import data

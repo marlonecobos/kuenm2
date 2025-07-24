@@ -195,7 +195,8 @@
 #' Species Occurrence
 #'
 #' @description
-#' A \code{data.frame} containing the coordinates of 51 valid occurrences of *Myrcia hatschbachii* (a tree endemic to southern Brazil). The valid occurrences were sourced from Trindade & Marques (2024).
+#' A \code{data.frame} containing the coordinates of 51 valid occurrences of *Myrcia hatschbachii* (a tree endemic to southern Brazil). The valid occurrences were sourced from Trindade & Marques (2024) and contains only the records retrieved
+#' from GBIF and SpeciesLink.
 #'
 #' @usage data("occ_data")
 #'
@@ -304,3 +305,439 @@
 #'   \item{n_replicates}{A \code{numeric} value indicating the number of replicates or folds.}
 #'   }
 "fitted_model_concave"
+
+#' Independent Species Occurrence
+#'
+#' @description
+#' A \code{data.frame} containing the coordinates of 82 occurrences of *Myrcia hatschbachii* (a tree endemic to southern Brazil). The valid occurrences were
+#' sourced from NeotropicTree (Oliveira-Filho, 2017) and were used as
+#' independent data to test the models fitted with the `occ_data`.
+#'
+#' @usage data("new_occ")
+#'
+#' @format A \code{data.frame} with the following columns:
+#' \describe{
+#'   \item{species}{The species name.}
+#'   \item{x}{Longitude.}
+#'   \item{y}{Latitude.}
+#' }
+#' @references
+#' Oliveira_Filho, A.T. 2017. NeoTropTree, Flora arbórea da Região Neotropical: Um banco de dados envolvendo biogeografia, diversidade e conservação. Universidade Federal de Minas Gerais. (http://www.neotroptree,info).
+"new_occ"
+
+#### Document ext data ####
+
+#' Example Bias File
+#'
+#' A `SpatRaster` object representing a bias layer used for extracting
+#' background points with the `prepare_data()` function.
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name bias
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' bias <- terra::rast(system.file("extdata", "bias_file.tif",
+#'                                 package = "kuenm2"))
+#'
+#' terra::plot(bias)
+NULL
+
+#' SpatRaster Representing LGM Conditions (GCM: CCSM4)
+#'
+#' Raster layer containing bioclimatic variables representing Last Glacial
+#' Maximum (LGM) climatic conditions based on the CCSM4 General Circulation
+#' Model (GCM). The variables were resampled to 10arc-minutes and masked using
+#' the `m` provided in the package. Data sourced from CHELSA:
+#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_lgm_ccsm4
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_lgm_ccsm4 <- terra::rast(system.file("extdata",
+#'                                            "CHELSA_LGM_CCSM4.tif",
+#'                                             package = "kuenm2"))
+#'
+#' terra::plot(chelsa_lgm_ccsm4)
+NULL
+
+#' SpatRaster Representing LGM Conditions (GCM: CNRM-CM5)
+#'
+#' Raster layer containing bioclimatic variables representing Last Glacial
+#' Maximum (LGM) climatic conditions based on the CNRM-CM5 General Circulation
+#' Model. The variables were resampled to 10arc-minutes and masked using the `m`
+#' provided in the package. Data sourced from CHELSA:
+#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_lgm_cnrm_cm5
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_lgm_cnrm_cm5 <- terra::rast(system.file("extdata",
+#'                                                "CHELSA_LGM_CNRM-CM5.tif",
+#'                                                package = "kuenm2"))
+#' terra::plot(chelsa_lgm_cnrm_cm5)
+NULL
+
+#' SpatRaster Representing LGM Conditions (GCM: FGOALS-g2)
+#'
+#' Raster layer containing bioclimatic variables representing Last Glacial
+#' Maximum (LGM) climatic conditions based on the FGOALS-g2 General Circulation
+#' Model. The variables were resampled to 10arc-minutes and masked using the `m`
+#' provided in the package. Data sourced from CHELSA:
+#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_lgm_fgoals_g2
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_lgm_fgoals_g2 <- terra::rast(system.file("extdata",
+#'                                                "CHELSA_LGM_FGOALS-g2.tif",
+#'                                                package = "kuenm2"))
+#' terra::plot(chelsa_lgm_fgoals_g2)
+NULL
+
+#' SpatRaster Representing LGM Conditions (GCM: IPSL-CM5A-LR)
+#'
+#' Raster layer containing bioclimatic variables representing Last Glacial
+#' Maximum (LGM) climatic conditions based on the IPSL-CM5A-LR General
+#' Circulation Model. The variables were resampled to 10arc-minutes and masked
+#' using the `m` provided in the package. Data sourced from CHELSA:
+#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_lgm_ipsl
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_lgm_ipsl <- terra::rast(system.file("extdata",
+#'                                            "CHELSA_LGM_IPSL-CM5A-LR.tif",
+#'                                            package = "kuenm2"))
+#' terra::plot(chelsa_lgm_ipsl)
+NULL
+
+#' SpatRaster Representing LGM Conditions (GCM: MIROC-ESM)
+#'
+#' Raster layer containing bioclimatic variables representing Last Glacial
+#' Maximum (LGM) climatic conditions based on the MIROC-ESM General Circulation
+#' Model. The variables were resampled to 10arc-minutes and masked using the `m`
+#' provided in the package. Data sourced from CHELSA:
+#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_lgm_miroc
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_lgm_miroc <- terra::rast(system.file("extdata",
+#'                                            "CHELSA_LGM_MIROC-ESM.tif",
+#'                                            package = "kuenm2"))
+#' terra::plot(chelsa_lgm_miroc)
+NULL
+
+#' SpatRaster Representing LGM Conditions (GCM: MPI-ESM-P)
+#'
+#' Raster layer containing bioclimatic variables representing Last Glacial
+#' Maximum (LGM) climatic conditions based on the MPI-ESM-P General Circulation
+#' Model. The variables were resampled to 10arc-minutes and masked using the `m`
+#' provided in the package. Data sourced from CHELSA:
+#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_lgm_mpi
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_lgm_mpi <- terra::rast(system.file("extdata",
+#'                                            "CHELSA_LGM_MPI-ESM-P.tif",
+#'                                            package = "kuenm2"))
+#' terra::plot(chelsa_lgm_mpi)
+NULL
+
+#' SpatRaster Representing LGM Conditions (GCM: MRI-CGCM3)
+#'
+#' Raster layer containing bioclimatic variables representing Last Glacial
+#' Maximum (LGM) climatic conditions based on the MRI-CGCM3 General Circulation
+#' Model. The variables were resampled to 10arc-minutes and masked using the `m`
+#' provided in the package. Data sourced from CHELSA:
+#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_lgm_mri
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_lgm_mri <- terra::rast(system.file("extdata",
+#'                                            "CHELSA_LGM_MRI-CGCM3.tif",
+#'                                            package = "kuenm2"))
+#' terra::plot(chelsa_lgm_mri)
+NULL
+
+#' SpatRaster Representing present-day Conditions (CHELSA)
+#'
+#' Raster layer containing bioclimatic variables representing present-day
+#' climatic conditions. The variables were resampled to a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from CHELSA:
+#' \url{https://chelsa-climate.org/}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name chelsa_current
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' chelsa_current <- terra::rast(system.file("extdata",
+#'                                            "Current_CHELSA.tif",
+#'                                            package = "kuenm2"))
+#' terra::plot(chelsa_current)
+NULL
+
+#' SpatRaster Representing present-day Conditions (WorldClim)
+#'
+#' Raster layer containing bioclimatic variables representing present-day
+#' climatic conditions. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim:
+#' \url{https://worldclim.org/data/worldclim21.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name var
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' var <- terra::rast(system.file("extdata",
+#'                                "Current_variables.tif",
+#'                                 package = "kuenm2"))
+#' terra::plot(var)
+NULL
+
+#' SpatRaster Representing Future Conditions (2041-2060, SSP126, GCM: ACCESS-CM2)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2041-2060) based on the ACCESS-CM2 General Circulation Model
+#' under the SSP126 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2050_ssp126_access
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2050_ssp126_access <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_ACCESS-CM2_ssp126_2041-2060.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2050_ssp126_access)
+NULL
+
+#' SpatRaster Representing Future Conditions (2081-2100, SSP126, GCM: ACCESS-CM2)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2081-2100) based on the ACCESS-CM2 General Circulation Model
+#' under the SSP126 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2100_ssp126_access
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2100_ssp126_access <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_ACCESS-CM2_ssp126_2081-2100.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2100_ssp126_access)
+NULL
+
+#' SpatRaster Representing Future Conditions (2041-2060, SSP585, GCM: ACCESS-CM2)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2041-2060) based on the ACCESS-CM2 General Circulation Model
+#' under the SSP585 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2050_ssp585_access
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2050_ssp585_access <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2041-2060.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2050_ssp585_access)
+NULL
+
+#' SpatRaster Representing Future Conditions (2081-2100, SSP585, GCM: ACCESS-CM2)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2081-2100) based on the ACCESS-CM2 General Circulation Model
+#' under the SSP585 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2100_ssp585_access
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2100_ssp585_access <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2081-2100.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2100_ssp585_access)
+NULL
+
+#' SpatRaster Representing Future Conditions (2041-2060, SSP126, GCM: MIROC6)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2041-2060) based on the MIROC6 General Circulation Model
+#' under the SSP126 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2050_ssp126_miroc
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2050_ssp126_miroc <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_MIROC6_ssp126_2041-2060.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2050_ssp126_miroc)
+NULL
+
+#' SpatRaster Representing Future Conditions (2081-2100, SSP126, GCM: MIROC6)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2081-2100) based on the MIROC6 General Circulation Model
+#' under the SSP126 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2100_ssp126_miroc
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2100_ssp126_miroc <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_MIROC6_ssp126_2081-2100.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2100_ssp126_miroc)
+NULL
+
+#' SpatRaster Representing Future Conditions (2041-2060, SSP585, GCM: MIROC6)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2041-2060) based on the MIROC6 General Circulation Model
+#' under the SSP585 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2050_ssp585_miroc
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2050_ssp585_miroc <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_MIROC6_ssp585_2041-2060.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2050_ssp585_miroc)
+NULL
+
+#' SpatRaster Representing Future Conditions (2081-2100, SSP585, GCM: MIROC6)
+#'
+#' A raster layer containing bioclimatic variables representing future climatic
+#' conditions (2081-2100) based on the MIROC6 General Circulation Model
+#' under the SSP585 scenario. The variables were obtained at a 10 arc-minute
+#' resolution and masked using the `m` region provided in the package. Data
+#' sourced from WorldClim: \url{https://worldclim.org/data/cmip6/cmip6climate.html}
+#'
+#' @format A `SpatRaster` object.
+#'
+#' @name future_2100_ssp585_miroc
+#'
+#' @return No return value. Used with function \code{\link[terra]{rast}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' future_2100_ssp585_miroc <- terra::rast(system.file("extdata",
+#'                                     "wc2.1_10m_bioc_MIROC6_ssp585_2081-2100.tif",
+#'                                      package = "kuenm2"))
+#' terra::plot(future_2100_ssp585_miroc)
+NULL
+
+#' SpatVector Representing Calibration Area for *Myrcia hatschbachii*
+#'
+#' A spatial vector defining the calibration area used to extract background
+#' points for fitting models of *Myrcia hatschbachii*. The area was generated by
+#' creating a minimum convex polygon around presence records (`occ_data`), then
+#' applying a 300 km buffer.
+#'
+#' @format A `Spatvector` object.
+#'
+#' @name m
+#'
+#' @return No return value. Used with function \code{\link[terra]{vect}} to
+#' bring raster variables to analysis.
+#'
+#' @examples
+#' m <- terra::vect(system.file("extdata",
+#'                              "m.gpkg",
+#'                               package = "kuenm2"))
+#' terra::plot(m)
+NULL

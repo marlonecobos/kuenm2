@@ -6,7 +6,8 @@
 #'
 #' @usage
 #' fit_selected(calibration_results, partition_method = "kfolds",
-#'              n_replicates = 1, train_proportion = 0.7, write_models = FALSE,
+#'              n_replicates = 1, train_proportion = 0.7, type = "cloglog",
+#'              write_models = FALSE,
 #'              file_name = NULL, parallel = FALSE, ncores = NULL,
 #'              progress_bar = TRUE, verbose = TRUE, seed = 1)
 #'
@@ -22,6 +23,10 @@
 #' points to be used for model training in each replicate. Only applicable when
 #'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
 #'  70% for training and 30% for testing).
+#' @param type (character) the format of prediction values for computing
+#' thresholds. For maxnet models, valid options are "raw", "cumulative",
+#' "logistic", and "cloglog". For glm models, valid options are "cloglog",
+#' "response" and "raw". Default is "cloglog".
 #' @param write_models (logical) whether to save the final fitted models to disk.
 #' Default is FALSE.
 #' @param file_name (character) the file name, with or without a path, for saving
@@ -100,6 +105,7 @@ fit_selected <- function(calibration_results,
                          partition_method = "kfolds",
                          n_replicates = 1,
                          train_proportion = 0.7,
+                         type = "cloglog",
                          write_models = FALSE,
                          file_name = NULL,
                          parallel = FALSE,
@@ -299,13 +305,12 @@ fit_selected <- function(calibration_results,
     if (algorithm == "maxnet") {
       p_r <- sapply(m_x, function(i) predict.glmnet_mx(object = i,
                                                        newdata = occ,
-                                                       type = "cloglog"))
+                                                       type = type))
     } else if (algorithm == "glm") {
       p_r <- sapply(m_x, function(i) suppressWarnings(
-        enmpa::predict_glm(model = i,
-                           data = calibration_results$calibration_data,
-                           newdata = occ, type = "response"))
-        )
+        as.numeric(predict_glm_mx(model = i,
+                       newdata = occ, type = type))
+        ))
     }
 
     p_mean <- apply(p_r, 1, mean, na.rm = TRUE)
@@ -329,6 +334,8 @@ fit_selected <- function(calibration_results,
     lapply(model, calc_thr,
            thr = calibration_results$summary$omission_rate_thr / 100)
   })
+  #Append type of predictions
+  p_thr$type <- type
 
   #Prepare final data
   if(partition_method %in% c("kfolds", "leave-one-out")){

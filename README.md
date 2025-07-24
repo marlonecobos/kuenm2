@@ -1,7 +1,7 @@
 kuenm2: Detailed Development of Ecological Niche Models
 ================
-Marlon E. Cobos, Weverton Trindade, Luis F. Arias-Giraldo, Luis
-Osorio-Olvera, and A. Townsend Peterson
+Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A.
+Townsend Peterson, and Marlon E. Cobos
 
 - [Package description](#package-description)
 - [Installing the package](#installing-the-package)
@@ -114,7 +114,6 @@ listed in the section [Checking the vignettes](#checking-the-vignettes).
 
 <img src="man/figures/kuenm2_map.png" alt="Figure 1. Schematic view of the workflow to use kuenm2." width="460" />
 <p class="caption">
-
 Figure 1. Schematic view of the workflow to use kuenm2.
 </p>
 
@@ -213,17 +212,20 @@ vignette("basic_data_cleaning")
 vignette("prepare_data")
 
 # Guide to train and evaluate candidate models, and select based on performance
-#vignette("model_calibration")  # in progress
+vignette("model_calibration") 
 
 # Guide to explore selected models, variable importance, response curves
-#vignette("model_exploration")  # in progress
+vignette("model_exploration")
 
 # Guide to predict models in geographic space (single scenarios)
-#vignette("model_predictions")  # in progress
+vignette("model_predictions")
 
 # Guide to project models in geographic space (multiple scenarios)
-#vignette("model_projections")  # in progress
+vignette("model_projections") 
 
 # Guide to explore variability and uncertainty in projections (multiple scenarios)
-#vignette("variability_and_uncertainty")  # in progress
+vignette("variability_and_uncertainty")
+
+# Guide to organize projections manually: An example with LGM from CHELSA
+vignette("organize_past_chelsa")
 ```

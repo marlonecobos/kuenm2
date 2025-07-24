@@ -1,13 +1,4 @@
 #### HELPERS FOR PREPARE DATA ####
-# Helper function to extract occurrence variables
-extract_occurrence_variables <- function(occ, x, y, env) {
-  xy <- as.matrix(occ[, c(x, y)])
-  colnames(xy) <- c("x", "y")
-  occ_var <- cbind(xy, terra::extract(x = env, y = xy))
-  occ_var$pr_bg <- 1
-  return(occ_var)
-}
-
 # Helper function to generate background variables
 generate_background_variables <- function(env, nbg, bias_file = NULL,
                                           bias_effect = "direct",
@@ -83,10 +74,8 @@ part_data <- function(data,
     stop("'pr_bg' must be a column in data")
   }
 
-  if(!(partition_method %in% c("kfolds", "leave-one-out",
-                               "subsample", "bootstrap"))){
-    stop("Invalid 'partition_method'. Available options include 'kfolds',
-'leave-one-out','subsample', and 'bootstrap'")
+  if(!(partition_method %in% c("kfolds", "subsample", "bootstrap"))){
+    stop("Invalid 'partition_method'. Available options include 'kfolds', 'subsample', and 'bootstrap'")
   }
 
   if(!(n_replicates %% 1 == 0) || n_replicates <= 0){
@@ -106,10 +95,7 @@ part_data <- function(data,
   pre <- which(d[, pr_bg] == 1)
   aus <- which(d[, pr_bg] == 0)
 
-  if (partition_method %in% c("kfolds", "leave-one-out")) {
-    if(partition_method == "leave-one-out"){
-      n_replicates <- length(pre)
-    }
+  if (partition_method == "kfolds") {
 
     set.seed(seed)
     foldp <- sample(cut(seq(1, length(pre)), breaks = n_replicates,

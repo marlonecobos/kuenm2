@@ -5,7 +5,8 @@
 \title{Fit models selected after calibration}
 \usage{
 fit_selected(calibration_results, partition_method = "kfolds",
-             n_replicates = 1, train_proportion = 0.7, write_models = FALSE,
+             n_replicates = 1, train_proportion = 0.7, type = "cloglog",
+             write_models = FALSE,
              file_name = NULL, parallel = FALSE, ncores = NULL,
              progress_bar = TRUE, verbose = TRUE, seed = 1)
 }
@@ -25,6 +26,11 @@ of partitions. If \code{"kfolds"}, it specifies the number of folds. Default is 
 points to be used for model training in each replicate. Only applicable when
 \code{partition_method} is \code{"subsample"} or \code{"bootstrap"}. Default is 0.7 (i.e.,
 70\% for training and 30\% for testing).}
+
+\item{type}{(character) the format of prediction values for computing
+thresholds. For maxnet models, valid options are "raw", "cumulative",
+"logistic", and "cloglog". For glm models, valid options are "cloglog",
+"response" and "raw". Default is "cloglog".}
 
 \item{write_models}{(logical) whether to save the final fitted models to disk.
 Default is FALSE.}
