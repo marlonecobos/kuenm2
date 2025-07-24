@@ -3,6 +3,7 @@ template:
   params:
     bootswatch: united
   bootstrap: 5
+  extra_css: ["pkgdown/extra.css"] # Set colors manually
 
 # navigation bar configuration
 navbar:
