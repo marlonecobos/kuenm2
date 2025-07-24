@@ -1,9 +1,15 @@
 url: https://marlonecobos.github.io/kuenm2/
 template:
+  light-switch: true
   params:
-    bootswatch: united
+     bootswatch: united
   bootstrap: 5
-  extra_css: ["pkgdown/extra.css"] # Set colors manually
+  bslib:
+    bg: "#ffffff" # white background
+    fg: "#212529" # black text
+    primary: "#007bff" # primary elements: blue
+    input-bg: "#ffffff"     # color search bar
+    input-color: "#212529"  # color text search bar
 
 # navigation bar configuration
 navbar:
@@ -31,7 +37,6 @@ navbar:
          href: articles/variability_and_uncertainty.html
       -  text: "8. Organize projections manually"
          href: articles/organize_past_chelsa.html
-
   components:
     home: ~
 

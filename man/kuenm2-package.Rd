@@ -32,6 +32,7 @@ available.
 Useful links:
 \itemize{
   \item \url{https://marlonecobos.github.io/kuenm2/}
+  \item Report bugs at \url{https://github.com/marlonecobos/kuenm2/issues}
 }
 
 }
