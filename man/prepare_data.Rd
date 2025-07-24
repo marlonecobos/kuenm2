@@ -144,7 +144,6 @@ The available data partitioning methods are:
 \item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
 \item \strong{"bootstrap"}: Creates the training dataset by sampling observations from the original dataset \emph{with replacement} (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
 \item \strong{"subsample"}: Similar to bootstrap, but the training set is created by sampling \emph{without replacement} (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
-\item \strong{"leave-one-out"}: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
 }
 }
 \examples{

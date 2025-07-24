@@ -104,7 +104,6 @@
 #' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
 #' - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
 #' - **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
-#' - **"leave-one-out"**: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
 #'
 #' @return
 #' An object of class `prepared_data` containing all elements to run a model
@@ -312,10 +311,8 @@ prepare_data <- function(algorithm,
     }
   }
 
-  if(!(partition_method %in% c("kfolds", "leave-one-out",
-                               "subsample", "bootstrap"))){
-    stop("Invalid 'partition_method'. Available options include 'kfolds',
-'leave-one-out','subsample', and 'bootstrap'")
+  if(!(partition_method %in% c("kfolds", "subsample", "bootstrap"))){
+    stop("Invalid 'partition_method'. Available options include 'kfolds', 'subsample', and 'bootstrap'")
   }
 
   if(!(n_replicates %% 1 == 0) || n_replicates <= 0){
@@ -366,12 +363,12 @@ prepare_data <- function(algorithm,
 
   # combine occurrence and background data
   occ_bg <- rbind(occ_var, bg_var)
-  occ_bg <- occ_bg[, c(1, 2, which(names(occ_bg) == "pr_bg"),
-                       (3:(ncol(occ_bg)-1))[-which(names(occ_bg) == "pr_bg")])]
+  # occ_bg <- occ_bg[, c(1, 2, which(names(occ_bg) == "pr_bg"),
+  #                      (3:(ncol(occ_bg)-1))[-which(names(occ_bg) == "pr_bg")])]
   occ_bg <- handle_missing_data(occ_bg, weights)
 
   occ_bg_xy <- if (include_xy) {occ_bg[, c("x", "y")]} else {NULL}
-  occ_bg <- occ_bg[, -(1:2)]
+  occ_bg <- subset(occ_bg, select = -c(x, y))
 
   if (!is.null(categorical_variables)) {
     occ_bg[categorical_variables] <- lapply(occ_bg[categorical_variables],
@@ -397,7 +394,7 @@ prepare_data <- function(algorithm,
                                    r_multiplier = r_multiplier)
 
   #Prepare final data
-  if(partition_method %in% c("kfolds", "leave-one-out")){
+  if(partition_method == "kfolds"){
     train_proportion <- NULL
   }
 
