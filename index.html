@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Detailed Development of Ecological Niche Models • kuenm2</title>
-<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
-<meta property="og:title" content="Detailed Development of Ecological Niche Models">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Detailed Development of Ecological Niche Models">
 <meta name="description" content="A new set of tools to help with the development of detailed ecological niche models using multiple algorithms. Pre-modeling analyses and explorations can be done to prepare data. Model calibration (model selection) can be done by creating and testing several candidate models. Handy options for producing final models with transfers are included. Other tools to assess extrapolation risks and variability in model transfers are also available. Methodological and theoretical basis for the methods implemented here can be found in: Peterson et al. (2011) &lt;https://www.degruyter.com/princetonup/view/title/506966&gt;, Radosavljevic and Anderson (2014) &lt;doi:10.1111/jbi.12227&gt;, Peterson et al. (2018) &lt;doi:10.1111/nyas.13873&gt;, Cobos et al. (2019) &lt;doi:10.7717/peerj.6281&gt;, Alkishe et al. (2020) &lt;doi:10.1016/j.pecon.2020.03.002&gt;, Machado-Stredel et al. (2021) &lt;doi:10.21425/F5FBG48814&gt;, Arias-Giraldo and Cobos (2024) &lt;doi:10.17161/bi.v18i.21742&gt;, Cobos et al. (2024) &lt;doi:10.17161/bi.v18i.21742&gt;.">
 <meta property="og:description" content="A new set of tools to help with the development of detailed ecological niche models using multiple algorithms. Pre-modeling analyses and explorations can be done to prepare data. Model calibration (model selection) can be done by creating and testing several candidate models. Handy options for producing final models with transfers are included. Other tools to assess extrapolation risks and variability in model transfers are also available. Methodological and theoretical basis for the methods implemented here can be found in: Peterson et al. (2011) &lt;https://www.degruyter.com/princetonup/view/title/506966&gt;, Radosavljevic and Anderson (2014) &lt;doi:10.1111/jbi.12227&gt;, Peterson et al. (2018) &lt;doi:10.1111/nyas.13873&gt;, Cobos et al. (2019) &lt;doi:10.7717/peerj.6281&gt;, Alkishe et al. (2020) &lt;doi:10.1016/j.pecon.2020.03.002&gt;, Machado-Stredel et al. (2021) &lt;doi:10.21425/F5FBG48814&gt;, Arias-Giraldo and Cobos (2024) &lt;doi:10.17161/bi.v18i.21742&gt;, Cobos et al. (2024) &lt;doi:10.17161/bi.v18i.21742&gt;.">
 </head>
@@ -19,7 +18,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">kuenm2</a>
 
@@ -52,6 +51,15 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/marlonecobos/kuenm2/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -198,7 +206,15 @@ Figure 1. Schematic view of the workflow to use kuenm2.
 <span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"organize_past_chelsa"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/marlonecobos/kuenm2/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/marlonecobos/kuenm2/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>GPL (&gt;= 3)</li>

@@ -6,18 +6,17 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Prepare Data for Model Calibration • kuenm2</title>
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
-<meta property="og:title" content="Prepare Data for Model Calibration">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Prepare Data for Model Calibration">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
@@ -50,6 +49,15 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/marlonecobos/kuenm2/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -66,7 +74,7 @@
       <h1>Prepare Data for Model Calibration</h1>
             
       
-
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/vignettes/prepare_data.Rmd" class="external-link"><code>vignettes/prepare_data.Rmd</code></a></small>
       <div class="d-none name"><code>prepare_data.Rmd</code></div>
     </div>
 
@@ -105,9 +113,9 @@ with flexsdm</a></li>
 object</a></li>
 </ul>
 <hr>
-<div class="section level3">
-<h3 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
-</h3>
+<div class="section level2">
+<h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
+</h2>
 <p>Before starting the ENM process, data must be formatted in a specific
 structure required by functions in <strong>kuenm2</strong>. This
 vignette guides users through the steps necessary to prepare occurrence
@@ -118,9 +126,9 @@ calibration. The vignette also demonstrates options for applying PCA,
 incorporating sampling bias, and saving prepared data for later use.</p>
 <p><br></p>
 </div>
-<div class="section level3">
-<h3 id="getting-ready">Getting ready<a class="anchor" aria-label="anchor" href="#getting-ready"></a>
-</h3>
+<div class="section level2">
+<h2 id="getting-ready">Getting ready<a class="anchor" aria-label="anchor" href="#getting-ready"></a>
+</h2>
 <p>If <strong>kuenm2</strong> has not been installed yet, please do so.
 See the <a href="../index.html">Main guide</a> for installation
 instructions. See the <a href="basic_data_cleaning.html">basic data
@@ -144,12 +152,12 @@ later stages of this guide.</p>
 <span><span class="co">#setwd("YOUR/DIRECTORY")  # uncomment this line if setting a new directory</span></span></code></pre></div>
 <p><br></p>
 </div>
+<div class="section level2">
+<h2 id="prepare-data">Prepare data<a class="anchor" aria-label="anchor" href="#prepare-data"></a>
+</h2>
 <div class="section level3">
-<h3 id="prepare-data">Prepare data<a class="anchor" aria-label="anchor" href="#prepare-data"></a>
+<h3 id="import-data">Import data<a class="anchor" aria-label="anchor" href="#import-data"></a>
 </h3>
-<div class="section level4">
-<h4 id="import-data">Import data<a class="anchor" aria-label="anchor" href="#import-data"></a>
-</h4>
 <p>We will use occurrence records provided within the
 <strong>kuenm2</strong> package. Most example data in the package is
 derived from <a href="https://doi.org/10.1111/ddi.13931" class="external-link">Trindade &amp;
@@ -192,9 +200,9 @@ polygon around the records with a 300 km buffer.</p>
 <p><img src="prepare_data_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
 <p><br></p>
 </div>
-<div class="section level4">
-<h4 id="first-steps-in-preparing-data">First steps in preparing data<a class="anchor" aria-label="anchor" href="#first-steps-in-preparing-data"></a>
-</h4>
+<div class="section level3">
+<h3 id="first-steps-in-preparing-data">First steps in preparing data<a class="anchor" aria-label="anchor" href="#first-steps-in-preparing-data"></a>
+</h3>
 <p>The function <code><a href="../reference/prepare_data.html">prepare_data()</a></code> is central to getting data
 ready for model calibration. It handles several key steps:</p>
 <ul>
@@ -383,9 +391,9 @@ without a mask. However, all functions are compatible with objects
 prepared for GLM as well.</p>
 <p><br></p>
 </div>
-<div class="section level4">
-<h4 id="exploring-calibration-data">Exploring calibration data<a class="anchor" aria-label="anchor" href="#exploring-calibration-data"></a>
-</h4>
+<div class="section level3">
+<h3 id="exploring-calibration-data">Exploring calibration data<a class="anchor" aria-label="anchor" href="#exploring-calibration-data"></a>
+</h3>
 <p>Users can visualize the distribution of predictor values for
 occurrence records, background points, and the entire calibration area
 using histograms. An example is presented below. See full documentation
@@ -420,9 +428,9 @@ selection in certain regions, by providing a bias file (as demonstrated
 in the next section).</p>
 <p><br></p>
 </div>
-<div class="section level4">
-<h4 id="using-a-bias-file">Using a bias file<a class="anchor" aria-label="anchor" href="#using-a-bias-file"></a>
-</h4>
+<div class="section level3">
+<h3 id="using-a-bias-file">Using a bias file<a class="anchor" aria-label="anchor" href="#using-a-bias-file"></a>
+</h3>
 <p>A bias file is a <code>SpatRaster</code> object that contains values
 that will influence the selection of background points within the
 calibration area. This can be particularly useful for mitigating
@@ -506,18 +514,18 @@ effect, most background points are selected from the center, where bias
 values are lower.</p>
 <p><br></p>
 </div>
-<div class="section level4">
-<h4 id="pca-for-variables">PCA for variables<a class="anchor" aria-label="anchor" href="#pca-for-variables"></a>
-</h4>
+<div class="section level3">
+<h3 id="pca-for-variables">PCA for variables<a class="anchor" aria-label="anchor" href="#pca-for-variables"></a>
+</h3>
 <p>A common approach in ENM involves summarizing the information from a
 set of predictor variables into a smaller set of uncorrelated variables
 using Principal Component Analysis (PCA) (see <a href="https://doi.org/10.7550/rmb.36723" class="external-link">Cruz-Cardenaz et al. 2014</a>
 for an example). In <strong>kuenm2</strong> users can perform a PCA
 internally or use variables that have been externally prepared as
 PCs.</p>
-<div class="section level5">
-<h5 id="internal-pca">Internal PCA<a class="anchor" aria-label="anchor" href="#internal-pca"></a>
-</h5>
+<div class="section level4">
+<h4 id="internal-pca">Internal PCA<a class="anchor" aria-label="anchor" href="#internal-pca"></a>
+</h4>
 <p><strong>kuenm2</strong> can perform all PCA transformations
 internally, eliminating the need to prepare the new PC variables for
 each scenario of projection. This is particularly advantageous when
@@ -610,9 +618,9 @@ variables</strong>, and the PCs will be obtained internally in the
 function.</p>
 <p><br></p>
 </div>
-<div class="section level5">
-<h5 id="external-pca">External PCA<a class="anchor" aria-label="anchor" href="#external-pca"></a>
-</h5>
+<div class="section level4">
+<h4 id="external-pca">External PCA<a class="anchor" aria-label="anchor" href="#external-pca"></a>
+</h4>
 <p>Alternatively, users can perform a PCA with their data by using the
 <code><a href="../reference/perform_pca.html">perform_pca()</a></code> function, or one of their preference. See
 full documentation with <code><a href="../reference/perform_pca.html">help(perform_pca)</a></code>. Se an example
@@ -695,7 +703,6 @@ PCs</strong> instead of the raw raster variables.</p>
 <p><br></p>
 </div>
 </div>
-</div>
 <div class="section level3">
 <h3 id="prepare-user-pre-processed-data">Prepare user pre-processed data<a class="anchor" aria-label="anchor" href="#prepare-user-pre-processed-data"></a>
 </h3>
@@ -764,6 +771,7 @@ test points for cross-validation to be used during model calibration. If
 partition the data according to the specified
 <code>partition_method</code>, <code>n_replicates</code>, and
 <code>train_proportion</code>.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="using-custom-data-partitions">Using Custom Data Partitions<a class="anchor" aria-label="anchor" href="#using-custom-data-partitions"></a>
