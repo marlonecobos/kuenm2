@@ -33,13 +33,13 @@ knitr::opts_chunk$set(
 
 <hr>
 
-## Description
+# Description
 
 Before starting the ENM process, data must be formatted in a specific structure required by functions in **kuenm2**. This vignette guides users through the steps necessary to prepare occurrence data and environmental predictors using built-in tools. It covers the use of `prepare_data()` and `prepare_user_data()` to generate standardized objects, which are essential for model calibration. The vignette also demonstrates options for applying PCA, incorporating sampling bias, and saving prepared data for later use.
 
 <br>
 
-## Getting ready
+# Getting ready
 
 If **kuenm2** has not been installed yet, please do so. See the [Main guide](../index.html) for installation instructions. See the [basic data cleaning guide](basic_data_cleaning.html) for some steps on cleaning data.
 
@@ -59,9 +59,9 @@ getwd()
 
 <br>
 
-## Prepare data
+# Prepare data
 
-### Import data
+## Import data
 
 We will use occurrence records provided within the **kuenm2** package. Most example data in the package is derived from [Trindade & Marques (2024)](https://doi.org/10.1111/ddi.13931). The `occ_data` object contains 51 occurrences of *Myrcia hatschbachii*, a tree endemic to Southern Brazil. Although this example data set has three columns (species, x, and y), users' input data only requires two numeric columns with longitude and latitude coordinates.
 
@@ -98,7 +98,7 @@ points(occ_data[, c("x", "y")], col = "black")
 
 <br>
 
-### First steps in preparing data
+## First steps in preparing data
 
 The function `prepare_data()` is central to getting data ready for model calibration. It handles several key steps:
 
@@ -206,7 +206,7 @@ In the following examples, we'll use the object `d_maxnet`, which was prepared f
 
 <br>
 
-### Exploring calibration data
+## Exploring calibration data
 
 Users can visualize the distribution of predictor values for occurrence records, background points, and the entire calibration area using histograms. An example is presented below. See full documentation with `help(explore_calibration_hist)` and `help(plot_explore_calibration)`.
 
@@ -236,7 +236,7 @@ Note that, by default, background points are selected randomly within the calibr
 
 <br>
 
-### Using a bias file
+## Using a bias file
 
 A bias file is a `SpatRaster` object that contains values that will influence the selection of background points within the calibration area. This can be particularly useful for mitigating sampling bias, for instance, by incorporating the density of records from a target group (as discussed in [Ponder et al. 2001](https://doi.org/10.1046/j.1523-1739.2001.015003648.x), [Anderson et al. 2003](https://doi.org/10.1046/j.1365-2699.2003.00867.x), and [Barber et al. 2020](https://doi.org/10.1111/ddi.13442)).
 
@@ -305,11 +305,11 @@ Note that when the bias effect is "direct", the majority of the background point
 
 <br>
 
-### PCA for variables
+## PCA for variables
 
 A common approach in ENM involves summarizing the information from a set of predictor variables into a smaller set of uncorrelated variables using Principal Component Analysis (PCA) (see [Cruz-Cardenaz et al. 2014](https://doi.org/10.7550/rmb.36723) for an example). In **kuenm2** users can perform a PCA internally or use variables that have been externally prepared as PCs.
 
-#### Internal PCA
+### Internal PCA
 
 **kuenm2** can perform all PCA transformations internally, eliminating the need to prepare the new PC variables for each scenario of projection. This is particularly advantageous when projecting model results across multiple time scenarios (e.g., various Global Climate Models for different future periods). By performing PCA internally, you only need to store the raw environmental variables (e.g., `bio_1`, `bio_2`, etc.) on your directory, and the functions will handle the PCA transformation as needed. 
 
@@ -354,7 +354,7 @@ As the PCA was performed internally, the `prepared_data` object contains all the
 
 <br>
 
-#### External PCA
+### External PCA
 
 Alternatively, users can perform a PCA with their data by using the `perform_pca()` function, or one of their preference. See full documentation with `help(perform_pca)`. Se an example with `perform_pca()` below:
 
