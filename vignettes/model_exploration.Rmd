@@ -233,7 +233,7 @@ plot_importance(imp_192, main = "Variable importance - Model 192")
 
 We can evaluate the selected models using an independent set of presence records that were not used during model calibration. This approach is especially useful when new records become available or when working with invasive species. In the latter case, models are first calibrated using presence data from the native area and subsequently evaluated with data from the invaded area.
 
-The `independent_eval()` function computes the omission rate - i.e., the proportion of independent records that fall in unsuitable areas, where "unsuitable" is defined according to the omission threshold used during model calibration and selection (e.g., 10%) - as well as the partial ROC. It also assesses whether the environmental conditions in the independent data are analogous (i.e., within the range) to those in the calibration data.
+The `independent_evaluation()` function computes the omission rate - i.e., the proportion of independent records that fall in unsuitable areas, where "unsuitable" is defined according to the omission threshold used during model calibration and selection (e.g., 10%) - as well as the partial ROC. It also assesses whether the environmental conditions in the independent data are analogous (i.e., within the range) to those in the calibration data.
 
 As example of independent data, let's use the `new_occ` data example provided in the package. It contains coordinates of the *Myrcia hatschbachii* sourced from NeotropicTree ([Oliveira-Filho, 2017](http://www.neotroptree.info/)), and they were not part of the `occ_data`used to train the models.
 
@@ -280,8 +280,8 @@ Now, let's evaluate this independent dataset (keep in mind that the last three r
 
 ```{r}
 # Evaluate models with independent data
-res_ind <- independent_eval(fitted_models = fitted_model_maxnet,
-                            new_data = new_data)
+res_ind <- independent_evaluation(fitted_models = fitted_model_maxnet,
+								  new_data = new_data)
 ```
 
 The output is a list with three elements. The first one, **evaluation**, presents the evaluation metrics (omission rate and pROC) for each selected model, as well as for the overall consensus.
