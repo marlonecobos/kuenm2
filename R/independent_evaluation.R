@@ -7,13 +7,16 @@
 #' independent data are analogous (i.e., within the range) to those in the
 #' calibration data.
 #'
-#' @usage independent_eval(fitted_models, new_data,
-#'                         consensus = c("mean", "median"), type = "cloglog",
-#'                         extrapolation_type = "E", var_to_clamp = NULL,
-#'                         perform_mop = TRUE, mop_type = "detailed",
-#'                         calculate_distance = TRUE, where_distance = "all",
-#'                         return_predictions = TRUE, return_binary = TRUE,
-#'                         progress_bar = FALSE, ...)
+#' @usage independent_evaluation(fitted_models, new_data,
+#'                               consensus = c("mean", "median"),
+#'                               type = "cloglog", extrapolation_type = "E",
+#'                               var_to_clamp = NULL, perform_mop = TRUE,
+#'                               mop_type = "detailed",
+#'                               calculate_distance = TRUE,
+#'                               where_distance = "all",
+#'                               return_predictions = TRUE,
+#'                               return_binary = TRUE,
+#'                               progress_bar = FALSE, ...)
 #'
 #' @param fitted_models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
@@ -101,23 +104,23 @@
 #'
 #'
 #' # Evaluate models with independent data
-#' res_ind <- independent_eval(fitted_models = fitted_model_maxnet,
-#'                             new_data = new_data)
+#' res_ind <- independent_evaluation(fitted_models = fitted_model_maxnet,
+#'                                   new_data = new_data)
 #'
 #' @export
-independent_eval <- function(fitted_models, new_data,
-                             consensus = c("mean", "median"),
-                             type = "cloglog",
-                             extrapolation_type = "E",
-                             var_to_clamp = NULL,
-                             perform_mop = TRUE,
-                             mop_type = "detailed",
-                             calculate_distance = TRUE,
-                             where_distance = "all",
-                             return_predictions = TRUE,
-                             return_binary = TRUE,
-                             progress_bar = FALSE,
-                             ...){
+independent_evaluation <- function(fitted_models, new_data,
+                                   consensus = c("mean", "median"),
+                                   type = "cloglog",
+                                   extrapolation_type = "E",
+                                   var_to_clamp = NULL,
+                                   perform_mop = TRUE,
+                                   mop_type = "detailed",
+                                   calculate_distance = TRUE,
+                                   where_distance = "all",
+                                   return_predictions = TRUE,
+                                   return_binary = TRUE,
+                                   progress_bar = FALSE,
+                                   ...){
   #### Check data ####
   if (missing(fitted_models)) {
     stop("Argument 'fitted_models' must be defined.")
