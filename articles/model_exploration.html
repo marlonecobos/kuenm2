@@ -424,8 +424,8 @@ approach is especially useful when new records become available or when
 working with invasive species. In the latter case, models are first
 calibrated using presence data from the native area and subsequently
 evaluated with data from the invaded area.</p>
-<p>The <code><a href="../reference/independent_eval.html">independent_eval()</a></code> function computes the omission
-rate - i.e., the proportion of independent records that fall in
+<p>The <code><a href="../reference/independent_evaluation.html">independent_evaluation()</a></code> function computes the
+omission rate - i.e., the proportion of independent records that fall in
 unsuitable areas, where “unsuitable” is defined according to the
 omission threshold used during model calibration and selection (e.g.,
 10%) - as well as the partial ROC. It also assesses whether the
@@ -493,8 +493,8 @@ data.</p>
 last three records are fake):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Evaluate models with independent data</span></span>
-<span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_eval.html">independent_eval</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
-<span>                            new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_evaluation.html">independent_evaluation</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
+<span>                                  new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span></code></pre></div>
 <p>The output is a list with three elements. The first one,
 <strong>evaluation</strong>, presents the evaluation metrics (omission
 rate and pROC) for each selected model, as well as for the overall
