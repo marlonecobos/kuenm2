@@ -176,8 +176,12 @@ selected model and for the consensus.</p></li>
 and independent data.</p></li>
 <li><p><strong>predictions</strong>: (Only if <code>return_predictions = TRUE</code>) A <code>list</code> of
 <code>data.frames</code> containing continuous and binary predictions at the independent
-record locations, along with MOP distances and an indicator of whether
-environmental conditions at each location fall within the calibration range.</p></li>
+record locations, along with MOP distances, an indicator of whether
+environmental conditions at each location fall within the calibration range,
+and the identity of the variables that have lower and higher values than the
+calibration range. If the <code>fitted_models</code> object includes categorical
+variables, the returned <code>data.frame</code> will also contain columns indicating
+which values in <code>new_data</code> were not present in the calibration data.</p></li>
 </ul></div>
 
     <div class="section level2">

@@ -81,6 +81,34 @@
     
     
 <div class="section level2">
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h2>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#standardize-raster-file-names-for-model-projections">Standardize
+Raster File Names for Model Projections</a></li>
+<li>
+<a href="#getting-variables-from-chelsa">Getting variables from
+CHELSA</a>
+<ul>
+<li><a href="#download-variables-from-lgm">Download variables from
+LGM</a></li>
+<li><a href="#download-variables-from-current-period">Download variables
+from Current Period</a></li>
+<li><a href="#merge-and-rename-variables-from-the-same-scenario">Merge
+and Rename Variables from the Same Scenario</a></li>
+</ul>
+</li>
+<li><a href="#organize-and-structure-variables">Organize and structure
+variables</a></li>
+<li><a href="#preparation-of-data-for-model-projection">Preparation of
+data for model projection</a></li>
+<li><a href="#project-selected-models-to-multiple-scenarios">Project
+selected models to multiple scenarios</a></li>
+<li><a href="#compute-changes">Compute changes</a></li>
+</ul>
+</div>
+<div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -476,7 +504,7 @@ to the variables of each scenario:</p>
 <span>                        overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpBsNDUG/Projection_variables</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/RtmpRUbzbw/Projection_variables</span></span></code></pre></div>
 <p>We can check the files structured hierarchically in nested folders
 using the <code><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree()</a></code> function from the <code>fs</code>
 package:</p>
@@ -580,7 +608,7 @@ multiple scenarios</a> vignette.</p>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project_selected.html">project_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_chelsa</span>, </span>
 <span>                      projection_data <span class="op">=</span> <span class="va">pr</span>,</span>
 <span>                      out_dir <span class="op">=</span> <span class="va">out_dir_projections</span>, </span>
-<span>                      write_replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                      write_partitions <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="co">#Do not print progress bar</span></span>
 <span></span>
 <span><span class="co">#Import mean of each projected scenario</span></span>

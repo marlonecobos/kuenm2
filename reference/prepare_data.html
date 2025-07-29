@@ -68,7 +68,7 @@ feature classes, and sets of environmental variables.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">prepare_data</span><span class="op">(</span><span class="va">algorithm</span>, <span class="va">occ</span>, <span class="va">x</span>, <span class="va">y</span>, <span class="va">raster_variables</span>, species <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>             mask <span class="op">=</span> <span class="cn">NULL</span>, n_background <span class="op">=</span> <span class="fl">1000</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lq"</span>, <span class="st">"lqp"</span><span class="op">)</span>,</span>
 <span>             r_multiplier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, <span class="va">partition_method</span>,</span>
-<span>             n_replicates <span class="op">=</span> <span class="fl">4</span>, train_proportion <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>             n_partitions <span class="op">=</span> <span class="fl">4</span>, train_proportion <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>             categorical_variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>             do_pca <span class="op">=</span> <span class="cn">FALSE</span>, center <span class="op">=</span> <span class="cn">TRUE</span>, scale <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>             exclude_from_pca <span class="op">=</span> <span class="cn">NULL</span>, variance_explained <span class="op">=</span> <span class="fl">95</span>,</span>
@@ -138,15 +138,15 @@ Available options are <code>"kfolds"</code>, <code>"subsample"</code>, and <code
 See <strong>Details</strong> for more information.</p></dd>
 
 
-<dt id="arg-n-replicates">n_replicates<a class="anchor" aria-label="anchor" href="#arg-n-replicates"></a></dt>
-<dd><p>(numeric) number of replicates to generate. If
+<dt id="arg-n-partitions">n_partitions<a class="anchor" aria-label="anchor" href="#arg-n-partitions"></a></dt>
+<dd><p>(numeric) number of partitions to generate. If
 <code>partition_method</code> is <code>"subsample"</code> or <code>"bootstrap"</code>, this defines the number
-of partitions. If <code>"kfolds"</code>, it specifies the number of folds. Default is 4.</p></dd>
+of replicates. If <code>"kfolds"</code>, it specifies the number of folds. Default is 4.</p></dd>
 
 
 <dt id="arg-train-proportion">train_proportion<a class="anchor" aria-label="anchor" href="#arg-train-proportion"></a></dt>
 <dd><p>(numeric) proportion of occurrence and background
-points to be used for model training in each replicate. Only applicable when
+points to be used for model training in each partition. Only applicable when
 <code>partition_method</code> is <code>"subsample"</code> or <code>"bootstrap"</code>. Default is 0.7 (i.e.,
 70% for training and 30% for testing).</p></dd>
 
@@ -262,7 +262,7 @@ results from PCA, and modeling algorithm.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The available data partitioning methods are:</p><ul><li><p><strong>"kfolds"</strong>: Splits the dataset into <em>K</em> subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.</p></li>
+    <p>The available data partitioning methods are:</p><ul><li><p><strong>"kfolds"</strong>: Splits the dataset into <em>K</em> subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.</p></li>
 <li><p><strong>"bootstrap"</strong>: Creates the training dataset by sampling observations from the original dataset <em>with replacement</em> (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.</p></li>
 <li><p><strong>"subsample"</strong>: Similar to bootstrap, but the training set is created by sampling <em>without replacement</em> (i.e., each observation is selected at most once). The test set includes the observations not selected for training.</p></li>
 </ul></div>

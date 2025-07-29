@@ -80,14 +80,20 @@
 
     
     
+<div class="section level2">
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h2>
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#response-curve">Response curve</a></li>
 <li><a href="#variable-importance">Variable importance</a></li>
+<li><a href="#evaluate-models-with-independent-data">Evaluate models
+with independent data</a></li>
 <li><a href="#saving-a-fitted_models-object">Saving a fitted_models
 object</a></li>
 </ul>
 <hr>
+</div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
@@ -168,16 +174,16 @@ does not include the fitted <code>maxnet</code> (or <code>glm</code>)
 models themselves.</p>
 <p>To obtain the final fitted models, we need to use the
 <code><a href="../reference/fit_selected.html">fit_selected()</a></code> function. By default, this function fits a
-full model (i.e., without replicates and without splitting the data into
+full model (i.e., without partitions and without splitting the data into
 training and testing sets). However, you can configure it to fit final
-models with replicates if desired.</p>
-<p>In this example, we’ll fit the final models using the same
-replication settings (4-fold cross-validation) as used in the <a href="model_calibration.html">Model Calibration</a> vignette.</p>
+models with partitions if desired.</p>
+<p>In this example, we’ll fit the final models using the same partition
+settings (4-fold cross-validation) as used in the <a href="model_calibration.html">Model Calibration</a> vignette.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit selected models using calibration results</span></span>
 <span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_selected.html">fit_selected</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_maxnet</span>, </span>
-<span>                   partition_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co"># Fitting replicates...</span></span>
+<span>                   partition_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_partitions <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co"># Fitting partitions...</span></span>
 <span><span class="co">#   |========================================================================| 100%</span></span>
 <span><span class="co"># Fitting full models...</span></span>
 <span><span class="co">#   |========================================================================| 100%</span></span></code></pre></div>
@@ -191,7 +197,7 @@ by indexing its elements. For example, the fitted <code>maxnet</code>
 (or <code>glm</code>) model objects are stored within the
 <code>Models</code> element. Note that <code>Models</code> is a nested
 list: for each selected model (in this case, models 192 and 219), it
-includes both the replicates (if fitted with replicates) and the full
+includes both the partitions (if fitted with partitions) and the full
 model.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#See names of selected models</span></span>
@@ -200,7 +206,7 @@ model.</p>
 <span></span>
 <span><span class="co">#See models inside Model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">$</span><span class="va">Model_192</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Rep_1"      "Rep_2"      "Rep_3"      "Rep_4"      "Full_model"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Partition_1" "Partition_2" "Partition_3" "Partition_4" "Full_model"</span></span></code></pre></div>
 <p>The <code>fitted_models</code> object also stores the thresholds that
 can be used to binarize the models into suitable and unsuitable areas.
 These thresholds correspond to the omission error used during model
@@ -216,32 +222,32 @@ that when the predictions are binarized, approximately 10% of the
 presence records used to calibrate the models will fall into cells with
 predicted values below the threshold.</p>
 <p>The thresholds are summarized in two ways: the mean and median across
-replicates for each model, and the consensus mean and median across all
+partitions for each model, and the consensus mean and median across all
 selected models (when more than one model is selected):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fm</span><span class="op">$</span><span class="va">thresholds</span></span>
 <span><span class="co">#&gt; $Model_192</span></span>
 <span><span class="co">#&gt; $Model_192$mean</span></span>
-<span><span class="co">#&gt; [1] 0.3114352</span></span>
+<span><span class="co">#&gt; [1] 0.3038214</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Model_192$median</span></span>
-<span><span class="co">#&gt; [1] 0.2585349</span></span>
+<span><span class="co">#&gt; [1] 0.2650942</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Model_219</span></span>
 <span><span class="co">#&gt; $Model_219$mean</span></span>
-<span><span class="co">#&gt; [1] 0.3094853</span></span>
+<span><span class="co">#&gt; [1] 0.2992388</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Model_219$median</span></span>
-<span><span class="co">#&gt; [1] 0.2605331</span></span>
+<span><span class="co">#&gt; [1] 0.2683448</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $consensus</span></span>
 <span><span class="co">#&gt; $consensus$mean</span></span>
-<span><span class="co">#&gt; [1] 0.3095083</span></span>
+<span><span class="co">#&gt; [1] 0.3014554</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $consensus$median</span></span>
-<span><span class="co">#&gt; [1] 0.259534</span></span>
+<span><span class="co">#&gt; [1] 0.2667195</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $type</span></span>

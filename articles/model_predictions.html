@@ -188,10 +188,10 @@ to this raster. Let’s begin by predicting the maxnet model:</p>
 <span>                             raster_variables <span class="op">=</span> <span class="va">var</span>,</span>
 <span>                             progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>By default, the function computes consensus metrics (mean, median,
-range, and standard deviation) for each model across its replicates (if
+range, and standard deviation) for each model across its partitions (if
 more than one model was selected), as well as a general consensus across
 all models. In this case, the output is a <code>list</code> containing
-<code>SpatRaster</code> predictions for each replicate, along with the
+<code>SpatRaster</code> predictions for each partition, along with the
 consensus results for each model and the overall general consensus:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#See objects in the output of predict_selected</span></span>
@@ -201,15 +201,15 @@ consensus results for each model and the overall general consensus:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/plot%20maxnet%20general-1.png" width="672"></p>
-<p>We can also plot the results for each replicate and the consensus for
+<p>We can also plot the results for each partition and the consensus for
 each model:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Predictions for each replicate from model 192</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Replicates</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">#Predictions for each partition from model 192</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Partitions</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-1.png" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co">#Consensus across each replicate from model 192</span></span>
+<span><span class="co">#Consensus across each partition from model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Model_consensus</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-2.png" width="672"></p>
 <p><br></p>
@@ -258,9 +258,9 @@ predict our Maxnet models to this <code>data.frame</code>:</p>
 <p>Now, instead of <code>SpatRaster</code> objects, the function returns
 <code>data.frame</code> objects with the predictions:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Results by replicate of the model 192</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Replicates</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         Rep_1        Rep_2        Rep_3        Rep_4</span></span>
+<code class="sourceCode R"><span><span class="co">#Results by partition of the model 192</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Partitions</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   Partition_1  Partition_2  Partition_3  Partition_4</span></span>
 <span><span class="co">#&gt; 1 0.006521501 0.0006209852 0.0005883615 9.831561e-05</span></span>
 <span><span class="co">#&gt; 2 0.006446437 0.0005356316 0.0005713501 9.009486e-05</span></span>
 <span><span class="co">#&gt; 3 0.006233583 0.0003396879 0.0004975279 6.967025e-05</span></span>
@@ -268,7 +268,7 @@ predict our Maxnet models to this <code>data.frame</code>:</p>
 <span><span class="co">#&gt; 5 0.008513515 0.0002034105 0.0006532983 8.529550e-05</span></span>
 <span><span class="co">#&gt; 6 0.009240381 0.0001753492 0.0006784553 9.035171e-05</span></span>
 <span></span>
-<span><span class="co">#Consensus across replicates of the model 192</span></span>
+<span><span class="co">#Consensus across partitions of the model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Model_consensus</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         median       range        mean       stdev</span></span>
 <span><span class="co">#&gt; 1 0.0006046734 0.006423186 0.001957291 0.003052184</span></span>
@@ -312,7 +312,7 @@ thresholds. This means that when predictions are binarized,
 approximately 10% of the presence records used in model calibration will
 fall into areas classified as unsuitable.</p>
 <p>The thresholds are summarized in two ways: the mean and median across
-replicates for each model, and the consensus mean and median across all
+partitions for each model, and the consensus mean and median across all
 selected models (when more than one model is selected). Let’s check the
 thresholds for the general consensus:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -387,7 +387,7 @@ hypothetical (and extreme) scenario where <code>bio_7</code> has
 extremely low values:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#From bio_7, reduce values</span></span>
-<span><span class="va">new_bio7</span> <span class="op">&lt;-</span> <span class="va">var</span><span class="op">$</span><span class="va">bio_7</span> <span class="op">-</span> <span class="fl">7</span></span>
+<span><span class="va">new_bio7</span> <span class="op">&lt;-</span> <span class="va">var</span><span class="op">$</span><span class="va">bio_7</span> <span class="op">-</span> <span class="fl">3</span></span>
 <span><span class="co">#Create new scenario</span></span>
 <span><span class="va">new_var</span> <span class="op">&lt;-</span> <span class="va">var</span></span>
 <span><span class="co">#Replace bio_7 with new_bio7 in this scenario</span></span>
@@ -467,13 +467,12 @@ previous step to observe the difference:</p>
 <p><img src="model_predictions_files/figure-html/no%20extrapolation-1.png" width="672"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
-<p>In this example, almost the entire predicted area shows zero
-suitability, except for a small patch. This occurred because, in this
-hypothetical scenario, nearly the entire region has <code>bio_7</code>
-values lower than those in the calibration data (which has a minimum of
-15ºC). The only region where suitability is predicted to be greater than
-0 is where the <code>bio_7</code> values fall within the limits of the
-calibration data.</p>
+<p>n this example, a large portion of the predicted area shows zero
+suitability. This is because, in this hypothetical scenario, much of the
+region has <code>bio_7</code> values lower than those in the calibration
+data, which has a minimum of 15ºC. Suitability values greater than zero
+are only predicted in areas where <code>bio_7</code> falls within the
+range of the calibration data.</p>
 <p>By default, when <code>extrapolation_type = "NE"</code> is set, all
 predictor variables are considered for this process. You can specify a
 subset of variables to be considered for extrapolation using the
@@ -560,7 +559,7 @@ will save the output files as Comma Separated Value (.csv) files.</p>
 <code class="sourceCode R"><span><span class="va">p_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
 <span>                           raster_variables <span class="op">=</span> <span class="va">var</span>, </span>
 <span>                           write_files <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save to the disk</span></span>
-<span>                           write_replicates <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save predictions for each replicate</span></span>
+<span>                           write_partitions <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save predictions for each partition</span></span>
 <span>                           out_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co">#A path to save the resuls (here, the temporary directory)</span></span>
 <span>                           progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, we can use <code><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster()</a></code> to save specific

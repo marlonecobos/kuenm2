@@ -60,7 +60,7 @@ using the function <code><a href="calibration.html">calibration()</a></code>.</p
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fit_selected</span><span class="op">(</span><span class="va">calibration_results</span>, partition_method <span class="op">=</span> <span class="st">"kfolds"</span>,</span>
-<span>             n_replicates <span class="op">=</span> <span class="fl">1</span>, train_proportion <span class="op">=</span> <span class="fl">0.7</span>, type <span class="op">=</span> <span class="st">"cloglog"</span>,</span>
+<span>             n_partitions <span class="op">=</span> <span class="fl">1</span>, train_proportion <span class="op">=</span> <span class="fl">0.7</span>, type <span class="op">=</span> <span class="st">"cloglog"</span>,</span>
 <span>             write_models <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>             file_name <span class="op">=</span> <span class="cn">NULL</span>, parallel <span class="op">=</span> <span class="cn">FALSE</span>, ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>             progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
@@ -81,10 +81,10 @@ Available options are <code>"kfolds"</code>, <code>"subsample"</code>, and <code
 See <strong>Details</strong> for more information.</p></dd>
 
 
-<dt id="arg-n-replicates">n_replicates<a class="anchor" aria-label="anchor" href="#arg-n-replicates"></a></dt>
-<dd><p>(numeric) number of replicates to generate. If
+<dt id="arg-n-partitions">n_partitions<a class="anchor" aria-label="anchor" href="#arg-n-partitions"></a></dt>
+<dd><p>(numeric) number of partitions or folds to generate. If
 <code>partition_method</code> is <code>"subsample"</code> or <code>"bootstrap"</code>, this defines the number
-of partitions. If <code>"kfolds"</code>, it specifies the number of folds. Default is 4.</p></dd>
+of replicates. If <code>"kfolds"</code>, it specifies the number of folds. Default is 4.</p></dd>
 
 
 <dt id="arg-train-proportion">train_proportion<a class="anchor" aria-label="anchor" href="#arg-train-proportion"></a></dt>
@@ -144,7 +144,7 @@ the data. Default is 1.</p></dd>
 <dd><p>a character string with the name of the species.</p></dd>
 
 <dt>Models</dt>
-<dd><p>a list of fitted models, including replicates (trained with
+<dd><p>a list of fitted models, including partitions (trained with
 the parts of the data) and full models (trained with all available records).</p></dd>
 
 <dt>calibration_data</dt>
@@ -172,7 +172,7 @@ sample not already in the background was added.</p></dd>
 <dd><p>the omission rate determined during the calibration step.</p></dd>
 
 <dt>thresholds</dt>
-<dd><p>the thresholds to binarize each replicate and the consensus
+<dd><p>the thresholds to binarize each partition and the consensus
 (mean and median), calculated based on the omission rate set in
 <code><a href="calibration.html">calibration()</a></code>.</p></dd>
 
@@ -191,8 +191,8 @@ calibration to select models.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Fit models using calibration results</span></span></span>
 <span class="r-in"><span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu">fit_selected</span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_maxnet</span>,</span></span>
-<span class="r-in"><span>                   n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting replicates...</span>
+<span class="r-in"><span>                   n_partitions <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting partitions...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting full models...</span>
@@ -213,8 +213,8 @@ calibration to select models.</p>
 <span class="r-in"><span><span class="co"># Fit models using calibration results</span></span></span>
 <span class="r-in"><span><span class="va">fm_glm</span> <span class="op">&lt;-</span> <span class="fu">fit_selected</span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_glm</span>,</span></span>
 <span class="r-in"><span>                       partition_method <span class="op">=</span> <span class="st">"subsample"</span>,</span></span>
-<span class="r-in"><span>                       n_replicates <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting replicates...</span>
+<span class="r-in"><span>                       n_partitions <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting partitions...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%  |                                                                              |========================================================              |  80%  |                                                                              |======================================================================| 100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting full models...</span>
