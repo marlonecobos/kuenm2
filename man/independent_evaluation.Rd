@@ -81,8 +81,12 @@ selected model and for the consensus.
 and independent data.
 \item \strong{predictions}: (Only if \code{return_predictions = TRUE}) A \code{list} of
 \code{data.frames} containing continuous and binary predictions at the independent
-record locations, along with MOP distances and an indicator of whether
-environmental conditions at each location fall within the calibration range.
+record locations, along with MOP distances, an indicator of whether
+environmental conditions at each location fall within the calibration range,
+and the identity of the variables that have lower and higher values than the
+calibration range. If the \code{fitted_models} object includes categorical
+variables, the returned \code{data.frame} will also contain columns indicating
+which values in \code{new_data} were not present in the calibration data.
 }
 }
 \description{

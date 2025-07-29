@@ -96,7 +96,7 @@
 #' of class "prcomp". See \code{\link[stats]{prcomp}}() for details.
 #' - algorithm: the model type (glm or maxnet)
 #' - calibration_results: a list containing a data frame with all evaluation
-#' metrics for all replicates (if `return_all_results = TRUE`) and a summary of
+#' metrics for all partitions (if `return_all_results = TRUE`) and a summary of
 #' the evaluation metrics for each candidate model.
 #' - omission_rate: The omission rate used to select models.
 #' - addsamplestobackground: a logical value indicating whether any presence
@@ -144,7 +144,7 @@
 #'                        x = "x", y = "y",
 #'                        raster_variables = var,
 #'                        species = occ_data[1, 1],
-#'                        n_background = 100, ,
+#'                        n_background = 100,
 #'                        features = c("l", "lq"),
 #'                        r_multiplier = 1,
 #'                        partition_method = "kfolds")
@@ -353,7 +353,7 @@ calibration <- function(data,
 
     # Convert results to dataframe
     d_concave_rep <- do.call("rbind", lapply(results_concave,
-                                             function(x) x$Replicates))
+                                             function(x) x$Partition))
     row.names(d_concave_rep) <- NULL
     d_concave_sum <- do.call("rbind", lapply(results_concave,
                                              function(x) x$Summary))

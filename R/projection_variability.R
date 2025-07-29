@@ -3,10 +3,10 @@
 #' @description
 #' Calculates variance in model predictions, distinguishing
 #' between the different sources of variation. Potential sources include
-#' replicates, model parameterizations, and general circulation models (GCMs).
+#' partitions, model parameterizations, and general circulation models (GCMs).
 #'
 #' @usage
-#' projection_variability(model_projections, by_replicate = TRUE, by_gcm = TRUE,
+#' projection_variability(model_projections, by_partition = TRUE, by_gcm = TRUE,
 #'                        by_model = TRUE, consensus = "median",
 #'                        write_files = FALSE, output_dir = NULL,
 #'                        return_rasters = TRUE, progress_bar = FALSE,
@@ -16,8 +16,8 @@
 #' \code{\link{project_selected}}() function. This object contains the file
 #' paths to the raster projection results and the thresholds used for binarizing
 #' the predictions.
-#' @param by_replicate (logical) whether to compute the variance originating
-#' from replicates.
+#' @param by_partition (logical) whether to compute the variance originating
+#' from partitions.
 #' @param by_gcm (logical) whether to compute the variance originating from
 #' general circulation models (GCMs)
 #' @param by_model (logical) whether to compute the variance originating from
@@ -43,7 +43,7 @@
 #' @return
 #' An object of class `variability_projections`. If `return_rasters = TRUE`,
 #' the function returns a list containing the SpatRasters with the computed
-#' variances, categorized by replicate, model, and GCMs. If `write_files = TRUE`,
+#' variances, categorized by partition, model, and GCMs. If `write_files = TRUE`,
 #' it also returns the directory path where the computed rasters were saved to
 #' disk, and the object can then be used to import these files later with the
 #' `import_projections()` function. If both `return_rasters = FALSE` and
@@ -108,17 +108,17 @@
 #'                       out_dir = out_dir)
 #'
 #' # Step 5: Compute variance from distinct sources
-#' v <- projection_variability(model_projections = p, by_replicate = FALSE)
+#' v <- projection_variability(model_projections = p, by_partition = FALSE)
 #'
-#' #terra::plot(v$Present$by_rep)  # Variance from replicates, present projection
+#' #terra::plot(v$Present$by_partition)  # Variance from partitions, present projection
 #' terra::plot(v$Present$by_model)  # From models
-#' #terra::plot(v$`Future_2041-2060_ssp126`$by_rep)  # From replicates future projection
+#' #terra::plot(v$`Future_2041-2060_ssp126`$by_partition)  # From partitions in future projection
 #' terra::plot(v$`Future_2041-2060_ssp126`$by_model)  # From models
 #' terra::plot(v$`Future_2041-2060_ssp126`$by_gcm)  # From GCMs
 
 
 projection_variability <- function(model_projections,
-                                   by_replicate = TRUE,
+                                   by_partition = TRUE,
                                    by_gcm = TRUE,
                                    by_model = TRUE,
                                    consensus = "median",
@@ -198,19 +198,19 @@ projection_variability <- function(model_projections,
     # Get all paths
     paths <- d_p$output_path
 
-    #### By replicate ####
-    if (by_replicate) {
+    #### By partition ####
+    if (by_partition) {
       if (verbose) {
-        message("\nCalculating variability from distinct replicates: scenario ",
+        message("\nCalculating variability from distinct partitions: scenario ",
                 z, " of ", nrow(uc))
       }
       #Variance of means
 
-      #### By replicates ####
-      # Get variance of replicates in each gcm, than get the average across gcms
+      #### By partitions ####
+      # Get variance of partitions in each gcm, than get the average across gcms
       var_rep_by_gcm <- terra::rast(lapply(paths, var_models_rep_by_gcm))
       var_rep <- terra::mean(var_rep_by_gcm)
-    } else {#End of by_replicate
+    } else {#End of by_partition
       var_rep <- NULL
     }
 
@@ -242,7 +242,7 @@ projection_variability <- function(model_projections,
     } else {
       var_gcm <- NULL}#End of by_gcm
 
-    all_var <- terra::rast(c("by_rep" = var_rep, "by_model" = var_model,
+    all_var <- terra::rast(c("by_partition" = var_rep, "by_model" = var_model,
                              "by_gcm" = var_gcm))
 
 

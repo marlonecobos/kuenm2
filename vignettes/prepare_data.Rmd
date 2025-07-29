@@ -12,10 +12,13 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 6
+  fig.height = 6,
+  dpi=100,
+  out.width = "95%"
 )
 ```
 
+# Summary
 
 - [Description](#description)
 - [Getting ready](#getting-ready)
@@ -29,6 +32,7 @@ knitr::opts_chunk$set(
 - [Using Custom Data Partitions](#using-custom-data-partitions)
   - [Spatial Partitioning with ENMeval](#spatial-partitioning-with-enmeval)
   - [Spatial Partitioning with flexsdm](#spatial-partitioning-with-flexsdm)
+- [Analysis of extrapolation risks in partitions](#analysis-of-extrapolation-risks-in-partitions)
 - [Saving a prepared_data object](#saving-a-prepared_data-object)
 
 <hr>
@@ -120,7 +124,7 @@ d <- prepare_data(algorithm = "maxnet",
                   species = "Myrcia hatschbachii",
                   categorical_variables = "SoilType", 
                   partition_method = "kfolds", 
-                  n_replicates = 4,
+                  n_partitions = 4,
                   n_background = 1000,
                   features = c("l", "q", "lq", "lqp"),
                   r_multiplier = c(0.1, 1, 2))
@@ -160,7 +164,7 @@ d_glm <- prepare_data(algorithm = "glm",
                       species = "Myrcia hatschbachii",
                       categorical_variables = "SoilType", 
                       partition_method = "subsample", 
-                      n_replicates = 10, 
+                      n_partitions = 10, 
                       train_proportion = 0.7,
                       n_background = 300,
                       features = c("l", "q", "p", "lq", "lqp"),
@@ -292,11 +296,14 @@ par(mfrow = c(2,2))
 ## The plots to show sampling bias effects
 plot(bias, main = "Bias file")
 explore_calibration_geo(d, raster_variables = var[[1]],
-                        main = "Random Background")
+                        main = "Random Background", 
+                        plg=list(cex=0.75)) #Decrease size of legend text)
 explore_calibration_geo(d_bias_direct, raster_variables = var[[1]],
-                        main = "Direct Bias Effect")
+                        main = "Direct Bias Effect", 
+                        plg=list(cex=0.75)) #Decrease size of legend text)
 explore_calibration_geo(d_bias_inverse, raster_variables = var[[1]],
-                        main = "Inverse Bias Effect")
+                        main = "Inverse Bias Effect", 
+                        plg=list(cex=0.75)) #Decrease size of legend text)
 
 par(original_par)  # Reset grid
 ```
@@ -429,13 +436,13 @@ data_user <- prepare_user_data(algorithm = "maxnet",
 data_user 
 ```
 
-This function also allows you to provide a list of index identifying test points for cross-validation to be used during model calibration. If `user_folds` is NULL, the function will automatically partition the data according to the specified `partition_method`, `n_replicates`, and `train_proportion`.
+This function also allows you to provide a list of index identifying test points for cross-validation to be used during model calibration. If `user_folds` is NULL, the function will automatically partition the data according to the specified `partition_method`, `n_partitions`, and `train_proportion`.
 
 # Using Custom Data Partitions
 
 The functions `prepare_data()` and `prepare_user_data()` in the `kuenm2` package include four built-in methods for randomly partitioning data:
 
-- **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
+- **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
 
 - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
 
@@ -469,8 +476,8 @@ if(!require("ENMeval")){
 }
 
 # Extract calibration data from the prepared_data object and separate presence and background records
-calib_occ <- d$calibration_data[d$calibration_data$pr_bg == 1,] #Presences
-calib_bg <- d$calibration_data[d$calibration_data$pr_bg == 0,] #Background
+calib_occ <- d$data_xy[d$calibration_data$pr_bg == 1,] #Presences
+calib_bg <- d$data_xy[d$calibration_data$pr_bg == 0,] #Background
 
 # Apply spatial block partitioning using ENMeval
 enmeval_block <- get.block(occs = calib_occ, bg = calib_bg)
@@ -478,13 +485,13 @@ enmeval_block <- get.block(occs = calib_occ, bg = calib_bg)
 # Inspect the structure of the output
 str(enmeval_block)
 #> List of 2
-#>  $ occs.grp: num [1:51] 2 1 1 3 1 4 1 1 3 3 ...
-#>   $ bg.grp  : num [1:957] 3 3 3 3 3 3 3 1 3 1 ...
+#>  $ occs.grp: num [1:51] 1 1 2 2 1 4 2 2 4 2 ...
+#>  $ bg.grp  : num [1:957] 2 4 4 1 3 3 3 1 1 3 ...
 ```
 
 Note that the output of `get.block()` is a list with two elements: `occs.grp` and `bg.grp`. The `occs.grp` vector has the same length as the number of occurrence records, and `bg.grp` has the same length as the background points. Both vectors contain numeric values from 1 to 4, indicating the spatial group to which each point belongs. For example, an occurrence labeled with `1` belongs to the first spatial block, `2` to the second block, and so on.
 
-In contrast, `kuenm2` stores partitioned data in a different format: it expects a **list of vectors**, where each element corresponds to a replicate and contains the **indices of the test points** for that replicate.
+In contrast, `kuenm2` stores partitioned data in a different format: it expects a **list of vectors**, where each element corresponds to a partition and contains the **indices of the test points** for that partition. The indices include both presence and background points. During model evaluation for each partition, only the presence test points are used. The background points, although present in the dataset, are simply excluded from the calibration process.
 
 
 ```{r index part kuenm2}
@@ -504,13 +511,15 @@ new_part_data <- lapply(id_blocks, function(i) {
   
   # Indices of background records in group i
   rep_i_bg <- which(enmeval_block$bg.grp == i)
+  # To get the right indices, we need to sum the number of records
+  rep_i_bg <- rep_i_bg + nrow(occ_data)
   
   # Combine presence and background indices for the test set
   c(rep_i_presence, rep_i_bg)
 })
 
-# Assign names to each replicate
-names(new_part_data) <- paste0("Rep_", id_blocks)
+# Assign names to each partition
+names(new_part_data) <- paste0("Partition_", id_blocks)
 
 # Inspect the structure of the new partitioned data
 str(new_part_data)
@@ -520,77 +529,16 @@ We now have a list containing four vectors, each storing the indices of test dat
 
 ```{r replace part_data}
 # Replace the original partition data with the new spatial blocks
-d$part_data <- new_part_data
+d_spatial_block <- d
+d_spatial_block$part_data <- new_part_data
 
 # Update the partitioning method to reflect the new approach
-d$partition_method <- "Spatial block (ENMeval)"  # You can use any descriptive name
+d_spatial_block$partition_method <- "Spatial block (ENMeval)"  # You can use any descriptive name
 
 # Print the updated prepared_data object
-print(d)
+print(d_spatial_block)
 ```
-
-Alternatively, if you have already prepared calibration data, you can define custom data partitioning using the `prepare_user_data()` function. For example, we can use the `user_data` dataset included with the package:
-
-```{r spatial block user data, eval=FALSE}
-# Extract presence and background points from the user_data object
-user_occ <- user_data[user_data$pr_bg == 1, ]  # Presence records
-user_bg  <- user_data[user_data$pr_bg == 0, ]  # Background records
-
-# Apply spatial block partitioning using ENMeval
-enmeval_block_user <- get.block(occs = user_occ, bg = user_bg)
-
-# Identify unique spatial blocks
-id_blocks <- sort(unique(unlist(enmeval_block_user)))
-
-# Create a list of test indices for each spatial block
-user_part_data <- lapply(id_blocks, function(i) {
-  # Indices of presence points in block i
-  rep_i_presence <- which(enmeval_block_user$occs.grp == i)
-  # Indices of background points in block i
-  rep_i_bg <- which(enmeval_block_user$bg.grp == i)
-  # Combine presence and background indices
-  c(rep_i_presence, rep_i_bg)
-})
-
-# Name each partition replicate
-names(user_part_data) <- paste0("Rep_", id_blocks)
-
-# Prepare user data with custom partitions using prepare_user_data()
-data_user_block <- prepare_user_data(
-  algorithm = "maxnet",
-  user_data = user_data,              # User-provided data frame
-  pr_bg = "pr_bg",
-  species = "Myrcia hatschbachii",
-  categorical_variables = "SoilType",
-  user_part = user_part_data,         # Custom partition list
-  features = c("l", "q", "p", "lq", "lqp"),
-  r_multiplier = c(0.1, 1, 2, 3, 5)
-)
-
-# Update partition method description
-data_user_block$partition_method <- "Spatial block (ENMeval)"  # Descriptive name
-
-# Display the prepared data object
-print(data_user_block)
-#> prepared_data object summary
-#> ============================
-#> Species: Myrcia hatschbachii 
-#> Number of Records: 527 
-#>   - Presence: 51 
-#>   - Background: 476 
-#> Partition Method: Spatial block (ENMeval) 
-#> Continuous Variables:
-#>   - bio_1, bio_7, bio_12, bio_15 
-#> Categorical Variables:
-#>   - SoilType 
-#> PCA Information: PCA not performed
-#> Weights: No weights provided
-#> Calibration Parameters:
-#>   - Algorithm: maxnet 
-#>   - Number of candidate models: 610 
-#>   - Features classes (responses): l, q, p, lq, lqp 
-#>   - Regularization multipliers: 0.1, 1, 2, 3, 5 
-```
+<br>
 
 ## Spatial Partitioning with flexsdm
 
@@ -650,23 +598,65 @@ new_part_data_flexsdm <- lapply(id_blocks, function(i) {
   which(flexsdm_block$part$.part == i)
 })
 
-# Assign names to each partition replicate
-names(new_part_data_flexsdm) <- paste0("Rep_", id_blocks)
+# Assign names to each partition partition
+names(new_part_data_flexsdm) <- paste0("Partition_", id_blocks)
 
 # Inspect the structure of the new partitioned data
 str(new_part_data_flexsdm)
 
 # Replace the partition data in the prepared_data object
-d$part_data <- new_part_data_flexsdm
+d_block_flexsdm <- d
+d_block_flexsdm$part_data <- new_part_data_flexsdm
 
 # Update the partition method description
-d$partition_method <- "Spatial block (flexsdm)"  # You can choose any descriptive name
+d_block_flexsdm$partition_method <- "Spatial block (flexsdm)"  # You can choose any descriptive name
 
 # Display the updated prepared_data object
-print(d)
+print(d_block_flexsdm)
 ```
 
 <br>
+
+# Analysis of extrapolation risks in partitions
+
+When we partition a dataset, some test records may fall in locations with environmental conditions not represented in the training data. As a result, model evaluation can occur under extrapolation, meaning the model is being tested on conditions outside the range it was calibrated on. The risk of extrapolation increases when spatial blocks are used for data partitioning. This is because environmental conditions in one spatial block may differ significantly from those in others. As an example, let’s use the `prepared_data` object that was partitioned using spatial blocks from the `ENMeval` package.
+
+The `explore_partition_extrapolation()` function calculates environmental dissimilarity and detects non-analogous conditions between training and test data for each partition using the MOP (Mobility-Oriented Parity) metric ([Owens et al. 2013](https://doi.org/10.1016/j.ecolmodel.2013.04.011)). It requires a `prepared_data` object. To visualize the spatial distribution of test data falling within or outside the training data range, you must also provide the `raster_variables` used during data preparation.
+
+By default, the function uses all training data (presences and backgrounds) to define the environmental range but computes MOP only for test presence records. To also compute MOP for test background points, set `include_test_background = TRUE`:
+
+```{r}
+mop_partition <- explore_partition_extrapolation(data = d_spatial_block, 
+                                                 include_test_background = T, 
+                                                 raster_variables = var)
+```
+
+The function returned a `data.frame` containing:
+
+- **mop_distance**: MOP distances;
+- **inside_range** an indicator of whether environmental conditions at each test record fall within the training range;
+- **n_var_out**: the number of variables outside the training range;
+- **towards_low** and **towards_high **: the names of variables with values lower or higher than the training range;
+- **SoilType**: because the `prepared_data` object includes a categorical variable, it also contains a column indicating which values in the testing data were not present in the training data.
+
+```{r mop_results}
+# Highlight some partitions with extrapolation risks
+head(mop_partition$Mop_results[mop_partition$Mop_results$n_var_out > 1, ])
+```
+
+Because we set `return_raster_result = TRUE`, the function also returned a `SpatRaster` showing the spatial distribution of training presences and testing data:
+
+```{r}
+plot(mop_partition$Spatial_results, 
+     mar = c(3, 3, 2, 8), #Adjust margin
+     plg=list(cex=0.75)) #Decrease size of legend text)
+```
+
+Note that in Partition 1, some test records fall in locations with environmental conditions not represented in the training data. This partition also includes many background points representing conditions that were not used to calibrate its models.
+
+However, it's important to mention that this function only identifies environmental conditions that fall outside the range of the training data. To fully evaluate the risk of extrapolation, you should look at the MOP results together with the response curves. This combined analysis helps to see how the model behaves under those conditions. For more details, check the [Exploring Model Uncertainty and Variability](variability_and_uncertainty.html#comparing-mop-results-with-response-curves) vignette.
+
+<br> 
 
 # Saving a prepared_data object
 

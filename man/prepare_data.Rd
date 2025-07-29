@@ -7,7 +7,7 @@
 prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
              mask = NULL, n_background = 1000, features = c("lq", "lqp"),
              r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method,
-             n_replicates = 4, train_proportion = 0.7,
+             n_partitions = 4, train_proportion = 0.7,
              categorical_variables = NULL,
              do_pca = FALSE, center = TRUE, scale = TRUE,
              exclude_from_pca = NULL, variance_explained = 95,
@@ -51,12 +51,12 @@ Default is c(0.1, 1, 2, 3, 5).}
 Available options are \code{"kfolds"}, \code{"subsample"}, and \code{"bootstrap"}.
 See \strong{Details} for more information.}
 
-\item{n_replicates}{(numeric) number of replicates to generate. If
+\item{n_partitions}{(numeric) number of partitions to generate. If
 \code{partition_method} is \code{"subsample"} or \code{"bootstrap"}, this defines the number
-of partitions. If \code{"kfolds"}, it specifies the number of folds. Default is 4.}
+of replicates. If \code{"kfolds"}, it specifies the number of folds. Default is 4.}
 
 \item{train_proportion}{(numeric) proportion of occurrence and background
-points to be used for model training in each replicate. Only applicable when
+points to be used for model training in each partition. Only applicable when
 \code{partition_method} is \code{"subsample"} or \code{"bootstrap"}. Default is 0.7 (i.e.,
 70\% for training and 30\% for testing).}
 
@@ -141,7 +141,7 @@ feature classes, and sets of environmental variables.
 \details{
 The available data partitioning methods are:
 \itemize{
-\item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
+\item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
 \item \strong{"bootstrap"}: Creates the training dataset by sampling observations from the original dataset \emph{with replacement} (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
 \item \strong{"subsample"}: Similar to bootstrap, but the training set is created by sampling \emph{without replacement} (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
 }

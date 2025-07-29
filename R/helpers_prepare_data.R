@@ -63,7 +63,7 @@ handle_missing_data <- function(occ_bg, weights) {
 part_data <- function(data,
                       pr_bg = "pr_bg",
                       train_proportion = 0.7,
-                      n_replicates = 5,
+                      n_partitions = 5,
                       partition_method = "subsample",
                       seed = 1) {
   if(!inherits(data, "data.frame")){
@@ -78,8 +78,8 @@ part_data <- function(data,
     stop("Invalid 'partition_method'. Available options include 'kfolds', 'subsample', and 'bootstrap'")
   }
 
-  if(!(n_replicates %% 1 == 0) || n_replicates <= 0){
-    stop("'n_replicates' must be a positive numeric integer (e.g., 1, 2, 3...)")
+  if(!(n_partitions %% 1 == 0) || n_partitions <= 0){
+    stop("'n_partitions' must be a positive numeric integer (e.g., 1, 2, 3...)")
   }
 
   if(partition_method %in% c("bootstrap", "subsample")){
@@ -98,17 +98,17 @@ part_data <- function(data,
   if (partition_method == "kfolds") {
 
     set.seed(seed)
-    foldp <- sample(cut(seq(1, length(pre)), breaks = n_replicates,
+    foldp <- sample(cut(seq(1, length(pre)), breaks = n_partitions,
                         labels = FALSE))
     set.seed(seed)
-    folda <- sample(cut(seq(1, length(aus)), breaks = n_replicates,
+    folda <- sample(cut(seq(1, length(aus)), breaks = n_partitions,
                         labels = FALSE))
     names(foldp) <- pre
     names(folda) <- aus
     all <- c(foldp, folda)
     rep_data <- list()
-    for (i in 1:n_replicates) {
-      rep_data[[paste0("Rep_", i)]] <- as.numeric(names(all[all ==
+    for (i in 1:n_partitions) {
+      rep_data[[paste0("Partition_", i)]] <- as.numeric(names(all[all ==
                                                           i]))
     }
 
@@ -135,8 +135,8 @@ part_data <- function(data,
     }
 
 
-    #Create list of replicates
-    rep_data <- lapply(1:n_replicates, function(i) {
+    #Create list of partitions
+    rep_data <- lapply(1:n_partitions, function(i) {
       set.seed(seed * i)
       foldp <- sample(pre,
                       size = floor(train_proportion * length(pre)),
@@ -151,7 +151,7 @@ part_data <- function(data,
       foldpa <- c(foldp, folda)
       return(foldpa)
     })
-    names(rep_data) <- paste0("Rep_", 1:n_replicates)
+    names(rep_data) <- paste0("Partition_", 1:n_partitions)
   }
   return(rep_data)
 }
