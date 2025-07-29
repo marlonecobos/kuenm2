@@ -4,11 +4,11 @@
 #' This function predicts selected models for a single set of new data
 #' using either `maxnet` or `glm` It provides options to save the
 #' output and compute consensus results (mean, median, etc.) across
-#' replicates and models.
+#' partitions and models.
 #'
 #' @usage
 #' predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
-#'                  write_replicates = FALSE, out_dir = NULL,
+#'                  write_partitions = FALSE, out_dir = NULL,
 #'                  consensus_per_model = TRUE, consensus_general = TRUE,
 #'                  consensus = c("median", "range", "mean", "stdev"),
 #'                  extrapolation_type = "E", var_to_clamp = NULL,
@@ -24,17 +24,17 @@
 #' mask the variables before predict. Default is NULL.
 #' @param write_files (logical) whether to save the predictions (SpatRasters or
 #' data.frame) to disk. Default is FALSE.
-#' @param write_replicates (logical) whether to save the predictions for each
-#' replicate to disk. Only applicable if `write_files` is TRUE. Default is
+#' @param write_partitions (logical) whether to save the predictions for each
+#' partitions to disk. Only applicable if `write_files` is TRUE. Default is
 #' FALSE.
 #' @param out_dir (character) directory path where predictions will be saved.
 #' Only relevant if `write_files = TRUE`.
 #' @param consensus_per_model (logical) whether to compute consensus (mean,
-#' median, etc.) for each model across its replicates. Default is TRUE.
+#' median, etc.) for each model across its partitions. Default is TRUE.
 #' @param consensus_general (logical) whether to compute a general consensus
 #' across all models. Default is TRUE.
 #' @param consensus (character) vector specifying the types of consensus to
-#' calculate across replicates and models. Available options are `"median"`,
+#' calculate across partitions and models. Available options are `"median"`,
 #' `"range"`, `"mean"`, and `"stdev"` (standard deviation). Default is
 #' `c("median", "range", "mean", "stdev")`.
 #' @param extrapolation_type (character) extrapolation type of model. Models can
@@ -101,7 +101,7 @@ predict_selected <- function(models,
                              raster_variables,
                              mask = NULL,
                              write_files = FALSE,
-                             write_replicates = FALSE,
+                             write_partitions = FALSE,
                              out_dir = NULL,
                              consensus_per_model = TRUE,
                              consensus_general = TRUE,
@@ -219,13 +219,13 @@ predict_selected <- function(models,
   nm <- names(models)
   nrep <- length(models[[1]])
 
-  # Get names of the models (Replicates or full model)
+  # Get names of the models (partitions or full model)
   names_models <- unlist(unique(sapply(nm, function(i) {
     names(models[[i]])
   }, USE.NAMES = FALSE, simplify = FALSE)))
 
-  # If there are replicates, remove the full model from the dataset
-  if (any(grepl("Rep", names_models))) {
+  # If there are partitions, remove the full model from the dataset
+  if (any(grepl("Partition", names_models))) {
     models <- lapply(nm, function(i) {
       models[[i]][["Full_model"]] <- NULL
       return(models[[i]])
@@ -370,7 +370,7 @@ predict_selected <- function(models,
     }
   }
 
-  # Rename models and replicates
+  # Rename models and partitions
   names(p_models) <- nm
   for (i in nm) {
     names(p_models[[i]]) <- names(models[[i]])
@@ -454,7 +454,7 @@ predict_selected <- function(models,
         })
         mcs <- terra::rast(mcs)
         names(mcs) <- consensus
-        list(Replicates = rep[[x]], Model_consensus = mcs)
+        list(Partitions = rep[[x]], Model_consensus = mcs)
       }
     })
 
@@ -544,7 +544,7 @@ predict_selected <- function(models,
           res$Consensus_per_model[[y]][[x]]
         })
         names(mcs) <- consensus
-        list(Replicates = rep[[x]], Model_consensus = as.data.frame(mcs))
+        list(Partitions = rep[[x]], Model_consensus = as.data.frame(mcs))
       }
     })
 
@@ -561,9 +561,9 @@ predict_selected <- function(models,
     #Save if raster_variables are spatraster
     if(inherits(raster_variables, "SpatRaster")){
       sapply(nm, function(i) {
-        if (write_replicates & nrep > 1) {
-          terra::writeRaster(res[[i]]$Replicates,
-                           file.path(out_dir, paste0(i, "_replicates.tif")),
+        if (write_partitions & nrep > 1) {
+          terra::writeRaster(res[[i]]$Partitions,
+                           file.path(out_dir, paste0(i, "_partitions.tif")),
                            overwrite = overwrite)
           }
           terra::writeRaster(res[[i]]$Model_consensus,
@@ -578,9 +578,9 @@ predict_selected <- function(models,
     #Save if raster_variables are data.frame
     if(inherits(raster_variables, "data.frame")){
       sapply(nm, function(i) {
-        if (write_replicates & nrep > 1) {
-          utils::write.csv(res[[i]]$Replicates,
-                           file.path(out_dir, paste0(i, "_replicates.csv")))
+        if (write_partitions & nrep > 1) {
+          utils::write.csv(res[[i]]$Partitions,
+                           file.path(out_dir, paste0(i, "_partitions.csv")))
         }
         utils::write.csv(res[[i]]$Model_consensus,
                 file.path(out_dir, paste0(i, "_consensus.csv")))

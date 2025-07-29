@@ -10,7 +10,7 @@
 #' prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
 #'              mask = NULL, n_background = 1000, features = c("lq", "lqp"),
 #'              r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method,
-#'              n_replicates = 4, train_proportion = 0.7,
+#'              n_partitions = 4, train_proportion = 0.7,
 #'              categorical_variables = NULL,
 #'              do_pca = FALSE, center = TRUE, scale = TRUE,
 #'              exclude_from_pca = NULL, variance_explained = 95,
@@ -70,11 +70,11 @@
 #' @param partition_method (character) method used for data partitioning.
 #' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
 #' See **Details** for more information.
-#' @param n_replicates (numeric) number of replicates to generate. If
+#' @param n_partitions (numeric) number of partitions to generate. If
 #' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
-#' of partitions. If `"kfolds"`, it specifies the number of folds. Default is 4.
+#' of replicates. If `"kfolds"`, it specifies the number of folds. Default is 4.
 #' @param train_proportion (numeric) proportion of occurrence and background
-#' points to be used for model training in each replicate. Only applicable when
+#' points to be used for model training in each partition. Only applicable when
 #'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
 #'  70% for training and 30% for testing).
 #' @param weights (numeric) a numeric vector specifying weights for the
@@ -101,7 +101,7 @@
 #' @details
 #' The available data partitioning methods are:
 #'
-#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each replicate, one fold is used as the test set, while the remaining folds are combined to form the training set.
+#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
 #' - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
 #' - **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
 #'
@@ -166,7 +166,7 @@ prepare_data <- function(algorithm,
                          features = c("lq", "lqp"),
                          r_multiplier = c(0.1, 0.5, 1, 2, 3),
                          partition_method,
-                         n_replicates = 4,
+                         n_partitions = 4,
                          train_proportion = 0.7,
                          categorical_variables = NULL,
                          do_pca = FALSE,
@@ -315,8 +315,8 @@ prepare_data <- function(algorithm,
     stop("Invalid 'partition_method'. Available options include 'kfolds', 'subsample', and 'bootstrap'")
   }
 
-  if(!(n_replicates %% 1 == 0) || n_replicates <= 0){
-    stop("'n_replicates' must be a positive numeric integer (e.g., 1, 2, 3...)")
+  if(!(n_partitions %% 1 == 0) || n_partitions <= 0){
+    stop("'n_partitions' must be a positive numeric integer (e.g., 1, 2, 3...)")
   }
 
   if(partition_method %in% c("bootstrap", "subsample")){
@@ -360,6 +360,7 @@ prepare_data <- function(algorithm,
   occ_var <- extract_occurrence_variables(occ, x, y, raster_variables)
   bg_var <- generate_background_variables(raster_variables, n_background,
                                           bias_file, bias_effect, seed = seed)
+  bg_var <- bg_var[,colnames(occ_var)]
 
   # combine occurrence and background data
   occ_bg <- rbind(occ_var, bg_var)
@@ -375,6 +376,8 @@ prepare_data <- function(algorithm,
                                             factor)
   }
 
+  #Fix row.names
+  row.names(occ_bg) <- NULL
 
   # k_f <- enmpa::kfold_partition(data = occ_bg, dependent = "pr_bg", k = kfolds,
   #                               seed = seed)
@@ -382,7 +385,7 @@ prepare_data <- function(algorithm,
   #Partitione data
   pd <- part_data(data = occ_bg, pr_bg = "pr_bg",
                   train_proportion = train_proportion,
-                  n_replicates = n_replicates,
+                  n_partitions = n_partitions,
                   partition_method = partition_method,
                   seed = seed)
 
@@ -402,7 +405,7 @@ prepare_data <- function(algorithm,
   data <- new_prepared_data(species = species, calibration_data = occ_bg,
                             formula_grid = formula_grid,
                             part_data = pd, partition_method = partition_method,
-                            n_replicates = n_replicates,
+                            n_partitions = n_partitions,
                             train_proportion = train_proportion,
                             data_xy = occ_bg_xy,
                             continuous_variables = continuous_variable_names,

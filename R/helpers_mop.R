@@ -1,21 +1,21 @@
 #Function to run mop on new records
-mop_with_records <- function(calibration_data, new_data, variables = NULL,
+mop_with_records <- function(train_data, test_data, variables = NULL,
                              categorical_variables = NULL,
                              mop_type = "detailed", calculate_distance = TRUE,
                              where_distance = "all",
                              progress_bar = TRUE, ...){
 
-  if (missing(calibration_data)) {
-    stop("Argument 'calibration_data' must be defined.")
+  if (missing(train_data)) {
+    stop("Argument 'train_data' must be defined.")
   }
-  if (!inherits(calibration_data, "data.frame")) {
-    stop("Argument 'calibration_data' must be a 'data.frame' object.")
+  if (!inherits(train_data, "data.frame")) {
+    stop("Argument 'train_data' must be a 'data.frame' object.")
   }
-  if (missing(new_data)) {
-    stop("Argument 'new_data' must be defined.")
+  if (missing(test_data)) {
+    stop("Argument 'test_data' must be defined.")
   }
-  if (!inherits(new_data, "data.frame")) {
-    stop("Argument 'new_data' must be a 'data.frame' object.")
+  if (!inherits(test_data, "data.frame")) {
+    stop("Argument 'test_data' must be a 'data.frame' object.")
   }
 
   if (!inherits(mop_type, "character")) {
@@ -43,7 +43,7 @@ mop_with_records <- function(calibration_data, new_data, variables = NULL,
   }
 
   if(is.null(variables)){
-    v <- colnames(calibration_data)
+    v <- colnames(train_data)
     v <- setdiff(v, c("pr_bg", "x", "y"))
   } else{
     v <- variables
@@ -54,8 +54,9 @@ mop_with_records <- function(calibration_data, new_data, variables = NULL,
     v <- setdiff(v, categorical_variables)
   }
 
-  mop_res <- mop::mop(m = as.matrix(calibration_data[,v]),
-                      g = as.matrix(new_data[,v]),
+  #Identify different categories...
+  mop_res <- mop::mop(m = as.matrix(train_data[,v]),
+                      g = as.matrix(test_data[,v]),
                       type = mop_type,
                       calculate_distance = calculate_distance,
                       where_distance = where_distance,
@@ -93,6 +94,40 @@ mop_with_records <- function(calibration_data, new_data, variables = NULL,
   } #End of detailed
   #Convert to dataframe
   df <- as.data.frame(df)
+
+  #Get results with categorical
+  if(!is.null(categorical_variables)){
+    cat_train <- sapply(categorical_variables, function(ct){
+      unique(train_data[[ct]])}, simplify = FALSE)
+    cat_test <- sapply(categorical_variables, function(ct){
+      unique(test_data[[ct]])}, simplify = FALSE)
+    #Get differences
+    cat_diff <- sapply(categorical_variables, function(ct){
+      setdiff(cat_test[[ct]], cat_train[[ct]])
+    }, simplify = FALSE)
+
+    #Append results
+    for(ct in categorical_variables){
+      #Create column
+      df[[ct]] <- NA
+      ct_x <- cat_diff[[ct]]
+      #Get occurrences with these values
+      for(x in ct_x){
+        df[test_data[[ct]] == x, ct] <- x
+      }
+
+      #Update inside_range, if necessary
+      df[!is.na(df[[ct]]), "inside_range"] <- FALSE
+    }
+
+    if(mop_type %in% c("simple", "detailed")){
+      #Compute number of categorical variables outside the range
+      n_cat_out <- rowSums(1 - is.na(as.data.frame(df[,categorical_variables])))
+      df[["n_var_out"]] <- df[["n_var_out"]] + n_cat_out
+    }
+  } #End of !is.null(categorical_variables)
+
+
   return(list("mop_results" = mop_res,
               "mop_records" = df))
 }

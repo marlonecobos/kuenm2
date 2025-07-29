@@ -28,7 +28,7 @@ new_explore_list <- function(summary, exploration_stats,
 
 # prepared_data Class Constructor
 new_prepared_data <- function(species, calibration_data, formula_grid,
-                             part_data, partition_method, n_replicates,
+                             part_data, partition_method, n_partitions,
                              train_proportion, data_xy,
                              continuous_variables,
                              categorical_variables, weights, pca, algorithm) {
@@ -38,7 +38,7 @@ new_prepared_data <- function(species, calibration_data, formula_grid,
     formula_grid = formula_grid,
     part_data = part_data,
     partition_method = partition_method,
-    n_replicates = n_replicates,
+    n_partitions = n_partitions,
     train_proportion = train_proportion,
     data_xy = data_xy,
     continuous_variables = continuous_variables,
@@ -84,7 +84,7 @@ new_fitted_models <- function(species,
                               thresholds,
                               algorithm,
                               partition_method,
-                              n_replicates,
+                              n_partitions,
                               train_proportion){
   data <- list(
     species = species,
@@ -100,7 +100,7 @@ new_fitted_models <- function(species,
     thresholds = thresholds,
     algorithm = algorithm,
     partition_method = partition_method,
-    n_replicates = n_replicates,
+    n_partitions = n_partitions,
     train_proportion = train_proportion
   )
   class(data) <- "fitted_models"

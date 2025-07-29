@@ -118,13 +118,13 @@ empty_replicates <- function(error_considered, n_row, replicates,
 
   # Define column names based on model type
   if (algorithm == "maxnet") {
-    column_names <- c("Replicate",
+    column_names <- c("Partition",
                       paste0("Omission_rate_at_", error_considered),
                       paste0("Mean_AUC_ratio_at_", error_considered),
                       paste0("pval_pROC_at_", error_considered),
                       "AICc", "Parameters", "Is_concave")
   } else if (algorithm == "glm") {
-    column_names <- c("Replicate",
+    column_names <- c("Partition",
                       paste0("Omission_rate_at_", error_considered),
                       paste0("Mean_AUC_ratio_at_", error_considered),
                       paste0("pval_pROC_at_", error_considered),
@@ -138,7 +138,7 @@ empty_replicates <- function(error_considered, n_row, replicates,
   colnames(df_eval_q) <- column_names
 
   # Assign Replicate values and concavity status
-  df_eval_q$Replicate <- replicates
+  df_eval_q$Partition <- replicates
   df_eval_q$Is_concave <- is_c
 
   return(df_eval_q)
@@ -432,7 +432,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
 
 
       df_eval_q <-  if (algorithm == "maxnet") {
-        data.frame(Replicate = i,
+        data.frame(Partition = i,
                    t(om_rate),
                    t(proc_i),
                    AICc = AICc,
@@ -440,7 +440,7 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
                    Is_concave = is_c,
                    row.names = NULL)
       } else {
-        data.frame(Replicate = i,
+        data.frame(Partition = i,
                    t(om_rate),
                    t(proc_i),
                    AIC = m_aic$aic,
@@ -487,7 +487,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
   # write_summary: Write individual summary for each line in formula grid?
   # addsamplestobackground: Add samples to background?
   # weights: Add weights
-  # return_all_results: Return results of replicates
+  # return_all_results: Return results of Partitions
   # algorithm: Type of model, either maxnet or glm
 
   # Check rguments
@@ -604,7 +604,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
       notrain <- -data$part_data[[i]]
       data_i <- data$calibration_data[notrain,]
 
-      # Set weights per replicate
+      # Set weights per Partition
       if (!is.null(weights)) {
         weights_i <- weights[notrain]
       } else {
@@ -674,7 +674,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
 
       # Save metrics in a dataframe
       df_eval <-  if (algorithm == "maxnet") {
-        data.frame(Replicate = i,
+        data.frame(Partition = i,
                    t(om_rate),
                    t(proc_i),
                    AICc = AICc,
@@ -682,7 +682,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
                    Is_concave = is_c,
                    row.names = NULL)
       } else if (algorithm == "glm") {
-        data.frame(Replicate = i,
+        data.frame(Partition = i,
                    t(om_rate),
                    t(proc_i),
                    AIC = m_aic$aic,
@@ -733,14 +733,14 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
 }
 
 
-fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
+fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
                            rep_data = NULL, algorithm = "maxnet") {
 
   # Arguments:
   # x: index of the grid
   # dfgrid: dataframe with the grid
   # cal_res: output of the calibration function
-  # n_replicates: number of replicates
+  # n_partitions: number of partitions
   # rep_data: data splitting (replicated data)
   # algorithm: Type of model, either "maxnet" or "glm"
 
@@ -763,10 +763,10 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
     stop("Argument 'cal_res' must be a 'calibration_results' object.")
   }
 
-  if (!inherits(n_replicates, "numeric")) {
-    stop("Argument 'n_replicates' must be 'numeric'.")
+  if (!inherits(n_partitions, "numeric")) {
+    stop("Argument 'n_partitions' must be 'numeric'.")
   }
-  if (n_replicates > 1) {
+  if (n_partitions > 1) {
     if (!inherits(rep_data, "list")) {
       stop("Argument 'rep_data' must be a 'list'.")
     }
@@ -784,7 +784,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
   # Get the grid information
   grid_x <- dfgrid[x, ]
   m_id <- grid_x$models
-  rep_x <- grid_x$replicates
+  rep_x <- grid_x$partitions
 
   # Get the best model's formula and parameters from calibration results
   best_model <- cal_res$selected_models[cal_res$selected_models$ID == m_id, ]
@@ -794,9 +794,9 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
     best_regm <- best_model$R_multiplier  # Regularization multiplier for maxnet
   }
 
-  # Select data for the replicate, or use the entire calibration data
-  # if n_replicates == 1
-  if (n_replicates > 1) {
+  # Select data for the partition, or use the entire calibration data
+  # if n_partitions == 1
+  if (n_partitions > 1) {
     rep_i <- rep_data[[rep_x]]
     data_x <- cal_res$calibration_data[rep_i, ]
   } else {
@@ -822,9 +822,9 @@ fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
 
     #mod_x$data <- NULL # avoid store redundant info
   }
-  # Assign model ID and replicate number for tracking
+  # Assign model ID and partition number for tracking
   mod_x$checkModel <- m_id
-  mod_x$checkReplicate <- rep_x
+  mod_x$checkPartition <- rep_x
 
   return(mod_x)
 }
@@ -940,7 +940,7 @@ proc <- function(x, formula_grid, data, error_considered = 10,
     notrain <- -data$part_data[[i]]
     data_i <- data$calibration_data[notrain,]
 
-    # Set weights per replicate
+    # Set weights per partition
     if (!is.null(weights)) {
       weights_i <- weights[notrain]
     } else {
@@ -989,11 +989,11 @@ proc <- function(x, formula_grid, data, error_considered = 10,
 
     # Save metrics in a dataframe
     df_proc <-  if (algorithm == "maxnet") {
-      data.frame(Replicate = i,
+      data.frame(Partition = i,
                  t(proc_i),
                  row.names = NULL)
     } else if (algorithm == "glm") {
-      data.frame(Replicate = i,
+      data.frame(Partition = i,
                  t(proc_i),
                  row.names = NULL)
     }
@@ -1003,7 +1003,7 @@ proc <- function(x, formula_grid, data, error_considered = 10,
   proc_df <- do.call("rbind", mods)
 
   #Get means and sd
-  means <- sapply(proc_df[, -1], mean)  # Excluindo a coluna replicate
+  means <- sapply(proc_df[, -1], mean)  # Do not consider Partition column
   sds <- sapply(proc_df[, -1], sd)
 
   #Create new dataframe

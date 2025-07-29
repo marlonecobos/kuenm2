@@ -16,6 +16,20 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Summary
+
+- [Introduction](#introduction)
+- [Standardize Raster File Names for Model Projections](#standardize-raster-file-names-for-model-projections)
+- [Getting variables from CHELSA](#getting-variables-from-chelsa)
+  - [Download variables from LGM](#download-variables-from-lgm)
+  - [Download variables from Current Period](#download-variables-from-current-period)
+  - [Merge and Rename Variables from the Same Scenario](#merge-and-rename-variables-from-the-same-scenario)
+- [Organize and structure variables](#organize-and-structure-variables)
+- [Preparation of data for model projection](#preparation-of-data-for-model-projection)
+- [Project selected models to multiple scenarios](#project-selected-models-to-multiple-scenarios)
+- [Compute changes](#compute-changes)
+
+
 # Introduction
 
 ```{r load packages, results='hide', warning=FALSE}
@@ -384,7 +398,7 @@ But before it, let's import a `fitted_model` provided as data example in the `ku
 d_chelsa <- prepare_data(algorithm = "maxnet", occ = occ_data, x = "x", y = "y",
                          raster_variables = present_chelsa, 
                          species = "Myrcia hatschbachii", partition_method = "kfolds", 
-                         n_replicates = 4,
+                         n_partitions = 4,
                          n_background = 1000,
                          features = c("l", "q", "lq", "lqp"),
                          r_multiplier = c(0.1, 1, 2))
@@ -393,7 +407,7 @@ m_chelsa <- calibration(data = d_chelsa,
                         omission_rate = 10,
                         parallel = TRUE, #Set TRUE to run in parallel
                         ncores = 8)
-fitted_model_chelsa <- fit_selected(m_chelsa, n_replicates = 4)
+fitted_model_chelsa <- fit_selected(m_chelsa, n_partitions = 4)
 #usethis::use_data(fitted_model_chelsa)
 ```
 ```{r import fitted_model_chelsa, include=FALSE}
@@ -456,7 +470,7 @@ dir.create(out_dir_projections, recursive = TRUE)
 p <- project_selected(models = fitted_model_chelsa, 
                       projection_data = pr,
                       out_dir = out_dir_projections, 
-                      write_replicates = TRUE,
+                      write_partitions = TRUE,
                       progress_bar = FALSE, overwrite = T) #Do not print progress bar
 
 #Import mean of each projected scenario
