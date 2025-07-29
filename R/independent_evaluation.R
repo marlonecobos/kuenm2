@@ -73,8 +73,12 @@
 #' and independent data.
 #' - **predictions**: (Only if `return_predictions = TRUE`) A `list` of
 #' `data.frames` containing continuous and binary predictions at the independent
-#' record locations, along with MOP distances and an indicator of whether
-#' environmental conditions at each location fall within the calibration range.
+#' record locations, along with MOP distances, an indicator of whether
+#' environmental conditions at each location fall within the calibration range,
+#' and the identity of the variables that have lower and higher values than the
+#' calibration range. If the `fitted_models` object includes categorical
+#' variables, the returned `data.frame` will also contain columns indicating
+#' which values in `new_data` were not present in the calibration data.
 #' @examples
 #' # Example with maxnet
 #' # Import example of fitted_models (output of fit_selected())
@@ -311,8 +315,8 @@ independent_evaluation <- function(fitted_models, new_data,
   res <- do.call(rbind, res)
 
   if(perform_mop){
-    mop_res <- mop_with_records(calibration_data = bg_data,
-                                new_data = new_data,
+    mop_res <- mop_with_records(train_data = bg_data,
+                                test_data = new_data,
                                 variables = v,
                                 categorical_variables = fitted_models$categorical_variables,
                                 mop_type = mop_type,
