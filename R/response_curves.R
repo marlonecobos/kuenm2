@@ -6,8 +6,8 @@
 #'
 #' @usage
 #' response_curve(models, variable, modelID = NULL, n = 100,
-#'                by_replicates = FALSE, data = NULL, new_data = NULL,
-#'                averages_from = "pr_bg", extrapolate = TRUE,
+#'                show_variability = FALSE, show_lines = FALSE, data = NULL,
+#'                new_data = NULL, averages_from = "pr_bg", extrapolate = TRUE,
 #'                extrapolation_factor = 0.1, add_points = FALSE, p_col = NULL,
 #'                l_limit = NULL, u_limit = NULL,
 #'                xlab = NULL, ylab = "Suitability",
@@ -19,10 +19,16 @@
 #' @param data data.frame or matrix of data used in the model calibration step.
 #' Default = NULL.
 #' @param modelID (character) vector of ModelID(s) to be considered in the
-#' models object. By default all models are included.Default = NULL.
+#' models object. By default all models are included. Default = NULL.
 #' @param n (numeric) an integer guiding the number of breaks. Default = 100
-#' @param by_replicates (logical) whether use replicates or full_model to
-#' estimate the model's response curve. Default = FALSE.
+#' @param show_variability (logical) if `modelID` is defined, shows variability
+#' in response curves considering replicates. If `modelID` is not defined, the
+#' default, FALSE, always shows variability from multiple models if present in
+#' `models`.
+#' @param show_lines (logical) whether to show variability by plotting lines for
+#' all models or replicates. The default = FALSE, uses a GAM to characterize a
+#' median trend and variation among modes or replicates. Ignored if
+#' `show_variability` = FALSE.
 #' @param new_data a `SpatRaster`, data.frame, or  matrix of variables
 #' representing the range of variable values in an area of interest.
 #' Default = NULL. It must be defined in case the model entered does not
@@ -51,10 +57,11 @@
 #' @param col (character) color for lines. Default = "darkblue".
 #' @param col (character) color for lines. Default = "darkblue".
 #' @param add_points (logical) if \code{TRUE}, adds the original observed
-#'   points (0/1) to the plot. Default = \code{FALSE}.
+#' points (0/1) to the plot. This also sets `ylim = c(0, 1)`, unless these
+#' limits are defined as part of `...`. Default = \code{FALSE}.
 #' @param p_col (character) color for the observed points when
-#'   \code{add_points = TRUE}. Any valid R color name or hexadecimal code.
-#'   Default = "black".
+#' \code{add_points = TRUE}. Any valid R color name or hexadecimal code.
+#' Default = "black".
 #' @param ... additional arguments passed to \code{\link[graphics]{plot}}.
 #'
 #' @details
@@ -87,10 +94,17 @@
 #' data(fitted_model_maxnet, package = "kuenm2")
 #'
 #' #Response curves
-#' response_curve(models = fitted_model_maxnet,
-#'                variable = "bio_1", by_replicates = TRUE)
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
-#'                modelID = "Model_192", by_replicates = TRUE)
+#'                show_variability = TRUE)
+#' response_curve(models = fitted_model_maxnet, variable = "bio_1",
+#'                show_variability = TRUE, add_points = TRUE)
+#' response_curve(models = fitted_model_maxnet, variable = "bio_1",
+#'                show_variability = TRUE, show_lines = TRUE)
+#' response_curve(models = fitted_model_maxnet, variable = "bio_1",
+#'                modelID = "Model_192", show_variability = TRUE)
+#' response_curve(models = fitted_model_maxnet, variable = "bio_1",
+#'                modelID = "Model_192", show_variability = TRUE,
+#'                show_lines = TRUE)
 #'
 #' # Example with GLM
 #' # Import example of fitted_models (output of fit_selected())
@@ -98,13 +112,13 @@
 #'
 #' #Response curves
 #' response_curve(models = fitted_model_glm,
-#'                variable = "bio_1", by_replicates = TRUE)
+#'                variable = "bio_1", show_variability = TRUE)
 #' response_curve(models = fitted_model_glm, variable = "bio_1",
-#'                modelID = "Model_85", by_replicates = TRUE)
+#'                modelID = "Model_85", show_variability = TRUE)
 
 response_curve <- function(models, variable, modelID = NULL, n = 100,
-                           by_replicates = FALSE, data = NULL,
-                           new_data = NULL, averages_from = "pr_bg",
+                           show_variability = FALSE, show_lines = FALSE,
+                           data = NULL, new_data = NULL, averages_from = "pr_bg",
                            extrapolate = TRUE, extrapolation_factor = 0.1,
                            add_points = FALSE, p_col = NULL,
                            l_limit = NULL, u_limit = NULL,
@@ -156,7 +170,7 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
 
 
 
-  # if data is not defined it is extrated from the models kuenm2 object
+  # if data is not defined it is extracted from the models kuenm2 object
   if (is.null(data)) {
     data <- models$calibration_data
   }
@@ -165,32 +179,15 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
   if (!is.null(modelID)) {
 
     if (!modelID %in% names(models[["Models"]])) {
-      stop("'ModelID' is not correct, check the following: [",
-           paste(names(models[["Models"]]), collapse = ", "),
-           "]")
+      stop("'ModelID' is not correct, check the following: ",
+           paste(names(models[["Models"]]), collapse = ", "))
     }
 
     # Handling replicates or the full model
-    if (by_replicates) {
+    lmods <- length(models[["Models"]][[modelID]])
+    if (show_variability & lmods > 1) {
       model_list <- models[["Models"]][[modelID]]
       model_list$Full_model <- NULL
-
-      # Check if the variable is present in any of the replicates
-      coefs <- if (inherits(model_list[[1]], "glmnet")) {
-        names(model_list[[1]]$betas)
-      } else if (inherits(model_list[[1]], "glm")) {
-        names(coef(model_list[[1]])[-1])
-      }
-
-      c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
-      c2 <- any(grepl(paste0(variable, ":"), coefs))
-      c3 <- any(grepl(paste0(":", variable,"$"), coefs))
-      c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T)
-
-
-      if (any(c1, c2, c3, c4) == FALSE) {
-        stop("Defined 'variable' is not present in the models model.")
-      }
     } else {
       model_list <- models[["Models"]][[modelID]]["Full_model"]
     }
@@ -200,11 +197,11 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
   }
 
   # Response curve for all selected models
-  response_curve_consmx(model_list, data = data, variable = variable, n = n,
+  response_curve_consmx(model_list, variable = variable, data = data,
+                        show_lines = show_lines, n = n,
                         new_data = new_data, extrapolate = extrapolate,
                         extrapolation_factor = extrapolation_factor,
-                        xlab = xlab, ylab = ylab,
-                        col = col,
+                        xlab = xlab, ylab = ylab, col = col,
                         categorical_variables = models$categorical_variables,
                         averages_from = averages_from,
                         l_limit = l_limit, u_limit = u_limit,
@@ -215,7 +212,9 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
 ### Helpers functions for response curves
 
 # Consensus response curve
-response_curve_consmx <- function(model_list, variable, data, n = 100,
+response_curve_consmx <- function(model_list, variable, data,
+                                  show_lines = FALSE,
+                                  n = 100,
                                   extrapolate = FALSE,
                                   extrapolation_factor = 0.11,
                                   new_data = NULL,
@@ -224,7 +223,6 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                                   averages_from = "pr_bg",
                                   l_limit = NULL,
                                   u_limit = NULL,
-                                  ylim = NULL,
                                   add_points = FALSE, p_col = NULL,
                                   ...) {
 
@@ -244,7 +242,7 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
   }
 
 
-  if (length(model_list) == 1 ) {
+  if (length(model_list) == 1) {
     model <- model_list[[1]]
 
     # Handling glmnet and glm models differently
@@ -257,11 +255,11 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
     c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs) # check linear or quadratic term
     c2 <- any(grepl(paste0(variable, ":"), coefs))                   # check product terms 1st position
     c3 <- any(grepl(paste0(":", variable,"$"), coefs))               # check product terms 2nd position
-    c4 <- any(grepl(paste0("categorical(", variable, "):"), coefs),fixed = T) # check categorical variables
+    c4 <- any(grepl(paste0("categorical(", variable, ")"), coefs, fixed = TRUE)) # check categorical variables
 
 
     if (any(c1, c2, c3, c4) == FALSE) {
-      stop("Defined 'variable' is not present in the models model.")
+      stop("Defined 'variable' is not present in the model(s).")
     }
 
     response_out <- response(model = model_list[[1]], data = data,
@@ -273,10 +271,8 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                              averages_from = averages_from,
                              l_limit = l_limit, u_limit = u_limit)
 
-
+    # Plot response for categorical variable for a single model
     if (!is.null(categorical_variables) && variable %in% categorical_variables) {
-      # Plot response for categorical variable for a single model
-
       x <- response_out[, variable]
       y <- c(response_out$predicted)
 
@@ -287,7 +283,6 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
         ylab <- "Suitability"
       }
 
-
       # Create a list of arguments to pass to the plot function
       plotcurve_args <- list(height = y, names.arg = x, col = "lightblue",
                              xlab= xlab, ylab = ylab, ...)
@@ -295,10 +290,8 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       # plot using do.call()
       do.call(barplot, plotcurve_args)
 
-
     } else {
       # Plot response for continuous variable for a single model
-
       limits <- range(data[, variable])
 
       ## Plotting curve
@@ -308,30 +301,31 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       if (is.null(ylab)) {
         ylab <- "Suitability"
       }
-      if (add_points){
-        ylim = c(0,1)
-      }
-      if (is.null(p_col)){
-        p_col <- adjustcolor("black", alpha.f = 0.5)
-      }
 
       plotcurve_args <- list(x = response_out[, variable],
                              y = response_out$predicted,
                              type = "l", xlab= xlab, ylab = ylab,
-                             col = col, ylim = ylim, ...)
+                             col = col, ...)
+
+      if (add_points){
+        if (is.null(p_col)){
+          p_col <- adjustcolor("black", alpha.f = 0.5)
+        }
+
+        if (!"ylim" %in% names(plotcurve_args)) {
+          plotcurve_args <- c(plotcurve_args, list(ylim = c(0, 1)))
+        }
+      }
+      #print(plotcurve_args)
 
       # plot using do.call()
       do.call(plot, plotcurve_args)
 
       abline(v = limits, # It adds the calibration limits
-             col = c("black", "black"),
-             lty = c(2, 2),
-             lwd = c(1, 1)
-      )
+             col = c("black", "black"), lty = c(2, 2), lwd = c(1, 1))
+
       if (add_points) { # Add points to the plot
-        x_obs <- data[, variable]
-        y_obs <- data$pr_bg
-        points(x_obs,  y_obs, bg = p_col, pch = 21, cex = 0.6)
+        points(data[, c(variable, "pr_bg")], bg = p_col, pch = 21, cex = 0.6)
       }
     }
 
@@ -346,14 +340,16 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       } else if (inherits(x, "glm")) {
         names(coef(x)[-1])
       }
-      c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
-      c2 <- any(grepl(paste0("^", variable, ":"), coefs))
-      c3 <- any(grepl(paste0(":", variable, "$"), coefs))
-      c4 <- any(grepl(paste0("^categorical\\(", variable, "\\)"), coefs))
+
+      c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs) # check linear or quadratic term
+      c2 <- any(grepl(paste0(variable, ":"), coefs))                   # check product terms 1st position
+      c3 <- any(grepl(paste0(":", variable,"$"), coefs))               # check product terms 2nd position
+      c4 <- any(grepl(paste0("categorical(", variable, ")"), coefs, fixed = TRUE)) # check categorical variables
 
       if (any(c1, c2, c3, c4)) {
 
-        out <- response(x, data, variable, new_data = new_data,
+        out <- response(x, data = data, variable = variable,
+                        new_data = new_data,
                         extrapolate = extrapolate,
                         extrapolation_factor = extrapolation_factor,
                         categorical_variables = categorical_variables,
@@ -366,12 +362,19 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       }
     })
 
+    if (show_lines) {
+      response_out0 <- response_out
+    }
+
+    ## summary of responses
     response_out <- do.call(rbind, response_out)
 
+    if (all(sapply(response_out, is.null))) {
+      stop("Defined 'variable' is not present in the model(s).")
+    }
 
     if (!is.null(categorical_variables) && variable %in% categorical_variables) {
       # Plot response for categorical variable for multiple models
-
       # Function to calculate mean and standard error
       calc_stats <- function(x) {
         n <- length(x)  # Number of observations
@@ -410,28 +413,12 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
                          lwd = 1.5)
 
       do.call(arrows, error_args)
-
-
     } else {
       # Plot response for continuous variable for multiple models
-
       limits <- range(data[, variable])
 
       x <- response_out[, variable]
       y <- response_out$predicted
-
-      # Fit GAM model
-      fitting <- mgcv::gam(y ~ s(x, bs = "cs"))
-
-      # Generate predicted values and standard error.
-      x_seq <- seq(min(x), max(x), length.out = 100)
-      pred <- predict(fitting, newdata = data.frame(x = x_seq), se = T)
-
-      # Extract predicted values, confidence intervals (95%), and standard errors
-      y_pred <- pred$fit
-      lower_ci <- y_pred - 1.96 * pred$se.fit
-      upper_ci <- y_pred + 1.96 * pred$se.fit
-
 
       ## Plotting curve
       if (is.null(xlab)) {
@@ -440,36 +427,68 @@ response_curve_consmx <- function(model_list, variable, data, n = 100,
       if (is.null(ylab)) {
         ylab <- "Suitability"
       }
-      if (add_points){
-        ylim = c(0,1)
-      }
-      if (is.null(p_col)){
-        p_col <- adjustcolor("black", alpha.f = 0.5)
-      }
 
       # Create a list of arguments to pass to the plot function
       plotcurve_args <- list(x = x, y = y, type = "n", xlab= xlab, ylab = ylab,
-                             ylim = ylim, ...)
+                             ...)
 
-      # plot using do.call()
-      do.call(plot, plotcurve_args)
+      if (add_points){
+        if (is.null(p_col)){
+          p_col <- adjustcolor("black", alpha.f = 0.5)
+        }
 
-      # Create shading interval using polygon
-      x_polygon <- c(x_seq, rev(x_seq))
-      y_polygon <- c(lower_ci, rev(upper_ci))
-      polygon(x_polygon, y_polygon, col = "lightgrey", border = NA)
+        if (!"ylim" %in% names(plotcurve_args)) {
+          plotcurve_args <- c(plotcurve_args, list(ylim = c(0, 1)))
+        }
+      }
+      #print(plotcurve_args)
 
-      # Add the regression curve
-      lines(x_seq, y_pred, col = col)
+      # getting basic line plottinf arguments
+      ltys <- plotcurve_args$lty
+      lwds <- plotcurve_args$lwd
+
+      if (show_lines) {
+        # plot using do.call()
+        do.call(plot, plotcurve_args)
+
+        # adding lines
+        col <- adjustcolor(col, alpha.f = 0.5)
+        for (i in response_out0) {
+          lines(i[, variable], i[, "predicted"], col = col, lty = ltys,
+                lwd = lwds)
+        }
+
+      } else {
+        # Fit GAM model
+        fitting <- mgcv::gam(y ~ s(x, bs = "cs"))
+
+        # Generate predicted values and standard error.
+        x_seq <- seq(min(x), max(x), length.out = 100)
+        pred <- predict(fitting, newdata = data.frame(x = x_seq), se = T)
+
+        # Extract predicted values, confidence intervals (95%), and standard errors
+        y_pred <- pred$fit
+        lower_ci <- y_pred - 1.96 * pred$se.fit
+        upper_ci <- y_pred + 1.96 * pred$se.fit
+
+        # plot using do.call()
+        do.call(plot, plotcurve_args)
+
+        # Create shading interval using polygon
+        x_polygon <- c(x_seq, rev(x_seq))
+        y_polygon <- c(lower_ci, rev(upper_ci))
+        polygon(x_polygon, y_polygon, col = "lightgrey", border = NA)
+
+        # adding GAM line
+        lines(x_seq, y_pred, col = col, lty = ltys, lwd = lwds)
+      }
 
       # It adds the calibration limits
       abline(v = limits, col = c("black", "black"), lty = c(2, 2),
              lwd = c(1, 1))
 
       if (add_points) { # Add points to the plot
-        x_obs <- data[, variable]
-        y_obs <- data$pr_bg
-        points(x_obs,  y_obs, bg = p_col, pch = 21, cex = 0.6)
+        points(data[, c(variable, "pr_bg")], bg = p_col, pch = 21, cex = 0.6)
       }
     }
   }

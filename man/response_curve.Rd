@@ -5,8 +5,8 @@
 \title{Variable response curves for fitted models}
 \usage{
 response_curve(models, variable, modelID = NULL, n = 100,
-               by_replicates = FALSE, data = NULL, new_data = NULL,
-               averages_from = "pr_bg", extrapolate = TRUE,
+               show_variability = FALSE, show_lines = FALSE, data = NULL,
+               new_data = NULL, averages_from = "pr_bg", extrapolate = TRUE,
                extrapolation_factor = 0.1, add_points = FALSE, p_col = NULL,
                l_limit = NULL, u_limit = NULL,
                xlab = NULL, ylab = "Suitability",
@@ -19,12 +19,19 @@ response_curve(models, variable, modelID = NULL, n = 100,
 \item{variable}{(character) name of the variable to be plotted.}
 
 \item{modelID}{(character) vector of ModelID(s) to be considered in the
-models object. By default all models are included.Default = NULL.}
+models object. By default all models are included. Default = NULL.}
 
 \item{n}{(numeric) an integer guiding the number of breaks. Default = 100}
 
-\item{by_replicates}{(logical) whether use replicates or full_model to
-estimate the model's response curve. Default = FALSE.}
+\item{show_variability}{(logical) if \code{modelID} is defined, shows variability
+in response curves considering replicates. If \code{modelID} is not defined, the
+default, FALSE, always shows variability from multiple models if present in
+\code{models}.}
+
+\item{show_lines}{(logical) whether to show variability by plotting lines for
+all models or replicates. The default = FALSE, uses a GAM to characterize a
+median trend and variation among modes or replicates. Ignored if
+\code{show_variability} = FALSE.}
 
 \item{data}{data.frame or matrix of data used in the model calibration step.
 Default = NULL.}
@@ -48,7 +55,8 @@ extrapolation range. Larger values allow broader extrapolation beyond the
 observed data range. Default is 0.1.}
 
 \item{add_points}{(logical) if \code{TRUE}, adds the original observed
-points (0/1) to the plot. Default = \code{FALSE}.}
+points (0/1) to the plot. This also sets \code{ylim = c(0, 1)}, unless these
+limits are defined as part of \code{...}. Default = \code{FALSE}.}
 
 \item{p_col}{(character) color for the observed points when
 \code{add_points = TRUE}. Any valid R color name or hexadecimal code.
@@ -95,10 +103,17 @@ variability across models (if multiple models are included).
 data(fitted_model_maxnet, package = "kuenm2")
 
 #Response curves
-response_curve(models = fitted_model_maxnet,
-               variable = "bio_1", by_replicates = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
-               modelID = "Model_192", by_replicates = TRUE)
+               show_variability = TRUE)
+response_curve(models = fitted_model_maxnet, variable = "bio_1",
+               show_variability = TRUE, add_points = TRUE)
+response_curve(models = fitted_model_maxnet, variable = "bio_1",
+               show_variability = TRUE, show_lines = TRUE)
+response_curve(models = fitted_model_maxnet, variable = "bio_1",
+               modelID = "Model_192", show_variability = TRUE)
+response_curve(models = fitted_model_maxnet, variable = "bio_1",
+               modelID = "Model_192", show_variability = TRUE,
+               show_lines = TRUE)
 
 # Example with GLM
 # Import example of fitted_models (output of fit_selected())
@@ -106,9 +121,9 @@ data(fitted_model_glm, package = "kuenm2")
 
 #Response curves
 response_curve(models = fitted_model_glm,
-               variable = "bio_1", by_replicates = TRUE)
+               variable = "bio_1", show_variability = TRUE)
 response_curve(models = fitted_model_glm, variable = "bio_1",
-               modelID = "Model_85", by_replicates = TRUE)
+               modelID = "Model_85", show_variability = TRUE)
 }
 \seealso{
 \code{\link[=bivariate_response]{bivariate_response()}}
