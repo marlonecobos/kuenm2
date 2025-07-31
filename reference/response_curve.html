@@ -60,8 +60,8 @@ multiple models can be plotted.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">response_curve</span><span class="op">(</span><span class="va">models</span>, <span class="va">variable</span>, modelID <span class="op">=</span> <span class="cn">NULL</span>, n <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>               by_replicates <span class="op">=</span> <span class="cn">FALSE</span>, data <span class="op">=</span> <span class="cn">NULL</span>, new_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>               averages_from <span class="op">=</span> <span class="st">"pr_bg"</span>, extrapolate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>               show_variability <span class="op">=</span> <span class="cn">FALSE</span>, show_lines <span class="op">=</span> <span class="cn">FALSE</span>, data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>               new_data <span class="op">=</span> <span class="cn">NULL</span>, averages_from <span class="op">=</span> <span class="st">"pr_bg"</span>, extrapolate <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>               extrapolation_factor <span class="op">=</span> <span class="fl">0.1</span>, add_points <span class="op">=</span> <span class="cn">FALSE</span>, p_col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>               l_limit <span class="op">=</span> <span class="cn">NULL</span>, u_limit <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>               xlab <span class="op">=</span> <span class="cn">NULL</span>, ylab <span class="op">=</span> <span class="st">"Suitability"</span>,</span>
@@ -83,16 +83,25 @@ multiple models can be plotted.</p>
 
 <dt id="arg-modelid">modelID<a class="anchor" aria-label="anchor" href="#arg-modelid"></a></dt>
 <dd><p>(character) vector of ModelID(s) to be considered in the
-models object. By default all models are included.Default = NULL.</p></dd>
+models object. By default all models are included. Default = NULL.</p></dd>
 
 
 <dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
 <dd><p>(numeric) an integer guiding the number of breaks. Default = 100</p></dd>
 
 
-<dt id="arg-by-replicates">by_replicates<a class="anchor" aria-label="anchor" href="#arg-by-replicates"></a></dt>
-<dd><p>(logical) whether use replicates or full_model to
-estimate the model's response curve. Default = FALSE.</p></dd>
+<dt id="arg-show-variability">show_variability<a class="anchor" aria-label="anchor" href="#arg-show-variability"></a></dt>
+<dd><p>(logical) if <code>modelID</code> is defined, shows variability
+in response curves considering replicates. If <code>modelID</code> is not defined, the
+default, FALSE, always shows variability from multiple models if present in
+<code>models</code>.</p></dd>
+
+
+<dt id="arg-show-lines">show_lines<a class="anchor" aria-label="anchor" href="#arg-show-lines"></a></dt>
+<dd><p>(logical) whether to show variability by plotting lines for
+all models or replicates. The default = FALSE, uses a GAM to characterize a
+median trend and variation among modes or replicates. Ignored if
+<code>show_variability</code> = FALSE.</p></dd>
 
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
@@ -128,7 +137,8 @@ observed data range. Default is 0.1.</p></dd>
 
 <dt id="arg-add-points">add_points<a class="anchor" aria-label="anchor" href="#arg-add-points"></a></dt>
 <dd><p>(logical) if <code>TRUE</code>, adds the original observed
-points (0/1) to the plot. Default = <code>FALSE</code>.</p></dd>
+points (0/1) to the plot. This also sets <code>ylim = c(0, 1)</code>, unless these
+limits are defined as part of <code>...</code>. Default = <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-p-col">p_col<a class="anchor" aria-label="anchor" href="#arg-p-col"></a></dt>
@@ -193,12 +203,22 @@ variability across models (if multiple models are included).</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">fitted_model_maxnet</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Response curves</span></span></span>
-<span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span></span>
-<span class="r-in"><span>               variable <span class="op">=</span> <span class="st">"bio_1"</span>, by_replicates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span></span>
+<span class="r-in"><span>               show_variability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="response_curve-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span></span>
-<span class="r-in"><span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, by_replicates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>               show_variability <span class="op">=</span> <span class="cn">TRUE</span>, add_points <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="response_curve-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span></span>
+<span class="r-in"><span>               show_variability <span class="op">=</span> <span class="cn">TRUE</span>, show_lines <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="response_curve-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span></span>
+<span class="r-in"><span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, show_variability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="response_curve-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span></span>
+<span class="r-in"><span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, show_variability <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>               show_lines <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="response_curve-5.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example with GLM</span></span></span>
 <span class="r-in"><span><span class="co"># Import example of fitted_models (output of fit_selected())</span></span></span>
@@ -206,11 +226,11 @@ variability across models (if multiple models are included).</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">#Response curves</span></span></span>
 <span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_glm</span>,</span></span>
-<span class="r-in"><span>               variable <span class="op">=</span> <span class="st">"bio_1"</span>, by_replicates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="response_curve-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span>               variable <span class="op">=</span> <span class="st">"bio_1"</span>, show_variability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="response_curve-6.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">response_curve</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_glm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span></span>
-<span class="r-in"><span>               modelID <span class="op">=</span> <span class="st">"Model_85"</span>, by_replicates <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="response_curve-4.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span>               modelID <span class="op">=</span> <span class="st">"Model_85"</span>, show_variability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="response_curve-7.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

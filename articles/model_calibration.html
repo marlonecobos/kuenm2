@@ -199,6 +199,7 @@ to <code>TRUE</code> and specify the number of cores to utilize; the
 candidate models will be distributed among these cores. To detect the
 number of available cores on your machine, run
 <code><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">parallel::detectCores()</a></code>.</p>
+<p><br></p>
 <div class="section level3">
 <h3 id="maxnet-models">Maxnet Models<a class="anchor" aria-label="anchor" href="#maxnet-models"></a>
 </h3>
@@ -224,6 +225,7 @@ number of available cores on your machine, run
 <span><span class="co"># Validating pROC of selected models...</span></span>
 <span><span class="co">#   |=====================================================================| 100%</span></span>
 <span><span class="co"># All selected models have significant pROC values.</span></span></code></pre></div>
+<p><br></p>
 <p>The <code><a href="../reference/calibration.html">calibration()</a></code> function returns a
 <code>calibration_results</code> object, a list containing various
 essential pieces of information from the model calibration process. The
@@ -295,6 +297,7 @@ summary of the metrics for the selected models is presented.</p>
 <p>In this example, of the 300 candidate <strong>maxnet</strong> models
 fitted, two was selected based on a significant pROC value, a low
 omission error (&lt;10%), and a low AIC score (&lt;2).</p>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="glm-models">GLM Models<a class="anchor" aria-label="anchor" href="#glm-models"></a>
@@ -340,6 +343,7 @@ achieve different selected models:</p>
 <span><span class="co">#&gt; 85 85 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2)       lq</span></span>
 <span><span class="co">#&gt;    pval_pROC_at_10.mean Omission_rate_at_10.mean dAIC Parameters</span></span>
 <span><span class="co">#&gt; 85                    0                   0.0904    0          6</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="concave-curves">Concave curves<a class="anchor" aria-label="anchor" href="#concave-curves"></a>
@@ -403,6 +407,7 @@ algorithm:</p>
 <span><span class="co"># Validating pROC of selected models...</span></span>
 <span><span class="co">#   |=====================================================================| 100%</span></span>
 <span><span class="co"># All selected models have significant pROC values.</span></span></code></pre></div>
+<p><br></p>
 <p>Note that the process is now divided into two tasks:</p>
 <ul>
 <li><p>Task 1/2: Only candidate models that include quadratic terms are
@@ -516,8 +521,8 @@ the maxnet algoritm:</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.476222 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.511650 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.483262 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.510196 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
@@ -558,8 +563,8 @@ summaries of the model selection process.</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.481129 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.512022 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.479275 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.514819 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
