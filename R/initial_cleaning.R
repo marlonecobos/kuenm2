@@ -353,12 +353,31 @@ filter_decimal_precision <- function(data, x, y, decimal_precision = 0,
 
 
 # helper to get decimal places
-decimal_places <- function(x) {
-  if (missing(x)) {stop("Argument 'x' must be defined.")}
-  if (abs(x - round(x)) > (.Machine$double.eps^0.5)) {
-    nchar(strsplit(sub("0+$", "", as.character(format(x, scientific = FALSE))),
-                   ".", fixed = TRUE)[[1]][[2]])
-  } else {
+#decimal_places <- function(x) {
+#  if (missing(x)) {stop("Argument 'x' must be defined.")}
+#  if (abs(x - round(x)) > (.Machine$double.eps^0.5)) {
+#    nchar(strsplit(sub("0+$", "", as.character(format(x, scientific = FALSE))),
+#                   ".", fixed = TRUE)[[1]][[2]])
+#  } else {
+#    return(0)
+#  }
+#}
+
+
+decimal_places <- function (x) {
+  if (missing(x)) {
+    stop("Argument 'x' must be defined.")
+  }
+
+  # Convert to character using fixed notation
+  x_str <- format(x, scientific = FALSE, trim = TRUE)
+  parts <- strsplit(x_str, ".", fixed = TRUE)[[1]]
+
+  # If there's no decimal point, return 0
+  if (length(parts) < 2) {
     return(0)
   }
+
+  # Return number of characters after the decimal, excluding trailing zeros
+  return(nchar(gsub("0+$", "", parts[2])))
 }
