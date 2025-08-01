@@ -210,10 +210,18 @@ remove_missing <- function(data, columns = NULL, remove_na = TRUE,
   to_remove <- unique(c(nas[, 1], miss[, 1]))
 
   # returning results (metadata?)
-  if (keep_all_columns == TRUE) {
-    return(data[-to_remove, ])
+  if (length(to_remove) >= 1) {
+    if (keep_all_columns == TRUE) {
+      return(data[-to_remove, ])
+    } else {
+      return(data[-to_remove, columns])
+    }
   } else {
-    return(data[-to_remove, columns])
+    if (keep_all_columns == TRUE) {
+      return(data)
+    } else {
+      return(data[, columns])
+    }
   }
 }
 
@@ -335,7 +343,11 @@ filter_decimal_precision <- function(data, x, y, decimal_precision = 0,
                         which(lat_dec < latitude_precision)))
 
   # return results (metadata?)
-  return(data <- data[-to_remove, ])
+  if (length(to_remove) >= 1) {
+    return(data[-to_remove, ])
+  } else {
+    return(data)
+  }
 }
 
 
