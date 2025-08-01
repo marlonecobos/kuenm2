@@ -356,8 +356,8 @@ filter_decimal_precision <- function(data, x, y, decimal_precision = 0,
 decimal_places <- function(x) {
   if (missing(x)) {stop("Argument 'x' must be defined.")}
   if (abs(x - round(x)) > (.Machine$double.eps^0.5)) {
-    nchar(strsplit(sub("0+$", "", as.character(x)), ".",
-                   fixed = TRUE)[[1]][[2]])
+    nchar(strsplit(sub("0+$", "", as.character(format(x, scientific = FALSE))),
+                   ".", fixed = TRUE)[[1]][[2]])
   } else {
     return(0)
   }
