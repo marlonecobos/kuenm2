@@ -159,7 +159,8 @@ plot_explore_calibration <- function(explore_calibration,
     mfrow <- c(ceiling(nl / ceiling(sqrt(nl))), ceiling(sqrt(nl)))
     graphics::par(mfrow = mfrow)
   } else {
-    graphics::par(mfrow = mfrow)}
+    graphics::par(mfrow = mfrow)
+  }
 
   #Loop variables
   for(i in v) {

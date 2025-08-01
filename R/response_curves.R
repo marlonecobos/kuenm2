@@ -5,6 +5,7 @@
 #' multiple models can be plotted.
 #'
 #' @usage
+#' # Single variable response curves
 #' response_curve(models, variable, modelID = NULL, n = 100,
 #'                show_variability = FALSE, show_lines = FALSE, data = NULL,
 #'                new_data = NULL, averages_from = "pr_bg", extrapolate = TRUE,
@@ -45,11 +46,11 @@
 #' observed data range. Default is 0.1.
 #' @param l_limit (numeric) specifies the lower limit for the variable. Default
 #' is \code{NULL}, meaning the lower limit will be calculated based on the
-#' data's minimum value and the \code{extrapolation_factor}
+#' data's minimum value.
 #' (if \code{extrapolation = TRUE}).
 #' @param u_limit (numeric) specifies the upper limit for the variable. Default
 #' is \code{NULL}, meaning the upper limit will be calculated based on the
-#' data's minimum value and the \code{extrapolation_factor}
+#' data's maximum value.
 #' (if \code{extrapolation = TRUE}).
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
 #' name defined in `variable`.
@@ -76,6 +77,8 @@
 #' @return
 #' A plot with the response curve for a `variable`.
 #'
+#' @rdname response_curve
+#'
 #' @export
 #'
 #' @seealso
@@ -94,12 +97,11 @@
 #' data(fitted_model_maxnet, package = "kuenm2")
 #'
 #' #Response curves
+#' response_curve(models = fitted_model_maxnet, variable = "bio_1")
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
-#'                show_variability = TRUE)
+#'                add_points = TRUE)
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
-#'                show_variability = TRUE, add_points = TRUE)
-#' response_curve(models = fitted_model_maxnet, variable = "bio_1",
-#'                show_variability = TRUE, show_lines = TRUE)
+#'                show_lines = TRUE)
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
 #'                modelID = "Model_192", show_variability = TRUE)
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
@@ -111,19 +113,29 @@
 #' data(fitted_model_glm, package = "kuenm2")
 #'
 #' #Response curves
-#' response_curve(models = fitted_model_glm,
-#'                variable = "bio_1", show_variability = TRUE)
+#' response_curve(models = fitted_model_glm, variable = "bio_1")
 #' response_curve(models = fitted_model_glm, variable = "bio_1",
 #'                modelID = "Model_85", show_variability = TRUE)
 
-response_curve <- function(models, variable, modelID = NULL, n = 100,
-                           show_variability = FALSE, show_lines = FALSE,
-                           data = NULL, new_data = NULL, averages_from = "pr_bg",
-                           extrapolate = TRUE, extrapolation_factor = 0.1,
-                           add_points = FALSE, p_col = NULL,
-                           l_limit = NULL, u_limit = NULL,
-                           xlab = NULL, ylab = "Suitability",
-                           col = "darkblue", ...) {
+response_curve <- function(models,
+                           variable,
+                           modelID = NULL,
+                           n = 100,
+                           show_variability = FALSE,
+                           show_lines = FALSE,
+                           data = NULL,
+                           new_data = NULL,
+                           averages_from = "pr_bg",
+                           extrapolate = TRUE,
+                           extrapolation_factor = 0.1,
+                           add_points = FALSE,
+                           p_col = NULL,
+                           l_limit = NULL,
+                           u_limit = NULL,
+                           xlab = NULL,
+                           ylab = "Suitability",
+                           col = "darkblue",
+                           ...) {
 
   # initial tests
   if (missing(models) | missing(variable) ) {
@@ -168,8 +180,6 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
     stop("Argument 'ylab' must be NULL or a 'character'.")
   }
 
-
-
   # if data is not defined it is extracted from the models kuenm2 object
   if (is.null(data)) {
     data <- models$calibration_data
@@ -208,6 +218,119 @@ response_curve <- function(models, variable, modelID = NULL, n = 100,
                         add_points = add_points, p_col = p_col,
                         ...)
 }
+
+
+
+#' @rdname response_curve
+#'
+#' @usage
+#' # Response curves for all variables in all or individual models
+#' all_response_curves(models, modelID = NULL, n = 100, show_variability = FALSE,
+#'                     show_lines = FALSE, data = NULL, new_data = NULL,
+#'                     averages_from = "pr_bg", extrapolate = TRUE,
+#'                     extrapolation_factor = 0.1, add_points = FALSE,
+#'                     p_col = NULL, l_limit = NULL, u_limit = NULL,
+#'                     xlab = NULL, ylab = "Suitability", col = "darkblue",
+#'                     ylim = NULL, mfrow = NULL, ...)
+#'
+#' @param ylim (numeric) vector of length two with limits for the y axis.
+#' Directly used in `all_response_curves`. Default = NULL.
+#' @param mfrow (numeric) a vector specifying the number of rows and columns in
+#' the plot layout, e.g., c(rows, columns). Default is NULL, meaning
+#' the grid will be arranged automatically based on the number of plots.
+#'
+#' @export
+all_response_curves <- function(models,
+                                modelID = NULL,
+                                n = 100,
+                                show_variability = FALSE,
+                                show_lines = FALSE,
+                                data = NULL,
+                                new_data = NULL,
+                                averages_from = "pr_bg",
+                                extrapolate = TRUE,
+                                extrapolation_factor = 0.1,
+                                add_points = FALSE,
+                                p_col = NULL,
+                                l_limit = NULL,
+                                u_limit = NULL,
+                                xlab = NULL,
+                                ylab = "Suitability",
+                                col = "darkblue",
+                                ylim = NULL,
+                                mfrow = NULL,
+                                ...) {
+  if (missing(models)) {
+    stop("Argument 'models' must be defined.")
+  }
+
+  if (!inherits(models, "fitted_models")) {
+    stop("Argument 'models' must be a fitted_models object.")
+  }
+
+  # get all variables to plot
+  ## patterns to remove
+  pattern <- "I\\(|\\^2\\)|:|categorical\\(|\\)|thresholds\\(|hinge\\("
+
+  ## get all variables
+  coefss <- lapply(models$Models, function(x) {
+    unique(gsub(pattern, "",
+                unname(unlist(lapply(x, function(y) {
+                  coefs <- if (inherits(y, "glmnet")) {
+                    names(y$betas)
+                  } else if (inherits(y, "glm")) {
+                    names(coef(y)[-1])
+                  }
+                })))))
+  })
+
+  # plot arrangement
+  ## par settings
+  opar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(opar))
+
+  ## true variables for plot
+  if (is.null(modelID)) {
+    vars <- unique(unlist((coefss)))
+  } else {
+    if (!modelID %in% names(models[["Models"]])) {
+      stop("'ModelID' is not correct, check the following: ",
+           paste(names(models[["Models"]]), collapse = ", "))
+    }
+
+    vars <- coefss[[modelID]]
+  }
+
+  ## arrangement
+  if (is.null(mfrow)) { #If NULL, arrange automatically
+    nl <- length(vars)
+    mfrow <- c(ceiling(nl / ceiling(sqrt(nl))), ceiling(sqrt(nl)))
+    graphics::par(mfrow = mfrow)
+  } else {
+    graphics::par(mfrow = mfrow)
+  }
+
+  # if adding points
+  if (add_points) {
+    if (is.null(ylim)) {
+      ylim <- c(0, 1)
+    }
+  }
+
+  # plotting in loop
+  for (i in vars) {
+    response_curve(models, variable = i, modelID = modelID, n = n,
+                   show_variability = show_variability, show_lines = show_lines,
+                   data = data, new_data = new_data, averages_from = averages_from,
+                   extrapolate = extrapolate,
+                   extrapolation_factor = extrapolation_factor,
+                   add_points = add_points, p_col = p_col,
+                   l_limit = l_limit, u_limit = u_limit,
+                   xlab = xlab, ylab = ylab,
+                   col = col, ylim = ylim, ...)
+  }
+}
+
 
 ### Helpers functions for response curves
 

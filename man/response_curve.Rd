@@ -2,8 +2,10 @@
 % Please edit documentation in R/response_curves.R
 \name{response_curve}
 \alias{response_curve}
+\alias{all_response_curves}
 \title{Variable response curves for fitted models}
 \usage{
+# Single variable response curves
 response_curve(models, variable, modelID = NULL, n = 100,
                show_variability = FALSE, show_lines = FALSE, data = NULL,
                new_data = NULL, averages_from = "pr_bg", extrapolate = TRUE,
@@ -11,6 +13,15 @@ response_curve(models, variable, modelID = NULL, n = 100,
                l_limit = NULL, u_limit = NULL,
                xlab = NULL, ylab = "Suitability",
                col = "darkblue", ...)
+
+# Response curves for all variables in all or individual models
+all_response_curves(models, modelID = NULL, n = 100, show_variability = FALSE,
+                    show_lines = FALSE, data = NULL, new_data = NULL,
+                    averages_from = "pr_bg", extrapolate = TRUE,
+                    extrapolation_factor = 0.1, add_points = FALSE,
+                    p_col = NULL, l_limit = NULL, u_limit = NULL,
+                    xlab = NULL, ylab = "Suitability", col = "darkblue",
+                    ylim = NULL, mfrow = NULL, ...)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
@@ -80,6 +91,13 @@ name defined in \code{variable}.}
 \item{col}{(character) color for lines. Default = "darkblue".}
 
 \item{...}{additional arguments passed to \code{\link[graphics]{plot}}.}
+
+\item{ylim}{(numeric) vector of length two with limits for the y axis.
+Directly used in \code{all_response_curves}. Default = NULL.}
+
+\item{mfrow}{(numeric) a vector specifying the number of rows and columns in
+the plot layout, e.g., c(rows, columns). Default is NULL, meaning
+the grid will be arranged automatically based on the number of plots.}
 }
 \value{
 A plot with the response curve for a \code{variable}.
@@ -103,12 +121,11 @@ variability across models (if multiple models are included).
 data(fitted_model_maxnet, package = "kuenm2")
 
 #Response curves
+response_curve(models = fitted_model_maxnet, variable = "bio_1")
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
-               show_variability = TRUE)
+               add_points = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
-               show_variability = TRUE, add_points = TRUE)
-response_curve(models = fitted_model_maxnet, variable = "bio_1",
-               show_variability = TRUE, show_lines = TRUE)
+               show_lines = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
                modelID = "Model_192", show_variability = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
@@ -120,8 +137,7 @@ response_curve(models = fitted_model_maxnet, variable = "bio_1",
 data(fitted_model_glm, package = "kuenm2")
 
 #Response curves
-response_curve(models = fitted_model_glm,
-               variable = "bio_1", show_variability = TRUE)
+response_curve(models = fitted_model_glm, variable = "bio_1")
 response_curve(models = fitted_model_glm, variable = "bio_1",
                modelID = "Model_85", show_variability = TRUE)
 }
