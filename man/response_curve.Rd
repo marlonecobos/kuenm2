@@ -75,12 +75,12 @@ Default = "black".}
 
 \item{l_limit}{(numeric) specifies the lower limit for the variable. Default
 is \code{NULL}, meaning the lower limit will be calculated based on the
-data's minimum value and the \code{extrapolation_factor}
+data's minimum value.
 (if \code{extrapolation = TRUE}).}
 
 \item{u_limit}{(numeric) specifies the upper limit for the variable. Default
 is \code{NULL}, meaning the upper limit will be calculated based on the
-data's minimum value and the \code{extrapolation_factor}
+data's maximum value.
 (if \code{extrapolation = TRUE}).}
 
 \item{xlab}{(character) a label for the x axis. The default, NULL, uses the
