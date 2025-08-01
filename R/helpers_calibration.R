@@ -763,7 +763,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
     stop("Argument 'cal_res' must be a 'calibration_results' object.")
   }
 
-  if (!inherits(n_partitions, "numeric")) {
+  if (!is.numeric(n_partitions)) {
     stop("Argument 'n_partitions' must be 'numeric'.")
   }
   if (n_partitions > 1) {
@@ -798,7 +798,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
   # if n_partitions == 1
   if (n_partitions > 1) {
     rep_i <- rep_data[[rep_x]]
-    data_x <- cal_res$calibration_data[rep_i, ]
+    data_x <- cal_res$calibration_data[-rep_i, ]
   } else {
     data_x <- cal_res$calibration_data
   }
