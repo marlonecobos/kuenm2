@@ -1,7 +1,7 @@
 #' Variable response curves for fitted models
 #'
 #' @description
-#' A view of variable responses in fitted models. Responses based on single or
+#' Plot variable responses for fitted models. Responses based on single or
 #' multiple models can be plotted.
 #'
 #' @usage
@@ -10,18 +10,18 @@
 #'                show_variability = FALSE, show_lines = FALSE, data = NULL,
 #'                new_data = NULL, averages_from = "pr_bg", extrapolate = TRUE,
 #'                extrapolation_factor = 0.1, add_points = FALSE, p_col = NULL,
-#'                l_limit = NULL, u_limit = NULL,
-#'                xlab = NULL, ylab = "Suitability",
-#'                col = "darkblue", ...)
+#'                l_limit = NULL, u_limit = NULL, xlab = NULL,
+#'                ylab = "Suitability", col = "darkblue", ...)
 #
 #' @param models an object of class `fitted_models` returned by the
 #' [fit_selected()] function.
 #' @param variable (character) name of the variable to be plotted.
 #' @param data data.frame or matrix of data used in the model calibration step.
-#' Default = NULL.
-#' @param modelID (character) vector of ModelID(s) to be considered in the
-#' models object. By default all models are included. Default = NULL.
-#' @param n (numeric) an integer guiding the number of breaks. Default = 100
+#' The default, NULL, uses data stored in `models`.
+#' @param modelID (character) ModelID(s) to be considered. By default all IDs
+#' in `models` are included. Default = NULL.
+#' @param n (numeric) an integer guiding the number of breaks to produce the
+#' curve. Default = 100.
 #' @param show_variability (logical) if `modelID` is defined, shows variability
 #' in response curves considering replicates. If `modelID` is not defined, the
 #' default, FALSE, always shows variability from multiple models if present in
@@ -29,33 +29,28 @@
 #' @param show_lines (logical) whether to show variability by plotting lines for
 #' all models or replicates. The default = FALSE, uses a GAM to characterize a
 #' median trend and variation among modes or replicates. Ignored if
-#' `show_variability` = FALSE.
-#' @param new_data a `SpatRaster`, data.frame, or  matrix of variables
-#' representing the range of variable values in an area of interest.
-#' Default = NULL. It must be defined in case the model entered does not
-#' explicitly include a data component.
+#' `show_variability` = FALSE and `modelID` is defined.
+#' @param new_data a `SpatRaster`, data.frame, or  matrix with values for
+#' variables representing an area or scenario of interest for model projection.
+#' Default = NULL.
 #' @param averages_from (character) specifies how the averages or modes of the
-#' variables are calculated. Available options are "pr" (to calculate averages
-#' from the presence localities) or "pr_bg" (to use the combined set of presence
-#' and background localities). Default is "pr_bg". See details.
-#' @param extrapolate (logical) whether to allow extrapolation to study the
-#' behavior of the response outside the calibration limits. Ignored if
-#' `new_data` is defined. Default = TRUE.
-#' @param extrapolation_factor (numeric) a multiplier used to calculate the
-#' extrapolation range. Larger values allow broader extrapolation beyond the
-#' observed data range. Default is 0.1.
-#' @param l_limit (numeric) specifies the lower limit for the variable. Default
-#' is \code{NULL}, meaning the lower limit will be calculated based on the
-#' data's minimum value.
+#' other variables are calculated when producing responses for the variable of
+#' interest. Options are "pr" (from the presences) or "pr_bg" (from presences
+#' and background). Default is "pr_bg". See details.
+#' @param extrapolate (logical) whether to allow extrapolation of the response
+#' outside training conditions. Ignored if `new_data` is defined. Default = TRUE.
+#' @param extrapolation_factor (numeric) a value used to calculate how much to
+#' expand the training region for extrapolation. Larger values produce
+#' extrapolation farther from training limits. Default = 0.1.
+#' @param l_limit (numeric) directly specifies the lower limit for the variable.
+#' Default = NULL, meaning the lower limit will be calculated from existing data.
 #' (if \code{extrapolation = TRUE}).
-#' @param u_limit (numeric) specifies the upper limit for the variable. Default
-#' is \code{NULL}, meaning the upper limit will be calculated based on the
-#' data's maximum value.
+#' @param u_limit (numeric) directly specifies the upper limit for the variable.
+#' Default = NULL, meaning the aupper limit will be calculated from existing data.
 #' (if \code{extrapolation = TRUE}).
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
 #' name defined in `variable`.
 #' @param ylab (character) a label for the y axis. Default = "Suitability".
-#' @param col (character) color for lines. Default = "darkblue".
 #' @param col (character) color for lines. Default = "darkblue".
 #' @param add_points (logical) if \code{TRUE}, adds the original observed
 #' points (0/1) to the plot. This also sets `ylim = c(0, 1)`, unless these
@@ -66,23 +61,26 @@
 #' @param ... additional arguments passed to \code{\link[graphics]{plot}}.
 #'
 #' @details
-#' The response curves are generated with all other variables set to their mean
-#' values (or mode for categorical variables), calculated either from the
-#' presence localities (if averages_from = "pr") or from the combined set of
-#' presence and background localities (if averages_from = "pr_bg").
+#' The response curve for a variable of interest is generated with all other
+#' variables set to their mean values (or mode for categorical variables),
+#' calculated either from the presence records (if averages_from = "pr") or
+#' the combined set of presence and background records (if averages_from =
+#' "pr_bg").
 #'
 #' For categorical variables, a bar plot is generated with error bars showing
 #' variability across models (if multiple models are included).
 #'
 #' @return
-#' A plot with the response curve for a `variable`.
+#' For response_curve(), a plot with the response curve for a `variable`. For
+#' all_response_curves(), a multipanel plot with response curves fro all
+#' variables in `models`.
 #'
 #' @rdname response_curve
 #'
 #' @export
 #'
 #' @seealso
-#' [bivariate_response()]
+#' [bivariate_response()], [partition_response_cruves()]
 #'
 #' @importFrom stats predict coef approx binomial complete.cases formula
 #' @importFrom stats model.matrix predict.glm sd
@@ -96,26 +94,19 @@
 #' # Import example of fitted_models (output of fit_selected())
 #' data(fitted_model_maxnet, package = "kuenm2")
 #'
-#' #Response curves
+#' # Response curves for one variable at a time
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1")
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
 #'                add_points = TRUE)
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
 #'                show_lines = TRUE)
+#'
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
 #'                modelID = "Model_192", show_variability = TRUE)
 #' response_curve(models = fitted_model_maxnet, variable = "bio_1",
 #'                modelID = "Model_192", show_variability = TRUE,
 #'                show_lines = TRUE)
 #'
-#' # Example with GLM
-#' # Import example of fitted_models (output of fit_selected())
-#' data(fitted_model_glm, package = "kuenm2")
-#'
-#' #Response curves
-#' response_curve(models = fitted_model_glm, variable = "bio_1")
-#' response_curve(models = fitted_model_glm, variable = "bio_1",
-#'                modelID = "Model_85", show_variability = TRUE)
 
 response_curve <- function(models,
                            variable,
@@ -240,6 +231,25 @@ response_curve <- function(models,
 #' the grid will be arranged automatically based on the number of plots.
 #'
 #' @export
+#'
+#' @examples
+#' # Example with maxnet
+#' # Import example of fitted_models (output of fit_selected())
+#' data(fitted_model_maxnet, package = "kuenm2")
+#'
+#' # Response curves for all variables at once
+#' all_response_curves(fitted_model_maxnet)
+#' all_response_curves(fitted_model_maxnet, show_lines = TRUE)
+#' all_response_curves(fitted_model_maxnet, show_lines = TRUE,
+#'                     add_points = TRUE)
+#'
+#' all_response_curves(fitted_model_maxnet, modelID = "Model_192",
+#'                     show_variability = TRUE, show_lines = TRUE)
+#' all_response_curves(fitted_model_maxnet, modelID = "Model_192",
+#'                     show_variability = TRUE, show_lines = TRUE,
+#'                     add_points = TRUE)
+
+
 all_response_curves <- function(models,
                                 modelID = NULL,
                                 n = 100,
@@ -270,18 +280,21 @@ all_response_curves <- function(models,
 
   # get all variables to plot
   ## patterns to remove
-  pattern <- "I\\(|\\^2\\)|:|categorical\\(|\\)|thresholds\\(|hinge\\("
+  pattern <- "I\\(|\\^2\\)|categorical\\(|\\)|thresholds\\(|hinge\\("
 
   ## get all variables
   coefss <- lapply(models$Models, function(x) {
-    unique(gsub(pattern, "",
-                unname(unlist(lapply(x, function(y) {
-                  coefs <- if (inherits(y, "glmnet")) {
-                    names(y$betas)
-                  } else if (inherits(y, "glm")) {
-                    names(coef(y)[-1])
-                  }
-                })))))
+    unique(unlist(strsplit(
+      gsub(pattern, "",
+           unname(unlist(lapply(x, function(y) {
+             coefs <- if (inherits(y, "glmnet")) {
+               names(y$betas)
+             } else if (inherits(y, "glm")) {
+               names(coef(y)[-1])
+             }
+           })))),
+      ":"
+    )))
   })
 
   # plot arrangement
@@ -368,23 +381,12 @@ response_curve_consmx <- function(model_list, variable, data,
   if (length(model_list) == 1) {
     model <- model_list[[1]]
 
-    # Handling glmnet and glm models differently
-    coefs <- if (inherits(model, "glmnet")) {
-      names(model$betas)
-    } else if (inherits(model, "glm")) {
-      names(coef(model)[-1])
-    }
-
-    c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs) # check linear or quadratic term
-    c2 <- any(grepl(paste0(variable, ":"), coefs))                   # check product terms 1st position
-    c3 <- any(grepl(paste0(":", variable,"$"), coefs))               # check product terms 2nd position
-    c4 <- any(grepl(paste0("categorical(", variable, ")"), coefs, fixed = TRUE)) # check categorical variables
-
-
-    if (any(c1, c2, c3, c4) == FALSE) {
+    # Test if variable is present in the model
+    if (!var_in_model(variable, model)) {
       stop("Defined 'variable' is not present in the model(s).")
     }
 
+    # Produce response values
     response_out <- response(model = model_list[[1]], data = data,
                              variable = variable, n = n,
                              extrapolate = extrapolate,
@@ -439,7 +441,6 @@ response_curve_consmx <- function(model_list, variable, data,
           plotcurve_args <- c(plotcurve_args, list(ylim = c(0, 1)))
         }
       }
-      #print(plotcurve_args)
 
       # plot using do.call()
       do.call(plot, plotcurve_args)
@@ -458,19 +459,8 @@ response_curve_consmx <- function(model_list, variable, data,
     # extract the response of the variable for each models
     response_out <- lapply(model_list, function(x) {
 
-      coefs <- if (inherits(x, "glmnet")) {
-        names(x$betas)
-      } else if (inherits(x, "glm")) {
-        names(coef(x)[-1])
-      }
-
-      c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs) # check linear or quadratic term
-      c2 <- any(grepl(paste0(variable, ":"), coefs))                   # check product terms 1st position
-      c3 <- any(grepl(paste0(":", variable,"$"), coefs))               # check product terms 2nd position
-      c4 <- any(grepl(paste0("categorical(", variable, ")"), coefs, fixed = TRUE)) # check categorical variables
-
-      if (any(c1, c2, c3, c4)) {
-
+      # Test if variable is present in the model
+      if (var_in_model(variable, x)) {
         out <- response(x, data = data, variable = variable,
                         new_data = new_data,
                         extrapolate = extrapolate,
@@ -478,8 +468,6 @@ response_curve_consmx <- function(model_list, variable, data,
                         categorical_variables = categorical_variables,
                         averages_from = averages_from,
                         l_limit = l_limit, u_limit = u_limit)
-        return(out)
-
       } else {
         return(NULL)
       }
@@ -498,15 +486,6 @@ response_curve_consmx <- function(model_list, variable, data,
 
     if (!is.null(categorical_variables) && variable %in% categorical_variables) {
       # Plot response for categorical variable for multiple models
-      # Function to calculate mean and standard error
-      calc_stats <- function(x) {
-        n <- length(x)  # Number of observations
-        mean_x <- mean(x)  # Mean
-        sd_x <- sd(x)  # Standard deviation
-        se_x <- sd(x) / sqrt(n)  # Standard error
-        return(c(mean = mean_x, sd = sd_x, se = se_x))
-      }
-
       # Compute statistics: mean and standard error
       stats <- aggregate(as.formula(paste("predicted ~", variable)),
                          data = response_out, FUN = calc_stats)
@@ -523,8 +502,7 @@ response_curve_consmx <- function(model_list, variable, data,
 
       # Create a list of arguments to pass to the plot function
       plotcurve_args <- list(height = y, names.arg = x, col = "lightblue",
-                             xlab= xlab, ylab = ylab,
-                             ...)
+                             xlab= xlab, ylab = ylab, ...)
 
       # plot using do.call()
       bar_positions <- do.call(barplot, plotcurve_args)
@@ -564,7 +542,6 @@ response_curve_consmx <- function(model_list, variable, data,
           plotcurve_args <- c(plotcurve_args, list(ylim = c(0, 1)))
         }
       }
-      #print(plotcurve_args)
 
       # getting basic line plottinf arguments
       ltys <- plotcurve_args$lty
@@ -721,4 +698,32 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   return(m[, c(variable, "predicted")])
 
+}
+
+
+
+# helper to test if a variable is used in a single model
+var_in_model <- function(variable, model) {
+  coefs <- if (inherits(model, "glmnet")) {
+    names(model$betas)
+  } else if (inherits(model, "glm")) {
+    names(coef(model)[-1])
+  }
+
+  pattern <- "I\\(|\\^2\\)|categorical\\(|\\)|thresholds\\(|hinge\\("
+
+  vars <- unique(unlist(strsplit(gsub(pattern, "", coefs), ":")))
+
+  return(variable %in% vars)
+}
+
+
+
+# helper function to calculate mean and standard error, used for categorical variables
+calc_stats <- function(x) {
+  n <- length(x)  # Number of observations
+  mean_x <- mean(x)  # Mean
+  sd_x <- sd(x)  # Standard deviation
+  se_x <- sd(x) / sqrt(n)  # Standard error
+  return(c(mean = mean_x, sd = sd_x, se = se_x))
 }

@@ -10,9 +10,8 @@ response_curve(models, variable, modelID = NULL, n = 100,
                show_variability = FALSE, show_lines = FALSE, data = NULL,
                new_data = NULL, averages_from = "pr_bg", extrapolate = TRUE,
                extrapolation_factor = 0.1, add_points = FALSE, p_col = NULL,
-               l_limit = NULL, u_limit = NULL,
-               xlab = NULL, ylab = "Suitability",
-               col = "darkblue", ...)
+               l_limit = NULL, u_limit = NULL, xlab = NULL,
+               ylab = "Suitability", col = "darkblue", ...)
 
 # Response curves for all variables in all or individual models
 all_response_curves(models, modelID = NULL, n = 100, show_variability = FALSE,
@@ -29,10 +28,11 @@ all_response_curves(models, modelID = NULL, n = 100, show_variability = FALSE,
 
 \item{variable}{(character) name of the variable to be plotted.}
 
-\item{modelID}{(character) vector of ModelID(s) to be considered in the
-models object. By default all models are included. Default = NULL.}
+\item{modelID}{(character) ModelID(s) to be considered. By default all IDs
+in \code{models} are included. Default = NULL.}
 
-\item{n}{(numeric) an integer guiding the number of breaks. Default = 100}
+\item{n}{(numeric) an integer guiding the number of breaks to produce the
+curve. Default = 100.}
 
 \item{show_variability}{(logical) if \code{modelID} is defined, shows variability
 in response curves considering replicates. If \code{modelID} is not defined, the
@@ -42,28 +42,26 @@ default, FALSE, always shows variability from multiple models if present in
 \item{show_lines}{(logical) whether to show variability by plotting lines for
 all models or replicates. The default = FALSE, uses a GAM to characterize a
 median trend and variation among modes or replicates. Ignored if
-\code{show_variability} = FALSE.}
+\code{show_variability} = FALSE and \code{modelID} is defined.}
 
 \item{data}{data.frame or matrix of data used in the model calibration step.
+The default, NULL, uses data stored in \code{models}.}
+
+\item{new_data}{a \code{SpatRaster}, data.frame, or  matrix with values for
+variables representing an area or scenario of interest for model projection.
 Default = NULL.}
 
-\item{new_data}{a \code{SpatRaster}, data.frame, or  matrix of variables
-representing the range of variable values in an area of interest.
-Default = NULL. It must be defined in case the model entered does not
-explicitly include a data component.}
-
 \item{averages_from}{(character) specifies how the averages or modes of the
-variables are calculated. Available options are "pr" (to calculate averages
-from the presence localities) or "pr_bg" (to use the combined set of presence
-and background localities). Default is "pr_bg". See details.}
+other variables are calculated when producing responses for the variable of
+interest. Options are "pr" (from the presences) or "pr_bg" (from presences
+and background). Default is "pr_bg". See details.}
 
-\item{extrapolate}{(logical) whether to allow extrapolation to study the
-behavior of the response outside the calibration limits. Ignored if
-\code{new_data} is defined. Default = TRUE.}
+\item{extrapolate}{(logical) whether to allow extrapolation of the response
+outside training conditions. Ignored if \code{new_data} is defined. Default = TRUE.}
 
-\item{extrapolation_factor}{(numeric) a multiplier used to calculate the
-extrapolation range. Larger values allow broader extrapolation beyond the
-observed data range. Default is 0.1.}
+\item{extrapolation_factor}{(numeric) a value used to calculate how much to
+expand the training region for extrapolation. Larger values produce
+extrapolation farther from training limits. Default = 0.1.}
 
 \item{add_points}{(logical) if \code{TRUE}, adds the original observed
 points (0/1) to the plot. This also sets \code{ylim = c(0, 1)}, unless these
@@ -73,14 +71,12 @@ limits are defined as part of \code{...}. Default = \code{FALSE}.}
 \code{add_points = TRUE}. Any valid R color name or hexadecimal code.
 Default = "black".}
 
-\item{l_limit}{(numeric) specifies the lower limit for the variable. Default
-is \code{NULL}, meaning the lower limit will be calculated based on the
-data's minimum value.
+\item{l_limit}{(numeric) directly specifies the lower limit for the variable.
+Default = NULL, meaning the lower limit will be calculated from existing data.
 (if \code{extrapolation = TRUE}).}
 
-\item{u_limit}{(numeric) specifies the upper limit for the variable. Default
-is \code{NULL}, meaning the upper limit will be calculated based on the
-data's maximum value.
+\item{u_limit}{(numeric) directly specifies the upper limit for the variable.
+Default = NULL, meaning the aupper limit will be calculated from existing data.
 (if \code{extrapolation = TRUE}).}
 
 \item{xlab}{(character) a label for the x axis. The default, NULL, uses the
@@ -100,17 +96,20 @@ the plot layout, e.g., c(rows, columns). Default is NULL, meaning
 the grid will be arranged automatically based on the number of plots.}
 }
 \value{
-A plot with the response curve for a \code{variable}.
+For response_curve(), a plot with the response curve for a \code{variable}. For
+all_response_curves(), a multipanel plot with response curves fro all
+variables in \code{models}.
 }
 \description{
-A view of variable responses in fitted models. Responses based on single or
+Plot variable responses for fitted models. Responses based on single or
 multiple models can be plotted.
 }
 \details{
-The response curves are generated with all other variables set to their mean
-values (or mode for categorical variables), calculated either from the
-presence localities (if averages_from = "pr") or from the combined set of
-presence and background localities (if averages_from = "pr_bg").
+The response curve for a variable of interest is generated with all other
+variables set to their mean values (or mode for categorical variables),
+calculated either from the presence records (if averages_from = "pr") or
+the combined set of presence and background records (if averages_from =
+"pr_bg").
 
 For categorical variables, a bar plot is generated with error bars showing
 variability across models (if multiple models are included).
@@ -120,27 +119,35 @@ variability across models (if multiple models are included).
 # Import example of fitted_models (output of fit_selected())
 data(fitted_model_maxnet, package = "kuenm2")
 
-#Response curves
+# Response curves for one variable at a time
 response_curve(models = fitted_model_maxnet, variable = "bio_1")
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
                add_points = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
                show_lines = TRUE)
+
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
                modelID = "Model_192", show_variability = TRUE)
 response_curve(models = fitted_model_maxnet, variable = "bio_1",
                modelID = "Model_192", show_variability = TRUE,
                show_lines = TRUE)
 
-# Example with GLM
+# Example with maxnet
 # Import example of fitted_models (output of fit_selected())
-data(fitted_model_glm, package = "kuenm2")
+data(fitted_model_maxnet, package = "kuenm2")
 
-#Response curves
-response_curve(models = fitted_model_glm, variable = "bio_1")
-response_curve(models = fitted_model_glm, variable = "bio_1",
-               modelID = "Model_85", show_variability = TRUE)
+# Response curves for all variables at once
+all_response_curves(fitted_model_maxnet)
+all_response_curves(fitted_model_maxnet, show_lines = TRUE)
+all_response_curves(fitted_model_maxnet, show_lines = TRUE,
+                    add_points = TRUE)
+
+all_response_curves(fitted_model_maxnet, modelID = "Model_192",
+                    show_variability = TRUE, show_lines = TRUE)
+all_response_curves(fitted_model_maxnet, modelID = "Model_192",
+                    show_variability = TRUE, show_lines = TRUE,
+                    add_points = TRUE)
 }
 \seealso{
-\code{\link[=bivariate_response]{bivariate_response()}}
+\code{\link[=bivariate_response]{bivariate_response()}}, \code{\link[=partition_response_cruves]{partition_response_cruves()}}
 }
