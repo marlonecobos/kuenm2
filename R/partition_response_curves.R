@@ -60,11 +60,12 @@
 #' # Import example of calibration results
 #' data(calib_results_maxnet, package = "kuenm2")
 #'
+#' # Options of models that can be tested
+#' calib_results_maxnet$selected_models$ID
+#'
 #' # Response curves
 #' partition_response_curves(calibration_results = calib_results_maxnet,
 #'                           modelID = 192)
-
-
 
 partition_response_curves <- function(calibration_results,
                                       modelID,
@@ -130,18 +131,21 @@ partition_response_curves <- function(calibration_results,
 
   # get all variables to plot
   ## patterns to remove
-  pattern <- "I\\(|\\^2\\)|:|categorical\\(|\\)|thresholds\\(|hinge\\("
+  pattern <- "I\\(|\\^2\\)|categorical\\(|\\)|thresholds\\(|hinge\\("
 
   ## get all variables
   coefss <- lapply(best_models, function(x) {
-    sort(unique(gsub(pattern, "",
-                     unname(
-                       coefs <- if (inherits(x, "glmnet")) {
-                         names(x$betas)
-                       } else if (inherits(x, "glm")) {
-                         names(coef(x)[-1])
-                       }
-                     ))))
+    sort(unique(unlist(strsplit(
+      gsub(pattern, "",
+           unname(
+             coefs <- if (inherits(x, "glmnet")) {
+               names(x$betas)
+             } else if (inherits(x, "glm")) {
+               names(coef(x)[-1])
+             }
+           )),
+      ":"
+    ))))
   })
 
   # plot response curves
@@ -150,8 +154,14 @@ partition_response_curves <- function(calibration_results,
   on.exit(graphics::par(opar))
 
   ## arrangement
-  mfrow <- c(n_tot, max(sapply(coefss, length)))
+  allvarun <- sort(unique(unlist(coefss)))
+  mfrow <- c(n_tot, length(allvarun))
   graphics::par(mfrow = mfrow, mar = c(2, 4, 1.5, 0.5))
+
+  ## modify coefss to include NA when a variable is not present
+  acoefss <- lapply(coefss, function(x) {
+    unname(sapply(allvarun, function(v) {if (v %in% x) v else NA}))
+  })
 
   ## other plotting parameters
   if (is.null(ylim)) {
@@ -171,32 +181,36 @@ partition_response_curves <- function(calibration_results,
     newdata[2, ] <- newdata[2, ] + extension
 
     if (h == 1) {
-      main <- paste("Suitability:" , coefss[[h]])
+      main <- paste("Suitability:" , allvarun)
     } else {
-      main <- rep(NULL, length(coefss[[h]]))
+      main <- rep(NULL, length(allvarun))
     }
 
-    ## plots, row per partition
-    for (i in 1:length(coefss[[h]])) {
+    for (i in 1:length(acoefss[[h]])) {
       if (i == 1) {
         ylab <- names(calibration_results$part_data)[h]
       } else {
         ylab <- ""
       }
 
-      response_curve_consmx(model_list = list(best_models[[h]]),
-                            variable = coefss[[h]][i],
-                            data = calibration_results$calibration_data[-calibration_results$part_data[[h]], ],
-                            show_lines = FALSE, n = n, new_data = newdata,
-                            xlab = "", ylab = ylab, col = col,
-                            categorical_variables = calibration_results$categorical_variables,
-                            averages_from = averages_from, ylim = ylim,
-                            main = main[i], cex.main = 1, font.main = 1,
-                            las = las, ...)
+      if (!is.na(acoefss[[h]][i])) {
+        response_curve_consmx(model_list = list(best_models[[h]]),
+                              variable = acoefss[[h]][i],
+                              data = calibration_results$calibration_data[-calibration_results$part_data[[h]], ],
+                              show_lines = FALSE, n = n, new_data = newdata,
+                              xlab = "", ylab = ylab, col = col,
+                              categorical_variables = calibration_results$categorical_variables,
+                              averages_from = averages_from, ylim = ylim,
+                              main = main[i], cex.main = 1, font.main = 1,
+                              las = las, ...)
 
-      ## add testing points
-      points(datat[datat$pr_bg == 1, c(coefss[[h]][i], "pr_bg")],
-             bg = p_col, pch = 21, cex = 0.6)
+        ## add testing points
+        points(datat[datat$pr_bg == 1, c(acoefss[[h]][i], "pr_bg")],
+               bg = p_col, pch = 21, cex = 0.6)
+      } else {
+        plot.new()
+        title(main = main[i], ylab = ylab, cex.main = 1, font.main = 1)
+      }
     }
   }
 }

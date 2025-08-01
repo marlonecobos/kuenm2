@@ -68,6 +68,9 @@ variability across models (if multiple models are included).
 # Import example of calibration results
 data(calib_results_maxnet, package = "kuenm2")
 
+# Options of models that can be tested
+calib_results_maxnet$selected_models$ID
+
 # Response curves
 partition_response_curves(calibration_results = calib_results_maxnet,
                           modelID = 192)
