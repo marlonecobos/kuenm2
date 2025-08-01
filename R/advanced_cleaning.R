@@ -161,6 +161,11 @@ move_2closest_cell <- function(data, x, y, raster_layer, move_limit_distance,
   # finding pixels to move in
   if (length(tomove) > 0) {
     xyout <- data[tomove, ]
+    no <- nrow(xyout)
+
+    ## basic conditions to fill in table
+    condition <- rep("Correct", nrow(data))
+    distss <- rep(0, nrow(data))
 
     ## buffer from out
     limdist <- move_limit_distance * 1000
@@ -172,31 +177,41 @@ move_2closest_cell <- function(data, x, y, raster_layer, move_limit_distance,
     raster_layer <- terra::crop(raster_layer, xyvec, mask = TRUE)
 
     xyras <- as.data.frame(raster_layer, xy = TRUE)[, 1:2]
-    dists <- terra::distance(xyout[, c(x, y)],
-                             xyras, lonlat = TRUE)
 
-    condition <- rep("Correct", nrow(data))
-    distss <- rep(0, nrow(data))
+    if (nrow(xyras) >= 1) {
+      dists <- terra::distance(xyout[, c(x, y)],
+                               xyras, lonlat = TRUE)
 
-    # running process
-    if (verbose == TRUE) {
-      message("Moving occurrences to closest pixels...")
-    }
+      # running process
+      if (verbose == TRUE) {
+        message("Moving occurrences to closest pixels...")
+      }
 
-    no <- nrow(xyout)
-    for (i in 1:no) {
-      mindis <- min(dists[i, ])
-      if (mindis <= limdist) {
-        xyin <- xyras[dists[i, ] == mindis, ]
-        data[tomove[i], x] <- xyin[1, 1]
-        data[tomove[i], y] <- xyin[1, 2]
-        condition[tomove[i]] <- "Moved"
-        distss[tomove[i]] <- mindis/1000
-      } else {
+      for (i in 1:no) {
+        mindis <- min(dists[i, ])
+        if (mindis <= limdist) {
+          xyin <- xyras[dists[i, ] == mindis, ]
+          data[tomove[i], x] <- xyin[1, 1]
+          data[tomove[i], y] <- xyin[1, 2]
+          condition[tomove[i]] <- "Moved"
+          distss[tomove[i]] <- mindis/1000
+        } else {
+          condition[tomove[i]] <- "Not_moved"
+          distss[tomove[i]] <- mindis/1000
+        }
+      }
+
+    } else {
+      for (i in 1:no) {
         condition[tomove[i]] <- "Not_moved"
-        distss[tomove[i]] <- mindis/1000
+        distss[tomove[i]] <- NA
+      }
+
+      if (verbose == TRUE) {
+        message("Occurrences could not be moved due to long distances.")
       }
     }
+
     data <- data.frame(data, condition = condition, distance_km = distss,
                        initial_lon = xy[, 1], initial_lat = xy[, 2])
     } else {
