@@ -10,8 +10,8 @@ explore_partition_extrapolation(data, include_train_background = TRUE,
                                        mop_type = "detailed",
                                        calculate_distance = TRUE,
                                        where_distance = "all",
-                                       return_raster_result = TRUE,
-                                       raster_variables = NULL,
+                                       return_spatial = TRUE,
+                                       crs = "+init=epsg:4326",
                                        progress_bar = FALSE, ...)
 }
 \arguments{
@@ -43,13 +43,12 @@ be used to calculate distances. Options are: "in_range" (only conditions
 within the train range), "out_range" (only conditions outside the
 train range), and "all" (all conditions). Default is "all".}
 
-\item{return_raster_result}{(logical) whether to return a \code{SpatRaster}
-showing the spatial distribution of test data that falls within and outside
-the range of the training data. Default is TRUE.}
+\item{return_spatial}{(logical) whether to return a \code{SpatVector} showing the
+dissimilarities and the spatial distribution of test data that falls within
+and outside the range of the training data. Default is TRUE.}
 
-\item{raster_variables}{a \code{SpatRaster} object representing the predictor
-variables used to calibrate the models. Preferably the same object used in
-\code{prepare_data}. Only used if \code{return_raster_result = TRUE}.}
+\item{crs}{The coordinate reference system to spatialize the results. Only
+applicable if \code{return_spatial = TRUE}. Default is "+init=epsg:4326".}
 
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is FALSE.}
