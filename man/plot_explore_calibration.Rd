@@ -83,5 +83,5 @@ calib_hist <- explore_calibration_hist(data = sp_swd,
                                        include_m = TRUE)
 
 # Plot histograms
-plot_explore_calibration(explore_calibration = calib_hist, mfrow = c(2, 3))
+plot_explore_calibration(explore_calibration = calib_hist)
 }
