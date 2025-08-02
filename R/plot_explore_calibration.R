@@ -214,7 +214,7 @@ plot_explore_calibration <- function(explore_calibration,
         add_next <- FALSE
       }
       graphics::barplot(freq_bg, col = color_background_b, xlab = xlab_i,
-                        add = add_next, border = color_background)
+                        add = add_next, border = color_background, main = "")
       graphics::barplot(freq_pr, col = color_presence_b, add = TRUE,
                         border = color_presence)
     } #End of is categorical
