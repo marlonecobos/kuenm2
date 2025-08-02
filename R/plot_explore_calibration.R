@@ -145,7 +145,7 @@ plot_explore_calibration <- function(explore_calibration,
   #Check x labels
   if (!is.null(xlab)) {
     if (length(xlab) != length(v)) {
-      stop("If 'xlab' is not NULL, the lenght of 'xlab' must be the same as the number of variables in 'explore_calibration'")
+      stop("If 'xlab' is not NULL, 'xlab' lenght must match the number of variables in 'explore_calibration'")
     }
   }
 
@@ -183,8 +183,8 @@ plot_explore_calibration <- function(explore_calibration,
       } else {
         add_next <- FALSE
       }
-      plot(var_res$hist_bg, col = color_background_b, xlab = xlab_i,
-           add = add_next, border = color_background)
+      plot(var_res$hist_bg, col = color_background_b, main = "", xlab = xlab_i,
+           add = add_next, border = color_background, ylab = ylab)
       plot(var_res$hist_pr, col = color_presence_b, add = TRUE,
            border = color_presence)
     } #End of is continuous
@@ -213,8 +213,9 @@ plot_explore_calibration <- function(explore_calibration,
       } else {
         add_next <- FALSE
       }
-      graphics::barplot(freq_bg, col = color_background_b, xlab = xlab_i,
-                        add = add_next, border = color_background, main = "")
+      graphics::barplot(freq_bg, col = color_background_b, main = "",
+                        xlab = xlab_i, ylab = ylab, add = add_next,
+                        border = color_background)
       graphics::barplot(freq_pr, col = color_presence_b, add = TRUE,
                         border = color_presence)
     } #End of is categorical
@@ -256,9 +257,6 @@ plot_explore_calibration <- function(explore_calibration,
     #Add box
     graphics::box(bty = "l")
   } #End of for in
-
-  #Reset layout
-  graphics::par(mfrow = c(1, 1))  ### replace with on.exit????
 
   return(invisible(NULL))
 }
