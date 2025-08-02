@@ -92,6 +92,7 @@ explore_calibration_hist <- function(data, include_m = FALSE,
                                              data$pca),
                               raster_variables[[data$pca$vars_out]])
       }
+      raster_variables <- raster_variables[[colnames(data$calibration_data)[-1]]]
     }
 
     r_out <- setdiff(terra::names(raster_variables),
