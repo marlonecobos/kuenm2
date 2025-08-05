@@ -278,24 +278,11 @@ all_response_curves <- function(models,
     stop("Argument 'models' must be a fitted_models object.")
   }
 
-  # get all variables to plot
-  ## patterns to remove
+  # patterns to remove from predictors
   pattern <- "I\\(|\\^2\\)|categorical\\(|\\)|thresholds\\(|hinge\\("
 
-  ## get all variables
-  coefss <- lapply(models$Models, function(x) {
-    unique(unlist(strsplit(
-      gsub(pattern, "",
-           unname(unlist(lapply(x, function(y) {
-             coefs <- if (inherits(y, "glmnet")) {
-               names(y$betas)
-             } else if (inherits(y, "glm")) {
-               names(coef(y)[-1])
-             }
-           })))),
-      ":"
-    )))
-  })
+  # position of full model
+  full <- models$n_replicates + 1
 
   # plot arrangement
   ## par settings
@@ -304,15 +291,38 @@ all_response_curves <- function(models,
 
   ## true variables for plot
   if (is.null(modelID)) {
-    vars <- unique(unlist((coefss)))
+    coefss <- lapply(models$Models, function(x) {
+      unique(unlist(strsplit(
+        gsub(pattern, "",
+             unname(if (inherits(x[[full]], "glmnet")) {
+               names(x[[full]]$betas)
+             } else if (inherits(x[[full]], "glm")) {
+               names(coef(x[[full]])[-1])
+             })),
+        ":"
+      )))
+    })
   } else {
     if (!modelID %in% names(models[["Models"]])) {
       stop("'ModelID' is not correct, check the following: ",
            paste(names(models[["Models"]]), collapse = ", "))
     }
 
-    vars <- coefss[[modelID]]
+    coefss <- lapply(models$Models[[modelID]][-full], function(x) {
+      sort(unique(unlist(strsplit(
+        gsub(pattern, "",
+             unname(
+               coefs <- if (inherits(x, "glmnet")) {
+                 names(x$betas)
+               } else if (inherits(x, "glm")) {
+                 names(coef(x)[-1])
+               }
+             )),
+        ":"
+      ))))
+    })
   }
+  vars <- sort(unique(unlist((coefss))))
 
   ## arrangement
   if (is.null(mfrow)) { #If NULL, arrange automatically
@@ -616,9 +626,17 @@ response <- function(model, data, variable, type = "cloglog", n = 100,
 
   # Extract variable names used in the model
   vnames <- if (inherits(model, "glmnet")) {
-    colSums(sapply(colnames(data), grepl, names(model$betas))) > 0
+    if (length(names(model$betas)) > 1) {
+      colSums(sapply(colnames(data), grepl, names(model$betas))) > 0
+    } else {
+      sapply(colnames(data), grepl, names(model$betas))
+    }
   } else if (inherits(model, "glm")) {
-    colSums(sapply(colnames(data), grepl, names(coef(model)))) > 0
+    if (length(names(coef(model))) > 1) {
+      colSums(sapply(colnames(data), grepl, names(coef(model)))) > 0
+    } else {
+      sapply(colnames(data), grepl, names(coef(model)))
+    }
   }
 
 
