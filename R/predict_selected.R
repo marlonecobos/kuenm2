@@ -412,14 +412,14 @@ predict_selected <- function(models,
         if ("median" %in% consensus) {
           gen_res$median <- res$Consensus_per_model$median
         }
+        if ("range" %in% consensus) {
+          gen_res$range <- res$Consensus_per_model$range
+        }
         if ("mean" %in% consensus) {
           gen_res$mean <- res$Consensus_per_model$mean
         }
         if ("stdev" %in% consensus) {
           gen_res$stdev <- res$Consensus_per_model$stdev
-        }
-        if ("range" %in% consensus) {
-          gen_res$range <- res$Consensus_per_model$range
         }
       }
 
@@ -429,14 +429,14 @@ predict_selected <- function(models,
       if ("median" %in% consensus) {
         gen_res$median <- terra::median(all_rep)
       }
+      if ("range" %in% consensus) {
+        gen_res$range <- terra::diff(range(all_rep))
+      }
       if ("mean" %in% consensus) {
         gen_res$mean <- terra::mean(all_rep)
       }
       if ("stdev" %in% consensus) {
         gen_res$stdev <- terra::stdev(all_rep)
-      }
-      if ("range" %in% consensus) {
-        gen_res$range <- terra::diff(range(all_rep))
       }
     }
 
@@ -502,14 +502,14 @@ predict_selected <- function(models,
         if ("median" %in% consensus) {
           gen_res$median <- res$Consensus_per_model$median
         }
+        if ("range" %in% consensus) {
+          gen_res$range <- res$Consensus_per_model$range
+        }
         if ("mean" %in% consensus) {
           gen_res$mean <- res$Consensus_per_model$mean
         }
         if ("stdev" %in% consensus) {
           gen_res$stdev <- res$Consensus_per_model$stdev
-        }
-        if ("range" %in% consensus) {
-          gen_res$range <- res$Consensus_per_model$range
         }
       }
 
@@ -519,16 +519,16 @@ predict_selected <- function(models,
       if ("median" %in% consensus) {
         gen_res$median <- apply(all_rep, 1, stats::median)
       }
+      if ("range" %in% consensus) {
+        min_all_rep <- apply(all_rep, 1, min, na.rm = TRUE)
+        max_all_rep <- apply(all_rep, 1, max, na.rm = TRUE)
+        gen_res$range <- max_all_rep - min_all_rep
+      }
       if ("mean" %in% consensus) {
         gen_res$mean <- apply(all_rep, 1, mean)
       }
       if ("stdev" %in% consensus) {
         gen_res$stdev <- apply(all_rep, 1, stats::sd)
-      }
-      if ("range" %in% consensus) {
-        min_all_rep <- apply(all_rep, 1, min, na.rm = TRUE)
-        max_all_rep <- apply(all_rep, 1, max, na.rm = TRUE)
-        gen_res$range <- max_all_rep - min_all_rep
       }
     }
 
