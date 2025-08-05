@@ -83,9 +83,9 @@ new_fitted_models <- function(species,
                               omission_rate,
                               thresholds,
                               algorithm,
-                              partition_method,
-                              n_partitions,
-                              train_proportion){
+                              replicate_method,
+                              n_replicates,
+                              sample_proportion){
   data <- list(
     species = species,
     Models = Models,
@@ -99,9 +99,9 @@ new_fitted_models <- function(species,
     omission_rate = omission_rate,
     thresholds = thresholds,
     algorithm = algorithm,
-    partition_method = partition_method,
-    n_partitions = n_partitions,
-    train_proportion = train_proportion
+    replicate_method = replicate_method,
+    n_replicates = n_replicates,
+    sample_proportion = sample_proportion
   )
   class(data) <- "fitted_models"
   return(data)

@@ -4,8 +4,8 @@
 \alias{fit_selected}
 \title{Fit models selected after calibration}
 \usage{
-fit_selected(calibration_results, partition_method = "kfolds",
-             n_partitions = 1, train_proportion = 0.7, type = "cloglog",
+fit_selected(calibration_results, replicate_method = "kfolds",
+             n_replicates = 1, sample_proportion = 0.7, type = "cloglog",
              write_models = FALSE,
              file_name = NULL, parallel = FALSE, ncores = NULL,
              progress_bar = TRUE, verbose = TRUE, seed = 1)
@@ -14,18 +14,18 @@ fit_selected(calibration_results, partition_method = "kfolds",
 \item{calibration_results}{an object of class \code{calibration_results} returned
 by the \code{\link[=calibration]{calibration()}} function.}
 
-\item{partition_method}{(character) method used for data partitioning.
+\item{replicate_method}{(character) method used for producing replicates.
 Available options are \code{"kfolds"}, \code{"subsample"}, and \code{"bootstrap"}.
 See \strong{Details} for more information.}
 
-\item{n_partitions}{(numeric) number of partitions or folds to generate. If
-\code{partition_method} is \code{"subsample"} or \code{"bootstrap"}, this defines the number
+\item{n_replicates}{(numeric) number of replicates or folds to generate. If
+\code{replicate_method} is \code{"subsample"} or \code{"bootstrap"}, this defines the number
 of replicates. If \code{"kfolds"}, it specifies the number of folds. Default is 4.}
 
-\item{train_proportion}{(numeric) proportion of occurrence and background
-points to be used for model training in each replicate. Only applicable when
-\code{partition_method} is \code{"subsample"} or \code{"bootstrap"}. Default is 0.7 (i.e.,
-70\% for training and 30\% for testing).}
+\item{sample_proportion}{(numeric) proportion of occurrence and background
+points to be used to fit model replicates. Only applicable when
+\code{replicate_method} is \code{"subsample"} or \code{"bootstrap"}. Default is 0.7 (i.e.,
+70\% of the data).}
 
 \item{type}{(character) the format of prediction values for computing
 thresholds. For maxnet models, valid options are "raw", "cumulative",
@@ -57,8 +57,8 @@ the data. Default is 1.}
 \value{
 An object of class 'fitted_models' containing the following elements:
 \item{species}{a character string with the name of the species.}
-\item{Models}{a list of fitted models, including partitions (trained with
-the parts of the data) and full models (trained with all available records).}
+\item{Models}{a list of fitted models, including replicates (fitted with
+part of the data) and full models (fitted with all data).}
 \item{calibration_data}{a data.frame containing a column (\code{pr_bg}) that
 identifies occurrence points (1) and background points (0), along with the
 corresponding values of predictor variables for each point.}
@@ -71,13 +71,12 @@ result of principal component analysis (if performed).}
 \item{addsamplestobackground}{a logical value indicating whether any presence
 sample not already in the background was added.}
 \item{omission_rate}{the omission rate determined during the calibration step.}
-\item{thresholds}{the thresholds to binarize each partition and the consensus
+\item{thresholds}{the thresholds to binarize each replicate and the consensus
 (mean and median), calculated based on the omission rate set in
 \code{\link[=calibration]{calibration()}}.}
 }
 \description{
-This function fits models selected after candidate model training and testing
-using the function \code{\link[=calibration]{calibration()}}.
+This function fits models selected during model \code{\link[=calibration]{calibration()}}.
 }
 \details{
 This function also computes model consensus (mean and median), the thresholds
@@ -90,7 +89,7 @@ data(calib_results_maxnet, package = "kuenm2")
 
 # Fit models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet,
-                   n_partitions = 4)
+                   n_replicates = 4)
 
 # Output the fitted models
 fm
@@ -100,8 +99,8 @@ data(calib_results_glm, package = "kuenm2")
 
 # Fit models using calibration results
 fm_glm <- fit_selected(calibration_results = calib_results_glm,
-                       partition_method = "subsample",
-                       n_partitions = 5)
+                       replicate_method = "subsample",
+                       n_replicates = 5)
 
 # Output the fitted models
 fm_glm

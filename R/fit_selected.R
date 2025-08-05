@@ -1,28 +1,27 @@
 #' Fit models selected after calibration
 #'
 #' @description
-#' This function fits models selected after candidate model training and testing
-#' using the function [calibration()].
+#' This function fits models selected during model [calibration()].
 #'
 #' @usage
-#' fit_selected(calibration_results, partition_method = "kfolds",
-#'              n_partitions = 1, train_proportion = 0.7, type = "cloglog",
+#' fit_selected(calibration_results, replicate_method = "kfolds",
+#'              n_replicates = 1, sample_proportion = 0.7, type = "cloglog",
 #'              write_models = FALSE,
 #'              file_name = NULL, parallel = FALSE, ncores = NULL,
 #'              progress_bar = TRUE, verbose = TRUE, seed = 1)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the [calibration()] function.
-#' @param partition_method (character) method used for data partitioning.
+#' @param replicate_method (character) method used for producing replicates.
 #' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
 #' See **Details** for more information.
-#' @param n_partitions (numeric) number of partitions or folds to generate. If
-#' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
+#' @param n_replicates (numeric) number of replicates or folds to generate. If
+#' `replicate_method` is `"subsample"` or `"bootstrap"`, this defines the number
 #' of replicates. If `"kfolds"`, it specifies the number of folds. Default is 4.
-#' @param train_proportion (numeric) proportion of occurrence and background
-#' points to be used for model training in each replicate. Only applicable when
-#'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
-#'  70% for training and 30% for testing).
+#' @param sample_proportion (numeric) proportion of occurrence and background
+#' points to be used to fit model replicates. Only applicable when
+#'  `replicate_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
+#'  70% of the data).
 #' @param type (character) the format of prediction values for computing
 #' thresholds. For maxnet models, valid options are "raw", "cumulative",
 #' "logistic", and "cloglog". For glm models, valid options are "cloglog",
@@ -52,8 +51,8 @@
 #' @return
 #' An object of class 'fitted_models' containing the following elements:
 #' \item{species}{a character string with the name of the species.}
-#' \item{Models}{a list of fitted models, including partitions (trained with
-#' the parts of the data) and full models (trained with all available records).}
+#' \item{Models}{a list of fitted models, including replicates (fitted with
+#' part of the data) and full models (fitted with all data).}
 #' \item{calibration_data}{a data.frame containing a column (`pr_bg`) that
 #' identifies occurrence points (1) and background points (0), along with the
 #' corresponding values of predictor variables for each point.}
@@ -66,7 +65,7 @@
 #' \item{addsamplestobackground}{a logical value indicating whether any presence
 #' sample not already in the background was added.}
 #' \item{omission_rate}{the omission rate determined during the calibration step.}
-#' \item{thresholds}{the thresholds to binarize each partition and the consensus
+#' \item{thresholds}{the thresholds to binarize each replicate and the consensus
 #' (mean and median), calculated based on the omission rate set in
 #' [calibration()].}
 #'
@@ -85,7 +84,7 @@
 #'
 #' # Fit models using calibration results
 #' fm <- fit_selected(calibration_results = calib_results_maxnet,
-#'                    n_partitions = 4)
+#'                    n_replicates = 4)
 #'
 #' # Output the fitted models
 #' fm
@@ -95,16 +94,16 @@
 #'
 #' # Fit models using calibration results
 #' fm_glm <- fit_selected(calibration_results = calib_results_glm,
-#'                        partition_method = "subsample",
-#'                        n_partitions = 5)
+#'                        replicate_method = "subsample",
+#'                        n_replicates = 5)
 #'
 #' # Output the fitted models
 #' fm_glm
 
 fit_selected <- function(calibration_results,
-                         partition_method = "kfolds",
-                         n_partitions = 1,
-                         train_proportion = 0.7,
+                         replicate_method = "kfolds",
+                         n_replicates = 1,
+                         sample_proportion = 0.7,
                          type = "cloglog",
                          write_models = FALSE,
                          file_name = NULL,
@@ -125,24 +124,25 @@ fit_selected <- function(calibration_results,
   m_ids <- calibration_results$selected_models$ID
   algorithm <- calibration_results$algorithm
 
-  # Fitting models over multiple partitions
-  if (n_partitions > 1) {
+  # Fitting models over multiple replicates
+  if (n_replicates > 1) {
     if (verbose) {
-      message("Fitting partitions...")
+      message("Fitting replicates...")
     }
 
-    # Create a grid of model IDs and partitions
-    dfgrid <- expand.grid(models = m_ids, partitions = 1:n_partitions)
-    n_tot <- nrow(dfgrid) # Total models * partitions
+    # Create a grid of model IDs and replicates
+    dfgrid <- expand.grid(models = m_ids, replicates = 1:n_replicates)
+    n_tot <- nrow(dfgrid) # Total models * replicates
 
-    #Prepare data (index) to partitions
-    if (n_partitions > 1) {
+    #Prepare data (index) to replicates
+    if (n_replicates > 1) {
       #Partitioning data
       rep_data <- part_data(data = calibration_results$calibration_data,
                             pr_bg = "pr_bg",
-                            train_proportion = train_proportion,
-                            n_partitions = n_partitions,
-                            partition_method = partition_method, seed = seed)
+                            train_proportion = sample_proportion,
+                            n_partitions = n_replicates,
+                            partition_method = replicate_method, seed = seed)
+      names(rep_data) <- gsub("Partition", "Replicate", rep_data)
     } else {
       rep_data <- NULL
     }
@@ -186,7 +186,7 @@ fit_selected <- function(calibration_results,
                                       .options.snow = opts
       ) %dopar% {
         fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
-                       n_partitions = n_partitions, rep_data = rep_data,
+                       n_replicates = n_replicates, rep_data = rep_data,
                        algorithm = algorithm)
       }
     } else {
@@ -194,7 +194,7 @@ fit_selected <- function(calibration_results,
       for (x in 1:n_tot) {
         best_models[[x]] <- fit_best_model(
           x = x, dfgrid = dfgrid, cal_res = calibration_results,
-          n_partitions = n_partitions, rep_data = rep_data,
+          n_replicates = n_replicates, rep_data = rep_data,
           algorithm = algorithm
         )
         if (progress_bar) {
@@ -209,7 +209,7 @@ fit_selected <- function(calibration_results,
     # Split models by their respective IDs
     best_models <- split(best_models, dfgrid$models)
     best_models <- lapply(best_models, function(sublist) {
-      names(sublist) <- paste0("Partition_", seq_along(sublist))
+      names(sublist) <- paste0("Replicate_", seq_along(sublist))
       return(sublist)
     })
 
@@ -226,7 +226,7 @@ fit_selected <- function(calibration_results,
   }
   # Full models grid setup
   n_models <- length(m_ids)
-  dfgrid <- expand.grid(models = m_ids, partitions = 1)
+  dfgrid <- expand.grid(models = m_ids, replicates = 1)
 
   # Adjust parallelization for full models
   if (n_models == 1 & parallel) {
@@ -264,7 +264,7 @@ fit_selected <- function(calibration_results,
                                     .options.snow = opts
     ) %dopar% {
       fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
-                     n_partitions = 1, rep_data = rep_data,
+                     n_replicates = 1, rep_data = rep_data,
                      algorithm = algorithm)
     }
   } else {
@@ -272,7 +272,7 @@ fit_selected <- function(calibration_results,
     for (x in 1:n_models) {
       full_models[[x]] <- fit_best_model(
         x = x, dfgrid = dfgrid, cal_res = calibration_results,
-        n_partitions = 1, rep_data = rep_data, algorithm = algorithm
+        n_replicates = 1, rep_data = rep_data, algorithm = algorithm
       )
       if (progress_bar) utils::setTxtProgressBar(pb, x)
     }
@@ -281,7 +281,7 @@ fit_selected <- function(calibration_results,
   # Assign names to full models
   names(full_models) <- paste0("Model_", m_ids)
 
-  # Combine partition models with full models
+  # Combine replicate models with full models
   for (i in names(full_models)) {
     best_models[[i]]$Full_model <- full_models[[i]]
   }
@@ -338,8 +338,8 @@ fit_selected <- function(calibration_results,
   p_thr$type <- type
 
   #Prepare final data
-  if(partition_method %in% c("kfolds", "leave-one-out")){
-    train_proportion <- NULL
+  if(replicate_method %in% c("kfolds", "leave-one-out")){
+    sample_proportion <- NULL
   }
 
   # Prepare final results
@@ -356,9 +356,9 @@ fit_selected <- function(calibration_results,
     omission_rate = calibration_results$summary$omission_rate_thr,
     thresholds = p_thr,
     algorithm = algorithm,
-    partition_method = partition_method,
-    n_partitions = n_partitions,
-    train_proportion = train_proportion
+    replicate_method = replicate_method,
+    n_replicates = n_replicates,
+    sample_proportion = sample_proportion
   )
 
   # Optionally save the fitted models

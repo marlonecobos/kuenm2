@@ -733,14 +733,14 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
 }
 
 
-fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
+fit_best_model <- function(x, dfgrid, cal_res, n_replicates = 1,
                            rep_data = NULL, algorithm = "maxnet") {
 
   # Arguments:
   # x: index of the grid
   # dfgrid: dataframe with the grid
   # cal_res: output of the calibration function
-  # n_partitions: number of partitions
+  # n_replicates: number of replicates
   # rep_data: data splitting (replicated data)
   # algorithm: Type of model, either "maxnet" or "glm"
 
@@ -763,10 +763,10 @@ fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
     stop("Argument 'cal_res' must be a 'calibration_results' object.")
   }
 
-  if (!is.numeric(n_partitions)) {
-    stop("Argument 'n_partitions' must be 'numeric'.")
+  if (!is.numeric(n_replicates)) {
+    stop("Argument 'n_replicates' must be 'numeric'.")
   }
-  if (n_partitions > 1) {
+  if (n_replicates > 1) {
     if (!inherits(rep_data, "list")) {
       stop("Argument 'rep_data' must be a 'list'.")
     }
@@ -784,7 +784,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
   # Get the grid information
   grid_x <- dfgrid[x, ]
   m_id <- grid_x$models
-  rep_x <- grid_x$partitions
+  rep_x <- grid_x$replicates
 
   # Get the best model's formula and parameters from calibration results
   best_model <- cal_res$selected_models[cal_res$selected_models$ID == m_id, ]
@@ -794,9 +794,9 @@ fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
     best_regm <- best_model$R_multiplier  # Regularization multiplier for maxnet
   }
 
-  # Select data for the partition, or use the entire calibration data
-  # if n_partitions == 1
-  if (n_partitions > 1) {
+  # Select data for the replicate, or use the entire calibration data
+  # if n_replicates == 1
+  if (n_replicates > 1) {
     rep_i <- rep_data[[rep_x]]
     data_x <- cal_res$calibration_data[-rep_i, ]
   } else {
@@ -822,7 +822,7 @@ fit_best_model <- function(x, dfgrid, cal_res, n_partitions = 1,
 
     #mod_x$data <- NULL # avoid store redundant info
   }
-  # Assign model ID and partition number for tracking
+  # Assign model ID and replicate number for tracking
   mod_x$checkModel <- m_id
   mod_x$checkPartition <- rep_x
 
