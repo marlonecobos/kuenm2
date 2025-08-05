@@ -78,14 +78,26 @@ partition_response_curves <- function(calibration_results,
                                       ncores = NULL,
                                       ...) {
 
+  if (missing(calibration_results)) {
+    stop("Argument 'calibration_results' must be defined.")
+  }
+  if (missing(modelID)) {
+    stop("Argument 'modelID' must be defined.")
+  }
+
+  if (!inherits(calibration_results, "calibration_results")) {
+    stop("Argument 'calibration_results' must be a 'calibration_results' object.")
+  }
+
+
   # base arguments
-  m_id <- gsub("Model_", "", modelID)
+  m_id <- as.numeric(gsub("Model_", "", modelID))
   algorithm <- calibration_results$algorithm
 
   # Create a grid of model IDs and partitions
   tparts <- length(calibration_results$part_data)
 
-  dfgrid <- expand.grid(models = m_id, partitions = 1:tparts)
+  dfgrid <- expand.grid(models = m_id, replicates = 1:tparts)
   n_tot <- nrow(dfgrid) # Total models * partitions
 
   if (n_tot == 1 & parallel) {
@@ -111,7 +123,7 @@ partition_response_curves <- function(calibration_results,
                                     .packages = c("glmnet", "enmpa")
     ) %dopar% {
       fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
-                     n_partitions = tparts,
+                     n_replicates = tparts,
                      rep_data = calibration_results$part_data,
                      algorithm = algorithm)
     }
@@ -120,7 +132,7 @@ partition_response_curves <- function(calibration_results,
     for (x in 1:n_tot) {
       best_models[[x]] <- fit_best_model(
         x = x, dfgrid = dfgrid, cal_res = calibration_results,
-        n_partitions = tparts, rep_data = calibration_results$part_data,
+        n_replicates = tparts, rep_data = calibration_results$part_data,
         algorithm = algorithm
       )
     }
@@ -174,7 +186,7 @@ partition_response_curves <- function(calibration_results,
     datat <- calibration_results$calibration_data[calibration_results$part_data[[h]], ]
 
     ## new limits for plot
-    newdata <- apply(calibration_results$calibration_data[, coefss[[h]]],
+    newdata <- apply(calibration_results$calibration_data[, coefss[[h]], drop = FALSE],
                      2, range)
     extension <- 0.1 * apply(newdata, 2, diff)
     newdata[1, ] <- newdata[1, ] - extension
