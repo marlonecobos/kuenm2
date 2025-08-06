@@ -977,9 +977,18 @@ proc <- function(x, formula_grid, data, error_considered = 10,
 
     #Proc
     proc_i <- lapply(error_considered, function(omr) {
-      proc_omr <- fpROC::auc_metrics(test_prediction = suit_val_eval,
-                                     prediction = pred_i,
-                                     threshold = omr)$summary[, 4:5]
+      proc_omr <- suppressWarnings(
+        fpROC::auc_metrics(test_prediction = suit_val_eval,
+                           prediction = pred_i,
+                           threshold = omr)[[1]]
+      )
+
+      if (all(is.na(proc_omr))) {
+        proc_omr <- data.frame(proc_omr[1], proc_omr[2])
+      } else {
+        proc_omr <- proc_omr[, 4:5]
+      }
+
       names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
                            paste0("pval_pROC_at_", omr))
       return(proc_omr)
@@ -1007,9 +1016,8 @@ proc <- function(x, formula_grid, data, error_considered = 10,
   sds <- sapply(proc_df[, -1], sd)
 
   #Create new dataframe
-  proc_df <- data.frame(
-    t(c(means, sds))
-  )
+  proc_df <- data.frame(t(c(means, sds)))
+
   #Rename
   names(proc_df) <- c(paste0(names(means), ".mean"), paste0(names(sds), ".sd"))
 
