@@ -121,10 +121,11 @@ explore_calibration_hist <- function(data, include_m = FALSE,
   cat_v <- data$categorical_variables #Categorical variables
 
   if (include_m) {
-  #Get values of entire M, if necessary
-  m_data <- terra::as.data.frame(raster_variables)
-  #Change orders
-  m_data <- m_data[, v]}
+    #Get values of entire M, if necessary
+    m_data <- terra::as.data.frame(raster_variables)
+    #Change orders
+    m_data <- m_data[, v]
+  }
 
   # preparing histogram information
   var_hist <- lapply(v, function(i) {
@@ -138,7 +139,9 @@ explore_calibration_hist <- function(data, include_m = FALSE,
       if (include_m) {
         pr_bg <- stats::na.omit(c(pr_bg, m_data[[i]]))
       }
-      ax <- pretty((min(pr_bg) - 0.1):max(pr_bg), n = breaks)
+      ax <- pretty(seq((min(pr_bg) - 0.1), max(pr_bg), by = diff(range(pr_bg)) /
+                         (breaks *  10)),
+                   n = breaks)
       df <- diff(ax[1:2])
       ax <- c(ax[1] - df, ax, ax[length(ax)] + df)
       #Check if ax cover all values in the variable
