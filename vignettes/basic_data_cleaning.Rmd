@@ -34,8 +34,6 @@ As any modeling technique, ecological niche modeling depends on the quality of t
 
 We want to highlight that additional data cleaning and filtering steps (e.g., spatial thinning) may be necessary depending on the type of model or modeling approach the user intends to adopt. The tools presented here are designed to assist with the most basic steps of cleaning data for modeling.
 
-Note: functions from other packages (i.e., not from base R or kuenm2) used in this guide will be displayed as `package::function()`. 
-
 <br>
 
 ## Getting ready
@@ -43,6 +41,8 @@ Note: functions from other packages (i.e., not from base R or kuenm2) used in th
 If kuenm2 has not been installed yet, please do so. See the [Main guide](../index.html) for installation instructions.
 
 Load kuenm2 and any other required packages, and define a working directory (if needed). In general, setting a working directory in R is considered good practice, as it provides better control over where files are read from or saved to. If users are not working within an R project, we recommend setting a working directory, since at least one file will be saved at later stages of this guide.
+
+Note: functions from other packages (i.e., not from base R or kuenm2) used in this guide will be displayed as `package::function()`. 
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 # Load packages
