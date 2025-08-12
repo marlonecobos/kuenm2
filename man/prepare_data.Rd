@@ -5,7 +5,7 @@
 \title{Prepare data for model calibration}
 \usage{
 prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
-             mask = NULL, n_background = 1000, features = c("lq", "lqp"),
+             n_background = 1000, features = c("lq", "lqp"),
              r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method,
              n_partitions = 4, train_proportion = 0.7,
              categorical_variables = NULL,
@@ -28,15 +28,13 @@ contains the longitude values.}
 \item{y}{(character) a string specifying the name of the column in \code{occ} that
 contains the latitude values.}
 
-\item{raster_variables}{(SpatRaster) predictor variables used to calibrate the
-models.}
+\item{raster_variables}{(SpatRaster) predictor variables from which
+environmental values will be extracted using \code{occ} and a background will be
+sampled. Must correspond geographically with the area where model is
+calibrated.}
 
 \item{species}{(character) string specifying the species name (optional).
 Default is NULL.}
-
-\item{mask}{spatial object used to mask the variables to the area where the
-model will be calibrated. Mask must be of one of the following classes:
-\code{SpatRaster}, \code{SpatVector}, or \code{SpatExtent}. Default is NULL.}
 
 \item{n_background}{(numeric) number of points to represent the background
 for the model. Default is 1000.}
@@ -86,15 +84,15 @@ Default is 95.}
 a principal component must explain to be retained. Default is 5.}
 
 \item{min_number}{(numeric) the minimum number of variables to be included in
-the model formulas to be generated.}
+the model formulas to be generated. Default = 2.}
 
 \item{min_continuous}{(numeric) the minimum number of continuous variables
 required in a combination. Default is NULL.}
 
 \item{bias_file}{(SpatRaster) a raster containing bias values (probability
 weights) that influence the selection of background points. It must have the
-same extent, resolution, and number of cells as the raster variables, unless
-a mask is provided. Default is NULL.}
+same extent, resolution, and number of cells as the raster variables.
+Default is NULL.}
 
 \item{bias_effect}{(character) a string specifying how the values in the
 \code{bias_file} should be interpreted. Options are "direct" or "inverse". If
@@ -119,8 +117,9 @@ Default is NULL.}
 \item{write_file}{(logical) whether to write the resulting prepared_data list
 in a local directory. Default is FALSE.}
 
-\item{file_name}{(character) the path or name of the folder where the
-resulting list will be saved. This is only applicable if \code{write_file = TRUE}. Default is NULL.}
+\item{file_name}{(character) name of file (no extension needed) to write
+resulting object in a local directory. Only needed if \code{write_file = TRUE}.
+Default is NULL.}
 
 \item{seed}{(numeric) integer value to specify an initial seed to split the
 data and extract background. Default is 1.}
@@ -141,9 +140,19 @@ feature classes, and sets of environmental variables.
 \details{
 The available data partitioning methods are:
 \itemize{
-\item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
-\item \strong{"bootstrap"}: Creates the training dataset by sampling observations from the original dataset \emph{with replacement} (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
-\item \strong{"subsample"}: Similar to bootstrap, but the training set is created by sampling \emph{without replacement} (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
+\item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately
+equal size. In each partition, one fold is used as the test
+set, while the remaining folds are combined to form the
+training set.
+\item \strong{"bootstrap"}: Creates the training dataset by sampling observations
+from the original dataset \emph{with replacement} (i.e., the
+same observation can be selected multiple times). The test
+set consists of the observations that were not selected in
+that specific replicate.
+\item \strong{"subsample"}: Similar to bootstrap, but the training set is created by
+sampling \emph{without replacement} (i.e., each observation is
+selected at most once). The test set includes the
+observations not selected for training.
 }
 }
 \examples{

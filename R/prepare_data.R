@@ -8,7 +8,7 @@
 #'
 #' @usage
 #' prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
-#'              mask = NULL, n_background = 1000, features = c("lq", "lqp"),
+#'              n_background = 1000, features = c("lq", "lqp"),
 #'              r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method,
 #'              n_partitions = 4, train_proportion = 0.7,
 #'              categorical_variables = NULL,
@@ -26,13 +26,12 @@
 #' contains the longitude values.
 #' @param y (character) a string specifying the name of the column in `occ` that
 #' contains the latitude values.
-#' @param raster_variables (SpatRaster) predictor variables used to calibrate the
-#' models.
+#' @param raster_variables (SpatRaster) predictor variables from which
+#' environmental values will be extracted using `occ` and a background will be
+#' sampled. Must correspond geographically with the area where model is
+#' calibrated.
 #' @param species (character) string specifying the species name (optional).
 #' Default is NULL.
-#' @param mask spatial object used to mask the variables to the area where the
-#' model will be calibrated. Mask must be of one of the following classes:
-#' `SpatRaster`, `SpatVector`, or `SpatExtent`. Default is NULL.
 #' @param categorical_variables (character) names of the variables that are
 #' categorical. Default is NULL.
 #' @param do_pca (logical) whether to perform a principal component analysis
@@ -60,8 +59,8 @@
 #' for the model. Default is 1000.
 #' @param bias_file (SpatRaster) a raster containing bias values (probability
 #' weights) that influence the selection of background points. It must have the
-#' same extent, resolution, and number of cells as the raster variables, unless
-#' a mask is provided. Default is NULL.
+#' same extent, resolution, and number of cells as the raster variables.
+#' Default is NULL.
 #' @param bias_effect (character) a string specifying how the values in the
 #' `bias_file` should be interpreted. Options are "direct" or "inverse". If
 #' "direct", higher values in bias file increase the likelihood of selecting
@@ -80,7 +79,7 @@
 #' @param weights (numeric) a numeric vector specifying weights for the
 #' occurrence records. Default is NULL.
 #' @param min_number (numeric) the minimum number of variables to be included in
-#' the model formulas to be generated.
+#' the model formulas to be generated. Default = 2.
 #' @param min_continuous (numeric) the minimum number of continuous variables
 #' required in a combination. Default is NULL.
 #' @param features (character) a vector of feature classes. Default is c("q",
@@ -92,18 +91,28 @@
 #' will be renamed as "x" and "y". Default is TRUE.
 #' @param write_file (logical) whether to write the resulting prepared_data list
 #' in a local directory. Default is FALSE.
-#' @param file_name (character) the path or name of the folder where the
-#' resulting list will be saved. This is only applicable if `write_file =
-#' TRUE`. Default is NULL.
+#' @param file_name (character) name of file (no extension needed) to write
+#' resulting object in a local directory. Only needed if `write_file = TRUE`.
+#' Default is NULL.
 #' @param seed (numeric) integer value to specify an initial seed to split the
 #' data and extract background. Default is 1.
 #'
 #' @details
 #' The available data partitioning methods are:
 #'
-#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
-#' - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
-#' - **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
+#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately
+#'                 equal size. In each partition, one fold is used as the test
+#'                 set, while the remaining folds are combined to form the
+#'                 training set.
+#' - **"bootstrap"**: Creates the training dataset by sampling observations
+#'                    from the original dataset *with replacement* (i.e., the
+#'                    same observation can be selected multiple times). The test
+#'                    set consists of the observations that were not selected in
+#'                    that specific replicate.
+#' - **"subsample"**: Similar to bootstrap, but the training set is created by
+#'                    sampling *without replacement* (i.e., each observation is
+#'                    selected at most once). The test set includes the
+#'                    observations not selected for training.
 #'
 #' @return
 #' An object of class `prepared_data` containing all elements to run a model
@@ -161,7 +170,6 @@ prepare_data <- function(algorithm,
                          y,
                          raster_variables,
                          species = NULL,
-                         mask = NULL,
                          n_background = 1000,
                          features = c("lq", "lqp"),
                          r_multiplier = c(0.1, 0.5, 1, 2, 3),
@@ -228,11 +236,6 @@ prepare_data <- function(algorithm,
 
   if (!inherits(raster_variables, "SpatRaster")) {
     stop("Argument 'raster_variables' must be a 'SpatRaster'.")
-  }
-
-  if (!is.null(mask) &
-     !inherits(mask, c("SpatRaster", "SpatVector", "SpatExtent"))) {
-    stop("Argument 'mask' must be a 'SpatVector', 'SpatExtent' or 'SpatRaster'.")
   }
 
   if (!is.null(categorical_variables) &
@@ -327,13 +330,6 @@ prepare_data <- function(algorithm,
   }
 
   sp_name <- species
-
-  if (!is.null(mask)) {
-    raster_variables <- terra::crop(raster_variables, mask, mask = TRUE)
-    if (!is.null(bias_file)) {
-      bias_file <- terra::crop(bias_file, mask, mask = TRUE)
-    }
-  }
 
   if (do_pca) {
     if (!is.null(categorical_variables)) {
