@@ -458,16 +458,39 @@ calibration <- function(data,
   }
 
   bm <- select_models(candidate_models = res_final$Summary,
-                      remove_concave = remove_concave,
-                      compute_proc = !proc_for_all,
                       data = data,
+                      algorithm = algorithm,
+                      compute_proc = !proc_for_all,
+                      addsamplestobackground = addsamplestobackground,
+                      weights = weights,
+                      remove_concave = remove_concave,
                       omission_rate = omission_rate,
                       allow_tolerance = allow_tolerance,
                       tolerance = tolerance,
-                      significance = 0.05, verbose = verbose,
+                      significance = 0.05,
                       delta_aic = delta_aic,
-                      parallel = parallel, ncores = ncores,
-                      progress_bar = progress_bar)
+                      parallel = parallel,
+                      ncores = ncores,
+                      progress_bar = progress_bar,
+                      verbose = verbose)
+
+  # candidate_models = res_final$Summary;
+  # data = data;
+  # algorithm = algorithm;
+  # compute_proc = !proc_for_all;
+  # addsamplestobackground = addsamplestobackground;
+  # weights = weights;
+  # remove_concave = remove_concave;
+  # omission_rate = omission_rate;
+  # allow_tolerance = allow_tolerance;
+  # tolerance = tolerance;
+  # significance = 0.05;
+  # delta_aic = delta_aic;
+  # parallel = parallel;
+  # ncores = ncores;
+  # progress_bar = progress_bar;
+  # verbose = verbose
+  # calibration_results = NULL
 
   # Concatenate final results
   fm <- new_calibration_results(

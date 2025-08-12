@@ -213,17 +213,19 @@ select_models <- function(calibration_results = NULL,
           message("Removing ", length(concave_models), " model(s) with concave curves.")
         }
 
-        candidate_models <- candidate_models[!candidate_models$Is_concave, ]
+        candidate_models <- candidate_models[-concave_models, ]
       } else {
         concave_models <- integer(0)
       }
 
       # Subset models by omission rate
-      high_omr <- candidate_models[candidate_models[, om_thr] > omission_rate / 100, "ID"]
-      cand_om <- candidate_models[candidate_models[, om_thr] <= omission_rate / 100, ]
+      ona <- !is.na(candidate_models[, om_thr])
+      thigh <- candidate_models[, om_thr] > (omission_rate / 100)
+      high_omr <- candidate_models[thigh & ona, "ID"]
+      cand_om <- candidate_models[!thigh & ona, ]
 
       if (verbose) {
-        message(nrow(cand_om), " models were selected with omission rate below ",
+        message(nrow(cand_om), " model(s) were selected with omission rate below ",
                 omission_rate, "%.")
       }
 
@@ -235,17 +237,17 @@ select_models <- function(calibration_results = NULL,
 
       # Apply tolerance if no models meet the omission rate threshold and allow_tolerance is TRUE
       if (nrow(cand_om) == 0 & allow_tolerance) {
-        min_thr <- min(candidate_models[, om_thr])
-        cand_om <- subset(candidate_models,
-                          candidate_models[, om_thr] <= min_thr + tolerance)
-        high_omr <- candidate_models[candidate_models[, om_thr] > min_thr + tolerance, "ID"]
+        min_thr <- min(candidate_models[, om_thr], na.rm = TRUE)
+        aom <- candidate_models[, om_thr] <= (min_thr + tolerance)
+        cand_om <- candidate_models[aom & ona, ]
+        high_omr <- candidate_models[!aom & ona, "ID"]
 
         if (verbose) {
           message("Minimum value of omission rate (", round(min_thr * 100, 1),
                   "%) is above the selected threshold (", omission_rate,
                   "%).\nApplying tolerance and selecting ", nrow(cand_om),
                   " models with omission rate <",
-                  round(min_thr * 100 + tolerance, 1), "%.")
+                  round(min_thr * 100 + tolerance, 2), "%.")
         }
       }
 
@@ -283,9 +285,21 @@ select_models <- function(calibration_results = NULL,
 
         proc_values <- partial_roc(formula_grid = cand_final, data = data,
                                    omission_rate = omission_rate,
-                                   addsamplestobackground, weights,
-                                   algorithm, parallel, ncores,
-                                   progress_bar)
+                                   addsamplestobackground = addsamplestobackground,
+                                   weights = weights,
+                                   algorithm = algorithm,
+                                   parallel = parallel,
+                                   ncores = ncores,
+                                   progress_bar = progress_bar)
+
+        # formula_grid = cand_final; data = data;
+        # omission_rate = omission_rate;
+        # addsamplestobackground = addsamplestobackground;
+        # weights = weights;
+        # algorithm = algorithm;
+        # parallel = parallel;
+        # ncores = ncores;
+        # progress_bar = progress_bar
 
         # Create a copy of cand_final to keep the original data unchanged
         cand_final_updated <- cand_final

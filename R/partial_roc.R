@@ -118,9 +118,15 @@ partial_roc <- function(formula_grid, data, omission_rate = 10,
   } else {
     res_proc <- vector("list", length = n_tot)
     for (x in 1:n_tot) {
-      res_proc[[x]] <- proc(x, formula_grid, data, omission_rate,
-                            addsamplestobackground, weights,
-                            algorithm)
+      res_proc[[x]] <- proc(x = x, formula_grid = formula_grid,
+                            data = data, error_considered = omission_rate,
+                            addsamplestobackground = addsamplestobackground,
+                            weights = weights, algorithm = algorithm)
+
+      # x = x; formula_grid = formula_grid;
+      # data = data; error_considered = omission_rate;
+      # addsamplestobackground = addsamplestobackground;
+      # weights = weights; algorithm = algorithm
 
       # Sets the progress bar to the current state
       if (progress_bar) {
