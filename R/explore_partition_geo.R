@@ -150,7 +150,7 @@ Provide at least ", length(data$part_data), " colors.")
 
   #Crop and trim final raster
   r <- terra::trim(terra::mask(r, raster_variables[[1]]))
-  names(r) <- "Presences and backgrounds"
+  names(r) <- "Presence and background"
 
   #Set colors
   r_col <- data.frame(values = 1:4,
