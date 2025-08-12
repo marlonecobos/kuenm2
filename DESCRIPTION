@@ -18,8 +18,8 @@ Date: 2025-04-29
 Description: A new set of tools to help with the development of detailed ecological 
     niche models using multiple algorithms. Pre-modeling analyses and 
     explorations can be done to prepare data. Model calibration (model selection)
-    can be done by creating and testing several candidate models. Handy options 
-    for producing final models with transfers are included. Other tools to 
+    can be done by creating and testing models with several parameter combinations.  
+    Handy options for producing final models with transfers are included. Other tools to 
     assess extrapolation risks and variability in model transfers are also 
     available. Methodological and theoretical basis for the methods implemented 
     here can be found in:
