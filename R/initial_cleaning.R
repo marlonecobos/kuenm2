@@ -52,7 +52,31 @@
 #' @export
 #'
 #' @rdname initial_cleaning
-
+#'
+#' @examples
+#' # Import occurrences
+#' data(occ_data_noclean, package = "kuenm2")
+#'
+#' # remove missing data
+#' mis <- remove_missing(data = occ_data_noclean, columns = NULL, remove_na = TRUE,
+#'                       remove_empty = TRUE)
+#'
+#' # remove exact duplicates
+#' mis_dup <- remove_duplicates(data = mis, columns = NULL, keep_all_columns = TRUE)
+#'
+#' # remove records with 0 for x and y coordinates
+#' mis_dup_00 <- remove_corrdinates_00(data = mis_dup, x = "x", y = "y")
+#'
+#' # remove coordinates with low decimal precision.
+#' mis_dup_00_dec <- filter_decimal_precision(data = mis_dup_00, x = "x", y = "y",
+#'                                            decimal_precision = 2)
+#'
+#' # all basic cleaning steps
+#' clean_init <- initial_cleaning(data = occ_data_noclean, species = "species",
+#'                                x = "x", y = "y", remove_na = TRUE,
+#'                                remove_empty = TRUE, remove_duplicates = TRUE,
+#'                                by_decimal_precision = TRUE,
+#'                                decimal_precision = 2)
 
 initial_cleaning <- function(data, species, x,
                              y, other_columns = NULL,

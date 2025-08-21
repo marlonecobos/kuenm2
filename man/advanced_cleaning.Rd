@@ -55,6 +55,38 @@ and movement of records.
 Data used in this functions should have gone through initial processes of
 cleaning and filtering.
 }
+\examples{
+# Import occurrences
+data(occ_data_noclean, package = "kuenm2")
+
+# Import raster layers
+var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
+
+# Keep only one layer
+var <- var$bio_1
+
+# all basic cleaning steps
+clean_init <- initial_cleaning(data = occ_data_noclean, species = "species",
+                               x = "x", y = "y", remove_na = TRUE,
+                               remove_empty = TRUE, remove_duplicates = TRUE,
+                               by_decimal_precision = TRUE,
+                               decimal_precision = 2)
+
+# Advanced cleaning steps
+# exclude duplicates based on raster cell (pixel)
+celldup <- remove_cell_duplicates(data = clean_init, x = "x", y = "y",
+                                  raster_layer = var)
+
+# move records to valid pixels
+moved <- move_2closest_cell(data = celldup, x = "x", y = "y",
+                            raster_layer = var, move_limit_distance = 10)
+
+# the steps at a time
+clean_data <- advanced_cleaning(data = clean_init, x = "x", y = "y",
+                                raster_layer = var, cell_duplicates = TRUE,
+                                move_points_inside = TRUE,
+                                move_limit_distance = 10)
+}
 \seealso{
 \code{\link[=initial_cleaning]{initial_cleaning()}}
 }
