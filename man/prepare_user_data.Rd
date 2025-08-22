@@ -7,7 +7,7 @@
 prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
                   y = NULL, features = c("lq", "lqp"),
                   r_multiplier = c(0.1, 0.5, 1, 2, 3),
-                  partition_method = "subsample", n_partitions = 4,
+                  partition_method, n_partitions = 4,
                   train_proportion = 0.7, user_part = NULL,
                   categorical_variables = NULL,
                   do_pca = FALSE, center = TRUE, scale = TRUE,
@@ -52,17 +52,19 @@ See \strong{Details} for more information.}
 
 \item{n_partitions}{(numeric) number of partitions to generate. If
 \code{partition_method} is \code{"subsample"} or \code{"bootstrap"}, this defines the number
-of partitions. If \code{"kfolds"}, it specifies the number of folds. Default is 4.}
+of training testing replicates. If \code{"kfolds"}, it specifies the number of
+folds. Must be > 1; default = 4.}
 
 \item{train_proportion}{(numeric) proportion of occurrence and background
 points to be used for model training in each partition. Only applicable when
 \code{partition_method} is \code{"subsample"} or \code{"bootstrap"}. Default is 0.7 (i.e.,
 70\% for training and 30\% for testing).}
 
-\item{user_part}{a user provided list with replicates or folds for
+\item{user_part}{a user provided list with partitions or folds for
 cross-validation to be used in model calibration. Each element of the list
 should contain a vector of indices indicating the test points, which will be
-used to split \code{use_data} into training and testing sets.}
+used to split \code{user_data} into training and testing sets. Useful in
+experiments that require exactly the same partition sets.}
 
 \item{categorical_variables}{(character) names of the variables that are
 categorical. Default is NULL.}
@@ -118,26 +120,35 @@ resulting list will be saved. This is only applicable if \code{write_file = TRUE
 data. Default is 1.}
 }
 \value{
-An object of class \code{prepared_data} containing all elements to run a model
-calibration routine. The elements include: species, calibration data,
-a grid of model parameters, indices of k-folds for cross validation,
-xy coordinates, names of continuous and categorical variables, weights,
-results from PCA, and modeling algorithm.
+An object of class \code{prepared_data} containing all elements necessary to
+perform further explorations of data and run a model calibration routine.
 }
 \description{
 This function prepares data for model calibration using user-prepared
-calibration data. It includes optional PCA, k-fold partitioning, and the
-creation of a grid parameter combinations, including distinct regularization
-multiplier values, various feature classes, and different sets of
-environmental variables.
+calibration data. It includes optional PCA, training/testing partitioning,
+and the creation of a grid parameter combinations, including distinct
+regularization multiplier values, various feature classes, and different sets
+of environmental variables.
 }
 \details{
-The available data partitioning methods are:
+Training and testing are performed multiple times (i.e., the number set in
+\code{n_partitions}), and model selection is based on the average performance of
+models after running this routine. A description of the available data
+partitioning methods is below:
 \itemize{
-\item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
-\item \strong{"bootstrap"}: Creates the training dataset by sampling observations from the original dataset \emph{with replacement} (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
-\item \strong{"subsample"}: Similar to bootstrap, but the training set is created by sampling \emph{without replacement} (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
-\item \strong{"leave-one-out"}: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
+\item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately
+equal size, keeping proportion of 0 and 1 stable compared to
+the full set. In each training/test run, one fold is used as
+the test set, while the remaining folds are combined to form
+the training set.
+\item \strong{"bootstrap"}: Creates the training dataset by sampling observations
+from the original dataset \emph{with replacement} (i.e., the
+same observation can be selected multiple times). The test
+set consists of the observations that were not selected in
+that specific sampling.
+\item \strong{"subsample"}: Similar to bootstrap, but the training set is created by
+sampling \emph{without replacement} (i.e., each observation is
+selected at most once).
 }
 }
 \examples{
@@ -160,4 +171,9 @@ glm_swd_user <- prepare_user_data(algorithm = "glm",
                                   categorical_variables = "SoilType",
                                   features = c("l", "q", "p", "lq", "lqp"))
 glm_swd_user
+}
+\seealso{
+\code{\link[=calibration]{calibration()}}, \code{\link[=explore_calibration_hist]{explore_calibration_hist()}}, \code{\link[=explore_partition_env]{explore_partition_env()}},
+\code{\link[=explore_partition_geo]{explore_partition_geo()}}, \code{\link[=explore_partition_extrapolation]{explore_partition_extrapolation()}},
+\code{\link[=plot_calibration_hist]{plot_calibration_hist()}}, \code{\link[=plot_partition_extrapolation]{plot_partition_extrapolation()}}
 }

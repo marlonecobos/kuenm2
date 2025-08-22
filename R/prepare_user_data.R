@@ -2,16 +2,16 @@
 #'
 #' @description
 #' This function prepares data for model calibration using user-prepared
-#' calibration data. It includes optional PCA, k-fold partitioning, and the
-#' creation of a grid parameter combinations, including distinct regularization
-#' multiplier values, various feature classes, and different sets of
-#' environmental variables.
+#' calibration data. It includes optional PCA, training/testing partitioning,
+#' and the creation of a grid parameter combinations, including distinct
+#' regularization multiplier values, various feature classes, and different sets
+#' of environmental variables.
 #'
 #' @usage
 #' prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
 #'                   y = NULL, features = c("lq", "lqp"),
 #'                   r_multiplier = c(0.1, 0.5, 1, 2, 3),
-#'                   partition_method = "subsample", n_partitions = 4,
+#'                   partition_method, n_partitions = 4,
 #'                   train_proportion = 0.7, user_part = NULL,
 #'                   categorical_variables = NULL,
 #'                   do_pca = FALSE, center = TRUE, scale = TRUE,
@@ -60,10 +60,11 @@
 #' @param pca_directory (character) the path or name of the folder where the PC
 #' raster layers will be saved. This is only applicable if `write_pca = TRUE`.
 #' Default is NULL.
-#' @param user_part a user provided list with replicates or folds for
+#' @param user_part a user provided list with partitions or folds for
 #' cross-validation to be used in model calibration. Each element of the list
 #' should contain a vector of indices indicating the test points, which will be
-#' used to split `use_data` into training and testing sets.
+#' used to split `user_data` into training and testing sets. Useful in
+#' experiments that require exactly the same partition sets.
 #' @param weights (numeric) a numeric vector specifying weights for the
 #' occurrence records. Default is NULL.
 #' @param min_number (numeric) the minimum number of variables to be included in
@@ -79,11 +80,12 @@
 #' See **Details** for more information.
 #' @param n_partitions (numeric) number of partitions to generate. If
 #' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
-#' of partitions. If `"kfolds"`, it specifies the number of folds. Default is 4.
+#' of training testing replicates. If `"kfolds"`, it specifies the number of
+#' folds. Must be > 1; default = 4.
 #' @param train_proportion (numeric) proportion of occurrence and background
 #' points to be used for model training in each partition. Only applicable when
-#'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
-#'  70% for training and 30% for testing).
+#' `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
+#' 70% for training and 30% for testing).
 #' @param include_xy (logical) whether to include the coordinates (longitude and
 #' latitude) in the results from preparing data. Default is TRUE.
 #' @param write_file (logical) whether to write the resulting prepared_data list
@@ -95,19 +97,28 @@
 #' data. Default is 1.
 #'
 #' @details
-#' The available data partitioning methods are:
+#' Training and testing are performed multiple times (i.e., the number set in
+#' `n_partitions`), and model selection is based on the average performance of
+#' models after running this routine. A description of the available data
+#' partitioning methods is below:
 #'
-#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
-#' - **"bootstrap"**: Creates the training dataset by sampling observations from the original dataset *with replacement* (i.e., the same observation can be selected multiple times). The test set consists of the observations that were not selected in that specific replicate.
-#' - **"subsample"**: Similar to bootstrap, but the training set is created by sampling *without replacement* (i.e., each observation is selected at most once). The test set includes the observations not selected for training.
-#' - **"leave-one-out"**: A special case of kfolds where the number of folds equals the number of presence records. In each replicate, a single presence is left out to serve as the test set, while the remaining observations are used for training.
+#' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately
+#'                 equal size, keeping proportion of 0 and 1 stable compared to
+#'                 the full set. In each training/test run, one fold is used as
+#'                 the test set, while the remaining folds are combined to form
+#'                 the training set.
+#' - **"bootstrap"**: Creates the training dataset by sampling observations
+#'                    from the original dataset *with replacement* (i.e., the
+#'                    same observation can be selected multiple times). The test
+#'                    set consists of the observations that were not selected in
+#'                    that specific sampling.
+#' - **"subsample"**: Similar to bootstrap, but the training set is created by
+#'                    sampling *without replacement* (i.e., each observation is
+#'                    selected at most once).
 #'
 #' @return
-#' An object of class `prepared_data` containing all elements to run a model
-#' calibration routine. The elements include: species, calibration data,
-#' a grid of model parameters, indices of k-folds for cross validation,
-#' xy coordinates, names of continuous and categorical variables, weights,
-#' results from PCA, and modeling algorithm.
+#' An object of class `prepared_data` containing all elements necessary to
+#' perform further explorations of data and run a model calibration routine.
 #'
 #' @importFrom enmpa aux_var_comb
 #' @importFrom terra crop prcomp extract as.data.frame nlyr
@@ -115,6 +126,11 @@
 #' @importFrom stats prcomp predict
 #'
 #' @export
+#'
+#' @seealso
+#' [calibration()], [explore_calibration_hist()], [explore_partition_env()],
+#' [explore_partition_geo()], [explore_partition_extrapolation()],
+#' [plot_calibration_hist()], [plot_partition_extrapolation()]
 #'
 #' @examples
 #' # Import user-prepared data

@@ -2,8 +2,8 @@
 #'
 #' @description
 #' This function prepares data for model calibration, including optional PCA,
-#' background point generation, k-fold partitioning, and the creation of a grid
-#' of parameter combinations, including regularization multiplier values,
+#' background point generation, training/testing partitioning, and the creation
+#' of a grid of parameter combinations, including regularization multiplier values,
 #' feature classes, and sets of environmental variables.
 #'
 #' @usage
@@ -71,15 +71,17 @@
 #' See **Details** for more information.
 #' @param n_partitions (numeric) number of partitions to generate. If
 #' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
-#' of replicates. If `"kfolds"`, it specifies the number of folds. Default is 4.
+#' of training testing replicates. If `"kfolds"`, it specifies the number of
+#' folds. Must be > 1; default = 4.
 #' @param train_proportion (numeric) proportion of occurrence and background
 #' points to be used for model training in each partition. Only applicable when
-#'  `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
-#'  70% for training and 30% for testing).
+#' `partition_method` is `"subsample"` or `"bootstrap"`. Default is 0.7 (i.e.,
+#' 70% for training and 30% for testing).
 #' @param weights (numeric) a numeric vector specifying weights for the
-#' occurrence records. Default is NULL.
+#' occurrence records. The default, NULL, uses 1 for presence and 100 for
+#' background.
 #' @param min_number (numeric) the minimum number of variables to be included in
-#' the model formulas to be generated. Default = 2.
+#' model formulas to be generated. Default = 2.
 #' @param min_continuous (numeric) the minimum number of continuous variables
 #' required in a combination. Default is NULL.
 #' @param features (character) a vector of feature classes. Default is c("q",
@@ -98,34 +100,39 @@
 #' data and extract background. Default is 1.
 #'
 #' @details
-#' The available data partitioning methods are:
+#' Training and testing are performed multiple times (i.e., the number set in
+#' `n_partitions`), and model selection is based on the average performance of
+#' models after running this routine. A description of the available data
+#' partitioning methods is below:
 #'
 #' - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately
-#'                 equal size. In each partition, one fold is used as the test
-#'                 set, while the remaining folds are combined to form the
-#'                 training set.
+#'                 equal size, keeping proportion of 0 and 1 stable compared to
+#'                 the full set. In each training/test run, one fold is used as
+#'                 the test set, while the remaining folds are combined to form
+#'                 the training set.
 #' - **"bootstrap"**: Creates the training dataset by sampling observations
 #'                    from the original dataset *with replacement* (i.e., the
 #'                    same observation can be selected multiple times). The test
 #'                    set consists of the observations that were not selected in
-#'                    that specific replicate.
+#'                    that specific sampling.
 #' - **"subsample"**: Similar to bootstrap, but the training set is created by
 #'                    sampling *without replacement* (i.e., each observation is
-#'                    selected at most once). The test set includes the
-#'                    observations not selected for training.
+#'                    selected at most once).
 #'
 #' @return
-#' An object of class `prepared_data` containing all elements to run a model
-#' calibration routine. The elements include: species, calibration data,
-#' a grid of model parameters, indices of test data for cross validation,
-#' xy coordinates, names of continuous and categorical variables, weights,
-#' results from PCA, and modeling algorithm.
+#' An object of class `prepared_data` containing all elements necessary to
+#' perform further explorations of data and run a model calibration routine.
 #'
 #' @importFrom enmpa aux_var_comb
 #' @importFrom terra crop prcomp extract as.data.frame nlyr ncell ext res
 #' @importFrom utils combn
 #'
 #' @export
+#'
+#' @seealso
+#' [calibration()], [explore_calibration_hist()], [explore_partition_env()],
+#' [explore_partition_geo()], [explore_partition_extrapolation()],
+#' [plot_calibration_hist()], [plot_partition_extrapolation()]
 #'
 #' @examples
 #' # Import occurrences
@@ -374,9 +381,6 @@ prepare_data <- function(algorithm,
 
   #Fix row.names
   row.names(occ_bg) <- NULL
-
-  # k_f <- enmpa::kfold_partition(data = occ_bg, dependent = "pr_bg", k = kfolds,
-  #                               seed = seed)
 
   #Partitione data
   pd <- part_data(data = occ_bg, pr_bg = "pr_bg",

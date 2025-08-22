@@ -51,7 +51,8 @@ See \strong{Details} for more information.}
 
 \item{n_partitions}{(numeric) number of partitions to generate. If
 \code{partition_method} is \code{"subsample"} or \code{"bootstrap"}, this defines the number
-of replicates. If \code{"kfolds"}, it specifies the number of folds. Default is 4.}
+of training testing replicates. If \code{"kfolds"}, it specifies the number of
+folds. Must be > 1; default = 4.}
 
 \item{train_proportion}{(numeric) proportion of occurrence and background
 points to be used for model training in each partition. Only applicable when
@@ -84,7 +85,7 @@ Default is 95.}
 a principal component must explain to be retained. Default is 5.}
 
 \item{min_number}{(numeric) the minimum number of variables to be included in
-the model formulas to be generated. Default = 2.}
+model formulas to be generated. Default = 2.}
 
 \item{min_continuous}{(numeric) the minimum number of continuous variables
 required in a combination. Default is NULL.}
@@ -101,7 +102,8 @@ background points. If "inverse", higher values decrease the likelihood.
 Default = NULL. Must be defined if \code{bias_file} is provided.}
 
 \item{weights}{(numeric) a numeric vector specifying weights for the
-occurrence records. Default is NULL.}
+occurrence records. The default, NULL, uses 1 for presence and 100 for
+background.}
 
 \item{include_xy}{(logical) whether to include the coordinates (longitude and
 latitude) in the results from preparing data. Columns containing coordinates
@@ -125,34 +127,34 @@ Default is NULL.}
 data and extract background. Default is 1.}
 }
 \value{
-An object of class \code{prepared_data} containing all elements to run a model
-calibration routine. The elements include: species, calibration data,
-a grid of model parameters, indices of test data for cross validation,
-xy coordinates, names of continuous and categorical variables, weights,
-results from PCA, and modeling algorithm.
+An object of class \code{prepared_data} containing all elements necessary to
+perform further explorations of data and run a model calibration routine.
 }
 \description{
 This function prepares data for model calibration, including optional PCA,
-background point generation, k-fold partitioning, and the creation of a grid
-of parameter combinations, including regularization multiplier values,
+background point generation, training/testing partitioning, and the creation
+of a grid of parameter combinations, including regularization multiplier values,
 feature classes, and sets of environmental variables.
 }
 \details{
-The available data partitioning methods are:
+Training and testing are performed multiple times (i.e., the number set in
+\code{n_partitions}), and model selection is based on the average performance of
+models after running this routine. A description of the available data
+partitioning methods is below:
 \itemize{
 \item \strong{"kfolds"}: Splits the dataset into \emph{K} subsets (folds) of approximately
-equal size. In each partition, one fold is used as the test
-set, while the remaining folds are combined to form the
-training set.
+equal size, keeping proportion of 0 and 1 stable compared to
+the full set. In each training/test run, one fold is used as
+the test set, while the remaining folds are combined to form
+the training set.
 \item \strong{"bootstrap"}: Creates the training dataset by sampling observations
 from the original dataset \emph{with replacement} (i.e., the
 same observation can be selected multiple times). The test
 set consists of the observations that were not selected in
-that specific replicate.
+that specific sampling.
 \item \strong{"subsample"}: Similar to bootstrap, but the training set is created by
 sampling \emph{without replacement} (i.e., each observation is
-selected at most once). The test set includes the
-observations not selected for training.
+selected at most once).
 }
 }
 \examples{
@@ -191,4 +193,9 @@ sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
                            features = c("l", "q", "p", "lq", "lqp"),
                            partition_method = "kfolds")
 print(sp_swd_glm)
+}
+\seealso{
+\code{\link[=calibration]{calibration()}}, \code{\link[=explore_calibration_hist]{explore_calibration_hist()}}, \code{\link[=explore_partition_env]{explore_partition_env()}},
+\code{\link[=explore_partition_geo]{explore_partition_geo()}}, \code{\link[=explore_partition_extrapolation]{explore_partition_extrapolation()}},
+\code{\link[=plot_calibration_hist]{plot_calibration_hist()}}, \code{\link[=plot_partition_extrapolation]{plot_partition_extrapolation()}}
 }
