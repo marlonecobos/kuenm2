@@ -7,24 +7,42 @@
 \title{kuenm2: Detailed Development of Ecological Niche Models}
 \description{
 kuenm2 A new set of tools to help with the development of detailed ecological
-niche models using multiple algorithms. Pre-modeling analyses and
-explorations can be done to prepare data. Model calibration (model selection)
-can be done by creating and testing several candidate models. Handy options
-for producing final models with transfers are included. Other tools to
-assess extrapolation risks and variability in model transfers are also
-available.
+niche models using multiple algorithms, at the moment Maxnet and GLM.
+Pre-modeling analyses and explorations can be done to prepare data. Model
+calibration (model selection) can be done by creating and testing several
+candidate models, that are later selected based on a multicriteria approach.
+Handy options for producing final models with transfers are included. Other
+tools to assess extrapolation risks and variability in model transfers are
+also available.
 }
-\section{Functions by stage in the ENM process}{
+\section{Main functions by stage in the ENM process}{
 
+\subsection{Pre-modeling steps}{
 \itemize{
 \item Data preparation: \code{\link[=initial_cleaning]{initial_cleaning()}}, \code{\link[=advanced_cleaning]{advanced_cleaning()}},
 \code{\link[=prepare_data]{prepare_data()}}, \code{\link[=prepare_user_data]{prepare_user_data()}}
+\item Data exploration: \code{\link[=explore_calibration_hist]{explore_calibration_hist()}}, \code{\link[=explore_partition_env]{explore_partition_env()}},
+\code{\link[=explore_partition_geo]{explore_partition_geo()}}, \code{\link[=explore_partition_extrapolation]{explore_partition_extrapolation()}},
+\code{\link[=plot_calibration_hist]{plot_calibration_hist()}}, \code{\link[=plot_partition_extrapolation]{plot_partition_extrapolation()}}
+}
+}
+
+\subsection{Modeling process}{
+\itemize{
 \item Model calibration: \code{\link[=calibration]{calibration()}}, \code{\link[=select_models]{select_models()}}
 \item Model exploration: \code{\link[=fit_selected]{fit_selected()}}, \code{\link[=variable_importance]{variable_importance()}},
-\code{\link[=plot_importance]{plot_importance()}}, \code{\link[=response_curve]{response_curve()}}, \code{\link[=bivariate_response]{bivariate_response()}}
-\item Model projection: \code{\link[=predict_selected]{predict_selected()}}, \code{\link[=project_selected]{project_selected()}}
-\item Post-modeling: \code{\link[=projection_variability]{projection_variability()}}, \code{\link[=projection_changes]{projection_changes()}},
-\code{\link[=projection_mop]{projection_mop()}}
+\code{\link[=plot_importance]{plot_importance()}}, \code{\link[=response_curve]{response_curve()}}, \code{\link[=all_response_curves]{all_response_curves()}},
+\code{\link[=bivariate_response]{bivariate_response()}}, \code{\link[=partition_response_curves]{partition_response_curves()}}
+\item Model projection: \code{\link[=predict_selected]{predict_selected()}}, \code{\link[=organize_for_projection]{organize_for_projection()}},
+\code{\link[=organize_future_worldclim]{organize_future_worldclim()}}, \code{\link[=prepare_projection]{prepare_projection()}}, \code{\link[=project_selected]{project_selected()}}
+}
+}
+
+\subsection{Post-modeling analysis}{
+\itemize{
+\item Variability: \code{\link[=projection_changes]{projection_changes()}}, \code{\link[=projection_variability]{projection_variability()}}
+\item Uncertainty: \code{\link[=projection_mop]{projection_mop()}}
+}
 }
 }
 
