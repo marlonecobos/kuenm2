@@ -11,7 +11,7 @@
 #' prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
 #'                   y = NULL, features = c("lq", "lqp"),
 #'                   r_multiplier = c(0.1, 0.5, 1, 2, 3),
-#'                   partition_method, n_partitions = 4,
+#'                   partition_method = "kfolds, n_partitions = 4,
 #'                   train_proportion = 0.7, user_part = NULL,
 #'                   categorical_variables = NULL,
 #'                   do_pca = FALSE, center = TRUE, scale = TRUE,
@@ -77,7 +77,7 @@
 #' Default is c(0.1, 1, 2, 3, 5).
 #' @param partition_method (character) method used for data partitioning.
 #' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
-#' See **Details** for more information.
+#' See **Details** for more information. Default = "kfolds".
 #' @param n_partitions (numeric) number of partitions to generate. If
 #' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
 #' of training testing replicates. If `"kfolds"`, it specifies the number of
@@ -161,7 +161,7 @@ prepare_user_data <- function(algorithm,
                               y = NULL,
                               features = c("lq", "lqp"),
                               r_multiplier = c(0.1, 0.5, 1, 2, 3),
-                              partition_method = "subsample",
+                              partition_method = "kfolds",
                               n_partitions = 4,
                               train_proportion = 0.7,
                               user_part = NULL,

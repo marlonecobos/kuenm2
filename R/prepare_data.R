@@ -9,7 +9,7 @@
 #' @usage
 #' prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
 #'              n_background = 1000, features = c("lq", "lqp"),
-#'              r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method,
+#'              r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method = "kfolds",
 #'              n_partitions = 4, train_proportion = 0.7,
 #'              categorical_variables = NULL,
 #'              do_pca = FALSE, center = TRUE, scale = TRUE,
@@ -68,7 +68,7 @@
 #' Default = NULL. Must be defined if `bias_file` is provided.
 #' @param partition_method (character) method used for data partitioning.
 #' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
-#' See **Details** for more information.
+#' See **Details** for more information. Default = "kfolds".
 #' @param n_partitions (numeric) number of partitions to generate. If
 #' `partition_method` is `"subsample"` or `"bootstrap"`, this defines the number
 #' of training testing replicates. If `"kfolds"`, it specifies the number of
@@ -155,8 +155,7 @@
 #'                        n_background = 500, bias_file = bias,
 #'                        bias_effect = "direct",
 #'                        features = c("l", "q", "p", "lq", "lqp"),
-#'                        r_multiplier = c(0.1, 1, 2, 3, 5),
-#'                        partition_method = "kfolds")
+#'                        r_multiplier = c(0.1, 1, 2, 3, 5))
 #' print(sp_swd)
 #'
 #' # Prepare data for glm model
@@ -167,8 +166,7 @@
 #'                            categorical_variables = "SoilType",
 #'                            n_background = 500, bias_file = bias,
 #'                            bias_effect = "direct",
-#'                            features = c("l", "q", "p", "lq", "lqp"),
-#'                            partition_method = "kfolds")
+#'                            features = c("l", "q", "p", "lq", "lqp"))
 #' print(sp_swd_glm)
 
 prepare_data <- function(algorithm,
@@ -180,7 +178,7 @@ prepare_data <- function(algorithm,
                          n_background = 1000,
                          features = c("lq", "lqp"),
                          r_multiplier = c(0.1, 0.5, 1, 2, 3),
-                         partition_method,
+                         partition_method = "kfolds",
                          n_partitions = 4,
                          train_proportion = 0.7,
                          categorical_variables = NULL,
