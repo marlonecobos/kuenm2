@@ -11,7 +11,7 @@
 #' prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
 #'                   y = NULL, features = c("lq", "lqp"),
 #'                   r_multiplier = c(0.1, 0.5, 1, 2, 3),
-#'                   partition_method = "kfolds, n_partitions = 4,
+#'                   partition_method = "kfolds", n_partitions = 4,
 #'                   train_proportion = 0.7, user_part = NULL,
 #'                   categorical_variables = NULL,
 #'                   do_pca = FALSE, center = TRUE, scale = TRUE,
