@@ -173,6 +173,22 @@
 #' }
 "flexsdm_block"
 
+#' Discrete palettes based on pals R package
+#'
+#' @description
+#' Color palettes designed for discrete, categorical data. Palettes retrived from pals R package
+#'
+#' @usage data("kuenm2_discrete_palletes")
+#' @format A \code{list} with the following color palettes: "alphabet",
+#' "alphabet2", "cols25", "glasbey", "kelly", "polychrome", "stepped",
+#' "stepped2", "stepped3", "okabe", "tableau20", "tol", "tol.groundcover",
+#' "trubetskoy", and "watlington"
+#'
+#' @references
+#' Wright K (2023). pals: Color Palettes, Colormaps, and Tools to Evaluate
+#' Them_. R package version 1.8, <https://CRAN.R-project.org/package=pals>.
+"kuenm2_discrete_palletes"
+
 
 #' Species Occurrence with Erroneous Records
 #'
@@ -261,6 +277,16 @@
 #'   }
 "sp_swd"
 
+#' Prepared data with spatial blocks created with ENMeval
+#'
+#' @description
+#' A `prepared_data` object resulted from \code{prepare_data()} to calibrate
+#' models using 'glmnet' algorithm. In this object, the original partitioning
+#' was replaced with spatial blocks generated using the \code{get.block()}
+#' method from the ENMeval R package.
+#'
+#' @usage data("sp_swd")
+"swd_spatial_block"
 
 #' User Custom Calibration Data
 #'
@@ -738,6 +764,24 @@ NULL
 #' @examples
 #' m <- terra::vect(system.file("extdata",
 #'                              "m.gpkg",
+#'                               package = "kuenm2"))
+#' terra::plot(m)
+NULL
+
+#' World country polygons from Natural Earth
+#'
+#' A spatial vector of the world countries. This is a simplified version of the `countries110` from rnaturalearth R package.
+#'
+#' @format A `Spatvector` object.
+#'
+#' @name world
+#'
+#' @return No return value. Used with function \code{\link[terra]{vect}} to
+#' bring vector variables to analysis.
+#'
+#' @examples
+#' m <- terra::vect(system.file("extdata",
+#'                              "world.gpkg",
 #'                               package = "kuenm2"))
 #' terra::plot(m)
 NULL
