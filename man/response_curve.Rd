@@ -149,5 +149,5 @@ all_response_curves(fitted_model_maxnet, modelID = "Model_192",
                     add_points = TRUE)
 }
 \seealso{
-\code{\link[=bivariate_response]{bivariate_response()}}, \code{\link[=partition_response_cruves]{partition_response_cruves()}}
+\code{\link[=bivariate_response]{bivariate_response()}}, \code{\link[=partition_response_curves]{partition_response_curves()}}
 }

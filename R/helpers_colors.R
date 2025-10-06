@@ -117,7 +117,7 @@ SpectrumLegend <- function(
     x = "topright", ...,
     palette,
     legend,
-    lty = 1, lwd = 4,
+    lty = 1, lwd = 8,
     bty = "o",
     adj = if (horiz) c(0.5, 0.5) else c(0, 0.5),
     horiz = FALSE,
@@ -133,19 +133,19 @@ SpectrumLegend <- function(
     stop("palette has length zero")
   }
 
-  lgd <- legend(x = x,
-                legend = legend,
-                horiz = horiz,
-                adj = adj,
-                cex = cex,
-                bty = ifelse(horiz, "n", bty),
-                lty = 0, ncol = 1,
-                seg.len = seg.len,
-                ...)
+  lgd <- graphics::legend(x = x,
+                          legend = legend,
+                          horiz = horiz,
+                          adj = adj,
+                          cex = cex,
+                          bty = ifelse(horiz, "n", bty),
+                          lty = 0, ncol = 1,
+                          seg.len = seg.len,
+                          ...)
   textXY <- lgd[["text"]]
 
-  Cex <- cex * par("cex")
-  xyc <- xyinch(par("cin"), warn.log = FALSE)
+  Cex <- cex * graphics::par("cex")
+  xyc <- graphics::xyinch(graphics::par("cin"), warn.log = FALSE)
 
   if (horiz) {
     xEnds <- range(textXY[["x"]])
@@ -170,4 +170,51 @@ SpectrumLegend <- function(
 
   # Return:
   invisible(lgd)
+}
+
+.DrawBox <- function (box, ...) {
+  dots <- list(...)
+  x <- box[["left"]] + c(0, box[["w"]])
+  y <- box[["top"]] - c(box[["h"]], 0)
+  if (graphics::par("xlog")) {
+    x <- 10^x
+  }
+  if (graphics::par("ylog")) {
+    y <- 10^y
+  }
+  graphics::rect(x[[1]], y[[1]], x[[2]], y[[2]], lwd = dots[["box.lwd"]],
+       lty = dots[["box.lty"]], border = dots[["box.col"]])
+}
+
+.DrawLegend <- function(xEnds, yEnds, nPts, palette, lwd, lty, lend){
+  segX <- xEnds[[1]] + ((xEnds[[2]] - xEnds[[1]]) * 0:nPts/nPts)
+  segY <- yEnds[[1]] + ((yEnds[[2]] - yEnds[[1]]) * 0:nPts/nPts)
+  nPlus1 <- nPts + 1L
+  epsilon <- 0.004
+  epsX <- abs(segX[[nPlus1]] - segX[[1]]) * epsilon
+  epsY <- abs(segY[[nPlus1]] - segY[[1]]) * epsilon
+  x <- cbind(segX[-nPlus1], segX[-1] + epsX)
+  y <- cbind(segY[-nPlus1], segY[-1] + epsY)
+  if (par("xlog")) {
+    x <- 10^x
+  }
+  if (par("ylog")) {
+    y <- 10^y
+  }
+  graphics::segments(x[, 1], y[, 1], x[, 2], y[, 2], col = palette, lwd = lwd,
+           lty = lty, lend = lend)
+}
+
+
+#### Check if color is valid
+valid_color <- function(cor) {
+    tryCatch(
+    expr = {
+      invisible(grDevices::col2rgb(cor))
+      return(TRUE)
+    },
+    error = function(e) {
+      return(FALSE)
+    }
+  )
 }

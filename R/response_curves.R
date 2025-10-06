@@ -80,7 +80,7 @@
 #' @export
 #'
 #' @seealso
-#' [bivariate_response()], [partition_response_cruves()]
+#' [bivariate_response()], [partition_response_curves()]
 #'
 #' @importFrom stats predict coef approx binomial complete.cases formula
 #' @importFrom stats model.matrix predict.glm sd
