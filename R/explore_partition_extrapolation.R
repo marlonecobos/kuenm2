@@ -11,8 +11,6 @@
 #'                                        mop_type = "detailed",
 #'                                        calculate_distance = TRUE,
 #'                                        where_distance = "all",
-#'                                        return_spatial = TRUE,
-#'                                        crs = "+init=epsg:4326",
 #'                                        progress_bar = FALSE, ...)
 #'
 #' @param data an object of class `prepared_data` returned by the
@@ -36,11 +34,6 @@
 #' be used to calculate distances. Options are: "in_range" (only conditions
 #' within the train range), "out_range" (only conditions outside the
 #' train range), and "all" (all conditions). Default is "all".
-#' @param return_spatial (logical) whether to return a `SpatVector` showing the
-#' dissimilarities and the spatial distribution of test data that falls within
-#' and outside the range of the training data. Default is TRUE.
-#' @param crs The coordinate reference system to spatialize the results. Only
-#' applicable if `return_spatial = TRUE`. Default is "+init=epsg:4326".
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is FALSE.
 #' @param ... additional arguments passed to \code{\link[mop]{mop}()}.
@@ -56,11 +49,8 @@
 #' contain columns indicating which values in the testing data were not present
 #' in the training data.
 #'
-#' If `return_raster_result = TRUE`, it also returns a `SpatRaster` showing the
-#' spatial distribution of test data that falls within and outside the range of
-#' the training data.
 #' @export
-#' @importFrom terra vect crs rasterize mask coltab
+#' @importFrom terra vect rasterize mask coltab
 #' @importFrom mop mop
 #' @importFrom stats setNames
 #' @examples
@@ -84,11 +74,7 @@
 #'                        partition_method = "kfolds")
 #'
 #' # Analysis of extrapolation risks in partitions
-#' res <- explore_partition_extrapolation(data = sp_swd,
-#'                                        raster_variables = var,
-#'                                        include_test_background = TRUE)
-#' #Plot spatial spatial distribution of test data
-#' terra::plot(res$Spatial_results)
+#' res <- explore_partition_extrapolation(data = sp_swd)
 #'
 explore_partition_extrapolation <- function(data,
                                             include_train_background = TRUE,
@@ -97,8 +83,6 @@ explore_partition_extrapolation <- function(data,
                                             mop_type = "detailed",
                                             calculate_distance = TRUE,
                                             where_distance = "all",
-                                            return_spatial = TRUE,
-                                            crs = "+init=epsg:4326",
                                             progress_bar = FALSE, ...){
   #Check data
   if (missing(data)) {
@@ -136,10 +120,6 @@ explore_partition_extrapolation <- function(data,
   if (length(distance_out) > 0) {
     stop("Invalid 'where_distance' provided.",
          "\nAvailable options are: 'in_range', 'out_range', and 'all'.")
-  }
-
-  if(!inherits(return_spatial, "logical")){
-    stop("Argument 'return_spatial' must be 'logical'.")
   }
 
 
@@ -214,7 +194,7 @@ explore_partition_extrapolation <- function(data,
 
 
     #Append xy information
-    if(return_spatial){
+    if(!is.null(data$data_xy)){
       if(!include_test_background){
         xy <- cbind(data$data_xy[partition_i, ],
                     "pr_bg" = data$calibration_data[partition_i, "pr_bg"])
@@ -245,89 +225,15 @@ explore_partition_extrapolation <- function(data,
   c_order <- c(c_order, setdiff(colnames(all_res), c_order))
   all_res <- all_res[, c_order]
 
-  # #Spatialize results
-  # if(return_spatial){
-  #
-  # res_spatial <- list()
+  #Reorganize calibration data
+  partition_order <- unlist(data$part_data)
 
-  # #Categories and colors
-  # l <- data.frame(id = 0:5,
-  #                 category = c("Calibration area",
-  #                              "Test data within range",
-  #                              "Test data out of range",
-  #                              "Background test within range",
-  #                              "Background test out of range",
-  #                              "Train data"))
-  # cores <- data.frame(value = 0:5, col = c("grey90",
-  #                                          "#009E73",
-  #                                          "#D55E00",
-  #                                          "#0072B2",
-  #                                          "#F0E442",
-  #                                          "black"))
+  calib_data <- data$calibration_data[partition_order, ]
 
 
-  # for (i in names(res)) {
-  #   #print(i)
-  #   #Filter results
-  #   rep_i <- all_res[all_res$Partition == i, ]
-  #
-  #   #Add attributed
-  #   rep_i$category <- NA # initialize column
-  #
-  #   # Set categories
-  #   rep_i$category[rep_i$pr_bg == 1 & rep_i$inside_range] <- "Test presence within range"
-  #   rep_i$category[rep_i$pr_bg == 1 & !rep_i$inside_range] <- "Test presence out of range"
-  #   rep_i$category[rep_i$pr_bg == 0 & rep_i$inside_range] <- "Test background within range"
-  #   rep_i$category[rep_i$pr_bg == 0 & !rep_i$inside_range] <- "Test background out of range"
-  #
-  #   #Get only columns of interest
-  #   rep_i <- rep_i[,c("x", "y", "category", "mop_distance")]
-  #
-  #   # #Append train points
-  #   # train_index <- -data$part_data[[i]]
-  #   # rep_train_i <- cbind(data$data_xy[train_index,],
-  #   #                      "pr_bg" = data$calibration_data[train_index, "pr_bg"])
-  #   # rep_train_i <- rep_train_i[rep_train_i$pr_bg == 1,]
-  #   # rep_train_i$category <- 5
-  #   # #Merge results
-  #   # rep_i<- rbind(rep_i, rep_train_i[,colnames(rep_i)])
-  #
-  #   #Spatialize
-  #   rep_vect <- terra::vect(rep_i, geom = c(x = "x", y = "y"),
-  #                           crs = crs)
-  #
-  #
-  #   # #Get template raster
-  #   # template_raster <- raster_variables[[1]]
-  #   # template_raster[!is.na(template_raster)] <- 0
-  #   #
-  #   # #Vectorize raster
-  #   # spatial_points <- terra::vect(rep_i[,c("x", "y", "category")],
-  #   #                               geom=c("x", "y"),
-  #   #                               crs= terra::crs(raster_variables))
-  #   # #Rasterize data
-  #   # rasterized_data <- suppressWarnings(terra::rasterize(spatial_points,
-  #   #                                                      template_raster,
-  #   #                                                      field="category",
-  #   #                                                      fun="min",
-  #   #                                                      background = 0,
-  #   #                                                      na.rm = TRUE))
-  #   # #Identify calibration area
-  #   # rasterized_data <- terra::mask(rasterized_data, template_raster)
-  #   #
-  #   # #Set levels
-  #   # levels(rasterized_data) <- l
-  #   #
-  #   # #Set colors
-  #   # terra::coltab(rasterized_data) <- cores
-  #   res_spatial[[i]] <- rep_vect
-  # }
-  # } #End of return_spatial
-  #
-
-  #Returnin final results
+  #Return final results
   res_final <- list("Mop_results" = all_res,
-                    "calibration_data" = data$calibration_data,
+                    "calibration_data" = calib_data,
                     "categorical_variables" = data$categorical_variables,
                     "pca" = data$pca)
   class(res_final) <- "explore_partition"
