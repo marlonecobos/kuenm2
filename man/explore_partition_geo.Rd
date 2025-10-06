@@ -72,7 +72,7 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 # Import prepared_data
 data(sp_swd, package = "kuenm2")
 
-Explore partitions in the geographic space
+# Explore partitions in the geographic space
 pbg <- explore_partition_geo(data = sp_swd, raster_variables = var[[1]])
 terra::plot(pbg)
 }

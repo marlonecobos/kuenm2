@@ -10,8 +10,6 @@ explore_partition_extrapolation(data, include_train_background = TRUE,
                                        mop_type = "detailed",
                                        calculate_distance = TRUE,
                                        where_distance = "all",
-                                       return_spatial = TRUE,
-                                       crs = "+init=epsg:4326",
                                        progress_bar = FALSE, ...)
 }
 \arguments{
@@ -43,13 +41,6 @@ be used to calculate distances. Options are: "in_range" (only conditions
 within the train range), "out_range" (only conditions outside the
 train range), and "all" (all conditions). Default is "all".}
 
-\item{return_spatial}{(logical) whether to return a \code{SpatVector} showing the
-dissimilarities and the spatial distribution of test data that falls within
-and outside the range of the training data. Default is TRUE.}
-
-\item{crs}{The coordinate reference system to spatialize the results. Only
-applicable if \code{return_spatial = TRUE}. Default is "+init=epsg:4326".}
-
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is FALSE.}
 
@@ -67,10 +58,6 @@ within the training range;
 contain columns indicating which values in the testing data were not present
 in the training data.
 }
-
-If \code{return_raster_result = TRUE}, it also returns a \code{SpatRaster} showing the
-spatial distribution of test data that falls within and outside the range of
-the training data.
 }
 \description{
 This function calculates environmental dissimilarities and identifies
@@ -98,10 +85,6 @@ sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
                        partition_method = "kfolds")
 
 # Analysis of extrapolation risks in partitions
-res <- explore_partition_extrapolation(data = sp_swd,
-                                       raster_variables = var,
-                                       include_test_background = TRUE)
-#Plot spatial spatial distribution of test data
-terra::plot(res$Spatial_results)
+res <- explore_partition_extrapolation(data = sp_swd)
 
 }
