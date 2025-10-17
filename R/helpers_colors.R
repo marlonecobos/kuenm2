@@ -43,7 +43,7 @@ set_colors_by_change <- function(x_i, change, color, min_alpha, max_alpha){
   l_i <- terra::levels(x_i)[[1]]
   colnames(l_i) <- "value"
   #Get number of gcms
-  l_i$n_gcms <- gsub("\\D+", "", l_i[,2])
+  l_i$n_gcms <- as.numeric(gsub("\\D+", "", l_i[,2]))
   #Set alphas
   a <- data.frame(n_gcms = 0:max(l_i$n_gcms),
                   alpha = seq(from = min_alpha, to = max_alpha,
