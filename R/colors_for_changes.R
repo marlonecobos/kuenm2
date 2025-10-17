@@ -151,8 +151,9 @@ colors_for_changes <- function(changes_projections, gain_color = "#009E73",
       l <- terra::levels(i)[[1]]
       colnames(l)[1] <- "value"
       l$event <- sub(" in.*", "", l[,2])
-      l$n_gcms <- gsub("\\D+", "", l[,2])
-      l$n_gcms[l$n_gcms == ""] <- max(as.numeric(l$n_gcms), na.rm = TRUE) + 1
+      l$n_gcms <- as.numeric(gsub("\\D+", "", l[,2]))
+      l$n_gcms[l$n_gcms == "" |
+                 is.na(l$n_gcms)] <- max(as.numeric(l$n_gcms), na.rm = TRUE) + 1
 
       #Set colors
       colnames(l)[2] <- "Description"
