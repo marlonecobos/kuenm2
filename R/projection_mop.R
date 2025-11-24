@@ -212,7 +212,7 @@ projection_mop <- function(data,
                            type = "basic",
                            na_in_range = TRUE,
                            calculate_distance = FALSE,
-                           where_distance = "in_range",
+                           where_distance = "all",
                            distance = "euclidean",
                            scale = FALSE,
                            center = FALSE,
@@ -361,12 +361,12 @@ projection_mop <- function(data,
       m <- m[, v]
     }
 
-   #See if variables there ara variables in G absent in M
+   #See if there are variables in G absent in M
     g_out_m <- setdiff(names(r), names(m))
-    if(length(g_out_m) > 0){
+    if(length(g_out_m) > 0) {
       r <- r[[names(m)]]
       warning(length(g_out_m), " variable(s) in 'G' were removed because they are not present in 'M'.")
-      }
+    }
 
     #MOP
     if (parallel) {
