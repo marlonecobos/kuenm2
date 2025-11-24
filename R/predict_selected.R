@@ -7,7 +7,7 @@
 #' partitions and models.
 #'
 #' @usage
-#' predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
+#' predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
 #'                  write_partitions = FALSE, out_dir = NULL,
 #'                  consensus_per_model = TRUE, consensus_general = TRUE,
 #'                  consensus = c("median", "range", "mean", "stdev"),
@@ -16,7 +16,7 @@
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
-#' @param raster_variables a SpatRaster or data.frame of predictor variables.
+#' @param new_variables a SpatRaster or data.frame of predictor variables.
 #' The names of these variables must match those used to calibrate the models or
 #' those used to run PCA if `do_pca = TRUE` in the \code{\link{prepare_data}}()
 #' function.
@@ -83,14 +83,14 @@
 #' data("fitted_model_maxnet", package = "kuenm2")
 #'
 #' # Predict to single scenario
-#' p <- predict_selected(models = fitted_model_maxnet, raster_variables = var)
+#' p <- predict_selected(models = fitted_model_maxnet, new_variables = var)
 #'
 #' # Example with GLMs
 #' # Import example of fitted_models (output of fit_selected())
 #' data("fitted_model_glm", package = "kuenm2")
 #'
 #' # Predict to single scenario
-#' p_glm <- predict_selected(models = fitted_model_glm, raster_variables = var)
+#' p_glm <- predict_selected(models = fitted_model_glm, new_variables = var)
 #'
 #' # Plot predictions
 #' terra::plot(c(p$General_consensus$median, p_glm$General_consensus$median),
@@ -98,7 +98,7 @@
 #'             zlim = c(0, 1))
 
 predict_selected <- function(models,
-                             raster_variables,
+                             new_variables,
                              mask = NULL,
                              write_files = FALSE,
                              write_partitions = FALSE,
@@ -116,14 +116,14 @@ predict_selected <- function(models,
   if (missing(models)) {
     stop("Argument 'models' must be defined.")
   }
-  if (missing(raster_variables)) {
-    stop("Argument 'raster_variables' must be defined.")
+  if (missing(new_variables)) {
+    stop("Argument 'new_variables' must be defined.")
   }
   if (!inherits(models, "fitted_models")) {
     stop("Argument 'models' must be a 'fitted_models' object.")
   }
-  if (!inherits(raster_variables, c("SpatRaster", "data.frame"))) {
-    stop("Argument 'raster_variables' must be a 'SpatRaster' o 'data.frame")
+  if (!inherits(new_variables, c("SpatRaster", "data.frame"))) {
+    stop("Argument 'new_variables' must be a 'SpatRaster' o 'data.frame")
   }
 
   if (!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
@@ -185,30 +185,30 @@ predict_selected <- function(models,
     }
 
   # Analyses start here
-  if (!is.null(mask) & inherits(raster_variables, "SpatRaster")) {
-    raster_variables <- terra::crop(raster_variables, mask, mask = TRUE)
+  if (!is.null(mask) & inherits(new_variables, "SpatRaster")) {
+    new_variables <- terra::crop(new_variables, mask, mask = TRUE)
   }
 
   if (!is.null(models$pca)) {
-    if(inherits(raster_variables, "SpatRaster")){
+    if(inherits(new_variables, "SpatRaster")){
       if (!("vars_out" %in% names(models$pca))) {
-      raster_variables <- terra::predict(raster_variables[[models$pca$vars_in]],
+      new_variables <- terra::predict(new_variables[[models$pca$vars_in]],
                                          models$pca)
     } else {
-      raster_variables <- c(terra::predict(raster_variables[[models$pca$vars_in]],
+      new_variables <- c(terra::predict(new_variables[[models$pca$vars_in]],
                                            models$pca),
-                            raster_variables[[models$pca$vars_out]])
+                            new_variables[[models$pca$vars_out]])
     }
     }
 
-    if(inherits(raster_variables, "data.frame")){
+    if(inherits(new_variables, "data.frame")){
       if (!("vars_out" %in% names(models$pca))) {
-        raster_variables <- stats::predict(raster_variables[[models$pca$vars_in]],
+        new_variables <- stats::predict(new_variables[[models$pca$vars_in]],
                                      models$pca)
       } else {
-        raster_variables <- c(stats::predict(raster_variables[[models$pca$vars_in]],
+        new_variables <- c(stats::predict(new_variables[[models$pca$vars_in]],
                                              models$pca),
-                              raster_variables[[models$pca$vars_out]])
+                              new_variables[[models$pca$vars_out]])
       }
     }
   }
@@ -248,21 +248,21 @@ predict_selected <- function(models,
       var_to_clamp <- setdiff(names(varmin), c("pr_bg", "fold"))
     }
 
-    if(inherits(raster_variables, "SpatRaster")){
+    if(inherits(new_variables, "SpatRaster")){
       clamped_variables <- terra::rast(lapply(var_to_clamp, function(i) {
-        terra::clamp(raster_variables[[i]], lower = varmin[i],
+        terra::clamp(new_variables[[i]], lower = varmin[i],
                      upper = varmax[i], values = TRUE)
     }))
-    raster_variables[[names(clamped_variables)]] <- clamped_variables
-    } else if (inherits(raster_variables, "data.frame")){
+    new_variables[[names(clamped_variables)]] <- clamped_variables
+    } else if (inherits(new_variables, "data.frame")){
       # Apply clamp for each column
       for (col_name in var_to_clamp) {
         # Clampar lower values
-        raster_variables[[col_name]][raster_variables[[col_name]] < varmin[col_name]] <- varmin[col_name]
+        new_variables[[col_name]][new_variables[[col_name]] < varmin[col_name]] <- varmin[col_name]
         # Clamp higher values
-        raster_variables[[col_name]][raster_variables[[col_name]] > varmax[col_name]] <- varmax[col_name]
+        new_variables[[col_name]][new_variables[[col_name]] > varmax[col_name]] <- varmax[col_name]
       }
-    } #End of if raster_variables is data.frame
+    } #End of if new_variables is data.frame
   } #End of if extrapolation_type == "EC"
 
   if(extrapolation_type == "NE"){
@@ -272,21 +272,21 @@ predict_selected <- function(models,
       var_to_clamp <- setdiff(names(varmin), c("pr_bg", "fold"))
     }
 
-    if(inherits(raster_variables, "SpatRaster")){
+    if(inherits(new_variables, "SpatRaster")){
       #Idenfity cells to not extrapolate
       no_extrapolate <- lapply(var_to_clamp, function(i){
-        i_min <- terra::cells(x = (raster_variables[[i]] < varmin[i]) * 1, y = 1)
-        i_max <- terra::cells(x = (raster_variables[[i]] > varmax[i]) * 1, y = 1)
+        i_min <- terra::cells(x = (new_variables[[i]] < varmin[i]) * 1, y = 1)
+        i_max <- terra::cells(x = (new_variables[[i]] > varmax[i]) * 1, y = 1)
         return(unique(i_min, i_max))
       })
 
-      } else if(inherits(raster_variables, "data.frame")){
+      } else if(inherits(new_variables, "data.frame")){
         no_extrapolate <- lapply(var_to_clamp, function(i){
-          i_min <- which(raster_variables[,i] < varmin[i])
-          i_max <- which(raster_variables[,i] > varmax[i])
+          i_min <- which(new_variables[,i] < varmin[i])
+          i_max <- which(new_variables[,i] > varmax[i])
           return(unique(i_min, i_max))
         })
-    } #End of if raster_variables is data.frame
+    } #End of if new_variables is data.frame
 
     #Get unique cells to no extrapolate
     no_extrapolate <- unique(unlist(no_extrapolate))
@@ -307,13 +307,13 @@ predict_selected <- function(models,
 
     for (x in models[[i]]) {
 
-      if (inherits(raster_variables, "SpatRaster")) {
+      if (inherits(new_variables, "SpatRaster")) {
 
         #  Convert Layers to Factors in SpatRaster
         if (!is.null(categorical_layers) && length(categorical_layers) > 0) {
           for (layer in categorical_layers) {
-            if (layer %in% names(raster_variables)) {  # Check if the layer exists
-              raster_variables[[layer]] <- terra::as.factor(raster_variables[[layer]])
+            if (layer %in% names(new_variables)) {  # Check if the layer exists
+              new_variables[[layer]] <- terra::as.factor(new_variables[[layer]])
             } else {
               warning(paste("Layer", layer, "not found in the SpatRaster."))
             }
@@ -321,18 +321,18 @@ predict_selected <- function(models,
         }
 
         if (inherits(x, "glmnet")) {
-          prediction <- terra::predict(raster_variables, x, na.rm = TRUE,
+          prediction <- terra::predict(new_variables, x, na.rm = TRUE,
                                        type = type, fun = predict.glmnet_mx)
         } else if (inherits(x, "glm")) {
-          prediction <- terra::predict(raster_variables, x, na.rm = TRUE,
+          prediction <- terra::predict(new_variables, x, na.rm = TRUE,
                                        type = type, fun = predict_glm_mx)
         }
-      } else if (inherits(raster_variables, "data.frame")) {
+      } else if (inherits(new_variables, "data.frame")) {
         if (inherits(x, "glmnet")) {
-          prediction <- as.numeric(predict.glmnet_mx(x, newdata = raster_variables,
+          prediction <- as.numeric(predict.glmnet_mx(x, newdata = new_variables,
                                                      type = type))
         } else if (inherits(x, "glm")) {
-          prediction <- as.numeric(predict_glm_mx(x, newdata = raster_variables,
+          prediction <- as.numeric(predict_glm_mx(x, newdata = new_variables,
                                    type = type))
         }
       }
@@ -343,11 +343,11 @@ predict_selected <- function(models,
           prediction[no_extrapolate] <- 0
           if(type == "cumulative") { #Recalculate cumulative values
             #For spatraster
-            if(inherits(raster_variables, "SpatRaster")){
+            if(inherits(new_variables, "SpatRaster")){
               numeric_predictions <- terra::values(prediction, na.rm = TRUE)
               prediction[!is.na(prediction)] <- cumulative_predictions(numeric_predictions) }
             #For data.frame
-            if(inherits(raster_variables, "data.frame")){
+            if(inherits(new_variables, "data.frame")){
               prediction <- cumulative_predictions(prediction)
             }
           } #End of type = cumulative
@@ -358,9 +358,9 @@ predict_selected <- function(models,
       inner_list[[length(inner_list) + 1]] <- prediction
     }
 
-    if (inherits(raster_variables, "SpatRaster")) {
+    if (inherits(new_variables, "SpatRaster")) {
       p_models[[length(p_models) + 1]] <- terra::rast(inner_list)
-    } else if (inherits(raster_variables, "data.frame")) {
+    } else if (inherits(new_variables, "data.frame")) {
       p_models[[length(p_models) + 1]] <- inner_list
     }
 
@@ -379,8 +379,8 @@ predict_selected <- function(models,
   # Create an empty list to store results
   res <- list()
 
-  #### Get consensus by model if raster_variables is a SpatRaster ####
-  if (inherits(raster_variables, "SpatRaster")) {
+  #### Get consensus by model if new_variables is a SpatRaster ####
+  if (inherits(new_variables, "SpatRaster")) {
     rep <- unlist(p_models)
 
     if (nrep == 1) {
@@ -462,8 +462,8 @@ predict_selected <- function(models,
     res <- c(res, General_consensus = terra::rast(gen_res))
   }
 
-  #### Get consensus by model if raster_variables is a data.frame ####
-  if (inherits(raster_variables, "data.frame")) {
+  #### Get consensus by model if new_variables is a data.frame ####
+  if (inherits(new_variables, "data.frame")) {
     rep <- lapply(p_models, as.data.frame)
 
     if (nrep == 1) {
@@ -558,8 +558,8 @@ predict_selected <- function(models,
       dir.create(out_dir, recursive = TRUE)
     }
 
-    #Save if raster_variables are spatraster
-    if(inherits(raster_variables, "SpatRaster")){
+    #Save if new_variables are spatraster
+    if(inherits(new_variables, "SpatRaster")){
       sapply(nm, function(i) {
         if (write_partitions & nrep > 1) {
           terra::writeRaster(res[[i]]$Partitions,
@@ -575,8 +575,8 @@ predict_selected <- function(models,
                        overwrite = overwrite)
     }
 
-    #Save if raster_variables are data.frame
-    if(inherits(raster_variables, "data.frame")){
+    #Save if new_variables are data.frame
+    if(inherits(new_variables, "data.frame")){
       sapply(nm, function(i) {
         if (write_partitions & nrep > 1) {
           utils::write.csv(res[[i]]$Partitions,

@@ -4,7 +4,7 @@
 \alias{predict_selected}
 \title{Predict selected models for a single scenario}
 \usage{
-predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
+predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
                  write_partitions = FALSE, out_dir = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
@@ -15,7 +15,7 @@ predict_selected(models, raster_variables, mask = NULL, write_files = FALSE,
 \item{models}{an object of class \code{fitted_models} returned by the
 \code{\link{fit_selected}}() function.}
 
-\item{raster_variables}{a SpatRaster or data.frame of predictor variables.
+\item{new_variables}{a SpatRaster or data.frame of predictor variables.
 The names of these variables must match those used to calibrate the models or
 those used to run PCA if \code{do_pca = TRUE} in the \code{\link{prepare_data}}()
 function.}
@@ -94,14 +94,14 @@ var <- terra::rast(system.file("extdata", "Current_variables.tif",
 data("fitted_model_maxnet", package = "kuenm2")
 
 # Predict to single scenario
-p <- predict_selected(models = fitted_model_maxnet, raster_variables = var)
+p <- predict_selected(models = fitted_model_maxnet, new_variables = var)
 
 # Example with GLMs
 # Import example of fitted_models (output of fit_selected())
 data("fitted_model_glm", package = "kuenm2")
 
 # Predict to single scenario
-p_glm <- predict_selected(models = fitted_model_glm, raster_variables = var)
+p_glm <- predict_selected(models = fitted_model_glm, new_variables = var)
 
 # Plot predictions
 terra::plot(c(p$General_consensus$median, p_glm$General_consensus$median),
