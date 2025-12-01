@@ -5,13 +5,13 @@
 #' generated with the `explore_calibration_hist` function.
 #'
 #' @usage
-#' plot_explore_calibration(explore_calibration, color_m = "grey",
-#'                          color_background = "#56B4E9",
-#'                          color_presence = "#009E73", alpha = 0.4,
-#'                          lines = FALSE, which_lines = c("cl", "mean"),
-#'                          lty_range = 1, lty_cl = 2, lty_mean = 3,
-#'                          lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
-#'                          xlab = NULL, ylab = NULL, mfrow = NULL)
+#' plot_calibration_hist(explore_calibration, color_m = "grey",
+#'                       color_background = "#56B4E9",
+#'                       color_presence = "#009E73", alpha = 0.4,
+#'                       lines = FALSE, which_lines = c("cl", "mean"),
+#'                       lty_range = 1, lty_cl = 2, lty_mean = 3,
+#'                       lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
+#'                       xlab = NULL, ylab = NULL, mfrow = NULL)
 #'
 #' @param explore_calibration an object of class `explore_calibration` generated
 #'        by the `explore_calibration_hist` function.
@@ -69,24 +69,24 @@
 #'                                        include_m = TRUE)
 #'
 #' # Plot histograms
-#' plot_explore_calibration(explore_calibration = calib_hist)
+#' plot_calibration_hist(explore_calibration = calib_hist)
 
-plot_explore_calibration <- function(explore_calibration,
-                                     color_m = "grey",
-                                     color_background = "#56B4E9",
-                                     color_presence = "#009E73",
-                                     alpha = 0.4,
-                                     lines = FALSE,
-                                     which_lines = c("cl", "mean"),
-                                     lty_range = 1,
-                                     lty_cl = 2,
-                                     lty_mean = 3,
-                                     lwd_range = 3,
-                                     lwd_cl = 2,
-                                     lwd_mean = 2,
-                                     xlab = NULL,
-                                     ylab = NULL,
-                                     mfrow = NULL) {
+plot_calibration_hist <- function(explore_calibration,
+                                  color_m = "grey",
+                                  color_background = "#56B4E9",
+                                  color_presence = "#009E73",
+                                  alpha = 0.4,
+                                  lines = FALSE,
+                                  which_lines = c("cl", "mean"),
+                                  lty_range = 1,
+                                  lty_cl = 2,
+                                  lty_mean = 3,
+                                  lwd_range = 3,
+                                  lwd_cl = 2,
+                                  lwd_mean = 2,
+                                  xlab = NULL,
+                                  ylab = NULL,
+                                  mfrow = NULL) {
   #Check errors####
   if (missing(explore_calibration)) {
     stop("Argument 'explore_calibration' must be defined.")
