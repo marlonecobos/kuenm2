@@ -29,12 +29,12 @@
 #' @export
 #'
 #' @seealso
-#' [plot_explore_calibration()]
+#' [plot_calibration_hist()]
 #'
 #' @returns
 #' A list of with information to plot informative histograms to explore data
 #' to be used in the modeling process. Histogram plots can be plotted with
-#' the function [plot_explore_calibration()].
+#' the function [plot_calibration_hist()].
 #'
 #' @examples
 #' # Import raster layers
@@ -49,7 +49,7 @@
 #'                                        raster_variables = var,
 #'                                        include_m = TRUE)
 #'
-#' # To visualize results use the function plot_explore_calibration()
+#' # To visualize results use the function plot_calibration_hist()
 
 explore_calibration_hist <- function(data, include_m = FALSE,
                                      raster_variables = NULL,

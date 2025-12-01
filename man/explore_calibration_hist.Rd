@@ -28,7 +28,7 @@ intervals in the histogram.}
 \value{
 A list of with information to plot informative histograms to explore data
 to be used in the modeling process. Histogram plots can be plotted with
-the function \code{\link[=plot_explore_calibration]{plot_explore_calibration()}}.
+the function \code{\link[=plot_calibration_hist]{plot_calibration_hist()}}.
 }
 \description{
 This function prepares data to generate overlaid histograms to visualize the
@@ -48,8 +48,8 @@ calib_hist <- explore_calibration_hist(data = sp_swd,
                                        raster_variables = var,
                                        include_m = TRUE)
 
-# To visualize results use the function plot_explore_calibration()
+# To visualize results use the function plot_calibration_hist()
 }
 \seealso{
-\code{\link[=plot_explore_calibration]{plot_explore_calibration()}}
+\code{\link[=plot_calibration_hist]{plot_calibration_hist()}}
 }
