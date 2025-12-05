@@ -60,7 +60,8 @@ cleaning and filtering.
 data(occ_data_noclean, package = "kuenm2")
 
 # Import raster layers
-var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
+var <- terra::rast(system.file("extdata", "Current_variables.tif",
+                   package = "kuenm2"))
 
 # Keep only one layer
 var <- var$bio_1

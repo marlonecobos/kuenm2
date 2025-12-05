@@ -5,7 +5,9 @@
 \title{Organize and structure variables for past and future projections}
 \usage{
 organize_for_projection(output_dir, models = NULL,
-                               variable_names = NULL, present_file = NULL,
+                               variable_names = NULL,
+                               categorical_variables = NULL,
+                               present_file = NULL,
                                past_files = NULL, past_period = NULL,
                                past_gcm = NULL, future_files = NULL,
                                future_period = NULL, future_pscen = NULL,
@@ -24,6 +26,9 @@ will be saved.}
 \item{variable_names}{(character) names of the variables used to fit the
 model or do the PCA in the \code{prepare_data()} function. Only applicable if
 'models' argument is not provided. Default is NULL.}
+
+\item{categorical_variables}{(character) names of the variables that are
+categorical. Default is NULL.}
 
 \item{present_file}{(character) \strong{full paths} to the variables from the
 present scenario. Default is NULL.}

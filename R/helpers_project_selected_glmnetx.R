@@ -244,7 +244,8 @@ cumulative_predictions <- function(predictions){
 
 helper_organize_proj <- function(r, mask, variable_names, fixed_variables,
                                  check_extent, resample_to_present,
-                                 r_present =NULL, file_name){
+                                 r_present =NULL, categorical_variables = NULL,
+                                 file_name){
 
   #Mask variable, if necessary
   if(!is.null(mask)){
@@ -278,7 +279,16 @@ file_name)
          paste(var_out, collapse = ", "))    }
 
   if(resample_to_present){
-    r <- terra::resample(r, r_present, method = "bilinear")
+    if(is.null(categorical_variables)){
+      r <- terra::resample(r, r_present, method = "bilinear")
+    } else {
+      r_cont <- terra::resample(r[[setdiff(names(r), categorical_variables)]],
+                                r_present, method = "bilinear")
+      r_cat <- terra::as.factor(r[[categorical_variables]])
+      r_cat <- terra::resample(r_cat,
+                               r_present, method = "near")
+      r <- c(r_cont, r_cat)
+    }
   }
 
   return(r)

@@ -236,7 +236,7 @@ independent_evaluation <- function(fitted_models, new_data,
 
   #Predict to independent records
   pred_test <- predict_selected(models = fitted_models,
-                                raster_variables = new_data[,v],
+                                new_variables = new_data[,v],
                                 consensus = consensus,
                                 extrapolation_type = extrapolation_type,
                                 var_to_clamp = var_to_clamp,
@@ -248,7 +248,7 @@ independent_evaluation <- function(fitted_models, new_data,
   #Predict to background
   bg_data <- fitted_models$calibration_data
   pred_bg <- predict_selected(models = fitted_models,
-                              raster_variables = bg_data[,v],
+                              new_variables = bg_data[,v],
                               consensus = consensus,
                               extrapolation_type = extrapolation_type,
                               var_to_clamp = var_to_clamp,

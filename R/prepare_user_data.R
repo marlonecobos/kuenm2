@@ -130,7 +130,7 @@
 #' @seealso
 #' [calibration()], [explore_calibration_hist()], [explore_partition_env()],
 #' [explore_partition_geo()], [explore_partition_extrapolation()],
-#' [plot_calibration_hist()], [plot_partition_extrapolation()]
+#' [plot_calibration_hist()], [plot_explore_partition()]
 #'
 #' @examples
 #' # Import user-prepared data
