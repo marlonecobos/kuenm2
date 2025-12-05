@@ -23,7 +23,7 @@ also available.
 \code{\link[=prepare_data]{prepare_data()}}, \code{\link[=prepare_user_data]{prepare_user_data()}}
 \item Data exploration: \code{\link[=explore_calibration_hist]{explore_calibration_hist()}}, \code{\link[=explore_partition_env]{explore_partition_env()}},
 \code{\link[=explore_partition_geo]{explore_partition_geo()}}, \code{\link[=explore_partition_extrapolation]{explore_partition_extrapolation()}},
-\code{\link[=plot_calibration_hist]{plot_calibration_hist()}}, \code{\link[=plot_partition_extrapolation]{plot_partition_extrapolation()}}
+\code{\link[=plot_calibration_hist]{plot_calibration_hist()}}, \code{\link[=plot_explore_partition]{plot_explore_partition()}}
 }
 }
 

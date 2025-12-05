@@ -17,7 +17,7 @@
 #' [prepare_data()], [prepare_user_data()]
 #' - Data exploration: [explore_calibration_hist()], [explore_partition_env()],
 #' [explore_partition_geo()], [explore_partition_extrapolation()],
-#' [plot_calibration_hist()], [plot_partition_extrapolation()]
+#' [plot_calibration_hist()], [plot_explore_partition()]
 #'
 #' ## Modeling process
 #' - Model calibration: [calibration()], [select_models()]

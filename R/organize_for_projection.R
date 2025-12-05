@@ -10,7 +10,9 @@
 #' See **Details** for more information.
 #'
 #' @usage organize_for_projection(output_dir, models = NULL,
-#'                                variable_names = NULL, present_file = NULL,
+#'                                variable_names = NULL,
+#'                                categorical_variables = NULL,
+#'                                present_file = NULL,
 #'                                past_files = NULL, past_period = NULL,
 #'                                past_gcm = NULL, future_files = NULL,
 #'                                future_period = NULL, future_pscen = NULL,
@@ -26,6 +28,8 @@
 #' @param variable_names (character) names of the variables used to fit the
 #' model or do the PCA in the `prepare_data()` function. Only applicable if
 #' 'models' argument is not provided. Default is NULL.
+#' @param categorical_variables (character) names of the variables that are
+#' categorical. Default is NULL.
 #' @param present_file (character) **full paths** to the variables from the
 #' present scenario. Default is NULL.
 #' @param past_files (character) **full paths** to the variables from the past
@@ -124,6 +128,7 @@
 organize_for_projection <- function(output_dir,
                                     models = NULL,
                                     variable_names = NULL,
+                                    categorical_variables = NULL,
                                     present_file = NULL,
                                     past_files = NULL,
                                     past_period = NULL,
@@ -150,7 +155,7 @@ organize_for_projection <- function(output_dir,
     stop("Argument 'variable_names' must be NULL or a 'character'.")
   }
 
-  if(!is.null(variable_names) && !is.null(models)){
+  if(is.null(variable_names) && is.null(models)){
     stop("You must provide 'variable_names' or 'models'")
   }
 
@@ -158,6 +163,7 @@ organize_for_projection <- function(output_dir,
   if(!is.null(models)){
     variable_names <- c(models$continuous_variables,
                         models$categorical_variables)
+    categorical_variables <- models$categorical_variables
   }
 
   if(!is.null(present_file) && !inherits(present_file, "character")){
@@ -215,7 +221,7 @@ Please ensure you used list.files(full.names = TRUE) to provide the correct file
 
     #Check if periods exist
     pscen_exist <- !sapply(future_pscen, function(i) any(grepl(i, future_files)))
-    if(any(period_exist)){
+    if(any(pscen_exist)){
       stop("Some values in 'future_pscen' were not found in the file names listed in 'future_files'.
 Please ensure the future_pscen match the file names correctly.")
     }
@@ -308,6 +314,7 @@ Please ensure you used list.files(full.names = TRUE) to provide the correct file
                                        fixed_variables, check_extent,
                                        resample_to_present = resample_to_present,
                                        r_present = r_present,
+                                       categorical_variables = categorical_variables,
                                        file_name = "past_files")
       #Create recursive folder to save
       dir_past_i <- file.path(output_dir, "Past", period_i, gcm_i)
@@ -348,6 +355,7 @@ Please ensure you used list.files(full.names = TRUE) to provide the correct file
                                        fixed_variables, check_extent,
                                        resample_to_present = resample_to_present,
                                        r_present = r_present,
+                                       categorical_variables = categorical_variables,
                                        file_name = "future_files")
       #Create recursive folder to save
       dir_future_i <- file.path(output_dir, "future", period_i, ssp_i, gcm_i)

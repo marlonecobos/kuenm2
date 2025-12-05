@@ -44,6 +44,13 @@ Specifically, we need a root directory containing nested folders representing di
 
 Here, we will show how to organize the files manually, making possible to project the models using scenarios available in different sources. As example, we will use the variables from CHELSA representing [scenarios of the Last Glacial Maximum](https://chelsa-climate.org/last-glacial-maximum-climate/) (LGM, 21,000 year ago).
 
+<br>
+<p style="color:red;">
+<strong>WARNING:</strong> In November 2025, CHELSA updated and removed LGM variables for many GCMs.
+We keep this example here so users can still see how the function handles past climate projections, even though the specific data shown may no longer be available.
+</p>
+<br>
+
 # Standardize Raster File Names for Model Projections
 
 Before using the organize_for_projection() function, the climate variables must first be saved as separate .tif files — one file per scenario. Filenames should follow a consistent pattern that clearly indicates the time period, GCM, and, for future scenarios, the emission scenario (SSP). For example:

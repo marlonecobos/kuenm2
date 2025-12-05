@@ -85,7 +85,7 @@ The first column, "pr_bg", indicates the presence (1) and absence (0) records, w
 
 ```{r predict maxnet}
 p_maxnet <- predict_selected(models = fitted_model_maxnet, 
-                             raster_variables = var,
+                             new_variables = var,
                              progress_bar = FALSE)
 ```
 
@@ -119,7 +119,7 @@ For comparison, let's predict the GLM model:
 ```{r}
 # Predict glm model
 p_glm <- predict_selected(models = fitted_model_glm, 
-                          raster_variables = var,
+                          new_variables = var,
                           progress_bar = FALSE)
 #See selected models that were predicted
 names(p_glm)
@@ -146,7 +146,7 @@ Note that each column stores the values for each variable. Let's predict our Max
 
 ```{r predict to df}
 p_df <- predict_selected(models = fitted_model_maxnet, 
-                         raster_variables = var_df, #Now, a data.frame
+                         new_variables = var_df, #Now, a data.frame
                          progress_bar = FALSE) 
 ```
 
@@ -251,14 +251,14 @@ Let's predict the Maxnet models for this new scenario with both free extrapolati
 ```{r}
 #Predict to hypothetical scenario with free extrapolation
 p_free_extrapolation <- predict_selected(models = fitted_model_maxnet, 
-                                         raster_variables = new_var, #New scenario
+                                         new_variables = new_var, #New scenario
                                          consensus = "mean",
                                          extrapolation_type = "E", #Free extrapolation (Default)
                                          progress_bar = FALSE)
 
 #Predict to hypothetical scenario with clamping
 p_clamping <- predict_selected(models = fitted_model_maxnet, 
-                               raster_variables = new_var, #New scenario
+                               new_variables = new_var, #New scenario
                                consensus = "mean",
                                extrapolation_type = "EC", #Extrapolation with clamping
                                progress_bar = FALSE)
@@ -291,7 +291,7 @@ A more rigorous approach is to **predict with no extrapolation**, where regions 
 ```{r no extrapolation}
 #Predict to hypothetical scenario with no extrapolation
 p_no_extrapolation <- predict_selected(models = fitted_model_maxnet, 
-                                       raster_variables = new_var, #New scenario
+                                       new_variables = new_var, #New scenario
                                        consensus = "mean",
                                        extrapolation_type = "NE", #No extrapolation
                                        progress_bar = FALSE)
@@ -327,13 +327,13 @@ All four output types are monotonically related. Therefore, rank-based metrics f
 Let's examine the differences between these four output types for Maxnet models:
 
 ```{r output types}
-p_cloglog <- predict_selected(models = fitted_model_maxnet, raster_variables = var, 
+p_cloglog <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
                               type = "cloglog", progress_bar = FALSE)
-p_logistic <- predict_selected(models = fitted_model_maxnet, raster_variables = var, 
+p_logistic <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
                               type = "logistic", progress_bar = FALSE)
-p_cumulative <- predict_selected(models = fitted_model_maxnet, raster_variables = var, 
+p_cumulative <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
                               type = "cumulative", progress_bar = FALSE)
-p_raw <- predict_selected(models = fitted_model_maxnet, raster_variables = var, 
+p_raw <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
                               type = "raw", progress_bar = FALSE)
 
 #Plot the differences
@@ -354,11 +354,11 @@ on.exit() #Reinitiate grid
 
 We can save the predictions to the disk by setting `write_files = TRUE`. When this option is enabled, you must provide a directory path in the `out_dir` argument.
 
-If `raster_variables` is a `SpatRaster`, the function will save the output files as GeoTIFF (.tif) files. If `raster_variables` is a `data.frame`, the function will save the output files as Comma Separated Value (.csv) files.
+If `new_variables` is a `SpatRaster`, the function will save the output files as GeoTIFF (.tif) files. If `new_variables` is a `data.frame`, the function will save the output files as Comma Separated Value (.csv) files.
 
 ```{r save, eval=FALSE}
 p_save <- predict_selected(models = fitted_model_maxnet, 
-                           raster_variables = var, 
+                           new_variables = var, 
                            write_files = TRUE, #To save to the disk
                            write_partitions = TRUE, #To save predictions for each partition
                            out_dir = tempdir(), #A path to save the resuls (here, the temporary directory)
