@@ -24,7 +24,7 @@ all_response_curves(models, modelID = NULL, n = 100, show_variability = FALSE,
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{\link[=fit_selected]{fit_selected()}} function.}
+\code{\link[enmpa:fit_glms]{enmpa::fit_selected()}} function.}
 
 \item{variable}{(character) name of the variable to be plotted.}
 

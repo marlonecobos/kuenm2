@@ -15,7 +15,7 @@ projection_mop(data, projection_data, out_dir,
 }
 \arguments{
 \item{data}{an object of class \code{fitted_models} returned by the
-\code{\link[=fit_selected]{fit_selected()}} function or an object of class \code{prepared_data} returned by
+\code{\link[enmpa:fit_glms]{enmpa::fit_selected()}} function or an object of class \code{prepared_data} returned by
 the \code{\link[=prepare_data]{prepare_data()}} function.}
 
 \item{projection_data}{an object of class \code{projection_data} returned by the

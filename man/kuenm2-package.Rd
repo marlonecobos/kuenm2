@@ -30,10 +30,10 @@ also available.
 \subsection{Modeling process}{
 \itemize{
 \item Model calibration: \code{\link[=calibration]{calibration()}}, \code{\link[=select_models]{select_models()}}
-\item Model exploration: \code{\link[=fit_selected]{fit_selected()}}, \code{\link[=variable_importance]{variable_importance()}},
-\code{\link[=plot_importance]{plot_importance()}}, \code{\link[=response_curve]{response_curve()}}, \code{\link[=all_response_curves]{all_response_curves()}},
+\item Model exploration: \code{\link[enmpa:fit_glms]{enmpa::fit_selected()}}, \code{\link[=variable_importance]{variable_importance()}},
+\code{\link[enmpa:plot_importance]{enmpa::plot_importance()}}, \code{\link[enmpa:response_curve]{enmpa::response_curve()}}, \code{\link[=all_response_curves]{all_response_curves()}},
 \code{\link[=bivariate_response]{bivariate_response()}}, \code{\link[=partition_response_curves]{partition_response_curves()}}
-\item Model projection: \code{\link[=predict_selected]{predict_selected()}}, \code{\link[=organize_for_projection]{organize_for_projection()}},
+\item Model projection: \code{\link[enmpa:predict_selected]{enmpa::predict_selected()}}, \code{\link[=organize_for_projection]{organize_for_projection()}},
 \code{\link[=organize_future_worldclim]{organize_future_worldclim()}}, \code{\link[=prepare_projection]{prepare_projection()}}, \code{\link[=project_selected]{project_selected()}}
 }
 }
