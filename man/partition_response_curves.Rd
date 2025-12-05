@@ -76,5 +76,5 @@ partition_response_curves(calibration_results = calib_results_maxnet,
                           modelID = 192)
 }
 \seealso{
-\code{\link[enmpa:response_curve]{enmpa::response_curve()}}
+\code{\link[=response_curve]{response_curve()}}
 }

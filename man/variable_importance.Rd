@@ -56,5 +56,5 @@ imp_glm <- variable_importance(models = fitted_model_glm)
 plot_importance(imp_glm)
 }
 \seealso{
-\code{\link[enmpa:plot_importance]{enmpa::plot_importance()}}
+\code{\link[=plot_importance]{plot_importance()}}
 }
