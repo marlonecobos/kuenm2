@@ -64,8 +64,8 @@ Concave curves are identified by analyzing the beta coefficients of quadratic
 terms within the variable's range. The range for extrapolation is calculated
 as the difference between the variable's maximum and minimum values in the
 model, multiplied by the extrapolation factor. A concave curve is detected
-when the beta coefficient is positive, and the vertex — where the curve
-changes direction — lies between the lower and upper limits of the variable.
+when the beta coefficient is positive, and the vertex (where the curve
+changes direction) lies between the lower and upper limits of the variable.
 
 Users can specify the lower and upper limits for certain variables using
 \code{var_limits}. For example, if \code{var_limits = list("bio12" = c(0, NA),

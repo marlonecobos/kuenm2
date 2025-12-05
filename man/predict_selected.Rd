@@ -97,14 +97,14 @@ data("fitted_model_maxnet", package = "kuenm2")
 p <- predict_selected(models = fitted_model_maxnet, new_variables = var)
 
 # Example with GLMs
-# Import example of fitted_models (output of fit_selected())
+# Import example of fitted_models (output of fit_selected()) without replicates
 data("fitted_model_glm", package = "kuenm2")
 
 # Predict to single scenario
 p_glm <- predict_selected(models = fitted_model_glm, new_variables = var)
 
 # Plot predictions
-terra::plot(c(p$General_consensus$median, p_glm$General_consensus$median),
+terra::plot(c(p$General_consensus$median, p_glm$General_consensus),
             col = rev(terrain.colors(240)), main = c("MAXNET", "GLM"),
             zlim = c(0, 1))
 }

@@ -11,7 +11,7 @@ bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{\link[enmpa:fit_glms]{enmpa::fit_selected()}} function.}
+\code{\link[=fit_selected]{fit_selected()}} function.}
 
 \item{variable1}{(character) name of the variable to be plotted in x axis.}
 
@@ -69,5 +69,5 @@ bivariate_response(models = fitted_model_glm, modelID = "Model_85",
                    variable1 = "bio_1", variable2 = "bio_7")
 }
 \seealso{
-\code{\link[enmpa:response_curve]{enmpa::response_curve()}}
+\code{\link[=response_curve]{response_curve()}}
 }
