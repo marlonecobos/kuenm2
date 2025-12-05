@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,14 +34,14 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
+<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Basic Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
-    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
-    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Project Models to a Single Scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project Models to Multiple Scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
-    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
+    <li><a class="dropdown-item" href="../articles/projections_chelsa.html">8. Example of Projections Using CHELSA Data</a></li>
   </ul>
 </li>
       </ul>
@@ -159,7 +159,7 @@ scenarios”</a> vignette.</p>
 <code class="sourceCode R"><span><span class="co">#Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.60</span></span>
+<span><span class="co">#&gt; terra 1.8.86</span></span>
 <span></span>
 <span><span class="co">#Import calib_results_maxnet</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"fitted_model_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
@@ -184,7 +184,7 @@ scenarios”</a> vignette.</p>
 <span>                          progress_bar <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/Rtmpik7FOr/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/RtmpRSY7FN/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Create a "Current_raw" folder in a temporary directory</span></span>
 <span><span class="co">#and copy the rawvariables there.</span></span>
@@ -302,7 +302,7 @@ threshold using the <code>user_threshold</code> argument.</li>
 </ul>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Binarized</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/binarized-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/binarized-1.png" class="r-plt" width="95%"></p>
 <ul>
 <li>
 <strong>Results by gcm</strong>: provides the computed changes
@@ -310,7 +310,7 @@ threshold using the <code>user_threshold</code> argument.</li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_gcm</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/results%20by%20gcm-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/results%20by%20gcm-1.png" class="r-plt" width="95%"></p>
 <ul>
 <li>
 <strong>Results by change</strong>: a list where each
@@ -320,7 +320,7 @@ gain, loss, stability) across all GCMs for a given scenario.</li>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Results by change for the scenario of 2041-2060 (ssp126)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_change</span><span class="op">$</span><span class="va">`Future_2041-2060_ssp126`</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/Results_by_change-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/Results_by_change-1.png" class="r-plt" width="95%"></p>
 <ul>
 <li>
 <strong>Summary changes</strong>: provides a general summary
@@ -330,7 +330,7 @@ scenario.</li>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Summary_changes</span>, </span>
 <span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.75</span><span class="op">)</span><span class="op">)</span> <span class="co">#Decrease size of legend text</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/summary%20changes-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/summary%20changes-1.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level3">
 <h3 id="importing-results">Importing Results<a class="anchor" aria-label="anchor" href="#importing-results"></a>
@@ -361,7 +361,7 @@ plotting.</p>
 <span><span class="co">#Plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span>, main <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span><span class="op">)</span>,</span>
 <span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.75</span><span class="op">)</span><span class="op">)</span> <span class="co">#Decrease size of legend text</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/import%20general%20summary-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/import%20general%20summary-1.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level3">
 <h3 id="save-changes_projections">Save changes_projections<a class="anchor" aria-label="anchor" href="#save-changes_projections"></a>
@@ -424,13 +424,13 @@ arises from differences among the partitions</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Variance for the present time</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">Present</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.15</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20variability%20present-1.png" width="60%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20variability%20present-1.png" class="r-plt" width="60%"></p>
 <p>In the most pessimistic scenario (SSP5-8.5) for the 2081–2100 period,
 a slight variance is observed, primarily arising from the partitions and
 the different GCMs used.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585`</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20variability%20future-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20variability%20future-1.png" class="r-plt" width="95%"></p>
 <div class="section level3">
 <h3 id="importing-results-1">Importing Results<a class="anchor" aria-label="anchor" href="#importing-results-1"></a>
 </h3>
@@ -453,7 +453,7 @@ originates from differences among the selected models.</p>
 <span>                                         future_pscen <span class="op">=</span> <span class="st">"ssp126"</span><span class="op">)</span></span>
 <span><span class="co"># Plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v_2041_2060_ssp126</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/import%20variability_projections-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/import%20variability_projections-1.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level3">
 <h3 id="saving-the-variability_projections-object">Saving the variability_projections Object<a class="anchor" aria-label="anchor" href="#saving-the-variability_projections-object"></a>
@@ -509,7 +509,7 @@ temperature:</p>
 <span><span class="co">#Plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">future_ACCESS_CM2</span><span class="op">$</span><span class="va">bio_1</span>, </span>
 <span>     breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">22.7</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span> <span class="co">#Highlight regions with temperature above 22.7ºC</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/Highlight%20non-analogous-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/Highlight%20non-analogous-1.png" class="r-plt" width="95%"></p>
 <p>Note that in most of the projected area, temperatures are expected to
 exceed the current maximum temperature.</p>
 <p>The <code><a href="../reference/projection_mop.html">projection_mop()</a></code> function performs Mobility-Oriented
@@ -600,7 +600,7 @@ dissimilarity from the calibration conditions, highlighting areas with
 increased extrapolation risk.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">distances</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20distance-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20distance-1.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level4">
 <h4 id="basic">Basic<a class="anchor" aria-label="anchor" href="#basic"></a>
@@ -611,7 +611,7 @@ conditions. A value of ‘1’ indicates the presence of non-analogous
 conditions in that specific area and scenario.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">basic</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20basic-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20basic-1.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level4">
 <h4 id="simple">Simple<a class="anchor" aria-label="anchor" href="#simple"></a>
@@ -621,7 +621,7 @@ variables in the projected area that are non-analogous to those in the
 calibration data.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">simple</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20simple-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20simple-1.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level4">
 <h4 id="combined-towards-highlow">Combined Towards High/Low<a class="anchor" aria-label="anchor" href="#combined-towards-highlow"></a>
@@ -635,12 +635,12 @@ calibration range.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png" class="r-plt" width="95%"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Non-analogous conditions towards low values</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_combined</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towars%20combined-2.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towars%20combined-2.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level4">
 <h4 id="towards-highlow-end">Towards High/Low End<a class="anchor" aria-label="anchor" href="#towards-highlow-end"></a>
@@ -651,13 +651,13 @@ are similar to their “combined” counterparts but provide individual
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values in the ACCESS-CM2 scenario</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20end-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20end-1.png" class="r-plt" width="95%"></p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Non-analogous conditions towards low values in the MIROC6 scenario</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20end-2.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20end-2.png" class="r-plt" width="95%"></p>
 </div>
 </div>
 <div class="section level3">
@@ -695,7 +695,7 @@ Alternatively, you can assign a value of 0 to these cells by setting
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">simple</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>, </span>
 <span>       <span class="va">mop_ssp585_2100_zero</span><span class="op">$</span><span class="va">simple</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Within range as NA"</span>, <span class="st">"Within range as 0"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-1.png" class="r-plt" width="95%"></p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Detailed MOP</span></span>
@@ -703,7 +703,7 @@ Alternatively, you can assign a value of 0 to these cells by setting
 <span>       <span class="va">mop_ssp585_2100_zero</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Within range as NA"</span>, <span class="st">"Within range as 0"</span><span class="op">)</span>,</span>
 <span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-2.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-2.png" class="r-plt" width="95%"></p>
 </div>
 <div class="section level3">
 <h3 id="comparing-mop-results-with-response-curves">Comparing MOP Results with Response Curves<a class="anchor" aria-label="anchor" href="#comparing-mop-results-with-response-curves"></a>
@@ -720,7 +720,7 @@ calibration data.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values in the MIROC6 scenario</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20high%20values-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20high%20values-1.png" class="r-plt" width="95%"></p>
 <p>Now, let’s examine the response curves for these variables. To better
 visualize how the model responds to the range of values projected in
 this future scenario, we can set the plotting limits using the
@@ -733,7 +733,7 @@ scenario’s variable values as <code>new_data</code>:</p>
 <span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
 <span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png" class="r-plt" width="95%"></p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Reinitiate grids</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -753,7 +753,7 @@ limit of the calibration data:</p>
 <span><span class="co">## It's bio 7. Plot response curve:</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
 <span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20low%20values-1.png" width="95%"></p>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20low%20values-1.png" class="r-plt" width="95%"></p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Reinitiate grid</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -796,7 +796,7 @@ the <code><a href="https://rspatial.github.io/terra/reference/serialize.html" cl
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Detailed Development of Ecological Niche Models">
-<meta name="description" content="A new set of tools to help with the development of detailed ecological niche models using multiple algorithms. Pre-modeling analyses and explorations can be done to prepare data. Model calibration (model selection) can be done by creating and testing several candidate models. Handy options for producing final models with transfers are included. Other tools to assess extrapolation risks and variability in model transfers are also available. Methodological and theoretical basis for the methods implemented here can be found in: Peterson et al. (2011) &lt;https://www.degruyter.com/princetonup/view/title/506966&gt;, Radosavljevic and Anderson (2014) &lt;doi:10.1111/jbi.12227&gt;, Peterson et al. (2018) &lt;doi:10.1111/nyas.13873&gt;, Cobos et al. (2019) &lt;doi:10.7717/peerj.6281&gt;, Alkishe et al. (2020) &lt;doi:10.1016/j.pecon.2020.03.002&gt;, Machado-Stredel et al. (2021) &lt;doi:10.21425/F5FBG48814&gt;, Arias-Giraldo and Cobos (2024) &lt;doi:10.17161/bi.v18i.21742&gt;, Cobos et al. (2024) &lt;doi:10.17161/bi.v18i.21742&gt;.">
-<meta property="og:description" content="A new set of tools to help with the development of detailed ecological niche models using multiple algorithms. Pre-modeling analyses and explorations can be done to prepare data. Model calibration (model selection) can be done by creating and testing several candidate models. Handy options for producing final models with transfers are included. Other tools to assess extrapolation risks and variability in model transfers are also available. Methodological and theoretical basis for the methods implemented here can be found in: Peterson et al. (2011) &lt;https://www.degruyter.com/princetonup/view/title/506966&gt;, Radosavljevic and Anderson (2014) &lt;doi:10.1111/jbi.12227&gt;, Peterson et al. (2018) &lt;doi:10.1111/nyas.13873&gt;, Cobos et al. (2019) &lt;doi:10.7717/peerj.6281&gt;, Alkishe et al. (2020) &lt;doi:10.1016/j.pecon.2020.03.002&gt;, Machado-Stredel et al. (2021) &lt;doi:10.21425/F5FBG48814&gt;, Arias-Giraldo and Cobos (2024) &lt;doi:10.17161/bi.v18i.21742&gt;, Cobos et al. (2024) &lt;doi:10.17161/bi.v18i.21742&gt;.">
+<meta name="description" content="A new set of tools to help with the development of detailed ecological niche models using multiple algorithms. Pre-modeling analyses and explorations can be done to prepare data. Model calibration (model selection) can be done by creating and testing models with several parameter combinations. Handy options for producing final models with transfers are included. Other tools to assess extrapolation risks and variability in model transfers are also available. Methodological and theoretical basis for the methods implemented here can be found in: Peterson et al. (2011) &lt;https://www.degruyter.com/princetonup/view/title/506966&gt;, Radosavljevic and Anderson (2014) &lt;doi:10.1111/jbi.12227&gt;, Peterson et al. (2018) &lt;doi:10.1111/nyas.13873&gt;, Cobos et al. (2019) &lt;doi:10.7717/peerj.6281&gt;, Alkishe et al. (2020) &lt;doi:10.1016/j.pecon.2020.03.002&gt;, Machado-Stredel et al. (2021) &lt;doi:10.21425/F5FBG48814&gt;, Arias-Giraldo and Cobos (2024) &lt;doi:10.17161/bi.v18i.21742&gt;, Cobos et al. (2024) &lt;doi:10.17161/bi.v18i.21742&gt;.">
+<meta property="og:description" content="A new set of tools to help with the development of detailed ecological niche models using multiple algorithms. Pre-modeling analyses and explorations can be done to prepare data. Model calibration (model selection) can be done by creating and testing models with several parameter combinations. Handy options for producing final models with transfers are included. Other tools to assess extrapolation risks and variability in model transfers are also available. Methodological and theoretical basis for the methods implemented here can be found in: Peterson et al. (2011) &lt;https://www.degruyter.com/princetonup/view/title/506966&gt;, Radosavljevic and Anderson (2014) &lt;doi:10.1111/jbi.12227&gt;, Peterson et al. (2018) &lt;doi:10.1111/nyas.13873&gt;, Cobos et al. (2019) &lt;doi:10.7717/peerj.6281&gt;, Alkishe et al. (2020) &lt;doi:10.1016/j.pecon.2020.03.002&gt;, Machado-Stredel et al. (2021) &lt;doi:10.21425/F5FBG48814&gt;, Arias-Giraldo and Cobos (2024) &lt;doi:10.17161/bi.v18i.21742&gt;, Cobos et al. (2024) &lt;doi:10.17161/bi.v18i.21742&gt;.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,14 +36,14 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
+<li><a class="dropdown-item" href="articles/basic_data_cleaning.html">1. Basic Data Cleaning</a></li>
     <li><a class="dropdown-item" href="articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
-    <li><a class="dropdown-item" href="articles/model_predictions.html">5. Predict models to single scenario</a></li>
-    <li><a class="dropdown-item" href="articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="articles/model_predictions.html">5. Project Models to a Single Scenario</a></li>
+    <li><a class="dropdown-item" href="articles/model_projections.html">6. Project Models to Multiple Scenarios</a></li>
     <li><a class="dropdown-item" href="articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
-    <li><a class="dropdown-item" href="articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
+    <li><a class="dropdown-item" href="articles/projections_chelsa.html">8. Example of Projections Using CHELSA Data</a></li>
   </ul>
 </li>
       </ul>
@@ -77,13 +77,9 @@
 <li>
 <a href="#workflow-in-kuenm2">Workflow in kuenm2</a>
 <ul>
-<li><a href="#basic-data-cleaning">Basic data cleaning</a></li>
-<li><a href="#data-preparation">Data preparation</a></li>
-<li><a href="#model-calibration">Model calibration</a></li>
-<li><a href="#model-explorations">Model explorations</a></li>
-<li><a href="#model-projections">Model projections</a></li>
-<li><a href="#projection-comparisons">Projection comparisons</a></li>
-<li><a href="#variability-and-uncertainty">Variability and uncertainty</a></li>
+<li><a href="#pre-modeling-steps">Pre-modeling steps</a></li>
+<li><a href="#model-development">Model development</a></li>
+<li><a href="#post-modeling-analysis">Post-modeling analysis</a></li>
 </ul>
 </li>
 <li><a href="#checking-the-vignettes">Checking the vignettes</a></li>
@@ -94,20 +90,19 @@
 <h2 id="package-description">Package description<a class="anchor" aria-label="anchor" href="#package-description"></a>
 </h2>
 <p><strong>kuenm2</strong> is an new version of <strong>kuenm</strong> <a href="https://peerj.com/articles/6281/" class="external-link">Cobos et al. 2019</a>, an R package designed to make the process of ecological niche modeling (ENM) easier, faster, and more reproducible, and at the same time more robust. The aim of this package is to facilitate crucial steps in the ENM process: data preparation, model calibration, selected model exploration, model projections, and analyses of uncertainty and variability.</p>
-<p>This new version of the package reduces the dependency on a strictly organized working directory (required only if projections to multiple scenarios are needed). Instead, <strong>kuenm2</strong> functions generate specific R objects that store all the necessary information for subsequent steps. The ENM workflow in <strong>kuenm2</strong> begins with <em>data preparation</em>, which requires at minimum a <code>data.frame</code> containing occurrence record coordinates (longitude and latitude) and a <code>SpatRaster</code> object with predictor variables.</p>
-<p><strong>kuenm2</strong> fits maximum entropy (Maxnet) models or logistic generalized linear models (GLMs). Maxnet models are created as described in <a href="http://doi.wiley.com/10.1111/ecog.03049" class="external-link">Phillips et al. (2017)</a>, and GLMs are constructed as in <a href="https://doi.org/10.1371/journal.pone.0276951" class="external-link">Cobos and Peterson (2023)</a>.</p>
+<p>This new version of the package reduces the dependency on a strictly organized working directory (now required only if projections to multiple scenarios are needed). Instead, kuenm2 functions generate specific R objects that store all the necessary information for subsequent steps. kuenm2 fits maximum entropy (Maxnet) models or logistic generalized linear models (GLMs). Maxnet models are created as described in <a href="http://doi.wiley.com/10.1111/ecog.03049" class="external-link">Phillips et al. (2017)</a>, and GLMs are constructed as in <a href="https://doi.org/10.1371/journal.pone.0276951" class="external-link">Cobos and Peterson (2023)</a>. The ENM workflow requires at minimum a <code>data.frame</code> containing occurrence record coordinates (longitude and latitude) and a <code>SpatRaster</code> object with predictor variables. Users could also use a <code>data.frame</code> containing a column indicating presence and background records (0/1), and other columns with predictor variable values.</p>
 <p><br></p>
 </div>
 <div class="section level2">
 <h2 id="installing-the-package">Installing the package<a class="anchor" aria-label="anchor" href="#installing-the-package"></a>
 </h2>
 <p>Note: Internet connection is required to install the package.</p>
-<p>To install the latest release of <strong>kuenm2</strong> use the following line of code:</p>
+<p>To install the latest release of kuenm2 use the following line of code:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Installing from CRAN </span></span>
 <span><span class="co">#install.packages("kuenm2")  # in progress</span></span></code></pre></div>
 <p><br></p>
-<p>The development version of <strong>kuenm2</strong> can be installed using the code below.</p>
+<p>The development version of kuenm2 can be installed using the code below.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Installing and loading packages</span></span>
 <span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
@@ -118,10 +113,10 @@
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"marlonecobos/kuenm2"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># To install the package and its vignettes use (if needed use: force = TRUE)  </span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"marlonecobos/kuenm2"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># in progress</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"marlonecobos/kuenm2"</span>, build_vignettes <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><br></p>
 <p><em>Having problems?</em></p>
-<p>If you have any problems during installation of the development version from GitHub, restart R session, close other RStudio sessions you may have open, and try again. If during the installation you are asked to update packages, do so if you don’t need a specific version of one or more of the packages to be installed. If any of the packages gives an error when updating, please install it alone using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, then try installing <strong>kuenm2</strong> again.</p>
+<p>If you have any problems during installation of the development version from GitHub, restart R session, close other RStudio sessions you may have open, and try again. If during the installation you are asked to update packages, do so if you don’t need a specific version of one or more of the packages to be installed. If any of the packages gives an error when updating, please install it alone using <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code>, then try installing kuenm2 again.</p>
 <p><br></p>
 <p>To load the package use:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -132,53 +127,67 @@
 <div class="section level2">
 <h2 id="workflow-in-kuenm2">Workflow in kuenm2<a class="anchor" aria-label="anchor" href="#workflow-in-kuenm2"></a>
 </h2>
-<p>The <strong>kuenm2</strong> package facilitates the following steps in the ENM process: basic data cleaning, data preparation, model calibration, model exploration, model projections, projection comparisons, and exploration of variability and uncertainty. The figure below shows a schematic view of how the package works. A brief description of the steps that can be performed with the package is presented below. For a complete description and demonstration of the steps, see the package vignettes listed in the section <a href="#checking-the-vignettes">Checking the vignettes</a>.</p>
+<p>The kuenm2 package facilitates the following steps in the ENM process: basic data cleaning, data preparation, model calibration, model exploration, model projections, projection comparisons, and exploration of variability and uncertainty. The figure below shows a schematic view of how the package works. A brief description of the steps that can be performed with the package is presented below. For a complete description and demonstration of the steps, see the package vignettes listed in the section <a href="#checking-the-vignettes">Checking the vignettes</a>.</p>
 <div class="figure" style="text-align: center">
-<img src="reference/figures/kuenm2_map.png" alt="Figure 1. Schematic view of the workflow to use kuenm2." width="460"><p class="caption">
-Figure 1. Schematic view of the workflow to use kuenm2.
+<img src="reference/figures/kuenm2_map_gs.png" alt="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling." width="461"><p class="caption">
+Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 </p>
 </div>
 <div class="section level3">
-<h3 id="basic-data-cleaning">Basic data cleaning<a class="anchor" aria-label="anchor" href="#basic-data-cleaning"></a>
+<h3 id="pre-modeling-steps">Pre-modeling steps<a class="anchor" aria-label="anchor" href="#pre-modeling-steps"></a>
 </h3>
-<p>Data cleaning tools in <strong>kuenm2</strong> help to automate the following basic steps: columns sorting, missing-data cleaning, duplicate removal, exclusion of coordinates with longitude and latitude values of 0, and filtering based on coordinate decimal precision (see function <code><a href="reference/initial_cleaning.html">initial_cleaning()</a></code>). In addition, users can erase duplicates based on the pixels of a raster layer, and move records that are barely outside the valid pixels of a raster layer (see function <code><a href="reference/advanced_cleaning.html">advanced_cleaning()</a></code>).</p>
+<div class="section level4">
+<h4 id="basic-data-cleaning">Basic data cleaning<a class="anchor" aria-label="anchor" href="#basic-data-cleaning"></a>
+</h4>
+<p>kuenm2 automates essential pre-processing steps for ecological niche modeling. Data cleaning tools help sort columns, remove missing values and duplicates (including duplicates within raster cells), exclude coordinates at (0,0), filter based on coordinate decimal precision, and adjust occurrences that fall just outside valid raster boundaries.</p>
+</div>
+<div class="section level4">
+<h4 id="data-preparation">Data preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a>
+</h4>
+<p>For data preparation, users can input raw occurrence records and raster layers or provide a pre-processed data frame. Two primary functions, <code><a href="reference/prepare_data.html">prepare_data()</a></code> and <code><a href="reference/prepare_user_data.html">prepare_user_data()</a></code>, guide users through the process of choosing modeling algorithms, defining parameter sets (e.g., feature classes, regularization multipliers, and predictor variables), and selecting data partitioning strategies. Additional tools allow users to visualize environmental conditions in the calibration data and assess similarities among training and testing partitions, an exclusive feature of kuenm2 among ENM tools.</p>
+</div>
 </div>
 <div class="section level3">
-<h3 id="data-preparation">Data preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a>
+<h3 id="model-development">Model development<a class="anchor" aria-label="anchor" href="#model-development"></a>
 </h3>
-<p><strong>kuenm2</strong> has two main functions that help users prepare their data for the ENM process. These functions take initial data, and guide users to make decisions about the algorithm to be used for models and the combination of parameters (feature classes, regularization multiplier, sets of variables) to be explored later during model calibration. Users can input occurrence records and raster layers, or a <code>data.frame</code> that has been prepared before hand. The main functions for this step are <code><a href="reference/prepare_data.html">prepare_data()</a></code> and <code><a href="reference/prepare_user_data.html">prepare_user_data()</a></code>. Users can also explore in more detail how environmental values look like in the data for model calibration using the results from preparing data and the functions <code><a href="reference/explore_calibration_geo.html">explore_calibration_geo()</a></code>, <code><a href="reference/explore_calibration_hist.html">explore_calibration_hist()</a></code>, and <code><a href="reference/plot_explore_calibration.html">plot_explore_calibration()</a></code>.</p>
+<div class="section level4">
+<h4 id="model-calibration">Model calibration<a class="anchor" aria-label="anchor" href="#model-calibration"></a>
+</h4>
+<p>Model calibration in kuenm2 is computationally intensive, involving training and testing of candidate models using various partitioning strategies such as k-fold cross-validation, subsampling, and bootstrapping. Custom partitions generated using external tools (e.g., block or checkerboard methods) can also be imported. Models are evaluated using multiple performance criteria that emphasize sensitivity due to the frequent lack of true absence data. These criteria include: bimodality in response curves, partial ROC for statistical significance, omission rates for predictive performance, and Akaike Information Criterion (AIC) for model complexity. Model calibration is executed using the <code><a href="reference/calibration.html">calibration()</a></code> function.</p>
+<p>To support a deeper understanding of the calibration process, a step to explore further extrapolation risks in the testing partitions can be performed in kuenm2. Tools in the package help to produce visualizations of response curves from training data overlapped with environmental conditions at testing sites for selected models. This another option exclusive to kuenm2.</p>
+</div>
+<div class="section level4">
+<h4 id="model-explorations">Model explorations<a class="anchor" aria-label="anchor" href="#model-explorations"></a>
+</h4>
+<p>Once best models are selected, they must be fitted using <code><a href="reference/fit_selected.html">fit_selected()</a></code> to analyze their characteristics and behavior. Fitted models can be explored to assess variable importance and examine response curves. This offers insights into predictor influence in models and ecological interpretation.</p>
+<p>If an independent set of records (not included for model calibration) is available, it can be used to re-evaluate the predictive performance of selected models. Partial ROC and omission rates are calculated for these new records to measure model performance, but extrapolation risks also are assessed for these points using the MOP metric (exclusive to kuenm2). Results from this evaluation can help further filter the selected models or inform the decision to incorporate the independent records into the calibration dataset.</p>
+</div>
+<div class="section level4">
+<h4 id="model-projections">Model projections<a class="anchor" aria-label="anchor" href="#model-projections"></a>
+</h4>
+<p>Fitted models can be projected to new environmental scenarios, including larger geographic areas or different temporal conditions (e.g., past or future climates). For single scenario projections, use <code><a href="reference/predict_selected.html">predict_selected()</a></code>; for multiple scenarios, use <code><a href="reference/project_selected.html">project_selected()</a></code>. Before projecting to complex future scenarios (e.g., multiple time periods, emission pathways, or GCMs), users should first prepare and organize data using functions in <em>kuenm2</em> that facilitate the process (e.g., <code><a href="reference/organize_future_worldclim.html">organize_future_worldclim()</a></code>).</p>
+</div>
 </div>
 <div class="section level3">
-<h3 id="model-calibration">Model calibration<a class="anchor" aria-label="anchor" href="#model-calibration"></a>
+<h3 id="post-modeling-analysis">Post-modeling analysis<a class="anchor" aria-label="anchor" href="#post-modeling-analysis"></a>
 </h3>
-<p>Model calibration is the most computationally challenging process automated in <strong>kuenm2</strong>. In this step, candidate models are trained and tested using a k-fold cross-validation approach. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. The main function used in this step is <code><a href="reference/calibration.html">calibration()</a></code>.</p>
+<div class="section level4">
+<h4 id="projection-comparisons">Projection comparisons<a class="anchor" aria-label="anchor" href="#projection-comparisons"></a>
+</h4>
+<p>When projecting to multiple scenarios, kuenm2 provides tools to quantify and characterize differences using <code><a href="reference/projection_changes.html">projection_changes()</a></code>. This function evaluates spatial changes and agreement levels among projections, aiding the interpretation of temporal or scenario-based shifts in suitability.</p>
 </div>
-<div class="section level3">
-<h3 id="model-explorations">Model explorations<a class="anchor" aria-label="anchor" href="#model-explorations"></a>
-</h3>
-<p>After the best performing models have been selected, users need to fit this models (<code><a href="reference/fit_selected.html">fit_selected()</a></code>) in order to explore their characteristics and continue with the next steps. Fitted models can then be used to assess variable importance in models, as well as to explore variable response curves. See functions <code><a href="reference/variable_importance.html">variable_importance()</a></code> and <code>response_curves()</code>.</p>
-</div>
-<div class="section level3">
-<h3 id="model-projections">Model projections<a class="anchor" aria-label="anchor" href="#model-projections"></a>
-</h3>
-<p>Once selected models have been fit and explored, projections to single or multiple scenarios can be done. To facilitate projections to simple or complex combinations of scenarios, multiple functions are available. The function <code><a href="reference/predict_selected.html">predict_selected()</a></code> performs projections to single scenarios, and the function <code><a href="reference/project_selected.html">project_selected()</a></code> helps with multiple scenarios. Notice, however, that before projecting to multiple scenarios, some steps need to be done. For an example of projections to future scenarios, with WorldClim variables, see the functions: <code><a href="reference/organize_future_worldclim.html">organize_future_worldclim()</a></code>, and <code><a href="reference/prepare_projection.html">prepare_projection()</a></code>.</p>
-</div>
-<div class="section level3">
-<h3 id="projection-comparisons">Projection comparisons<a class="anchor" aria-label="anchor" href="#projection-comparisons"></a>
-</h3>
-<p>When projections to multiple scenarios involve a transfer to another time that can be compared to the current scenario, <strong>kuenm2</strong> provides a way to quantify and characterize changes. This can be done using the function <code><a href="reference/projection_changes.html">projection_changes()</a></code> and the results help to describe changes in each of the scenarios, and distinct levels of agreement in these changes among scenarios.</p>
-</div>
-<div class="section level3">
-<h3 id="variability-and-uncertainty">Variability and uncertainty<a class="anchor" aria-label="anchor" href="#variability-and-uncertainty"></a>
-</h3>
-<p>For results of model projections to multiple scenarios, tools for analyses of variability and uncertainty are included in <strong>kuenm2</strong>. Variability in model projections (<code><a href="reference/projection_variability.html">projection_variability()</a></code>) is represented geographically by exploring the variance that comes from replicates, distinct model parameterizations, and general circulation models (in projections to other times). To represent uncertainty, the Mobility Oriented-Parity (MOP) metric is used to compare all projection scenarios to conditions of model training (<code><a href="reference/projection_mop.html">projection_mop()</a></code>).</p>
+<div class="section level4">
+<h4 id="variability-and-uncertainty">Variability and uncertainty<a class="anchor" aria-label="anchor" href="#variability-and-uncertainty"></a>
+</h4>
+<p>To assess the consistency and reliability of model outputs, users can explore projection variability (<code><a href="reference/projection_variability.html">projection_variability()</a></code>), which accounts for differences arising from model replicates, parameter sets, and climate models. With the MOP metric (<code><a href="reference/projection_mop.html">projection_mop()</a></code>) users can evaluate extrapolation risks by identifying novel environmental conditions in projection areas, offering a spatially explicit representation of model uncertainty.</p>
 <p><br></p>
+</div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="checking-the-vignettes">Checking the vignettes<a class="anchor" aria-label="anchor" href="#checking-the-vignettes"></a>
 </h2>
-<p>Users can check <strong>kuenm2</strong> vignettes for a full explanation of the package functionality. If installing the development version form GitHub, make sure to use the argument <code>build_vignettes = TRUE</code>.</p>
+<p>Users can check kuenm2 vignettes for a full explanation of the package functionality. If installing the development version form GitHub, make sure to use the argument <code>build_vignettes = TRUE</code>.</p>
 <p>Check each of the vignettes with the code below:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Guide to basic data cleaning before the ENM process</span></span>
@@ -202,8 +211,8 @@ Figure 1. Schematic view of the workflow to use kuenm2.
 <span><span class="co"># Guide to explore variability and uncertainty in projections (multiple scenarios)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"variability_and_uncertainty"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Guide to organize projections manually: An example with LGM from CHELSA</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"organize_past_chelsa"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Guide to make projections to multiple scenarios with layers from CHELSA Climate</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"projections_chelsa"</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -251,7 +260,7 @@ Figure 1. Schematic view of the workflow to use kuenm2.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

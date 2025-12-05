@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,14 +34,14 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
+<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Basic Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
-    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
-    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Project Models to a Single Scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project Models to Multiple Scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
-    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
+    <li><a class="dropdown-item" href="../articles/projections_chelsa.html">8. Example of Projections Using CHELSA Data</a></li>
   </ul>
 </li>
       </ul>
@@ -114,7 +114,7 @@ using the maxnet as algorithm, and another with GLM:</p>
 <code class="sourceCode R"><span><span class="co">#Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.60</span></span>
+<span><span class="co">#&gt; terra 1.8.86</span></span>
 <span></span>
 <span><span class="co"># Import occurrences</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">occ_data</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
@@ -355,7 +355,7 @@ the variable range. For example, as shown in the right panel of the
 figure below, higher suitability is observed in both the driest and
 wettest regions, with lower suitabilities occurring at intermediate
 precipitation levels.</p>
-<p><img src="vignettes_img/concave_curves.png" width="82%" style="display: block; margin: auto;"></p>
+<p><img src="vignettes_img/concave_curves.png" class="r-plt" width="82%" style="display: block; margin: auto;"></p>
 <p><br></p>
 <p>In our example, none of the selected models have concave curves:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -480,7 +480,7 @@ results, applying an omission rate of 5% instead 10%:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Filtering 300 models.</span></span>
 <span><span class="co">#&gt; Removing 0 model(s) because they failed to fit.</span></span>
-<span><span class="co">#&gt; 116 models were selected with omission rate below 5%.</span></span>
+<span><span class="co">#&gt; 116 model(s) were selected with omission rate below 5%.</span></span>
 <span><span class="co">#&gt; Selecting 2 final model(s) with delta AIC &lt;2.</span></span>
 <span><span class="co">#&gt; Validating pROC of selected models...</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -521,8 +521,8 @@ the maxnet algoritm:</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.480830 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.513242 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.478820 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.517533 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
@@ -545,7 +545,7 @@ summaries of the model selection process.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Filtering 300 models.</span></span>
 <span><span class="co">#&gt; Removing 0 model(s) because they failed to fit.</span></span>
-<span><span class="co">#&gt; 116 models were selected with omission rate below 5%.</span></span>
+<span><span class="co">#&gt; 116 model(s) were selected with omission rate below 5%.</span></span>
 <span><span class="co">#&gt; Selecting 2 final model(s) with delta AIC &lt;2.</span></span>
 <span><span class="co">#&gt; Validating pROC of selected models...</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -563,8 +563,8 @@ summaries of the model selection process.</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.479831 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.514019 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.479086 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.513099 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
@@ -601,7 +601,7 @@ below:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

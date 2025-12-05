@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,14 +19,14 @@
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Basic Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
-    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
-    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Project Models to a Single Scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project Models to Multiple Scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
-    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
+    <li><a class="dropdown-item" href="../articles/projections_chelsa.html">8. Example of Projections Using CHELSA Data</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -172,6 +172,33 @@ cleaning.</p>
     <div class="dont-index"><p><code><a href="advanced_cleaning.html">advanced_cleaning</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Import occurrences</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">occ_data_noclean</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># remove missing data</span></span></span>
+<span class="r-in"><span><span class="va">mis</span> <span class="op">&lt;-</span> <span class="fu">remove_missing</span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_data_noclean</span>, columns <span class="op">=</span> <span class="cn">NULL</span>, remove_na <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                      remove_empty <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># remove exact duplicates</span></span></span>
+<span class="r-in"><span><span class="va">mis_dup</span> <span class="op">&lt;-</span> <span class="fu">remove_duplicates</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mis</span>, columns <span class="op">=</span> <span class="cn">NULL</span>, keep_all_columns <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># remove records with 0 for x and y coordinates</span></span></span>
+<span class="r-in"><span><span class="va">mis_dup_00</span> <span class="op">&lt;-</span> <span class="fu">remove_corrdinates_00</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mis_dup</span>, x <span class="op">=</span> <span class="st">"x"</span>, y <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># remove coordinates with low decimal precision.</span></span></span>
+<span class="r-in"><span><span class="va">mis_dup_00_dec</span> <span class="op">&lt;-</span> <span class="fu">filter_decimal_precision</span><span class="op">(</span>data <span class="op">=</span> <span class="va">mis_dup_00</span>, x <span class="op">=</span> <span class="st">"x"</span>, y <span class="op">=</span> <span class="st">"y"</span>,</span></span>
+<span class="r-in"><span>                                           decimal_precision <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># all basic cleaning steps</span></span></span>
+<span class="r-in"><span><span class="va">clean_init</span> <span class="op">&lt;-</span> <span class="fu">initial_cleaning</span><span class="op">(</span>data <span class="op">=</span> <span class="va">occ_data_noclean</span>, species <span class="op">=</span> <span class="st">"species"</span>,</span></span>
+<span class="r-in"><span>                               x <span class="op">=</span> <span class="st">"x"</span>, y <span class="op">=</span> <span class="st">"y"</span>, remove_na <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                               remove_empty <span class="op">=</span> <span class="cn">TRUE</span>, remove_duplicates <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                               by_decimal_precision <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                               decimal_precision <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
@@ -181,7 +208,7 @@ cleaning.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

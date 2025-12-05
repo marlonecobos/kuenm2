@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,14 +34,14 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
+<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Basic Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
-    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
-    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Project Models to a Single Scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project Models to Multiple Scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
-    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
+    <li><a class="dropdown-item" href="../articles/projections_chelsa.html">8. Example of Projections Using CHELSA Data</a></li>
   </ul>
 </li>
       </ul>
@@ -113,7 +113,7 @@ available as a data example in the package. Let’s load it.</p>
 <code class="sourceCode R"><span><span class="co">#Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.60</span></span>
+<span><span class="co">#&gt; terra 1.8.86</span></span>
 <span></span>
 <span><span class="co">#Import calib_results_maxnet</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"calib_results_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
@@ -182,7 +182,7 @@ settings (4-fold cross-validation) as used in the <a href="model_calibration.htm
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit selected models using calibration results</span></span>
 <span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_selected.html">fit_selected</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_maxnet</span>, </span>
-<span>                   partition_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_partitions <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span>                   replicate_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co"># Fitting partitions...</span></span>
 <span><span class="co">#   |========================================================================| 100%</span></span>
 <span><span class="co"># Fitting full models...</span></span>
@@ -206,7 +206,7 @@ model.</p>
 <span></span>
 <span><span class="co">#See models inside Model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">$</span><span class="va">Model_192</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Partition_1" "Partition_2" "Partition_3" "Partition_4" "Full_model"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "Replicate_1" "Replicate_2" "Replicate_3" "Replicate_4" "Full_model"</span></span></code></pre></div>
 <p>The <code>fitted_models</code> object also stores the thresholds that
 can be used to binarize the models into suitable and unsuitable areas.
 These thresholds correspond to the omission error used during model
@@ -228,26 +228,26 @@ selected models (when more than one model is selected):</p>
 <code class="sourceCode R"><span><span class="va">fm</span><span class="op">$</span><span class="va">thresholds</span></span>
 <span><span class="co">#&gt; $Model_192</span></span>
 <span><span class="co">#&gt; $Model_192$mean</span></span>
-<span><span class="co">#&gt; [1] 0.241469</span></span>
+<span><span class="co">#&gt; [1] 0.2449115</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Model_192$median</span></span>
-<span><span class="co">#&gt; [1] 0.2535061</span></span>
+<span><span class="co">#&gt; [1] 0.266498</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Model_219</span></span>
 <span><span class="co">#&gt; $Model_219$mean</span></span>
-<span><span class="co">#&gt; [1] 0.2573623</span></span>
+<span><span class="co">#&gt; [1] 0.260294</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Model_219$median</span></span>
-<span><span class="co">#&gt; [1] 0.2597515</span></span>
+<span><span class="co">#&gt; [1] 0.2695625</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $consensus</span></span>
 <span><span class="co">#&gt; $consensus$mean</span></span>
-<span><span class="co">#&gt; [1] 0.2494156</span></span>
+<span><span class="co">#&gt; [1] 0.2526028</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $consensus$median</span></span>
-<span><span class="co">#&gt; [1] 0.2566288</span></span>
+<span><span class="co">#&gt; [1] 0.2680302</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $type</span></span>
@@ -293,7 +293,7 @@ shaded area representing the 95% confidence interval.</p>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/response%20curve-1.png" width="672"></p>
+<p><img src="model_exploration_files/figure-html/response%20curve-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>We can also specify which of the selected models should be used to
@@ -308,7 +308,7 @@ generate the response curves:</p>
 <span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, main <span class="op">=</span> <span class="st">"Model_192"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
 <span>               modelID <span class="op">=</span> <span class="st">"Model_219"</span>, main <span class="op">=</span> <span class="st">"Model_219"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/response%20ID-1.png" width="672"></p>
+<p><img src="model_exploration_files/figure-html/response%20ID-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>The dashed lines indicate the range of the variable within the
@@ -328,7 +328,7 @@ extrapolation factor of 2:</p>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/extrapolation%20factor-1.png" width="672"></p>
+<p><img src="model_exploration_files/figure-html/extrapolation%20factor-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>Note that the response curve now extends further beyond the observed
@@ -341,7 +341,7 @@ lower limit to 0:</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, </span>
 <span>               extrapolation_factor <span class="op">=</span> <span class="fl">0.1</span>, </span>
 <span>               l_limit <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/lower%20limit-1.png" width="672"></p>
+<p><img src="model_exploration_files/figure-html/lower%20limit-1.png" class="r-plt" width="672"></p>
 <p>Now, the lower limit of the plot for <code>bio_12</code> is set to 0.
 Since we did not specify an upper limit, the plot uses the extrapolation
 factor (here, 0.1) to define the upper limit.</p>
@@ -350,7 +350,7 @@ the plot by setting <code>add_point = TRUE</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, </span>
 <span>               add_points <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/add%20points-1.png" width="672"></p>
+<p><img src="model_exploration_files/figure-html/add%20points-1.png" class="r-plt" width="672"></p>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -410,7 +410,7 @@ the plot displays a boxplot of contributions, along with the mean
 contribution and the number (N) of fitted models.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/plot%20importance-1.png" width="672"></p>
+<p><img src="model_exploration_files/figure-html/plot%20importance-1.png" class="r-plt" width="672"></p>
 <p>If variable importance is computed for a single model, the plot
 displays a barplot instead of a boxplot:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
@@ -419,7 +419,7 @@ displays a barplot instead of a boxplot:</p>
 <span>                               progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#Plot variable contribution for model 192</span></span>
 <span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_192</span>, main <span class="op">=</span> <span class="st">"Variable importance - Model 192"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/one%20model%20importance-1.png" width="672"><br></p>
+<p><img src="model_exploration_files/figure-html/one%20model%20importance-1.png" class="r-plt" width="672"><br></p>
 </div>
 <div class="section level2">
 <h2 id="evaluate-models-with-independent-data">Evaluate models with independent data<a class="anchor" aria-label="anchor" href="#evaluate-models-with-independent-data"></a>
@@ -635,7 +635,7 @@ using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" 
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

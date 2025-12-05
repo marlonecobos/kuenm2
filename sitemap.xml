@@ -6,13 +6,14 @@
 <url><loc>https://marlonecobos.github.io/kuenm2/articles/model_exploration.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/articles/model_predictions.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/articles/model_projections.html</loc></url>
-<url><loc>https://marlonecobos.github.io/kuenm2/articles/organize_past_chelsa.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/articles/prepare_data.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/articles/projections_chelsa.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/articles/variability_and_uncertainty.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/authors.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/index.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/bias.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/binarize_changes.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/bivariate_response.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/calib_results_glm.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/calib_results_maxnet.html</loc></url>
@@ -28,9 +29,10 @@
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/colors_for_changes.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/detect_concave.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/enmeval_block.html</loc></url>
-<url><loc>https://marlonecobos.github.io/kuenm2/reference/explore_calibration_geo.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/explore_calibration_hist.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/explore_partition_env.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/explore_partition_extrapolation.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/explore_partition_geo.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/extract_occurrence_variables.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/extract_var_from_formulas.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/fit_selected.html</loc></url>
@@ -54,6 +56,7 @@
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/index.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/kuenm2-package.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/kuenm2_discrete_palletes.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/m.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/new_occ.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/occ_data.html</loc></url>
@@ -61,8 +64,10 @@
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/organize_for_projection.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/partial_roc.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/partition_response_curves.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/perform_pca.html</loc></url>
-<url><loc>https://marlonecobos.github.io/kuenm2/reference/plot_explore_calibration.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/plot_calibration_hist.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/plot_explore_partition.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/plot_importance.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/predict.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/predict_selected.html</loc></url>
@@ -78,8 +83,10 @@
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/select_models.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/sp_swd.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/sp_swd_glm.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/swd_spatial_block.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/user_data.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/var.html</loc></url>
 <url><loc>https://marlonecobos.github.io/kuenm2/reference/variable_importance.html</loc></url>
+<url><loc>https://marlonecobos.github.io/kuenm2/reference/world.html</loc></url>
 </urlset>
 

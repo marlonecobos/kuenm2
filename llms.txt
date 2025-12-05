@@ -1,0 +1,531 @@
+# kuenm2: Detailed Development of Ecological Niche Models
+
+Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A.
+Townsend Peterson, and Marlon E. Cobos
+
+- [Package description](#package-description)
+- [Installing the package](#installing-the-package)
+- [Workflow in kuenm2](#workflow-in-kuenm2)
+  - [Pre-modeling steps](#pre-modeling-steps)
+  - [Model development](#model-development)
+  - [Post-modeling analysis](#post-modeling-analysis)
+- [Checking the vignettes](#checking-the-vignettes)
+
+------------------------------------------------------------------------
+
+  
+
+## Package description
+
+**kuenm2** is an new version of **kuenm** [Cobos et
+al. 2019](https://peerj.com/articles/6281/), an R package designed to
+make the process of ecological niche modeling (ENM) easier, faster, and
+more reproducible, and at the same time more robust. The aim of this
+package is to facilitate crucial steps in the ENM process: data
+preparation, model calibration, selected model exploration, model
+projections, and analyses of uncertainty and variability.
+
+This new version of the package reduces the dependency on a strictly
+organized working directory (now required only if projections to
+multiple scenarios are needed). Instead, kuenm2 functions generate
+specific R objects that store all the necessary information for
+subsequent steps. kuenm2 fits maximum entropy (Maxnet) models or
+logistic generalized linear models (GLMs). Maxnet models are created as
+described in [Phillips et
+al. (2017)](http://doi.wiley.com/10.1111/ecog.03049), and GLMs are
+constructed as in [Cobos and Peterson
+(2023)](https://doi.org/10.1371/journal.pone.0276951). The ENM workflow
+requires at minimum a `data.frame` containing occurrence record
+coordinates (longitude and latitude) and a `SpatRaster` object with
+predictor variables. Users could also use a `data.frame` containing a
+column indicating presence and background records (0/1), and other
+columns with predictor variable values.
+
+  
+
+## Installing the package
+
+Note: Internet connection is required to install the package.
+
+To install the latest release of kuenm2 use the following line of code:
+
+``` r
+# Installing from CRAN 
+#install.packages("kuenm2")  # in progress
+```
+
+  
+
+The development version of kuenm2 can be installed using the code below.
+
+``` r
+# Installing and loading packages
+if(!require(remotes)){
+  install.packages("remotes")
+}
+
+# To install the package use
+remotes::install_github("marlonecobos/kuenm2")
+
+# To install the package and its vignettes use (if needed use: force = TRUE)  
+remotes::install_github("marlonecobos/kuenm2", build_vignettes = TRUE)
+```
+
+  
+
+*Having problems?*
+
+If you have any problems during installation of the development version
+from GitHub, restart R session, close other RStudio sessions you may
+have open, and try again. If during the installation you are asked to
+update packages, do so if you don’t need a specific version of one or
+more of the packages to be installed. If any of the packages gives an
+error when updating, please install it alone using
+[`install.packages()`](https://rdrr.io/r/utils/install.packages.html),
+then try installing kuenm2 again.
+
+  
+
+To load the package use:
+
+``` r
+# Load kuenm2
+library(kuenm2)
+```
+
+  
+
+## Workflow in kuenm2
+
+The kuenm2 package facilitates the following steps in the ENM process:
+basic data cleaning, data preparation, model calibration, model
+exploration, model projections, projection comparisons, and exploration
+of variability and uncertainty. The figure below shows a schematic view
+of how the package works. A brief description of the steps that can be
+performed with the package is presented below. For a complete
+description and demonstration of the steps, see the package vignettes
+listed in the section [Checking the vignettes](#checking-the-vignettes).
+
+![Figure 1. Overview of the kuenm2 workflow for ecological niche
+modeling.](reference/figures/kuenm2_map_gs.png)
+
+Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
+
+### Pre-modeling steps
+
+#### Basic data cleaning
+
+kuenm2 automates essential pre-processing steps for ecological niche
+modeling. Data cleaning tools help sort columns, remove missing values
+and duplicates (including duplicates within raster cells), exclude
+coordinates at (0,0), filter based on coordinate decimal precision, and
+adjust occurrences that fall just outside valid raster boundaries.
+
+#### Data preparation
+
+For data preparation, users can input raw occurrence records and raster
+layers or provide a pre-processed data frame. Two primary functions,
+[`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
+and
+[`prepare_user_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_user_data.md),
+guide users through the process of choosing modeling algorithms,
+defining parameter sets (e.g., feature classes, regularization
+multipliers, and predictor variables), and selecting data partitioning
+strategies. Additional tools allow users to visualize environmental
+conditions in the calibration data and assess similarities among
+training and testing partitions, an exclusive feature of kuenm2 among
+ENM tools.
+
+### Model development
+
+#### Model calibration
+
+Model calibration in kuenm2 is computationally intensive, involving
+training and testing of candidate models using various partitioning
+strategies such as k-fold cross-validation, subsampling, and
+bootstrapping. Custom partitions generated using external tools (e.g.,
+block or checkerboard methods) can also be imported. Models are
+evaluated using multiple performance criteria that emphasize sensitivity
+due to the frequent lack of true absence data. These criteria include:
+bimodality in response curves, partial ROC for statistical significance,
+omission rates for predictive performance, and Akaike Information
+Criterion (AIC) for model complexity. Model calibration is executed
+using the
+[`calibration()`](https://marlonecobos.github.io/kuenm2/reference/calibration.md)
+function.
+
+To support a deeper understanding of the calibration process, a step to
+explore further extrapolation risks in the testing partitions can be
+performed in kuenm2. Tools in the package help to produce visualizations
+of response curves from training data overlapped with environmental
+conditions at testing sites for selected models. This another option
+exclusive to kuenm2.
+
+#### Model explorations
+
+Once best models are selected, they must be fitted using
+[`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
+to analyze their characteristics and behavior. Fitted models can be
+explored to assess variable importance and examine response curves. This
+offers insights into predictor influence in models and ecological
+interpretation.
+
+If an independent set of records (not included for model calibration) is
+available, it can be used to re-evaluate the predictive performance of
+selected models. Partial ROC and omission rates are calculated for these
+new records to measure model performance, but extrapolation risks also
+are assessed for these points using the MOP metric (exclusive to
+kuenm2). Results from this evaluation can help further filter the
+selected models or inform the decision to incorporate the independent
+records into the calibration dataset.
+
+#### Model projections
+
+Fitted models can be projected to new environmental scenarios, including
+larger geographic areas or different temporal conditions (e.g., past or
+future climates). For single scenario projections, use
+[`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md);
+for multiple scenarios, use
+[`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md).
+Before projecting to complex future scenarios (e.g., multiple time
+periods, emission pathways, or GCMs), users should first prepare and
+organize data using functions in *kuenm2* that facilitate the process
+(e.g.,
+[`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md)).
+
+### Post-modeling analysis
+
+#### Projection comparisons
+
+When projecting to multiple scenarios, kuenm2 provides tools to quantify
+and characterize differences using
+[`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md).
+This function evaluates spatial changes and agreement levels among
+projections, aiding the interpretation of temporal or scenario-based
+shifts in suitability.
+
+#### Variability and uncertainty
+
+To assess the consistency and reliability of model outputs, users can
+explore projection variability
+([`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)),
+which accounts for differences arising from model replicates, parameter
+sets, and climate models. With the MOP metric
+([`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md))
+users can evaluate extrapolation risks by identifying novel
+environmental conditions in projection areas, offering a spatially
+explicit representation of model uncertainty.
+
+  
+
+## Checking the vignettes
+
+Users can check kuenm2 vignettes for a full explanation of the package
+functionality. If installing the development version form GitHub, make
+sure to use the argument `build_vignettes = TRUE`.
+
+Check each of the vignettes with the code below:
+
+``` r
+# Guide to basic data cleaning before the ENM process
+vignette("basic_data_cleaning")
+
+# Guide to prepare data for the ENM process
+vignette("prepare_data")
+
+# Guide to train and evaluate candidate models, and select based on performance
+vignette("model_calibration") 
+
+# Guide to explore selected models, variable importance, response curves
+vignette("model_exploration")
+
+# Guide to predict models in geographic space (single scenarios)
+vignette("model_predictions")
+
+# Guide to project models in geographic space (multiple scenarios)
+vignette("model_projections") 
+
+# Guide to explore variability and uncertainty in projections (multiple scenarios)
+vignette("variability_and_uncertainty")
+
+# Guide to make projections to multiple scenarios with layers from CHELSA Climate
+vignette("projections_chelsa")
+```
+
+# Package index
+
+## All functions
+
+- [`advanced_cleaning()`](https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.md)
+  [`remove_cell_duplicates()`](https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.md)
+  [`move_2closest_cell()`](https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.md)
+  : Advanced occurrence data cleaning
+
+- [`bias`](https://marlonecobos.github.io/kuenm2/reference/bias.md) :
+  Example Bias File
+
+- [`binarize_changes()`](https://marlonecobos.github.io/kuenm2/reference/binarize_changes.md)
+  : Binarize changes based on the agreement among GCMs
+
+- [`bivariate_response()`](https://marlonecobos.github.io/kuenm2/reference/bivariate_response.md)
+  : Bivariate response plot for fitted models
+
+- [`calib_results_glm`](https://marlonecobos.github.io/kuenm2/reference/calib_results_glm.md)
+  : Calibration Results (glm)
+
+- [`calib_results_maxnet`](https://marlonecobos.github.io/kuenm2/reference/calib_results_maxnet.md)
+  : Calibration Results (Maxnet)
+
+- [`calibration()`](https://marlonecobos.github.io/kuenm2/reference/calibration.md)
+  : Fitting and evaluation of models, and selection of the best ones
+
+- [`chelsa_current`](https://marlonecobos.github.io/kuenm2/reference/chelsa_current.md)
+  : SpatRaster Representing present-day Conditions (CHELSA)
+
+- [`chelsa_lgm_ccsm4`](https://marlonecobos.github.io/kuenm2/reference/chelsa_lgm_ccsm4.md)
+  : SpatRaster Representing LGM Conditions (GCM: CCSM4)
+
+- [`chelsa_lgm_cnrm_cm5`](https://marlonecobos.github.io/kuenm2/reference/chelsa_lgm_cnrm_cm5.md)
+  : SpatRaster Representing LGM Conditions (GCM: CNRM-CM5)
+
+- [`chelsa_lgm_fgoals_g2`](https://marlonecobos.github.io/kuenm2/reference/chelsa_lgm_fgoals_g2.md)
+  : SpatRaster Representing LGM Conditions (GCM: FGOALS-g2)
+
+- [`chelsa_lgm_ipsl`](https://marlonecobos.github.io/kuenm2/reference/chelsa_lgm_ipsl.md)
+  : SpatRaster Representing LGM Conditions (GCM: IPSL-CM5A-LR)
+
+- [`chelsa_lgm_miroc`](https://marlonecobos.github.io/kuenm2/reference/chelsa_lgm_miroc.md)
+  : SpatRaster Representing LGM Conditions (GCM: MIROC-ESM)
+
+- [`chelsa_lgm_mpi`](https://marlonecobos.github.io/kuenm2/reference/chelsa_lgm_mpi.md)
+  : SpatRaster Representing LGM Conditions (GCM: MPI-ESM-P)
+
+- [`chelsa_lgm_mri`](https://marlonecobos.github.io/kuenm2/reference/chelsa_lgm_mri.md)
+  : SpatRaster Representing LGM Conditions (GCM: MRI-CGCM3)
+
+- [`colors_for_changes()`](https://marlonecobos.github.io/kuenm2/reference/colors_for_changes.md)
+  : Set Colors for Change Maps
+
+- [`detect_concave()`](https://marlonecobos.github.io/kuenm2/reference/detect_concave.md)
+  : Detect concave curves in GLM and GLMNET models
+
+- [`enmeval_block`](https://marlonecobos.github.io/kuenm2/reference/enmeval_block.md)
+  : Spatial Blocks from ENMeval
+
+- [`explore_calibration_hist()`](https://marlonecobos.github.io/kuenm2/reference/explore_calibration_hist.md)
+  : Explore variable distribution for occurrence and background points
+
+- [`explore_partition_env()`](https://marlonecobos.github.io/kuenm2/reference/explore_partition_env.md)
+  : Explore the Distribution of Partitions in Environmental Space
+
+- [`explore_partition_extrapolation()`](https://marlonecobos.github.io/kuenm2/reference/explore_partition_extrapolation.md)
+  : Analysis of extrapolation risks in partitions using the MOP metric
+
+- [`explore_partition_geo()`](https://marlonecobos.github.io/kuenm2/reference/explore_partition_geo.md)
+  : Explore the spatial distribution of partitions for occurrence and
+  background points
+
+- [`extract_occurrence_variables()`](https://marlonecobos.github.io/kuenm2/reference/extract_occurrence_variables.md)
+  : Extracts Environmental Variables for Occurrences
+
+- [`extract_var_from_formulas()`](https://marlonecobos.github.io/kuenm2/reference/extract_var_from_formulas.md)
+  : Extract predictor names from formulas
+
+- [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
+  : Fit models selected after calibration
+
+- [`fitted_model_chelsa`](https://marlonecobos.github.io/kuenm2/reference/fitted_model_chelsa.md)
+  : Fitted model with CHELSA variables
+
+- [`fitted_model_concave`](https://marlonecobos.github.io/kuenm2/reference/fitted_model_concave.md)
+  : Fitted model with concave curves
+
+- [`fitted_model_glm`](https://marlonecobos.github.io/kuenm2/reference/fitted_model_glm.md)
+  : Fitted model with glm algorithm
+
+- [`fitted_model_maxnet`](https://marlonecobos.github.io/kuenm2/reference/fitted_model_maxnet.md)
+  : Fitted model with maxnet algorithm
+
+- [`enmeval_block`](https://marlonecobos.github.io/kuenm2/reference/flexsdm_block.md)
+  : Spatial Blocks from flexsdm
+
+- [`future_2050_ssp126_access`](https://marlonecobos.github.io/kuenm2/reference/future_2050_ssp126_access.md)
+  : SpatRaster Representing Future Conditions (2041-2060, SSP126, GCM:
+  ACCESS-CM2)
+
+- [`future_2050_ssp126_miroc`](https://marlonecobos.github.io/kuenm2/reference/future_2050_ssp126_miroc.md)
+  : SpatRaster Representing Future Conditions (2041-2060, SSP126, GCM:
+  MIROC6)
+
+- [`future_2050_ssp585_access`](https://marlonecobos.github.io/kuenm2/reference/future_2050_ssp585_access.md)
+  : SpatRaster Representing Future Conditions (2041-2060, SSP585, GCM:
+  ACCESS-CM2)
+
+- [`future_2050_ssp585_miroc`](https://marlonecobos.github.io/kuenm2/reference/future_2050_ssp585_miroc.md)
+  : SpatRaster Representing Future Conditions (2041-2060, SSP585, GCM:
+  MIROC6)
+
+- [`future_2100_ssp126_access`](https://marlonecobos.github.io/kuenm2/reference/future_2100_ssp126_access.md)
+  : SpatRaster Representing Future Conditions (2081-2100, SSP126, GCM:
+  ACCESS-CM2)
+
+- [`future_2100_ssp126_miroc`](https://marlonecobos.github.io/kuenm2/reference/future_2100_ssp126_miroc.md)
+  : SpatRaster Representing Future Conditions (2081-2100, SSP126, GCM:
+  MIROC6)
+
+- [`future_2100_ssp585_access`](https://marlonecobos.github.io/kuenm2/reference/future_2100_ssp585_access.md)
+  : SpatRaster Representing Future Conditions (2081-2100, SSP585, GCM:
+  ACCESS-CM2)
+
+- [`future_2100_ssp585_miroc`](https://marlonecobos.github.io/kuenm2/reference/future_2100_ssp585_miroc.md)
+  : SpatRaster Representing Future Conditions (2081-2100, SSP585, GCM:
+  MIROC6)
+
+- [`glm_mx()`](https://marlonecobos.github.io/kuenm2/reference/glm_mx.md)
+  : Maxent-like Generalized Linear Models (GLM)
+
+- [`glmnet_mx()`](https://marlonecobos.github.io/kuenm2/reference/glmnet_mx.md)
+  : Maxent-like glmnet models
+
+- [`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+  : Import rasters resulting from projection functions
+
+- [`independent_evaluation()`](https://marlonecobos.github.io/kuenm2/reference/independent_evaluation.md)
+  : Evaluate models with independent data
+
+- [`initial_cleaning()`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md)
+  [`sort_columns()`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md)
+  [`remove_missing()`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md)
+  [`remove_duplicates()`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md)
+  [`remove_corrdinates_00()`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md)
+  [`filter_decimal_precision()`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md)
+  : Initial occurrence data cleaning steps
+
+- [`kuenm2`](https://marlonecobos.github.io/kuenm2/reference/kuenm2-package.md)
+  [`kuenm2-package`](https://marlonecobos.github.io/kuenm2/reference/kuenm2-package.md)
+  : kuenm2: Detailed Development of Ecological Niche Models
+
+- [`kuenm2_discrete_palletes`](https://marlonecobos.github.io/kuenm2/reference/kuenm2_discrete_palletes.md)
+  : Discrete palettes based on pals R package
+
+- [`m`](https://marlonecobos.github.io/kuenm2/reference/m.md) :
+
+  SpatVector Representing Calibration Area for *Myrcia hatschbachii*
+
+- [`new_occ`](https://marlonecobos.github.io/kuenm2/reference/new_occ.md)
+  : Independent Species Occurrence
+
+- [`occ_data`](https://marlonecobos.github.io/kuenm2/reference/occ_data.md)
+  : Species Occurrence
+
+- [`occ_data_noclean`](https://marlonecobos.github.io/kuenm2/reference/occ_data_noclean.md)
+  : Species Occurrence with Erroneous Records
+
+- [`organize_for_projection()`](https://marlonecobos.github.io/kuenm2/reference/organize_for_projection.md)
+  : Organize and structure variables for past and future projections
+
+- [`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md)
+  : Organize and structure future climate variables from WorldClim
+
+- [`partial_roc()`](https://marlonecobos.github.io/kuenm2/reference/partial_roc.md)
+  : Partial ROC calculation for multiple candidate models
+
+- [`partition_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/partition_response_curves.md)
+  : Response curves for selected models according to training/testing
+  partitions
+
+- [`perform_pca()`](https://marlonecobos.github.io/kuenm2/reference/perform_pca.md)
+  : Principal Component Analysis for raster layers
+
+- [`plot_calibration_hist()`](https://marlonecobos.github.io/kuenm2/reference/plot_calibration_hist.md)
+  : Histograms to visualize data from explore_calibration objects
+
+- [`plot_explore_partition()`](https://marlonecobos.github.io/kuenm2/reference/plot_explore_partition.md)
+  : Plot extrapolation risks for partitions
+
+- [`plot_importance()`](https://marlonecobos.github.io/kuenm2/reference/plot_importance.md)
+  : Summary plot for variable importance in models
+
+- [`predict.glmnet_mx()`](https://marlonecobos.github.io/kuenm2/reference/predict.md)
+  : Predict method for glmnet_mx (maxnet) models
+
+- [`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md)
+  : Predict selected models for a single scenario
+
+- [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
+  : Prepare data for model calibration
+
+- [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)
+  : Preparation of data for model projections
+
+- [`prepare_user_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_user_data.md)
+  : Prepare data for model calibration with user-prepared calibration
+  data
+
+- [`print(`*`<prepared_data>`*`)`](https://marlonecobos.github.io/kuenm2/reference/print.md)
+  [`print(`*`<calibration_results>`*`)`](https://marlonecobos.github.io/kuenm2/reference/print.md)
+  [`print(`*`<fitted_models>`*`)`](https://marlonecobos.github.io/kuenm2/reference/print.md)
+  [`print(`*`<projection_data>`*`)`](https://marlonecobos.github.io/kuenm2/reference/print.md)
+  [`print(`*`<model_projections>`*`)`](https://marlonecobos.github.io/kuenm2/reference/print.md)
+  : Print method for kuenm2 objects
+
+- [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md)
+  : Project selected models to multiple sets of new data (scenarios)
+
+- [`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
+  : Compute changes of suitable areas between scenarios
+
+- [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)
+  : Analysis of extrapolation risks in projections using the MOP metric
+
+- [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)
+  : Explores variance coming from distinct sources in model predictions
+
+- [`response_curve()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)
+  [`all_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)
+  : Variable response curves for fitted models
+
+- [`select_models()`](https://marlonecobos.github.io/kuenm2/reference/select_models.md)
+  : Select models that perform the best among candidates
+
+- [`sp_swd`](https://marlonecobos.github.io/kuenm2/reference/sp_swd.md)
+  : Prepared Data for maxnet models
+
+- [`sp_swd_glm`](https://marlonecobos.github.io/kuenm2/reference/sp_swd_glm.md)
+  : Prepared Data for glm models
+
+- [`sp_swd`](https://marlonecobos.github.io/kuenm2/reference/swd_spatial_block.md)
+  : Prepared data with spatial blocks created with ENMeval
+
+- [`user_data`](https://marlonecobos.github.io/kuenm2/reference/user_data.md)
+  : User Custom Calibration Data
+
+- [`var`](https://marlonecobos.github.io/kuenm2/reference/var.md) :
+  SpatRaster Representing present-day Conditions (WorldClim)
+
+- [`variable_importance()`](https://marlonecobos.github.io/kuenm2/reference/variable_importance.md)
+  : Variable importance
+
+- [`world`](https://marlonecobos.github.io/kuenm2/reference/world.md) :
+  World country polygons from Natural Earth
+
+# Articles
+
+### All vignettes
+
+- [Basic Data
+  Cleaning](https://marlonecobos.github.io/kuenm2/articles/basic_data_cleaning.md):
+- [Model
+  Calibration](https://marlonecobos.github.io/kuenm2/articles/model_calibration.md):
+- [Fit and Explore Selected
+  Models](https://marlonecobos.github.io/kuenm2/articles/model_exploration.md):
+- [Predict models to single
+  scenario](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md):
+- [Project models to multiple
+  scenarios](https://marlonecobos.github.io/kuenm2/articles/model_projections.md):
+- [Prepare Data for Model
+  Calibration](https://marlonecobos.github.io/kuenm2/articles/prepare_data.md):
+- [Organize projections manually: An example with LGM from
+  CHELSA](https://marlonecobos.github.io/kuenm2/articles/projections_chelsa.md):
+- [Exploring Model Uncertainty and
+  Variability](https://marlonecobos.github.io/kuenm2/articles/variability_and_uncertainty.md):

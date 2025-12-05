@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,14 +34,14 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
+<li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Basic Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
-    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
-    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Project Models to a Single Scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project Models to Multiple Scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
-    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
+    <li><a class="dropdown-item" href="../articles/projections_chelsa.html">8. Example of Projections Using CHELSA Data</a></li>
   </ul>
 </li>
       </ul>
@@ -114,7 +114,7 @@ Let’s load it.</p>
 <code class="sourceCode R"><span><span class="co">#Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.60</span></span>
+<span><span class="co">#&gt; terra 1.8.86</span></span>
 <span></span>
 <span><span class="co">#Import calib_results_maxnet</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"fitted_model_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
@@ -164,7 +164,7 @@ the package:</p>
 <span><span class="va">var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Current_variables.tif"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#Plot raster layers</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">var</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/Import%20raster%20layers-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/Import%20raster%20layers-1.png" class="r-plt" width="672"></p>
 <p>Let’s check which variables were used to calibrate our models. They
 are available in the <code>calibration_data</code> element of the
 object:</p>
@@ -185,7 +185,7 @@ these variables are present in the <code>SpatRaster</code>
 to this raster. Let’s begin by predicting the maxnet model:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_maxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
-<span>                             raster_variables <span class="op">=</span> <span class="va">var</span>,</span>
+<span>                             new_variables <span class="op">=</span> <span class="va">var</span>,</span>
 <span>                             progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>By default, the function computes consensus metrics (mean, median,
 range, and standard deviation) for each model across its partitions (if
@@ -200,24 +200,24 @@ consensus results for each model and the overall general consensus:</p>
 <p>Let’s plot the general consensus:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/plot%20maxnet%20general-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/plot%20maxnet%20general-1.png" class="r-plt" width="672"></p>
 <p>We can also plot the results for each partition and the consensus for
 each model:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Predictions for each partition from model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Partitions</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co">#Consensus across each partition from model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Model_consensus</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-2.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-2.png" class="r-plt" width="672"></p>
 <p><br></p>
 <p>For comparison, let’s predict the GLM model:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predict glm model</span></span>
 <span><span class="va">p_glm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_glm</span>, </span>
-<span>                          raster_variables <span class="op">=</span> <span class="va">var</span>,</span>
+<span>                          new_variables <span class="op">=</span> <span class="va">var</span>,</span>
 <span>                          progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#See selected models that were predicted</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">p_glm</span><span class="op">)</span></span>
@@ -227,7 +227,7 @@ each model:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid to plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"Maxnet"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_glm</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"GLM"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p><br></p>
@@ -253,7 +253,7 @@ example, let’s convert the raster variables <code>var</code> to a
 predict our Maxnet models to this <code>data.frame</code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
-<span>                         raster_variables <span class="op">=</span> <span class="va">var_df</span>, <span class="co">#Now, a data.frame</span></span>
+<span>                         new_variables <span class="op">=</span> <span class="va">var_df</span>, <span class="co">#Now, a data.frame</span></span>
 <span>                         progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> </span></code></pre></div>
 <p>Now, instead of <code>SpatRaster</code> objects, the function returns
 <code>data.frame</code> objects with the predictions:</p>
@@ -280,13 +280,13 @@ predict our Maxnet models to this <code>data.frame</code>:</p>
 <span></span>
 <span><span class="co">#General consensus across all models</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         median        mean       stdev       range</span></span>
-<span><span class="co">#&gt; 1 0.0006049792 0.001882943 0.002691096 0.006423186</span></span>
-<span><span class="co">#&gt; 2 0.0005534909 0.001847258 0.002690840 0.006356342</span></span>
-<span><span class="co">#&gt; 3 0.0004186079 0.001737935 0.002664381 0.006163912</span></span>
-<span><span class="co">#&gt; 4 0.0002532730 0.001562733 0.002558575 0.005757458</span></span>
-<span><span class="co">#&gt; 5 0.0004283544 0.002337815 0.003756587 0.008435158</span></span>
-<span><span class="co">#&gt; 6 0.0004274250 0.002539356 0.004130584 0.009165160</span></span></code></pre></div>
+<span><span class="co">#&gt;         median       range        mean       stdev</span></span>
+<span><span class="co">#&gt; 1 0.0006049792 0.006423186 0.001882943 0.002691096</span></span>
+<span><span class="co">#&gt; 2 0.0005534909 0.006356342 0.001847258 0.002690840</span></span>
+<span><span class="co">#&gt; 3 0.0004186079 0.006163912 0.001737935 0.002664381</span></span>
+<span><span class="co">#&gt; 4 0.0002532730 0.005757458 0.001562733 0.002558575</span></span>
+<span><span class="co">#&gt; 5 0.0004283544 0.008435158 0.002337815 0.003756587</span></span>
+<span><span class="co">#&gt; 6 0.0004274250 0.009165160 0.002539356 0.004130584</span></span></code></pre></div>
 <p><br></p>
 </div>
 <div class="section level3">
@@ -348,7 +348,7 @@ is only available when predicting to a <code>SpatRaster</code>):</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid to plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mean_maxnet_bin</span>, main <span class="op">=</span> <span class="st">"Maxnet"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mean_glm_bin</span>, main <span class="op">=</span> <span class="st">"GLM"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/binarize%20models-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/binarize%20models-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p><br></p>
@@ -364,7 +364,7 @@ For example, let’s examine the response curve of the Maxnet model for
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
 <span>               extrapolation_factor <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/response%20bio_7-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/response%20bio_7-1.png" class="r-plt" width="672"></p>
 <p>Note that higher suitability occurs at low values of the temperature
 range. However, the lower limit of the calibration data used to fit the
 models (dashed line) is at 15.7ºC. The premise that suitability will
@@ -397,7 +397,7 @@ extremely low values:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">var</span><span class="op">$</span><span class="va">bio_7</span>, main <span class="op">=</span> <span class="st">"Original bio_7"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">new_var</span><span class="op">$</span><span class="va">bio_7</span>, main <span class="op">=</span> <span class="st">"New bio_7"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/create%20scenario-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/create%20scenario-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>Let’s predict the Maxnet models for this new scenario with both free
@@ -406,14 +406,14 @@ variables (<code>extrapolation_type = "EC"</code>):</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Predict to hypothetical scenario with free extrapolation</span></span>
 <span><span class="va">p_free_extrapolation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
-<span>                                         raster_variables <span class="op">=</span> <span class="va">new_var</span>, <span class="co">#New scenario</span></span>
+<span>                                         new_variables <span class="op">=</span> <span class="va">new_var</span>, <span class="co">#New scenario</span></span>
 <span>                                         consensus <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                                         extrapolation_type <span class="op">=</span> <span class="st">"E"</span>, <span class="co">#Free extrapolation (Default)</span></span>
 <span>                                         progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Predict to hypothetical scenario with clamping</span></span>
 <span><span class="va">p_clamping</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
-<span>                               raster_variables <span class="op">=</span> <span class="va">new_var</span>, <span class="co">#New scenario</span></span>
+<span>                               new_variables <span class="op">=</span> <span class="va">new_var</span>, <span class="co">#New scenario</span></span>
 <span>                               consensus <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                               extrapolation_type <span class="op">=</span> <span class="st">"EC"</span>, <span class="co">#Extrapolation with clamping</span></span>
 <span>                               progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -429,7 +429,7 @@ variables (<code>extrapolation_type = "EC"</code>):</p>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_difference</span>, main <span class="op">=</span> <span class="st">"Difference"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">new_bio7</span>, main <span class="op">=</span> <span class="st">"Hypothetical bio_7"</span>, type <span class="op">=</span> <span class="st">"interval"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>Note that when we clamp the variables, regions with extremely low
@@ -451,7 +451,7 @@ previous step to observe the difference:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Predict to hypothetical scenario with no extrapolation</span></span>
 <span><span class="va">p_no_extrapolation</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
-<span>                                       raster_variables <span class="op">=</span> <span class="va">new_var</span>, <span class="co">#New scenario</span></span>
+<span>                                       new_variables <span class="op">=</span> <span class="va">new_var</span>, <span class="co">#New scenario</span></span>
 <span>                                       consensus <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                                       extrapolation_type <span class="op">=</span> <span class="st">"NE"</span>, <span class="co">#No extrapolation</span></span>
 <span>                                       progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -464,7 +464,7 @@ previous step to observe the difference:</p>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_no_extrapolation</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"No extrapolation"</span>,</span>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">new_bio7</span>, main <span class="op">=</span> <span class="st">"Hypothetical bio_7"</span>, type <span class="op">=</span> <span class="st">"interval"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/no%20extrapolation-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/no%20extrapolation-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>n this example, a large portion of the predicted area shows zero
@@ -520,13 +520,13 @@ assumes that
 <p>Let’s examine the differences between these four output types for
 Maxnet models:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p_cloglog</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, raster_variables <span class="op">=</span> <span class="va">var</span>, </span>
+<code class="sourceCode R"><span><span class="va">p_cloglog</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, new_variables <span class="op">=</span> <span class="va">var</span>, </span>
 <span>                              type <span class="op">=</span> <span class="st">"cloglog"</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">p_logistic</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, raster_variables <span class="op">=</span> <span class="va">var</span>, </span>
+<span><span class="va">p_logistic</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, new_variables <span class="op">=</span> <span class="va">var</span>, </span>
 <span>                              type <span class="op">=</span> <span class="st">"logistic"</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">p_cumulative</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, raster_variables <span class="op">=</span> <span class="va">var</span>, </span>
+<span><span class="va">p_cumulative</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, new_variables <span class="op">=</span> <span class="va">var</span>, </span>
 <span>                              type <span class="op">=</span> <span class="st">"cumulative"</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">p_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, raster_variables <span class="op">=</span> <span class="va">var</span>, </span>
+<span><span class="va">p_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, new_variables <span class="op">=</span> <span class="va">var</span>, </span>
 <span>                              type <span class="op">=</span> <span class="st">"raw"</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Plot the differences</span></span>
@@ -539,7 +539,7 @@ Maxnet models:</p>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_raw</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"Raw"</span>,</span>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/output%20types-1.png" width="672"></p>
+<p><img src="model_predictions_files/figure-html/output%20types-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p><br></p>
@@ -551,13 +551,13 @@ Maxnet models:</p>
 <p>We can save the predictions to the disk by setting
 <code>write_files = TRUE</code>. When this option is enabled, you must
 provide a directory path in the <code>out_dir</code> argument.</p>
-<p>If <code>raster_variables</code> is a <code>SpatRaster</code>, the
+<p>If <code>new_variables</code> is a <code>SpatRaster</code>, the
 function will save the output files as GeoTIFF (.tif) files. If
-<code>raster_variables</code> is a <code>data.frame</code>, the function
+<code>new_variables</code> is a <code>data.frame</code>, the function
 will save the output files as Comma Separated Value (.csv) files.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
-<span>                           raster_variables <span class="op">=</span> <span class="va">var</span>, </span>
+<span>                           new_variables <span class="op">=</span> <span class="va">var</span>, </span>
 <span>                           write_files <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save to the disk</span></span>
 <span>                           write_partitions <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save predictions for each partition</span></span>
 <span>                           out_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co">#A path to save the resuls (here, the temporary directory)</span></span>
@@ -580,7 +580,7 @@ from the general consensus results:</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

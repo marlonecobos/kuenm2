@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,14 +19,14 @@
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true"><span class="fa fas fa-book"></span> Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Occurrence Data Cleaning</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic_data_cleaning.html">1. Basic Data Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/prepare_data.html">2. Prepare Data for Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_calibration.html">3. Model Calibration</a></li>
     <li><a class="dropdown-item" href="../articles/model_exploration.html">4. Fit and Explore Selected Models</a></li>
-    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Predict models to single scenario</a></li>
-    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project models to multiple scenarios</a></li>
+    <li><a class="dropdown-item" href="../articles/model_predictions.html">5. Project Models to a Single Scenario</a></li>
+    <li><a class="dropdown-item" href="../articles/model_projections.html">6. Project Models to Multiple Scenarios</a></li>
     <li><a class="dropdown-item" href="../articles/variability_and_uncertainty.html">7. Exploring Model Uncertainty and Variability</a></li>
-    <li><a class="dropdown-item" href="../articles/organize_past_chelsa.html">8. Organize projections manually</a></li>
+    <li><a class="dropdown-item" href="../articles/projections_chelsa.html">8. Example of Projections Using CHELSA Data</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -53,8 +53,7 @@
 
 
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
@@ -65,414 +64,531 @@
 
         </dt>
         <dd>Advanced occurrence data cleaning</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="bias.html">bias</a></code>
 
         </dt>
         <dd>Example Bias File</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="binarize_changes.html">binarize_changes()</a></code>
+
+        </dt>
+        <dd>Binarize changes based on the agreement among GCMs</dd>
+
+        <dt>
 
           <code><a href="bivariate_response.html">bivariate_response()</a></code>
 
         </dt>
         <dd>Bivariate response plot for fitted models</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="calib_results_glm.html">calib_results_glm</a></code>
 
         </dt>
         <dd>Calibration Results (glm)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="calib_results_maxnet.html">calib_results_maxnet</a></code>
 
         </dt>
         <dd>Calibration Results (Maxnet)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="calibration.html">calibration()</a></code>
 
         </dt>
         <dd>Fitting and evaluation of models, and selection of the best ones</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_current.html">chelsa_current</a></code>
 
         </dt>
         <dd>SpatRaster Representing present-day Conditions (CHELSA)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_lgm_ccsm4.html">chelsa_lgm_ccsm4</a></code>
 
         </dt>
         <dd>SpatRaster Representing LGM Conditions (GCM: CCSM4)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_lgm_cnrm_cm5.html">chelsa_lgm_cnrm_cm5</a></code>
 
         </dt>
         <dd>SpatRaster Representing LGM Conditions (GCM: CNRM-CM5)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_lgm_fgoals_g2.html">chelsa_lgm_fgoals_g2</a></code>
 
         </dt>
         <dd>SpatRaster Representing LGM Conditions (GCM: FGOALS-g2)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_lgm_ipsl.html">chelsa_lgm_ipsl</a></code>
 
         </dt>
         <dd>SpatRaster Representing LGM Conditions (GCM: IPSL-CM5A-LR)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_lgm_miroc.html">chelsa_lgm_miroc</a></code>
 
         </dt>
         <dd>SpatRaster Representing LGM Conditions (GCM: MIROC-ESM)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_lgm_mpi.html">chelsa_lgm_mpi</a></code>
 
         </dt>
         <dd>SpatRaster Representing LGM Conditions (GCM: MPI-ESM-P)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="chelsa_lgm_mri.html">chelsa_lgm_mri</a></code>
 
         </dt>
         <dd>SpatRaster Representing LGM Conditions (GCM: MRI-CGCM3)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="colors_for_changes.html">colors_for_changes()</a></code>
 
         </dt>
         <dd>Set Colors for Change Maps</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="detect_concave.html">detect_concave()</a></code>
 
         </dt>
         <dd>Detect concave curves in GLM and GLMNET models</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="enmeval_block.html">enmeval_block</a></code>
 
         </dt>
         <dd>Spatial Blocks from ENMeval</dd>
-      </dl><dl><dt>
 
-          <code><a href="explore_calibration_geo.html">explore_calibration_geo()</a></code>
-
-        </dt>
-        <dd>Explore the spatial distribution of occurrence and background points</dd>
-      </dl><dl><dt>
+        <dt>
 
           <code><a href="explore_calibration_hist.html">explore_calibration_hist()</a></code>
 
         </dt>
         <dd>Explore variable distribution for occurrence and background points</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="explore_partition_env.html">explore_partition_env()</a></code>
+
+        </dt>
+        <dd>Explore the Distribution of Partitions in Environmental Space</dd>
+
+        <dt>
 
           <code><a href="explore_partition_extrapolation.html">explore_partition_extrapolation()</a></code>
 
         </dt>
         <dd>Analysis of extrapolation risks in partitions using the MOP metric</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="explore_partition_geo.html">explore_partition_geo()</a></code>
+
+        </dt>
+        <dd>Explore the spatial distribution of partitions for occurrence and background points</dd>
+
+        <dt>
 
           <code><a href="extract_occurrence_variables.html">extract_occurrence_variables()</a></code>
 
         </dt>
         <dd>Extracts Environmental Variables for Occurrences</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="extract_var_from_formulas.html">extract_var_from_formulas()</a></code>
 
         </dt>
         <dd>Extract predictor names from formulas</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="fit_selected.html">fit_selected()</a></code>
 
         </dt>
         <dd>Fit models selected after calibration</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="fitted_model_chelsa.html">fitted_model_chelsa</a></code>
 
         </dt>
         <dd>Fitted model with CHELSA variables</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="fitted_model_concave.html">fitted_model_concave</a></code>
 
         </dt>
         <dd>Fitted model with concave curves</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="fitted_model_glm.html">fitted_model_glm</a></code>
 
         </dt>
         <dd>Fitted model with glm algorithm</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="fitted_model_maxnet.html">fitted_model_maxnet</a></code>
 
         </dt>
         <dd>Fitted model with maxnet algorithm</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="flexsdm_block.html">enmeval_block</a></code>
 
         </dt>
         <dd>Spatial Blocks from flexsdm</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2050_ssp126_access.html">future_2050_ssp126_access</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2041-2060, SSP126, GCM: ACCESS-CM2)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2050_ssp126_miroc.html">future_2050_ssp126_miroc</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2041-2060, SSP126, GCM: MIROC6)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2050_ssp585_access.html">future_2050_ssp585_access</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2041-2060, SSP585, GCM: ACCESS-CM2)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2050_ssp585_miroc.html">future_2050_ssp585_miroc</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2041-2060, SSP585, GCM: MIROC6)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2100_ssp126_access.html">future_2100_ssp126_access</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2081-2100, SSP126, GCM: ACCESS-CM2)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2100_ssp126_miroc.html">future_2100_ssp126_miroc</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2081-2100, SSP126, GCM: MIROC6)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2100_ssp585_access.html">future_2100_ssp585_access</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2081-2100, SSP585, GCM: ACCESS-CM2)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="future_2100_ssp585_miroc.html">future_2100_ssp585_miroc</a></code>
 
         </dt>
         <dd>SpatRaster Representing Future Conditions (2081-2100, SSP585, GCM: MIROC6)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="glm_mx.html">glm_mx()</a></code>
 
         </dt>
         <dd>Maxent-like Generalized Linear Models (GLM)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="glmnet_mx.html">glmnet_mx()</a></code>
 
         </dt>
         <dd>Maxent-like glmnet models</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="import_projections.html">import_projections()</a></code>
 
         </dt>
         <dd>Import rasters resulting from projection functions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="independent_evaluation.html">independent_evaluation()</a></code>
 
         </dt>
         <dd>Evaluate models with independent data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="initial_cleaning.html">initial_cleaning()</a></code> <code><a href="initial_cleaning.html">sort_columns()</a></code> <code><a href="initial_cleaning.html">remove_missing()</a></code> <code><a href="initial_cleaning.html">remove_duplicates()</a></code> <code><a href="initial_cleaning.html">remove_corrdinates_00()</a></code> <code><a href="initial_cleaning.html">filter_decimal_precision()</a></code>
 
         </dt>
         <dd>Initial occurrence data cleaning steps</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="kuenm2-package.html">kuenm2</a></code> <code><a href="kuenm2-package.html">kuenm2-package</a></code>
 
         </dt>
         <dd>kuenm2: Detailed Development of Ecological Niche Models</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="kuenm2_discrete_palletes.html">kuenm2_discrete_palletes</a></code>
+
+        </dt>
+        <dd>Discrete palettes based on pals R package</dd>
+
+        <dt>
 
           <code><a href="m.html">m</a></code>
 
         </dt>
         <dd>SpatVector Representing Calibration Area for <em>Myrcia hatschbachii</em></dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="new_occ.html">new_occ</a></code>
 
         </dt>
         <dd>Independent Species Occurrence</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="occ_data.html">occ_data</a></code>
 
         </dt>
         <dd>Species Occurrence</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="occ_data_noclean.html">occ_data_noclean</a></code>
 
         </dt>
         <dd>Species Occurrence with Erroneous Records</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="organize_for_projection.html">organize_for_projection()</a></code>
 
         </dt>
         <dd>Organize and structure variables for past and future projections</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="organize_future_worldclim.html">organize_future_worldclim()</a></code>
 
         </dt>
         <dd>Organize and structure future climate variables from WorldClim</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="partial_roc.html">partial_roc()</a></code>
 
         </dt>
         <dd>Partial ROC calculation for multiple candidate models</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="partition_response_curves.html">partition_response_curves()</a></code>
+
+        </dt>
+        <dd>Response curves for selected models according to training/testing partitions</dd>
+
+        <dt>
 
           <code><a href="perform_pca.html">perform_pca()</a></code>
 
         </dt>
         <dd>Principal Component Analysis for raster layers</dd>
-      </dl><dl><dt>
 
-          <code><a href="plot_explore_calibration.html">plot_explore_calibration()</a></code>
+        <dt>
+
+          <code><a href="plot_calibration_hist.html">plot_calibration_hist()</a></code>
 
         </dt>
         <dd>Histograms to visualize data from explore_calibration objects</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="plot_explore_partition.html">plot_explore_partition()</a></code>
+
+        </dt>
+        <dd>Plot extrapolation risks for partitions</dd>
+
+        <dt>
 
           <code><a href="plot_importance.html">plot_importance()</a></code>
 
         </dt>
         <dd>Summary plot for variable importance in models</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="predict.html">predict.glmnet_mx()</a></code>
 
         </dt>
         <dd>Predict method for glmnet_mx (maxnet) models</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="predict_selected.html">predict_selected()</a></code>
 
         </dt>
         <dd>Predict selected models for a single scenario</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="prepare_data.html">prepare_data()</a></code>
 
         </dt>
         <dd>Prepare data for model calibration</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="prepare_projection.html">prepare_projection()</a></code>
 
         </dt>
         <dd>Preparation of data for model projections</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="prepare_user_data.html">prepare_user_data()</a></code>
 
         </dt>
         <dd>Prepare data for model calibration with user-prepared calibration data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="print.html">print(<i>&lt;prepared_data&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;calibration_results&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;fitted_models&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;projection_data&gt;</i>)</a></code> <code><a href="print.html">print(<i>&lt;model_projections&gt;</i>)</a></code>
 
         </dt>
         <dd>Print method for kuenm2 objects</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="project_selected.html">project_selected()</a></code>
 
         </dt>
         <dd>Project selected models to multiple sets of new data (scenarios)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="projection_changes.html">projection_changes()</a></code>
 
         </dt>
         <dd>Compute changes of suitable areas between scenarios</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="projection_mop.html">projection_mop()</a></code>
 
         </dt>
         <dd>Analysis of extrapolation risks in projections using the MOP metric</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="projection_variability.html">projection_variability()</a></code>
 
         </dt>
         <dd>Explores variance coming from distinct sources in model predictions</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="response_curve.html">response_curve()</a></code> <code><a href="response_curve.html">all_response_curves()</a></code>
 
         </dt>
         <dd>Variable response curves for fitted models</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="select_models.html">select_models()</a></code>
 
         </dt>
         <dd>Select models that perform the best among candidates</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="sp_swd.html">sp_swd</a></code>
 
         </dt>
         <dd>Prepared Data for maxnet models</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="sp_swd_glm.html">sp_swd_glm</a></code>
 
         </dt>
         <dd>Prepared Data for glm models</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="swd_spatial_block.html">sp_swd</a></code>
+
+        </dt>
+        <dd>Prepared data with spatial blocks created with ENMeval</dd>
+
+        <dt>
 
           <code><a href="user_data.html">user_data</a></code>
 
         </dt>
         <dd>User Custom Calibration Data</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="var.html">var</a></code>
 
         </dt>
         <dd>SpatRaster Representing present-day Conditions (WorldClim)</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="variable_importance.html">variable_importance()</a></code>
 
         </dt>
         <dd>Variable importance</dd>
+
+        <dt>
+
+          <code><a href="world.html">world</a></code>
+
+        </dt>
+        <dd>World country polygons from Natural Earth</dd>
       </dl></div>
   </main></div>
 
@@ -482,7 +598,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
