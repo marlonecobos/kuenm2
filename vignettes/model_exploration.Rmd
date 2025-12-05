@@ -61,14 +61,14 @@ In this example, we'll fit the final models using the same partition settings (4
 ```{r fit_selected not echo, warning=FALSE, echo=FALSE}
 # Fit models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet, 
-                   partition_method = "kfolds", n_partitions = 4, 
+                   replicate_method = "kfolds", n_replicates = 4, 
                    verbose = FALSE, progress_bar = FALSE)
 ```
 
 ```{r fit_selected not eval, warning=FALSE, eval=FALSE}
 # Fit selected models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet, 
-                   partition_method = "kfolds", n_partitions = 4)
+                   replicate_method = "kfolds", n_replicates = 4)
 # Fitting partitions...
 #   |========================================================================| 100%
 # Fitting full models...

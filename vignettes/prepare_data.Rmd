@@ -20,13 +20,17 @@ knitr::opts_chunk$set(
 
 - [Description](#description)
 - [Getting ready](#getting-ready)
-- [Preparing data](#preparing-data)
+- [Preparing data](#prepare-data)
   - [Example data](#example-data)
   - [First steps in preparing data](#first-steps-in-preparing-data)
-  - [Using a bias file](#using-a-bias-file)  
-  - [PCA with variables](#pca-with-variables)
-- [Exploring prepared data](#exploring-prepared-data)
-- [Preparing user pre-processed data](#preparing-user-pre-processed-data)
+- [PCA for variables](#pca-for-variables)
+  - [Internal PCA](#internal-pca)
+  - [External PCA](#external-pca)
+- [Preparing user pre-processed data](#prepare-user-pre-processed-data)
+- [Exploring calibration data](#exploring-calibration-data)
+  - [Histograms to visualize the distribution of predictor variables](#histograms-to-visualize-the-distribution-of-predictor-variables)
+  - [Spatial-distribution-of-occurrence-and-background-points](#spatial-distribution-of-occurrence-and-background-points)
+ - [Using a bias file](#using-a-bias-file)
 - [Using external data partitions](#using-external-data-partitions)
   - [Spatial partitioning with ENMeval](#spatial-partitioning-with-enmeval)
   - [Spatial partitioning with flexsdm](#spatial-partitioning-with-flexsdm)
@@ -181,76 +185,6 @@ d_glm
 
 <br>
 
-## Using a bias file
-
-A bias file is a `SpatRaster` object that contains values that influence the selection of background points within the calibration area. This can be particularly useful for mitigating sampling bias, for instance, by incorporating the density of records from a target group (as discussed in [Ponder et al. 2001](https://doi.org/10.1046/j.1523-1739.2001.015003648.x), [Anderson et al. 2003](https://doi.org/10.1046/j.1365-2699.2003.00867.x), and [Barber et al. 2020](https://doi.org/10.1111/ddi.13442)).
-
-The bias file must have the same extent, resolution, and number of cells as your raster variables, unless a mask is supplied. If a mask is used, the extent of the bias file should encompass or be larger than the mask extent.
-
-Let's illustrate this with an example bias file included in the package. This `SpatRaster` has lower values in the center and higher values towards the borders:
-
-```{r import bias file}
-# Import a bias file
-bias <- terra::rast(system.file("extdata", "bias_file.tif", package = "kuenm2"))
-
-terra::plot(bias)
-```
-
-<br>
-
-This bias file will be used to prepare two new datasets: one with a "direct" bias effect (with higher probability of selecting background points in regions with higher bias values) and another with an "inverse" effect (favoring selection in regions with lower bias values).
-
-```{r bias data, results='hide'}
-# Using a direct bias effect in sampling
-d_bias_direct <- prepare_data(algorithm = "maxnet",
-                              occ = occ_data,
-                              x = "x", y = "y",
-                              raster_variables = var,
-                              species = "Myrcia hatschbachii",
-                              categorical_variables = "SoilType",
-                              n_background = 1000, 
-                              partition_method = "kfolds",
-                              bias_file = bias, bias_effect = "direct",  # bias parameters
-                              features = c("l", "q", "p", "lq", "lqp"),
-                              r_multiplier = c(0.1, 1, 2, 3, 5))
-
-# Using an indirect bias effect 
-d_bias_inverse <- prepare_data(algorithm = "maxnet",
-                               occ = occ_data,
-                               x = "x", y = "y",
-                               raster_variables = var,
-                               species = "Myrcia hatschbachii",
-                               categorical_variables = "SoilType",
-                               n_background = 1000,
-                               partition_method = "kfolds",
-                               bias_file = bias, bias_effect = "inverse",   # bias parameters
-                               features = c("l", "q", "p", "lq", "lqp"),
-                               r_multiplier = c(0.1, 1, 2, 3, 5))
-
-# Compare background points generated randomly versus with bias effects
-## Saving original plotting parameters
-original_par <- par(no.readonly = TRUE)
-
-## Adjusting plotting grid
-par(mfrow = c(2, 2))  
-
-## The plots to show sampling bias effects
-plot(bias, main = "Bias file")
-explore_calibration_geo(d, raster_variables = var[[1]],
-                        main = "Random Background", 
-                        plg=list(cex=0.75))  # Decrease size of legend text)
-explore_calibration_geo(d_bias_direct, raster_variables = var[[1]],
-                        main = "Direct Bias Effect", 
-                        plg=list(cex=0.75))  # Decrease size of legend text)
-explore_calibration_geo(d_bias_inverse, raster_variables = var[[1]],
-                        main = "Inverse Bias Effect", 
-                        plg=list(cex=0.75))  # Decrease size of legend text)
-
-par(original_par)  # Reset grid
-```
-
-<br>
-
 ## PCA for variables
 
 A common approach in ENM involves summarizing the information from a set of predictor variables into a smaller set of uncorrelated variables using Principal Component Analysis (PCA) (see [Cruz-Cardenaz et al. 2014](https://doi.org/10.7550/rmb.36723) for an example). In kuenm2 users can perform a PCA internally or use variables that have been externally prepared as PCs.
@@ -295,7 +229,7 @@ head(d_pca$formula_grid)
 calib_hist_pca <- explore_calibration_hist(data = d_pca, raster_variables = var,
                                            include_m = TRUE, breaks = 7)
 
-plot_explore_calibration(explore_calibration = calib_hist_pca)
+plot_calibration_hist(explore_calibration = calib_hist_pca)
 ```
 
 As the PCA was performed internally, the `prepared_data` object contains all the necessary information to transform the raw environmental variables into the required PCs **This means that when predicting or projecting models, users should provide raw raster variables**, and the PCs will be obtained internally in the function.
@@ -385,6 +319,8 @@ This function also allows you to provide a list of index identifying test points
 
 In the following examples, we'll use the object `d`, which was prepared for the `maxnet` algorithm without a mask. The same can be done with `prepared_data` that uses `glm` as de algorithm.
 
+## Histograms to visualize the distribution of predictor variables
+
 Users can visualize the distribution of predictor values for occurrence records, background points, and the entire calibration area using histograms. An example is presented below. See full documentation with `help(explore_calibration_hist)` and `help(plot_explore_calibration)`.
 
 ```{r explore histogram}
@@ -393,17 +329,19 @@ calib_hist <- explore_calibration_hist(data = d, raster_variables = var,
                                        include_m = TRUE)
 
 # Plot histograms
-plot_explore_calibration(explore_calibration = calib_hist)
+plot_calibration_hist(explore_calibration = calib_hist)
 ```
 
 The gray bars represent values across the entire calibration area. Blue bars indicate background values, while green bars display values at presence points (magnified by a factor of 2 to enhance visualization). Both the colors and the magnification factor can be customized.
 
 <br>
 
+## Spatial distribution of occurrence and background points
+
 Additionally, users can explore the geographic distribution of occurrence and background points, as well as how they were partitioned. See full documentation with `help(explore_partition_geo)`.
 
 ```{r explore spatial}
-# Run analysis required
+# Explore spatial distribution
 pbg <- explore_partition_geo(data = d, raster_variables = var[[1]])
 
 # Plot exploration in geography
@@ -412,7 +350,85 @@ terra::plot(pbg)
 
 <br>
 
-Note that, by default, background points are selected randomly within the calibration area. However, users can influence the spatial distribution of background points by providing a bias file, which increases or decreases the probability of selection in specific regions (as demonstrated in the next section).
+Note that, by default, background points are selected randomly within the calibration area. However, users can influence the spatial distribution of background points by providing a bias file, which increases or decreases the probability of selection in specific regions (as demonstrated in the section **Using a bias file**).
+
+<br>
+
+
+# Using a bias file
+
+A bias file is a `SpatRaster` object that contains values that influence the selection of background points within the calibration area. This can be particularly useful for mitigating sampling bias, for instance, by incorporating the density of records from a target group (as discussed in [Ponder et al. 2001](https://doi.org/10.1046/j.1523-1739.2001.015003648.x), [Anderson et al. 2003](https://doi.org/10.1046/j.1365-2699.2003.00867.x), and [Barber et al. 2020](https://doi.org/10.1111/ddi.13442)).
+
+The bias file must have the same extent, resolution, and number of cells as your raster variables, unless a mask is supplied. If a mask is used, the extent of the bias file should encompass or be larger than the mask extent.
+
+Let's illustrate this with an example bias file included in the package. This `SpatRaster` has lower values in the center and higher values towards the borders:
+
+```{r import bias file}
+# Import a bias file
+bias <- terra::rast(system.file("extdata", "bias_file.tif", package = "kuenm2"))
+
+terra::plot(bias)
+```
+
+<br>
+
+This bias file will be used to prepare two new datasets: one with a "direct" bias effect (with higher probability of selecting background points in regions with higher bias values) and another with an "inverse" effect (favoring selection in regions with lower bias values).
+
+```{r bias data, results='hide'}
+# Using a direct bias effect in sampling
+d_bias_direct <- prepare_data(algorithm = "maxnet",
+                              occ = occ_data,
+                              x = "x", y = "y",
+                              raster_variables = var,
+                              species = "Myrcia hatschbachii",
+                              categorical_variables = "SoilType",
+                              n_background = 1000, 
+                              partition_method = "kfolds",
+                              bias_file = bias, bias_effect = "direct",  # bias parameters
+                              features = c("l", "q", "p", "lq", "lqp"),
+                              r_multiplier = c(0.1, 1, 2, 3, 5))
+
+# Using an indirect bias effect 
+d_bias_inverse <- prepare_data(algorithm = "maxnet",
+                               occ = occ_data,
+                               x = "x", y = "y",
+                               raster_variables = var,
+                               species = "Myrcia hatschbachii",
+                               categorical_variables = "SoilType",
+                               n_background = 1000,
+                               partition_method = "kfolds",
+                               bias_file = bias, bias_effect = "inverse",   # bias parameters
+                               features = c("l", "q", "p", "lq", "lqp"),
+                               r_multiplier = c(0.1, 1, 2, 3, 5))
+```
+
+Let's use the `explore_partition_geo` function to see the effect of using a bias file.
+
+```{r}
+
+# Explore spatial distribution of points
+geo_dist <- explore_partition_geo(data = d, raster_variables = var)
+geo_dist_bias <- explore_partition_geo(data = d_bias_direct,
+                                       raster_variables = var)
+geo_dist_bias_inv <- explore_partition_geo(data = d_bias_inverse,
+                                           raster_variables = var)
+
+## Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
+
+## Adjusting plotting grid
+par(mfrow = c(2, 2))  
+
+## The plots to show sampling bias effects
+plot(bias, main = "Bias file")
+plot(geo_dist$Background, main = "Random Background", 
+     plg=list(cex=0.75))  # Decrease size of legend text)
+plot(geo_dist_bias$Background, main = "Direct Bias Effect", 
+     plg=list(cex=0.75))  # Decrease size of legend text)
+plot(geo_dist_bias_inv$Background, main = "Inverse Bias Effect", 
+     plg=list(cex=0.75))  # Decrease size of legend text)
+par(original_par)  # Reset grid
+```
 
 <br>
 
@@ -516,6 +532,15 @@ d_spatial_block$partition_method <- "Spatial block (ENMeval)"  # You can use any
 # Print the updated prepared_data object
 print(d_spatial_block)
 ```
+
+Let's check the spatial distribution of the partitioned data:
+
+```{r plot spatial block, fig.width = 9, fig.height = 4}
+geo_block <- explore_partition_geo(d_spatial_block, raster_variables = var[[1]])
+plot(geo_block[[c("Presence", "Background")]])
+```
+
+
 <br>
 
 ## Spatial partitioning with flexsdm
@@ -592,6 +617,12 @@ d_block_flexsdm$partition_method <- "Spatial block (flexsdm)"  # You can choose 
 # Display the updated prepared_data object
 print(d_block_flexsdm)
 ```
+Let's check the spatial distribution of the partitioned data:
+
+```{r plot spatial block flexsdm, fig.width = 9, fig.height = 4}
+geo_block_flexsdm <- explore_partition_geo(d_block_flexsdm, raster_variables = var[[1]])
+plot(geo_block_flexsdm[[c("Presence", "Background")]])
+```
 
 <br>
 
@@ -605,8 +636,7 @@ By default, the function uses all training data (presences and backgrounds) to d
 
 ```{r}
 mop_partition <- explore_partition_extrapolation(data = d_spatial_block, 
-                                                 include_test_background = T, 
-                                                 raster_variables = var)
+                                                 include_test_background = T)
 ```
 
 The function returned a `data.frame` containing:
@@ -622,12 +652,29 @@ The function returned a `data.frame` containing:
 head(mop_partition$Mop_results[mop_partition$Mop_results$n_var_out > 1, ])
 ```
 
-Because we set `return_raster_result = TRUE`, the function also returned a `SpatRaster` showing the spatial distribution of training presences and testing data:
+Now we can use the function `plot_explore_partition` to visualize the distribution of training presences and testing data in both geographic and environmental space. The plot type can also be specified: "simple" indicates whether records in a partition fall within the range of the other partitions, while "distance" displays the Euclidean distance of each record to the set of conditions represented in the other partitions.
 
-```{r}
-plot(mop_partition$Spatial_results, 
-     mar = c(3, 3, 2, 8), #Adjust margin
-     plg=list(cex=0.75)) #Decrease size of legend text)
+```{r, fig.width = 8, fig.height = 4}
+# Simple plot in geographic space
+plot_explore_partition(explore_partition = mop_partition, space = "G", 
+                       type_of_plot = "simple")
+
+# Distance plot in geographic space
+plot_explore_partition(explore_partition = mop_partition, space = "G", 
+                       type_of_plot = "distance",
+                       lwd_legend = 4)
+
+# Simple plot in environmental space
+plot_explore_partition(explore_partition = mop_partition, space = "E", 
+                       type_of_plot = "simple", 
+                       variables = c("bio_7", "bio_15"))
+
+# Distance plot in environmental space
+plot_explore_partition(explore_partition = mop_partition, space = "E", 
+                       type_of_plot = "distance",
+                       variables = c("bio_7", "bio_15"), 
+                       lwd_legend = 4)
+
 ```
 
 Note that in Partition 1, some test records fall in locations with environmental conditions not represented in the training data. This partition also includes many background points representing conditions that were not used to calibrate its models.
