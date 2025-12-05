@@ -34,16 +34,16 @@ variability in model transfers are also available.
   [`select_models()`](https://marlonecobos.github.io/kuenm2/reference/select_models.md)
 
 - Model exploration:
-  [`enmpa::fit_selected()`](https://rdrr.io/pkg/enmpa/man/fit_glms.html),
+  [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md),
   [`variable_importance()`](https://marlonecobos.github.io/kuenm2/reference/variable_importance.md),
-  [`enmpa::plot_importance()`](https://rdrr.io/pkg/enmpa/man/plot_importance.html),
-  [`enmpa::response_curve()`](https://rdrr.io/pkg/enmpa/man/response_curve.html),
+  [`plot_importance()`](https://marlonecobos.github.io/kuenm2/reference/plot_importance.md),
+  [`response_curve()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md),
   [`all_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md),
   [`bivariate_response()`](https://marlonecobos.github.io/kuenm2/reference/bivariate_response.md),
   [`partition_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/partition_response_curves.md)
 
 - Model projection:
-  [`enmpa::predict_selected()`](https://rdrr.io/pkg/enmpa/man/predict_selected.html),
+  [`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md),
   [`organize_for_projection()`](https://marlonecobos.github.io/kuenm2/reference/organize_for_projection.md),
   [`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md),
   [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md),

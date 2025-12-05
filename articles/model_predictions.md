@@ -59,7 +59,7 @@ fitted_model_glm
 #> Species: Myrcia hatschbachii 
 #> Algortihm: glm 
 #> Number of fitted models: 1 
-#> Models fitted with 10 replicates
+#> Only full models fitted, no replicates
 ```
 
   
@@ -173,7 +173,7 @@ names(p_glm)
 #Compare general consensus (mean) between maxnet and glm
 par(mfrow= c(1, 2)) #Set grid to plot
 plot(p_maxnet$General_consensus$mean, main = "Maxnet")
-plot(p_glm$General_consensus$mean, main = "GLM")
+plot(p_glm$General_consensus, main = "GLM")
 ```
 
 ![](model_predictions_files/figure-html/unnamed-chunk-2-1.png)
@@ -291,12 +291,10 @@ fitted_model_maxnet$thresholds$consensus
 #For glm
 fitted_model_glm$thresholds$consensus
 #> $mean
-#>        82 
-#> 0.1387445 
+#> [1] 0.1204713
 #> 
 #> $median
-#>        82 
-#> 0.1118301
+#> [1] 0.1204713
 ```
 
 Let’s use these thresholds to binarize the models (this functionality is
@@ -309,7 +307,7 @@ thr_mean_glm <- fitted_model_glm$thresholds$consensus$mean #glm
 
 #Binarize models
 mean_maxnet_bin <- (p_maxnet$General_consensus$mean > thr_mean_maxnet) * 1
-mean_glm_bin <- (p_glm$General_consensus$mean > thr_mean_glm) * 1
+mean_glm_bin <- (p_glm$General_consensus > thr_mean_glm) * 1
 
 #Compare results
 par(mfrow= c(1, 2)) #Set grid to plot

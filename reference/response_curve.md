@@ -29,7 +29,7 @@ all_response_curves(models, modelID = NULL, n = 100, show_variability = FALSE,
 - models:
 
   an object of class `fitted_models` returned by the
-  [`enmpa::fit_selected()`](https://rdrr.io/pkg/enmpa/man/fit_glms.html)
+  [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
   function.
 
 - variable:

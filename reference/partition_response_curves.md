@@ -89,7 +89,7 @@ showing variability across models (if multiple models are included).
 
 ## See also
 
-[`enmpa::response_curve()`](https://rdrr.io/pkg/enmpa/man/response_curve.html)
+[`response_curve()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)
 
 ## Examples
 

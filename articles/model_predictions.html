@@ -138,7 +138,7 @@ object generated using the GLM algorithm:</p>
 <span><span class="co">#&gt; Species: Myrcia hatschbachii </span></span>
 <span><span class="co">#&gt; Algortihm: glm </span></span>
 <span><span class="co">#&gt; Number of fitted models: 1 </span></span>
-<span><span class="co">#&gt; Models fitted with 10 replicates</span></span></code></pre></div>
+<span><span class="co">#&gt; Only full models fitted, no replicates</span></span></code></pre></div>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -226,7 +226,7 @@ each model:</p>
 <span><span class="co">#Compare general consensus (mean) between maxnet and glm</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid to plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"Maxnet"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_glm</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"GLM"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_glm</span><span class="op">$</span><span class="va">General_consensus</span>, main <span class="op">=</span> <span class="st">"GLM"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
@@ -327,12 +327,10 @@ thresholds for the general consensus:</p>
 <span><span class="co">#For glm</span></span>
 <span><span class="va">fitted_model_glm</span><span class="op">$</span><span class="va">thresholds</span><span class="op">$</span><span class="va">consensus</span></span>
 <span><span class="co">#&gt; $mean</span></span>
-<span><span class="co">#&gt;        82 </span></span>
-<span><span class="co">#&gt; 0.1387445 </span></span>
+<span><span class="co">#&gt; [1] 0.1204713</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $median</span></span>
-<span><span class="co">#&gt;        82 </span></span>
-<span><span class="co">#&gt; 0.1118301</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.1204713</span></span></code></pre></div>
 <p>Let’s use these thresholds to binarize the models (this functionality
 is only available when predicting to a <code>SpatRaster</code>):</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
@@ -342,7 +340,7 @@ is only available when predicting to a <code>SpatRaster</code>):</p>
 <span></span>
 <span><span class="co">#Binarize models</span></span>
 <span><span class="va">mean_maxnet_bin</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span> <span class="op">&gt;</span> <span class="va">thr_mean_maxnet</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span></span>
-<span><span class="va">mean_glm_bin</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">p_glm</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span> <span class="op">&gt;</span> <span class="va">thr_mean_glm</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span></span>
+<span><span class="va">mean_glm_bin</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">p_glm</span><span class="op">$</span><span class="va">General_consensus</span> <span class="op">&gt;</span> <span class="va">thr_mean_glm</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1</span></span>
 <span></span>
 <span><span class="co">#Compare results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid to plot</span></span>

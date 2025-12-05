@@ -50,7 +50,7 @@ glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
 - ...:
 
   Additional arguments to pass to
-  [`glmnet`](https://glmnet.stanford.edu/reference/glmnet.html).
+  [`glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html).
 
 ## Value
 
