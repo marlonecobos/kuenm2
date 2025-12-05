@@ -14,7 +14,7 @@ project_selected(models, projection_data, out_dir, mask = NULL,
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
-\code{\link[=fit_selected]{fit_selected()}} function.}
+\code{\link[enmpa:fit_glms]{enmpa::fit_selected()}} function.}
 
 \item{projection_data}{an object of class \code{projection_data} returned by the
 \code{\link[=prepare_projection]{prepare_projection()}} function. This file contains the paths to the
