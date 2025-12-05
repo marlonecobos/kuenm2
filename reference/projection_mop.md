@@ -22,7 +22,7 @@ projection_mop(data, projection_data, out_dir,
 - data:
 
   an object of class `fitted_models` returned by the
-  [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
+  [`enmpa::fit_selected()`](https://rdrr.io/pkg/enmpa/man/fit_glms.html)
   function or an object of class `prepared_data` returned by the
   [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
   function.
@@ -285,7 +285,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpWvlY6q/Future_raw4
+#> /tmp/RtmphsTnoz/Future_raw4
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

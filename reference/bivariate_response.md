@@ -17,7 +17,7 @@ bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
 - models:
 
   an object of class `fitted_models` returned by the
-  [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
+  [`enmpa::fit_selected()`](https://rdrr.io/pkg/enmpa/man/fit_glms.html)
   function.
 
 - variable1:
@@ -83,7 +83,7 @@ A bivariate plot considering `variable1` and `variable2`.
 
 ## See also
 
-[`response_curve()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)
+[`enmpa::response_curve()`](https://rdrr.io/pkg/enmpa/man/response_curve.html)
 
 ## Examples
 

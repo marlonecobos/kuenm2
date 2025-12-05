@@ -24,7 +24,7 @@ project_selected(models, projection_data, out_dir, mask = NULL,
 - models:
 
   an object of class `fitted_models` returned by the
-  [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
+  [`enmpa::fit_selected()`](https://rdrr.io/pkg/enmpa/man/fit_glms.html)
   function.
 
 - projection_data:
@@ -153,7 +153,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpWvlY6q/Future_raw_wc
+#> /tmp/RtmphsTnoz/Future_raw_wc
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

@@ -50,7 +50,7 @@ multiple models.
 
 ## See also
 
-[`plot_importance()`](https://marlonecobos.github.io/kuenm2/reference/plot_importance.md)
+[`enmpa::plot_importance()`](https://rdrr.io/pkg/enmpa/man/plot_importance.html)
 
 ## Examples
 
