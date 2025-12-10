@@ -315,6 +315,10 @@ prepare_user_data <- function(algorithm,
     pca <- NULL
   }
 
+  occ_bg_xy <- if (include_xy) {user_data[, c("x", "y")]} else {NULL}
+  user_data <- subset(user_data, select = -c(x, y))
+
+
   #Partition
   if (is.null(user_part)) {
     #Partitione data
@@ -349,13 +353,6 @@ prepare_user_data <- function(algorithm,
                                    categorical_var = categorical_variables,
                                    features, algorithm, r_multiplier)
 
-  #Extract xy?
-  if (!is.null(x) & !is.null(y)) {
-    data_xy <- data.frame(x = x, t = y)
-  } else {
-    data_xy <- NULL
-  }
-
 
   #Prepare final data
   if(partition_method %in% c("kfolds", "leave-one-out")){
@@ -368,7 +365,7 @@ prepare_user_data <- function(algorithm,
                             part_data = pd, partition_method = partition_method,
                             n_partitions = n_partitions,
                             train_proportion = train_proportion,
-                            data_xy = data_xy,
+                            data_xy = occ_bg_xy,
                             continuous_variables = continuous_variable_names,
                             categorical_variables = categorical_variables,
                             weights = weights, pca = pca$pca,
