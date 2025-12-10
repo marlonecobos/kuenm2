@@ -315,8 +315,12 @@ prepare_user_data <- function(algorithm,
     pca <- NULL
   }
 
-  occ_bg_xy <- if (include_xy) {user_data[, c("x", "y")]} else {NULL}
-  user_data <- subset(user_data, select = -c(x, y))
+  if (include_xy & all(!is.null(x), !is.null(y))) {
+    occ_bg_xy <- user_data[, c("x", "y")]
+    user_data <- subset(user_data, select = -c(x, y))
+  } else {
+    occ_bg_xy <- NULL
+  }
 
 
   #Partition
