@@ -329,8 +329,9 @@ prepare_user_data <- function(algorithm,
   }
 
   if (include_xy & all(!is.null(x), !is.null(y))) {
-    occ_bg_xy <- user_data[, c("x", "y")]
-    user_data <- subset(user_data, select = -c(x, y))
+    occ_bg_xy <- user_data[, c(x, y)]
+    colnames(occ_bg_xy) <- c("x", "y")
+    user_data <- user_data[, !colnames(user_data) %in% c(x, y)]
   } else {
     occ_bg_xy <- NULL
   }
