@@ -6,7 +6,9 @@
 \usage{
 prepare_data(algorithm, occ, x, y, raster_variables, species = NULL,
              n_background = 1000, features = c("lq", "lqp"),
-             r_multiplier = c(0.1, 0.5, 1, 2, 3), partition_method = "kfolds",
+             r_multiplier = c(0.1, 0.5, 1, 2, 3),
+             user_formulas = NULL,
+             partition_method = "kfolds",
              n_partitions = 4, train_proportion = 0.7,
              categorical_variables = NULL,
              do_pca = FALSE, center = TRUE, scale = TRUE,
@@ -44,6 +46,9 @@ for the model. Default is 1000.}
 
 \item{r_multiplier}{(numeric) a vector of regularization parameters for maxnet.
 Default is c(0.1, 1, 2, 3, 5).}
+
+\item{user_formulas}{(character) Optional character vector with custom
+formulas provided by the user. See Details. Default is NULL.}
 
 \item{partition_method}{(character) method used for data partitioning.
 Available options are \code{"kfolds"}, \code{"subsample"}, and \code{"bootstrap"}.
@@ -156,6 +161,15 @@ that specific sampling.
 sampling \emph{without replacement} (i.e., each observation is
 selected at most once).
 }
+
+\code{user_formulas} must be a character vector of model formulas. Supported terms
+include linear effects, quadratic terms (e.g., \code{I(bio_7^2)}), products
+(e.g., \code{bio_1:bio_7}), hinge (e.g., \code{hinge(bio_1)}), threshold (e.g.,
+\code{thresholds(bio_2)}), and categorical predictors (e.g., \code{categorical(SoilType)}).
+Example of a valid formula:
+\code{~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)}.
+All variables appearing in the formulas must exist in the raster supplied
+through \code{raster_variables}.
 }
 \examples{
 # Import occurrences

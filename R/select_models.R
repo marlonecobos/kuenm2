@@ -213,7 +213,9 @@ select_models <- function(calibration_results = NULL,
           message("Removing ", length(concave_models), " model(s) with concave curves.")
         }
 
+        if(length(concave_models) > 0){
         candidate_models <- candidate_models[-concave_models, ]
+        }
       } else {
         concave_models <- integer(0)
       }
@@ -222,7 +224,15 @@ select_models <- function(calibration_results = NULL,
       ona <- !is.na(candidate_models[, om_thr])
       thigh <- candidate_models[, om_thr] > (omission_rate / 100)
       high_omr <- candidate_models[thigh & ona, "ID"]
-      cand_om <- candidate_models[!thigh & ona, ]
+      if(length(ona) == 0){
+        stop("All models failed to fit!")
+      }
+
+      if(length(high_omr) > 0){
+        cand_om <- candidate_models[!thigh & ona, ]
+      } else {
+          cand_om <- candidate_models[ona,]
+        }
 
       if (verbose) {
         message(nrow(cand_om), " model(s) were selected with omission rate below ",

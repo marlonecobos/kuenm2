@@ -11,6 +11,7 @@
 #' prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
 #'                   y = NULL, features = c("lq", "lqp"),
 #'                   r_multiplier = c(0.1, 0.5, 1, 2, 3),
+#'                   user_formulas = NULL,
 #'                   partition_method = "kfolds", n_partitions = 4,
 #'                   train_proportion = 0.7, user_part = NULL,
 #'                   categorical_variables = NULL,
@@ -75,6 +76,8 @@
 #' "lq", "lp", "qp", "lqp").
 #' @param r_multiplier (numeric) a vector of regularization parameters for maxnet.
 #' Default is c(0.1, 1, 2, 3, 5).
+#' @param user_formulas (character) Optional character vector with custom
+#' formulas provided by the user. See Details. Default is NULL.
 #' @param partition_method (character) method used for data partitioning.
 #' Available options are `"kfolds"`, `"subsample"`, and `"bootstrap"`.
 #' See **Details** for more information. Default = "kfolds".
@@ -115,6 +118,15 @@
 #' - **"subsample"**: Similar to bootstrap, but the training set is created by
 #'                    sampling *without replacement* (i.e., each observation is
 #'                    selected at most once).
+#'
+#' `user_formulas` must be a character vector of model formulas. Supported terms
+#' include linear effects, quadratic terms (e.g., `I(bio_7^2)`), products
+#' (e.g., `bio_1:bio_7`), hinge (e.g., `hinge(bio_1)`), threshold (e.g.,
+#' `thresholds(bio_2)`), and categorical predictors (e.g., `categorical(SoilType)`).
+#' Example of a valid formula:
+#' `~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)`.
+#' All variables appearing in the formulas must exist in the data.frame supplied
+#' through `user_data`.
 #'
 #' @return
 #' An object of class `prepared_data` containing all elements necessary to
@@ -161,6 +173,7 @@ prepare_user_data <- function(algorithm,
                               y = NULL,
                               features = c("lq", "lqp"),
                               r_multiplier = c(0.1, 0.5, 1, 2, 3),
+                              user_formulas = NULL,
                               partition_method = "kfolds",
                               n_partitions = 4,
                               train_proportion = 0.7,
@@ -353,9 +366,43 @@ prepare_user_data <- function(algorithm,
   }
 
   #Formula grid
-  formula_grid <- calibration_grid(user_data, min_number, min_continuous,
-                                   categorical_var = categorical_variables,
-                                   features, algorithm, r_multiplier)
+  if(is.null(user_formulas)){
+    formula_grid <- calibration_grid(occ_bg = user_data, min_number = min_number,
+                                     min_continuous = min_continuous,
+                                     categorical_var = categorical_variables,
+                                     features = features, algorithm = algorithm,
+                                     r_multiplier = r_multiplier)
+  } else {
+    # If user formulas, check data
+    user_variables <- unique(unlist(extract_var_from_formulas(user_formulas)))
+    v_out <- setdiff(user_variables, names(user_data)[-1])
+    if(length(v_out) > 0){
+      stop("The following variables present in 'user_formulas' are absent from 'raster_variables': ", paste(v_out, collapse = "; "))
+    }
+
+    # Check categorical
+    categorical_variables <- extract_categorical(user_formulas)
+
+    #Build formula grid
+    if(algorithm == "maxnet"){
+      formula_grid <- expand.grid("Formulas" = user_formulas,
+                                  "R_multiplier" = r_multiplier)
+      # Add -1 to formulas
+      formula_grid$Formulas <- paste(formula_grid$Formulas, "-1")
+
+    } else if (algorithm == "glm"){
+      formula_grid <- data.frame("Formulas" = user_formulas)
+    }
+    #Identify quadratic
+    formula_grid$Features <- ifelse(grepl("I\\(|\\^2\\)",
+                                          formula_grid$Formulas),
+                                    "User_q", "User")
+    # Create ID
+    formula_grid <- cbind("ID" = 1:nrow(formula_grid), formula_grid)
+
+    # Update continuous and categorical variables
+    continuous_variable_names <- setdiff(user_variables, categorical_variables)
+  }
 
 
   #Prepare final data
