@@ -12,6 +12,7 @@ classes, and different sets of environmental variables.
 prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
                   y = NULL, features = c("lq", "lqp"),
                   r_multiplier = c(0.1, 0.5, 1, 2, 3),
+                  user_formulas = NULL,
                   partition_method = "kfolds", n_partitions = 4,
                   train_proportion = 0.7, user_part = NULL,
                   categorical_variables = NULL,
@@ -69,6 +70,11 @@ prepare_user_data(algorithm, user_data, pr_bg, species = NULL, x = NULL,
 
   (numeric) a vector of regularization parameters for maxnet. Default is
   c(0.1, 1, 2, 3, 5).
+
+- user_formulas:
+
+  (character) Optional character vector with custom formulas provided by
+  the user. See Details. Default is NULL.
 
 - partition_method:
 
@@ -210,6 +216,15 @@ available data partitioning methods is below:
 - **"subsample"**: Similar to bootstrap, but the training set is created
   by sampling *without replacement* (i.e., each observation is selected
   at most once).
+
+`user_formulas` must be a character vector of model formulas. Supported
+terms include linear effects, quadratic terms (e.g., `I(bio_7^2)`),
+products (e.g., `bio_1:bio_7`), hinge (e.g., `hinge(bio_1)`), threshold
+(e.g., `thresholds(bio_2)`), and categorical predictors (e.g.,
+`categorical(SoilType)`). Example of a valid formula:
+`~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)`.
+All variables appearing in the formulas must exist in the data.frame
+supplied through `user_data`.
 
 ## See also
 

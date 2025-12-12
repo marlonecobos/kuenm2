@@ -5,6 +5,7 @@
 - [Preparing data](#prepare-data)
   - [Example data](#example-data)
   - [First steps in preparing data](#first-steps-in-preparing-data)
+  - [Custom formulas](#custom-formulas)
 - [PCA for variables](#pca-for-variables)
   - [Internal PCA](#internal-pca)
   - [External PCA](#external-pca)
@@ -293,6 +294,70 @@ d_glm
 #>   - Algorithm: glm 
 #>   - Number of candidate models: 122 
 #>   - Features classes (responses): l, q, p, lq, lqp
+```
+
+  
+
+### Custom formulas
+
+By default, *kuenm2* builds the formula grid automatically using the
+variables supplied in `raster_variables` together with the selected
+features.
+
+For instance, if `raster_variables` contains *bio_1* and *bio_12*, and
+you set the features to `lq` (linear + quadratic), the generated formula
+will include linear and quadratic terms for each variable. In this
+example, the resulting formula would be:
+
+``` r
+"~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
+#> [1] "~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
+```
+
+However, instead of letting the package build formulas based on the
+selected features, you can provide custom formulas. This is useful when
+you want full control over which terms are included (for example,
+testing only the quadratic version of specific variables):
+
+``` r
+# Set custom formulas
+my_formulas <- c("~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)",
+                 "~ bio_1 + bio_12 + I(bio_1^2)",
+                 "~ bio_1 + bio_12 + I(bio_12^2)",
+                 "~ bio_1 + I(bio_1^2) + I(bio_12^2)")
+
+# Prepare data using custom formulas
+d_custom_formula <- prepare_data(
+  algorithm = "maxnet",
+  occ = occ_data,
+  x = "x", y = "y",
+  raster_variables = var,
+  species = "Myrcia hatschbachii",
+  categorical_variables = "SoilType",
+  partition_method = "kfolds",
+  n_partitions = 4,
+  n_background = 1000,
+  user_formulas = my_formulas,  # Custom formulas
+  r_multiplier = c(0.1, 1, 2)
+)
+#> Warning in handle_missing_data(occ_bg, weights): 43 rows were excluded from
+#> database because NAs were found.
+
+# Check formula grid
+d_custom_formula$formula_grid
+#>    ID                                       Formulas R_multiplier Features
+#> 1   1 ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) -1          0.1   User_q
+#> 2   2               ~ bio_1 + bio_12 + I(bio_1^2) -1          0.1   User_q
+#> 3   3              ~ bio_1 + bio_12 + I(bio_12^2) -1          0.1   User_q
+#> 4   4          ~ bio_1 + I(bio_1^2) + I(bio_12^2) -1          0.1   User_q
+#> 5   5 ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) -1          1.0   User_q
+#> 6   6               ~ bio_1 + bio_12 + I(bio_1^2) -1          1.0   User_q
+#> 7   7              ~ bio_1 + bio_12 + I(bio_12^2) -1          1.0   User_q
+#> 8   8          ~ bio_1 + I(bio_1^2) + I(bio_12^2) -1          1.0   User_q
+#> 9   9 ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) -1          2.0   User_q
+#> 10 10               ~ bio_1 + bio_12 + I(bio_1^2) -1          2.0   User_q
+#> 11 11              ~ bio_1 + bio_12 + I(bio_12^2) -1          2.0   User_q
+#> 12 12          ~ bio_1 + I(bio_1^2) + I(bio_12^2) -1          2.0   User_q
 ```
 
   

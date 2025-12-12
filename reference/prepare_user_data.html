@@ -71,6 +71,7 @@ of environmental variables.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">prepare_user_data</span><span class="op">(</span><span class="va">algorithm</span>, <span class="va">user_data</span>, <span class="va">pr_bg</span>, species <span class="op">=</span> <span class="cn">NULL</span>, x <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                  y <span class="op">=</span> <span class="cn">NULL</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lq"</span>, <span class="st">"lqp"</span><span class="op">)</span>,</span>
 <span>                  r_multiplier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>                  user_formulas <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                  partition_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_partitions <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                  train_proportion <span class="op">=</span> <span class="fl">0.7</span>, user_part <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                  categorical_variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -128,6 +129,11 @@ variable.</p></dd>
 <dt id="arg-r-multiplier">r_multiplier<a class="anchor" aria-label="anchor" href="#arg-r-multiplier"></a></dt>
 <dd><p>(numeric) a vector of regularization parameters for maxnet.
 Default is c(0.1, 1, 2, 3, 5).</p></dd>
+
+
+<dt id="arg-user-formulas">user_formulas<a class="anchor" aria-label="anchor" href="#arg-user-formulas"></a></dt>
+<dd><p>(character) Optional character vector with custom
+formulas provided by the user. See Details. Default is NULL.</p></dd>
 
 
 <dt id="arg-partition-method">partition_method<a class="anchor" aria-label="anchor" href="#arg-partition-method"></a></dt>
@@ -266,7 +272,15 @@ that specific sampling.</p></li>
 <li><p><strong>"subsample"</strong>: Similar to bootstrap, but the training set is created by
 sampling <em>without replacement</em> (i.e., each observation is
 selected at most once).</p></li>
-</ul></div>
+</ul><p><code>user_formulas</code> must be a character vector of model formulas. Supported terms
+include linear effects, quadratic terms (e.g., <code>I(bio_7^2)</code>), products
+(e.g., <code>bio_1:bio_7</code>), hinge (e.g., <code>hinge(bio_1)</code>), threshold (e.g.,
+<code>thresholds(bio_2)</code>), and categorical predictors (e.g., <code>categorical(SoilType)</code>).
+Example of a valid formula:
+<code>~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)</code>.
+All variables appearing in the formulas must exist in the data.frame supplied
+through <code>user_data</code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="calibration.html">calibration()</a></code>, <code><a href="explore_calibration_hist.html">explore_calibration_hist()</a></code>, <code><a href="explore_partition_env.html">explore_partition_env()</a></code>,

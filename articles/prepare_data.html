@@ -89,6 +89,7 @@
 <li><a href="#example-data">Example data</a></li>
 <li><a href="#first-steps-in-preparing-data">First steps in preparing
 data</a></li>
+<li><a href="#custom-formulas">Custom formulas</a></li>
 </ul>
 </li>
 <li>
@@ -367,6 +368,65 @@ of the dataset used for training in every replicate.</p>
 <p><br></p>
 </div>
 <div class="section level3">
+<h3 id="custom-formulas">Custom formulas<a class="anchor" aria-label="anchor" href="#custom-formulas"></a>
+</h3>
+<p>By default, <em>kuenm2</em> builds the formula grid automatically
+using the variables supplied in <code>raster_variables</code> together
+with the selected features.</p>
+<p>For instance, if <code>raster_variables</code> contains
+<em>bio_1</em> and <em>bio_12</em>, and you set the features to
+<code>lq</code> (linear + quadratic), the generated formula will include
+linear and quadratic terms for each variable. In this example, the
+resulting formula would be:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="st">"~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"</span></span>
+<span><span class="co">#&gt; [1] "~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"</span></span></code></pre></div>
+<p>However, instead of letting the package build formulas based on the
+selected features, you can provide custom formulas. This is useful when
+you want full control over which terms are included (for example,
+testing only the quadratic version of specific variables):</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Set custom formulas</span></span>
+<span><span class="va">my_formulas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"</span>,</span>
+<span>                 <span class="st">"~ bio_1 + bio_12 + I(bio_1^2)"</span>,</span>
+<span>                 <span class="st">"~ bio_1 + bio_12 + I(bio_12^2)"</span>,</span>
+<span>                 <span class="st">"~ bio_1 + I(bio_1^2) + I(bio_12^2)"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Prepare data using custom formulas</span></span>
+<span><span class="va">d_custom_formula</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_data.html">prepare_data</a></span><span class="op">(</span></span>
+<span>  algorithm <span class="op">=</span> <span class="st">"maxnet"</span>,</span>
+<span>  occ <span class="op">=</span> <span class="va">occ_data</span>,</span>
+<span>  x <span class="op">=</span> <span class="st">"x"</span>, y <span class="op">=</span> <span class="st">"y"</span>,</span>
+<span>  raster_variables <span class="op">=</span> <span class="va">var</span>,</span>
+<span>  species <span class="op">=</span> <span class="st">"Myrcia hatschbachii"</span>,</span>
+<span>  categorical_variables <span class="op">=</span> <span class="st">"SoilType"</span>,</span>
+<span>  partition_method <span class="op">=</span> <span class="st">"kfolds"</span>,</span>
+<span>  n_partitions <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  n_background <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  user_formulas <span class="op">=</span> <span class="va">my_formulas</span>,  <span class="co"># Custom formulas</span></span>
+<span>  r_multiplier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in handle_missing_data(occ_bg, weights): 43 rows were excluded from</span></span>
+<span><span class="co">#&gt; database because NAs were found.</span></span>
+<span></span>
+<span><span class="co"># Check formula grid</span></span>
+<span><span class="va">d_custom_formula</span><span class="op">$</span><span class="va">formula_grid</span></span>
+<span><span class="co">#&gt;    ID                                       Formulas R_multiplier Features</span></span>
+<span><span class="co">#&gt; 1   1 ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) -1          0.1   User_q</span></span>
+<span><span class="co">#&gt; 2   2               ~ bio_1 + bio_12 + I(bio_1^2) -1          0.1   User_q</span></span>
+<span><span class="co">#&gt; 3   3              ~ bio_1 + bio_12 + I(bio_12^2) -1          0.1   User_q</span></span>
+<span><span class="co">#&gt; 4   4          ~ bio_1 + I(bio_1^2) + I(bio_12^2) -1          0.1   User_q</span></span>
+<span><span class="co">#&gt; 5   5 ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) -1          1.0   User_q</span></span>
+<span><span class="co">#&gt; 6   6               ~ bio_1 + bio_12 + I(bio_1^2) -1          1.0   User_q</span></span>
+<span><span class="co">#&gt; 7   7              ~ bio_1 + bio_12 + I(bio_12^2) -1          1.0   User_q</span></span>
+<span><span class="co">#&gt; 8   8          ~ bio_1 + I(bio_1^2) + I(bio_12^2) -1          1.0   User_q</span></span>
+<span><span class="co">#&gt; 9   9 ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) -1          2.0   User_q</span></span>
+<span><span class="co">#&gt; 10 10               ~ bio_1 + bio_12 + I(bio_1^2) -1          2.0   User_q</span></span>
+<span><span class="co">#&gt; 11 11              ~ bio_1 + bio_12 + I(bio_12^2) -1          2.0   User_q</span></span>
+<span><span class="co">#&gt; 12 12          ~ bio_1 + I(bio_1^2) + I(bio_12^2) -1          2.0   User_q</span></span></code></pre></div>
+<p><br></p>
+</div>
+<div class="section level3">
 <h3 id="pca-for-variables">PCA for variables<a class="anchor" aria-label="anchor" href="#pca-for-variables"></a>
 </h3>
 <p>A common approach in ENM involves summarizing the information from a
@@ -387,7 +447,7 @@ internally, you only need to store the raw environmental variables
 (e.g., <code>bio_1</code>, <code>bio_2</code>, etc.) on your directory,
 and the functions will handle the PCA transformation as needed.</p>
 <p>Let’s explore how to implement this:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Prepare data for maxnet models using PCA parameters</span></span>
 <span><span class="va">d_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_data.html">prepare_data</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"maxnet"</span>,</span>
 <span>                      occ <span class="op">=</span> <span class="va">occ_data</span>,</span>
@@ -435,7 +495,7 @@ the total variance, and then further filter these, keeping only those
 axes that individually explain at least 5% of the variance. These
 parameters can be changed using other arguments in the function
 <code>prepare_data</code></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check calibration data</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d_pca</span><span class="op">$</span><span class="va">calibration_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   pr_bg         PC1        PC2        PC3         PC4 SoilType</span></span>
@@ -477,7 +537,7 @@ function.</p>
 <code><a href="../reference/perform_pca.html">perform_pca()</a></code> function, or one of their preference. See
 full documentation with <code><a href="../reference/perform_pca.html">help(perform_pca)</a></code>. Se an example
 with <code><a href="../reference/perform_pca.html">perform_pca()</a></code> below:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pca_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/perform_pca.html">perform_pca</a></span><span class="op">(</span>raster_variables <span class="op">=</span> <span class="va">var</span>, exclude_from_pca <span class="op">=</span> <span class="st">"SoilType"</span>,</span>
 <span>                       center <span class="op">=</span> <span class="cn">TRUE</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -487,7 +547,7 @@ with <code><a href="../reference/perform_pca.html">perform_pca()</a></code> belo
 <p><br></p>
 <p>Now, let’s use the PCs generated by <code><a href="../reference/perform_pca.html">perform_pca()</a></code> to
 prepare the data:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Prepare data for maxnet model using PCA variables</span></span>
 <span><span class="va">d_pca_extern</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_data.html">prepare_data</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"maxnet"</span>,</span>
 <span>                             occ <span class="op">=</span> <span class="va">occ_data</span>,</span>
@@ -532,7 +592,7 @@ Consequently, the <code>prepared_data</code> object in this scenario
 does not store any PCA-related information. This means that when users
 predict or project models, they must <strong>must provide the
 PCs</strong> instead of the raw raster variables.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check calibration data</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">d_pca_extern</span><span class="op">$</span><span class="va">calibration_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   pr_bg         PC1        PC2        PC3         PC4 SoilType</span></span>
@@ -568,7 +628,7 @@ records, along with columns with values for each of your
 <strong>variables</strong>. The package includes an example of such a
 <code>data.frame</code> for reference. See an example of its use
 below:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"user_data"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">user_data</span><span class="op">)</span></span>
@@ -586,7 +646,7 @@ requiring a <code>data.frame</code> of occurrence coordinates and a
 <code>SpatRaster</code> of predictor variables, it takes your already
 prepared user <code>data.frame</code> (see below). See full
 documentation with <code><a href="../reference/prepare_user_data.html">help(prepare_user_data)</a></code>.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Prepare data for maxnet model</span></span>
 <span><span class="va">data_user</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_user_data.html">prepare_user_data</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"maxnet"</span>,</span>
 <span>                               user_data <span class="op">=</span> <span class="va">user_data</span>,  <span class="co"># user-prepared data.frame</span></span>
@@ -641,7 +701,7 @@ occurrence records, background points, and the entire calibration area
 using histograms. An example is presented below. See full documentation
 with <code><a href="../reference/explore_calibration_hist.html">help(explore_calibration_hist)</a></code> and
 <code>help(plot_explore_calibration)</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Prepare histogram data</span></span>
 <span><span class="va">calib_hist</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/explore_calibration_hist.html">explore_calibration_hist</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d</span>, raster_variables <span class="op">=</span> <span class="va">var</span>,</span>
 <span>                                       include_m <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -662,7 +722,7 @@ Both the colors and the magnification factor can be customized.</p>
 occurrence and background points, as well as how they were partitioned.
 See full documentation with
 <code><a href="../reference/explore_partition_geo.html">help(explore_partition_geo)</a></code>.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Explore spatial distribution</span></span>
 <span><span class="va">pbg</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/explore_partition_geo.html">explore_partition_geo</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d</span>, raster_variables <span class="op">=</span> <span class="va">var</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
@@ -696,7 +756,7 @@ mask extent.</p>
 <p>Let’s illustrate this with an example bias file included in the
 package. This <code>SpatRaster</code> has lower values in the center and
 higher values towards the borders:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import a bias file</span></span>
 <span><span class="va">bias</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"bias_file.tif"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -707,7 +767,7 @@ higher values towards the borders:</p>
 “direct” bias effect (with higher probability of selecting background
 points in regions with higher bias values) and another with an “inverse”
 effect (favoring selection in regions with lower bias values).</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Using a direct bias effect in sampling</span></span>
 <span><span class="va">d_bias_direct</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_data.html">prepare_data</a></span><span class="op">(</span>algorithm <span class="op">=</span> <span class="st">"maxnet"</span>,</span>
 <span>                              occ <span class="op">=</span> <span class="va">occ_data</span>,</span>
@@ -739,7 +799,7 @@ effect (favoring selection in regions with lower bias values).</p>
 <span><span class="co">#&gt; database because NAs were found.</span></span></code></pre></div>
 <p>Let’s use the <code>explore_partition_geo</code> function to see the
 effect of using a bias file.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Explore spatial distribution of points</span></span>
 <span><span class="va">geo_dist</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/explore_partition_geo.html">explore_partition_geo</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d</span>, raster_variables <span class="op">=</span> <span class="va">var</span><span class="op">)</span></span>
@@ -763,7 +823,7 @@ effect of using a bias file.</p>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">geo_dist_bias_inv</span><span class="op">$</span><span class="va">Background</span>, main <span class="op">=</span> <span class="st">"Inverse Bias Effect"</span>, </span>
 <span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.75</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Decrease size of legend text)</span></span></code></pre></div>
 <p><img src="prepare_data_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="95%"></p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">original_par</span><span class="op">)</span>  <span class="co"># Reset grid</span></span></code></pre></div>
 <p><br></p>
 </div>
@@ -821,7 +881,7 @@ the resulting hierarchical checkerboard.</p></li>
 partition our dataset. For this example, we will use the object
 <code>d</code>, which corresponds to the <code>prepared_data</code>
 created in previous steps.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install ENMeval if not already installed</span></span>
 <span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://jamiemkass.github.io/ENMeval/" class="external-link">"ENMeval"</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ENMeval"</span><span class="op">)</span></span>
@@ -855,7 +915,7 @@ presence and background points. During model evaluation for each
 partition, only the presence test points are used. The background
 points, although present in the dataset, are simply excluded from the
 calibration process.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">part_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 4</span></span>
 <span><span class="co">#&gt;  $ Partition_1: num [1:253] 1 3 12 13 14 20 24 25 34 43 ...</span></span>
@@ -865,7 +925,7 @@ calibration process.</p>
 <p>We can convert the spatial group information stored in
 <code>enmeval_block</code> into a format compatible with
 <code>kuenm2</code>:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Identify unique spatial blocks</span></span>
 <span><span class="va">id_blocks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">enmeval_block</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -899,7 +959,7 @@ the <code>ENMeval</code> package. The final step is to replace the
 original <code>part_data</code> in the <code>prepared_data</code> object
 with <code>new_part_data</code>. We should also update the partitioning
 method to reflect this change.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Replace the original partition data with the new spatial blocks</span></span>
 <span><span class="va">d_spatial_block</span> <span class="op">&lt;-</span> <span class="va">d</span></span>
 <span><span class="va">d_spatial_block</span><span class="op">$</span><span class="va">part_data</span> <span class="op">&lt;-</span> <span class="va">new_part_data</span></span>
@@ -928,7 +988,7 @@ method to reflect this change.</p>
 <span><span class="co">#&gt;   - Features classes (responses): l, q, lq, lqp </span></span>
 <span><span class="co">#&gt;   - Regularization multipliers: 0.1, 2, 1</span></span></code></pre></div>
 <p>Let’s check the spatial distribution of the partitioned data:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">geo_block</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/explore_partition_geo.html">explore_partition_geo</a></span><span class="op">(</span><span class="va">d_spatial_block</span>, raster_variables <span class="op">=</span> <span class="va">var</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">geo_block</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Presence"</span>, <span class="st">"Background"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prepare_data_files/figure-html/plot%20spatial%20block-1.png" class="r-plt" width="95%"></p>
@@ -947,7 +1007,7 @@ website</a>.</p>
 <p>As an example, we will use the Spatial Block method, which evaluates
 different raster cell sizes to identify the optimal block configuration
 for the dataset.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Install flexsdm if not already installed</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st">"flexsdm"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"flexsdm"</span><span class="op">)</span></span>
@@ -987,7 +1047,7 @@ within the <code>part</code> element of its output.</p>
 <p>As with the ENMeval example, we can transform the spatial group
 information stored in <code>flexsdm_block</code> into a format
 compatible with <code>kuenm2</code>:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Identify unique spatial blocks from flexsdm output</span></span>
 <span><span class="va">id_blocks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">flexsdm_block</span><span class="op">$</span><span class="va">part</span><span class="op">$</span><span class="va">.part</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -1036,7 +1096,7 @@ compatible with <code>kuenm2</code>:</p>
 <span><span class="co">#&gt;   - Features classes (responses): l, q, lq, lqp </span></span>
 <span><span class="co">#&gt;   - Regularization multipliers: 0.1, 2, 1</span></span></code></pre></div>
 <p>Let’s check the spatial distribution of the partitioned data:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">geo_block_flexsdm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/explore_partition_geo.html">explore_partition_geo</a></span><span class="op">(</span><span class="va">d_block_flexsdm</span>, raster_variables <span class="op">=</span> <span class="va">var</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">geo_block_flexsdm</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Presence"</span>, <span class="st">"Background"</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prepare_data_files/figure-html/plot%20spatial%20block%20flexsdm-1.png" class="r-plt" width="95%"></p>
@@ -1068,7 +1128,7 @@ outside the training data range, you must also provide the
 backgrounds) to define the environmental range but computes MOP only for
 test presence records. To also compute MOP for test background points,
 set <code>include_test_background = TRUE</code>:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mop_partition</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/explore_partition_extrapolation.html">explore_partition_extrapolation</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d_spatial_block</span>, </span>
 <span>                                                 include_test_background <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <p>The function returned a <code>data.frame</code> containing:</p>
@@ -1091,7 +1151,7 @@ object includes a categorical variable, it also contains a column
 indicating which values in the testing data were not present in the
 training data.</li>
 </ul>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Highlight some partitions with extrapolation risks</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mop_partition</span><span class="op">$</span><span class="va">Mop_results</span><span class="op">[</span><span class="va">mop_partition</span><span class="op">$</span><span class="va">Mop_results</span><span class="op">$</span><span class="va">n_var_out</span> <span class="op">&gt;</span> <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       Partition pr_bg         x         y mop_distance inside_range n_var_out</span></span>
@@ -1115,26 +1175,26 @@ specified: “simple” indicates whether records in a partition fall within
 the range of the other partitions, while “distance” displays the
 Euclidean distance of each record to the set of conditions represented
 in the other partitions.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Simple plot in geographic space</span></span>
 <span><span class="fu"><a href="../reference/plot_explore_partition.html">plot_explore_partition</a></span><span class="op">(</span>explore_partition <span class="op">=</span> <span class="va">mop_partition</span>, space <span class="op">=</span> <span class="st">"G"</span>, </span>
 <span>                       type_of_plot <span class="op">=</span> <span class="st">"simple"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prepare_data_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" width="75%"></p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Distance plot in geographic space</span></span>
 <span><span class="fu"><a href="../reference/plot_explore_partition.html">plot_explore_partition</a></span><span class="op">(</span>explore_partition <span class="op">=</span> <span class="va">mop_partition</span>, space <span class="op">=</span> <span class="st">"G"</span>, </span>
 <span>                       type_of_plot <span class="op">=</span> <span class="st">"distance"</span>,</span>
 <span>                       lwd_legend <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prepare_data_files/figure-html/unnamed-chunk-6-2.png" class="r-plt" width="75%"></p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Simple plot in environmental space</span></span>
 <span><span class="fu"><a href="../reference/plot_explore_partition.html">plot_explore_partition</a></span><span class="op">(</span>explore_partition <span class="op">=</span> <span class="va">mop_partition</span>, space <span class="op">=</span> <span class="st">"E"</span>, </span>
 <span>                       type_of_plot <span class="op">=</span> <span class="st">"simple"</span>, </span>
 <span>                       variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bio_7"</span>, <span class="st">"bio_15"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="prepare_data_files/figure-html/unnamed-chunk-6-3.png" class="r-plt" width="75%"></p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Distance plot in environmental space</span></span>
 <span><span class="fu"><a href="../reference/plot_explore_partition.html">plot_explore_partition</a></span><span class="op">(</span>explore_partition <span class="op">=</span> <span class="va">mop_partition</span>, space <span class="op">=</span> <span class="st">"E"</span>, </span>
@@ -1164,7 +1224,7 @@ essentially a list, users can save it to a local directory using
 <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">saveRDS()</a></code>. Saving the object facilitates loading it back
 into your R session later using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code>. See an example
 below:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set directory to save (here, in a temporary directory)</span></span>
 <span><span class="va">dir_to_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
