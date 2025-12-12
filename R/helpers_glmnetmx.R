@@ -130,4 +130,3 @@ predict_glm_mx <- function(model, newdata, type = "response"){
   }
 
 }
-

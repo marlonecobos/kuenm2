@@ -44,9 +44,32 @@ extract_var_from_formulas <- function(formulas, ...) {
   })
   names(res) <- NULL
 
-  if(length(res) == 1) {
-    return(unlist(res))
+  if(inherits(res, "matrix")) {
+    return(res[,1])
   } else {
     return(res)
   }
+}
+
+extract_categorical <- function(formulas){
+  res <- sapply(formulas, function(formula_str) {
+
+    # Try to find categorical
+    match_location <- regexpr("categorical\\(([^)]+)\\)", formula_str, perl = TRUE)
+
+    if (match_location > 0) {
+      full_match <- regmatches(formula_str, match_location)
+
+      variable_name <- gsub(
+        pattern = "categorical\\(([^)]+)\\)",
+        replacement = "\\1",
+        x = full_match
+      )
+      return(unique(variable_name))
+
+    } else {
+      return(NULL)
+    }
+  }, USE.NAMES = FALSE)
+  return(unlist(res))
 }
