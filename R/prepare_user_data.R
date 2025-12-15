@@ -126,7 +126,7 @@
 #' Example of a valid formula:
 #' `~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)`.
 #' All variables appearing in the formulas must exist in the data.frame supplied
-#' through `user_data`.
+#' as `user_data`.
 #'
 #' @return
 #' An object of class `prepared_data` containing all elements necessary to

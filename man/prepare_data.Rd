@@ -169,7 +169,7 @@ include linear effects, quadratic terms (e.g., \code{I(bio_7^2)}), products
 Example of a valid formula:
 \code{~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)}.
 All variables appearing in the formulas must exist in the raster supplied
-through \code{raster_variables}.
+as \code{raster_variables}.
 }
 \examples{
 # Import occurrences

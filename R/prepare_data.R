@@ -130,7 +130,7 @@
 #' Example of a valid formula:
 #' `~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)`.
 #' All variables appearing in the formulas must exist in the raster supplied
-#' through `raster_variables`.
+#' as `raster_variables`.
 #'
 #' @return
 #' An object of class `prepared_data` containing all elements necessary to
@@ -410,34 +410,34 @@ prepare_data <- function(algorithm,
                                    r_multiplier = r_multiplier)
   } else {
     # If user formulas, check data
-  user_variables <- unique(unlist(extract_var_from_formulas(user_formulas)))
-  v_out <- setdiff(user_variables, names(raster_variables))
-  if(length(v_out) > 0){
-    stop("The following variables present in 'user_formulas' are absent from 'raster_variables': ", paste(v_out, collapse = "; "))
-  }
+    user_variables <- unique(unlist(extract_var_from_formulas(user_formulas)))
+    v_out <- setdiff(user_variables, names(raster_variables))
+    if(length(v_out) > 0){
+      stop("The following variables present in 'user_formulas' are absent from 'raster_variables': ", paste(v_out, collapse = "; "))
+    }
 
     # Check categorical
-  categorical_variables <- extract_categorical(user_formulas)
+    categorical_variables <- extract_categorical(user_formulas)
 
-  #Build formula grid
-  if(algorithm == "maxnet"){
-    formula_grid <- expand.grid("Formulas" = user_formulas,
-                               "R_multiplier" = r_multiplier)
-    # Add -1 to formulas
-    formula_grid$Formulas <- paste(formula_grid$Formulas, "-1")
+    #Build formula grid
+    if(algorithm == "maxnet"){
+      formula_grid <- expand.grid("Formulas" = user_formulas,
+                                  "R_multiplier" = r_multiplier)
+      # Add -1 to formulas
+      formula_grid$Formulas <- paste(formula_grid$Formulas, "-1")
 
-  } else if (algorithm == "glm"){
-    formula_grid <- data.frame("Formulas" = user_formulas)
-  }
-  #Identify quadratic
-  formula_grid$Features <- ifelse(grepl("I\\(|\\^2\\)",
-                                         formula_grid$Formulas),
-                                   "User_q", "User")
-  # Create ID
-  formula_grid <- cbind("ID" = 1:nrow(formula_grid), formula_grid)
+    } else if (algorithm == "glm"){
+      formula_grid <- data.frame("Formulas" = user_formulas)
+    }
+    #Identify quadratic
+    formula_grid$Features <- ifelse(grepl("I\\(|\\^2\\)",
+                                          formula_grid$Formulas),
+                                    "User_q", "User")
+    # Create ID
+    formula_grid <- cbind("ID" = 1:nrow(formula_grid), formula_grid)
 
-  # Update continuous and categorical variables
-  continuous_variable_names <- setdiff(user_variables, categorical_variables)
+    # Update continuous and categorical variables
+    continuous_variable_names <- setdiff(user_variables, categorical_variables)
   }
 
   #Prepare final data
