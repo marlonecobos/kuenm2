@@ -343,11 +343,11 @@
 
     #Table to set levels in raster
     cls_future <- data.frame(id = c(1, 2, 3, 0),
-                      Result = c("Gain", "Loss", "Suitable-stable",
-                                 "Unsuitable-stable"))
+                      Result = c("Gain", "Loss", "Stable suitable",
+                                 "Stable unsuitable"))
     cls_past <- data.frame(id = c(1, 2, 3, 0),
-                             Result = c("Loss", "Gain", "Suitable-stable",
-                                        "Unsuitable-stable"))
+                             Result = c("Loss", "Gain", "Stable suitable",
+                                        "Stable unsuitable"))
 
     res_by_gcm <- lapply(proj_bin, function(i) {
       #Get levels (past or future)
@@ -474,14 +474,14 @@
         gain <- ceiling(max(vals)/2)
         g_val <- c(gain, vals[vals > gain & vals != max(vals)])
         l_val <- vals[vals < gain & vals != 0]
-        gains <- paste0("gain in ", max(vals) - g_val, " GCMs")
-        gains[gains == paste0("gain in ", n_gcms - 1, " GCMs")] <- "gain in all GCMs"
-        losses <- paste0("loss in ", l_val, " GCMs")
-        losses[losses == paste0("loss in ", n_gcms - 1, " GCMs")] <- "loss in all GCMs"
-        descriptions <- c("stable, unsuitable in current period and all GCMs",
+        gains <- paste0("Gain in ", max(vals) - g_val, " GCMs")
+        gains[gains == paste0("Gain in ", n_gcms - 1, " GCMs")] <- "Gain in all GCMs"
+        losses <- paste0("Loss in ", l_val, " GCMs")
+        losses[losses == paste0("Loss in ", n_gcms - 1, " GCMs")] <- "Loss in all GCMs"
+        descriptions <- c("Stable unsuitable",
                           losses,
                           gains,
-                          "stable, suitable in current period and all GCMs")
+                          "Stable suitable")
 
       }
 
@@ -489,12 +489,12 @@
         loss <- ceiling(max(vals)/2)
         l_val <- c(loss, vals[vals > loss & vals != max(vals)])
         g_val <- vals[vals < loss & vals != 0]
-        gains <- paste0("gain in ", g_val, " GCMs")
-        gains[gains == paste0("gain in ", n_gcms - 1, " GCMs")] <- "gain in all GCMs"
-        losses <- paste0("loss in ", max(vals) - l_val, " GCMs")
-        losses[losses == paste0("loss in ", n_gcms - 1, " GCMs")] <- "loss in all GCMs"
-        descriptions <- c("stable, unsuitable in current period and all GCMs", gains,
-                          losses, "stable, suitable in current period and all GCMs")
+        gains <- paste0("Gain in ", g_val, " GCMs")
+        gains[gains == paste0("Gain in ", n_gcms - 1, " GCMs")] <- "Gain in all GCMs"
+        losses <- paste0("Loss in ", max(vals) - l_val, " GCMs")
+        losses[losses == paste0("Loss in ", n_gcms - 1, " GCMs")] <- "Loss in all GCMs"
+        descriptions <- c("Stable unsuitable", gains,
+                          losses, "Stable suitable")
       }
 
       res_table <- data.frame(Raster_value = vals, Description = descriptions)
