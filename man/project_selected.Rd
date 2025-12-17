@@ -7,7 +7,7 @@
 project_selected(models, projection_data, out_dir, mask = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
-                 write_partitions = FALSE, extrapolation_type = "E",
+                 write_replicates = FALSE, extrapolation_type = "E",
                  var_to_clamp = NULL, type = NULL, overwrite = FALSE,
                  parallel = FALSE, ncores = NULL,
                  progress_bar = TRUE, verbose = TRUE)
@@ -27,7 +27,7 @@ file of each projection.}
 mask the variables before predict. Default is NULL.}
 
 \item{consensus_per_model}{(logical) whether to calculate consensus across
-partitions when there are more than one partition per model. Default is TRUE.}
+replicates when there are more than one replicate per model. Default is TRUE.}
 
 \item{consensus_general}{(logical) whether to calculate consensus across
 models when there are more than one selected model. Default is TRUE.}
@@ -36,8 +36,8 @@ models when there are more than one selected model. Default is TRUE.}
 available are 'median', 'range', 'mean' and 'stdev' (standard deviation).
 Default is c("median", "range", "mean", "stdev").}
 
-\item{write_partitions}{(logical) whether to write the projections for each
-partition. Default is FALSE.}
+\item{write_replicates}{(logical) whether to write the projections for each
+replicate. Default is FALSE.}
 
 \item{extrapolation_type}{(character) extrapolation type of model. Models can
 be transferred with three options: free extrapolation ('E'), extrapolation
@@ -78,8 +78,8 @@ binarize the predictions.
 This function performs predictions of selected models on multiple scenarios,
 as specified in a \code{projection_data} object created with the
 \code{\link[=prepare_projection]{prepare_projection()}} function. In addition to generating predictions
-for each partition, the function calculates consensus measures (e.g., mean,
-median) across partitions and models.
+for each replicate, the function calculates consensus measures (e.g., mean,
+median) across replicates and models.
 }
 \examples{
 # Step 1: Organize variables for current projection

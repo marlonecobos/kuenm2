@@ -20,7 +20,7 @@ multiple_projections <- function(i, res_path, raster_pattern, par_list) {
   invisible(
     predict_selected(models = par_list$models,
                      new_variables = r_i,
-                     write_partitions = par_list$write_partitions,
+                     write_replicates = par_list$write_replicates,
                      out_dir = output_i,
                      consensus_per_model = par_list$consensus_per_model,
                      consensus_general = par_list$consensus_general,
@@ -53,13 +53,12 @@ calc_thr <- function(occ_suitability, thr = 0.1) {
 # thr
 
 
-#Helper function to calculate variance coming from partitions by gcm
+#Helper function to calculate variance coming from replicates by gcm
 var_models_rep_by_gcm <- function(path) {
-  model_files <- list.files(path = path, pattern = "partitions",
+  model_files <- list.files(path = path, pattern = "replicates",
                             full.names = TRUE)
   if (length(model_files) == 0) {
-    stop("Partitions not found.",
-         "\nSet by_partition = FALSE or rerun project_selected() with write_partitions = TRUE.")
+    stop("Replicates not found.")
   }
 
   if (length(model_files) > 1) {

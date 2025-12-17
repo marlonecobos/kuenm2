@@ -4,14 +4,14 @@
 #' This function performs predictions of selected models on multiple scenarios,
 #' as specified in a `projection_data` object created with the
 #' [prepare_projection()] function. In addition to generating predictions
-#' for each partition, the function calculates consensus measures (e.g., mean,
-#' median) across partitions and models.
+#' for each replicate, the function calculates consensus measures (e.g., mean,
+#' median) across replicates and models.
 #'
 #' @usage
 #' project_selected(models, projection_data, out_dir, mask = NULL,
 #'                  consensus_per_model = TRUE, consensus_general = TRUE,
 #'                  consensus = c("median", "range", "mean", "stdev"),
-#'                  write_partitions = FALSE, extrapolation_type = "E",
+#'                  write_replicates = FALSE, extrapolation_type = "E",
 #'                  var_to_clamp = NULL, type = NULL, overwrite = FALSE,
 #'                  parallel = FALSE, ncores = NULL,
 #'                  progress_bar = TRUE, verbose = TRUE)
@@ -26,14 +26,14 @@
 #' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to
 #'        mask the variables before predict. Default is NULL.
 #' @param consensus_per_model (logical) whether to calculate consensus across
-#' partitions when there are more than one partition per model. Default is TRUE.
+#' replicates when there are more than one replicate per model. Default is TRUE.
 #' @param consensus_general (logical) whether to calculate consensus across
 #' models when there are more than one selected model. Default is TRUE.
 #' @param consensus (character) consensus measures to calculate. Options
 #' available are 'median', 'range', 'mean' and 'stdev' (standard deviation).
 #' Default is c("median", "range", "mean", "stdev").
-#' @param write_partitions (logical) whether to write the projections for each
-#' partition. Default is FALSE.
+#' @param write_replicates (logical) whether to write the projections for each
+#' replicate. Default is FALSE.
 #' @param extrapolation_type (character) extrapolation type of model. Models can
 #' be transferred with three options: free extrapolation ('E'), extrapolation
 #' with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.
@@ -128,7 +128,7 @@ project_selected <- function(models,
                              consensus_per_model = TRUE,
                              consensus_general = TRUE,
                              consensus = c("median", "range", "mean", "stdev"),
-                             write_partitions = FALSE,
+                             write_replicates = FALSE,
                              extrapolation_type = "E",
                              var_to_clamp = NULL,
                              type = NULL,
@@ -218,7 +218,7 @@ project_selected <- function(models,
                    consensus_per_model = consensus_per_model,
                    consensus_general = consensus_general,
                    consensus = consensus,
-                   write_partitions = write_partitions,
+                   write_replicates = write_replicates,
                    extrapolation_type = extrapolation_type,
                    var_to_clamp = var_to_clamp,
                    type = type,
@@ -230,7 +230,7 @@ project_selected <- function(models,
   vars <- setdiff(vars, c("pr_bg", "fold"))
 
   if (!file.exists(out_dir)) {
-    dir.create(out_dir, showWarnings = FALSE)
+    dir.create(out_dir, showWarnings = FALSE)  # We should show these warnings
   }
   #Normalize path
   out_dir <- normalizePath(out_dir)
@@ -290,7 +290,9 @@ project_selected <- function(models,
     # Loop for com barra de progresso manual
     for (x in 1:n_models) {
       # Execute a função fit_eval_models
-      multiple_projections(i = x, res_path, raster_pattern, par_list)
+      multiple_projections(i = x, res_path = res_path,
+                           raster_pattern = raster_pattern,
+                           par_list = par_list)
 
       # Sets the progress bar to the current state
       if (progress_bar) {
