@@ -225,7 +225,7 @@ predict_selected <- function(models,
   }, USE.NAMES = FALSE, simplify = FALSE)))
 
   # If there are replicates, remove the full model from the dataset
-  if (any(grepl("Partition", names_models))) {
+  if (any(grepl("Replicate", names_models))) {
     models <- lapply(nm, function(i) {
       models[[i]][["Full_model"]] <- NULL
       return(models[[i]])

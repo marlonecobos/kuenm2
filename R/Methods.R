@@ -194,7 +194,7 @@ print.fitted_models <- function(x, ...) {
   cat("Algortihm:", x$algorithm, "\n")
   cat("Number of fitted models:", length(x$Models), "\n")
   #Get number of replicates
-  nr <- sum(grepl("Partition", names(x$Models[[1]])))
+  nr <- sum(grepl("Replicate", names(x$Models[[1]])))
   if (nr > 0) {
     cat("Models fitted with", nr, "replicates")
   } else {
