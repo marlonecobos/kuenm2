@@ -267,7 +267,7 @@ dir.create(out_dir, recursive = TRUE)
 p <- project_selected(models = fitted_model_maxnet, 
                       projection_data = pr,
                       out_dir = out_dir, 
-                      write_partitions = TRUE,
+                      write_replicates = TRUE,
                       progress_bar = FALSE) #Do not print progress bar
 ```
 
@@ -288,68 +288,68 @@ dir_tree(out_dir)
 #> │   │   │   ├── ACCESS-CM2
 #> │   │   │   │   ├── General_consensus.tif
 #> │   │   │   │   ├── Model_192_consensus.tif
-#> │   │   │   │   ├── Model_192_partitions.tif
+#> │   │   │   │   ├── Model_192_replicates.tif
 #> │   │   │   │   ├── Model_219_consensus.tif
-#> │   │   │   │   └── Model_219_partitions.tif
+#> │   │   │   │   └── Model_219_replicates.tif
 #> │   │   │   └── MIROC6
 #> │   │   │       ├── General_consensus.tif
 #> │   │   │       ├── Model_192_consensus.tif
-#> │   │   │       ├── Model_192_partitions.tif
+#> │   │   │       ├── Model_192_replicates.tif
 #> │   │   │       ├── Model_219_consensus.tif
-#> │   │   │       └── Model_219_partitions.tif
+#> │   │   │       └── Model_219_replicates.tif
 #> │   │   └── ssp585
 #> │   │       ├── ACCESS-CM2
 #> │   │       │   ├── General_consensus.tif
 #> │   │       │   ├── Model_192_consensus.tif
-#> │   │       │   ├── Model_192_partitions.tif
+#> │   │       │   ├── Model_192_replicates.tif
 #> │   │       │   ├── Model_219_consensus.tif
-#> │   │       │   └── Model_219_partitions.tif
+#> │   │       │   └── Model_219_replicates.tif
 #> │   │       └── MIROC6
 #> │   │           ├── General_consensus.tif
 #> │   │           ├── Model_192_consensus.tif
-#> │   │           ├── Model_192_partitions.tif
+#> │   │           ├── Model_192_replicates.tif
 #> │   │           ├── Model_219_consensus.tif
-#> │   │           └── Model_219_partitions.tif
+#> │   │           └── Model_219_replicates.tif
 #> │   └── 2081-2100
 #> │       ├── ssp126
 #> │       │   ├── ACCESS-CM2
 #> │       │   │   ├── General_consensus.tif
 #> │       │   │   ├── Model_192_consensus.tif
-#> │       │   │   ├── Model_192_partitions.tif
+#> │       │   │   ├── Model_192_replicates.tif
 #> │       │   │   ├── Model_219_consensus.tif
-#> │       │   │   └── Model_219_partitions.tif
+#> │       │   │   └── Model_219_replicates.tif
 #> │       │   └── MIROC6
 #> │       │       ├── General_consensus.tif
 #> │       │       ├── Model_192_consensus.tif
-#> │       │       ├── Model_192_partitions.tif
+#> │       │       ├── Model_192_replicates.tif
 #> │       │       ├── Model_219_consensus.tif
-#> │       │       └── Model_219_partitions.tif
+#> │       │       └── Model_219_replicates.tif
 #> │       └── ssp585
 #> │           ├── ACCESS-CM2
 #> │           │   ├── General_consensus.tif
 #> │           │   ├── Model_192_consensus.tif
-#> │           │   ├── Model_192_partitions.tif
+#> │           │   ├── Model_192_replicates.tif
 #> │           │   ├── Model_219_consensus.tif
-#> │           │   └── Model_219_partitions.tif
+#> │           │   └── Model_219_replicates.tif
 #> │           └── MIROC6
 #> │               ├── General_consensus.tif
 #> │               ├── Model_192_consensus.tif
-#> │               ├── Model_192_partitions.tif
+#> │               ├── Model_192_replicates.tif
 #> │               ├── Model_219_consensus.tif
-#> │               └── Model_219_partitions.tif
+#> │               └── Model_219_replicates.tif
 #> ├── Present
 #> │   └── Present
 #> │       ├── General_consensus.tif
 #> │       ├── Model_192_consensus.tif
-#> │       ├── Model_192_partitions.tif
+#> │       ├── Model_192_replicates.tif
 #> │       ├── Model_219_consensus.tif
-#> │       └── Model_219_partitions.tif
+#> │       └── Model_219_replicates.tif
 #> └── Projection_paths.RDS
 ```
 
-By default, for each scenario, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its partitions (if more than one model was selected), as well as a general consensus across all models.
+By default, for each scenario, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its replicates (if more than one model was selected), as well as a general consensus across all models.
 
-Note that each selected model can also have partitions. By default, the function does not output these individual partitions unless `write_partitions = TRUE` is set. It is important to write the partitions if you intend to compute the variability across them using `projection_variability()`. For more details, check the vignette on [Explore Variability and Uncertainty in Projections](variability_and_uncertainty.html).
+Note that each selected model can also have replicates. By default, the function does not output these individual replicates unless `write_replicates = TRUE` is set. It is important to write the replicates if you intend to compute the variability across them using `projection_variability()`. For more details, check the vignette on [Explore Variability and Uncertainty in Projections](variability_and_uncertainty.html).
 
 The function accepts several other parameters that control the predictions in `predict_selected()`, such as the consensus to compute, the extrapolation type (free extrapolation (`E`), extrapolation with clamping (`EC`), and no extrapolation (`NE`)), variables to clamp, and the format of prediction values (`raw`, `cumulative`, `logistic`, or the default `cloglog`). For more details, consult the vignette for [Predict models to single scenario](model_predictions.html).
 
@@ -375,4 +375,4 @@ p_2060_ssp126 <- import_projections(projection = p, consensus = "mean",
 plot(p_2060_ssp126, cex.main = 0.8)
 ```
 
-With the `model_projections` object, we can compute changes in suitable areas between scenarios (see the `projection_changes` function), explore variance stemming from partitions, model parameterizations, and GCMs (see `projection_variability`), and perform analysis of extrapolation risks (see `projection_mop`). For more details, check the vignette on [Explore Variability and Uncertainty in Projections](variability_and_uncertainty.html).
+With the `model_projections` object, we can compute changes in suitable areas between scenarios (see the `projection_changes` function), explore variance stemming from replicates, model parameterizations, and GCMs (see `projection_variability`), and perform analysis of extrapolation risks (see `projection_mop`). For more details, check the vignette on [Explore Variability and Uncertainty in Projections](variability_and_uncertainty.html).

@@ -54,9 +54,9 @@ calib_results_glm
 
 Note that the `calibration_results` object stores only the information related to the calibration process and model evaluation—it does not include the fitted `maxnet` (or `glm`) models themselves. 
 
-To obtain the final fitted models, we need to use the `fit_selected()` function. By default, this function fits a full model (i.e., without partitions and without splitting the data into training and testing sets). However, you can configure it to fit final models with partitions if desired.
+To obtain the final fitted models, we need to use the `fit_selected()` function. By default, this function fits a full model (i.e., without replicates and without splitting the data into training and testing sets). However, you can configure it to fit final models with replicates if desired.
 
-In this example, we'll fit the final models using the same partition settings (4-fold cross-validation) as used in the [Model Calibration](model_calibration.html) vignette.
+In this example, we'll fit the final models using the same replicate settings (4-fold cross-validation) as used in the [Model Calibration](model_calibration.html) vignette.
 
 ```{r fit_selected not echo, warning=FALSE, echo=FALSE}
 # Fit models using calibration results
@@ -69,7 +69,7 @@ fm <- fit_selected(calibration_results = calib_results_maxnet,
 # Fit selected models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet, 
                    replicate_method = "kfolds", n_replicates = 4)
-# Fitting partitions...
+# Fitting replicates...
 #   |========================================================================| 100%
 # Fitting full models...
 #   |========================================================================| 100%
@@ -78,7 +78,7 @@ fm <- fit_selected(calibration_results = calib_results_maxnet,
 
 The `fit_selected()` function returns a `fitted_models` object, a list that contains essential information from the fitted models, which is required for the subsequent steps.
 
-You can explore the contents of the `fitted_models` object by indexing its elements. For example, the fitted `maxnet` (or `glm`) model objects are stored within the `Models` element. Note that `Models` is a nested list: for each selected model (in this case, models 192 and 219), it includes both the partitions (if fitted with partitions) and the full model.
+You can explore the contents of the `fitted_models` object by indexing its elements. For example, the fitted `maxnet` (or `glm`) model objects are stored within the `Models` element. Note that `Models` is a nested list: for each selected model (in this case, models 192 and 219), it includes both the replicates (if fitted with replicates) and the full model.
 
 ```{r explore  fitted}
 #See names of selected models
@@ -98,7 +98,7 @@ fm$omission_rate
 ```
 The omission error used to calculate the thresholds was 10%, meaning that when the predictions are binarized, approximately 10% of the presence records used to calibrate the models will fall into cells with predicted values below the threshold.
 
-The thresholds are summarized in two ways: the mean and median across partitions for each model, and the consensus mean and median across all selected models (when more than one model is selected):
+The thresholds are summarized in two ways: the mean and median across replicates for each model, and the consensus mean and median across all selected models (when more than one model is selected):
 
 ```{r thresholds}
 fm$thresholds

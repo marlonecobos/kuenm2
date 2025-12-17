@@ -89,7 +89,7 @@ p_maxnet <- predict_selected(models = fitted_model_maxnet,
                              progress_bar = FALSE)
 ```
 
-By default, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its partitions (if more than one model was selected), as well as a general consensus across all models. In this case, the output is a `list` containing `SpatRaster` predictions for each partition, along with the consensus results for each model and the overall general consensus:
+By default, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its replicates (if more than one model was selected), as well as a general consensus across all models. In this case, the output is a `list` containing `SpatRaster` predictions for each replicate, along with the consensus results for each model and the overall general consensus:
 
 ```{r check maxnet predictions}
 #See objects in the output of predict_selected
@@ -102,13 +102,13 @@ Let's plot the general consensus:
 plot(p_maxnet$General_consensus)
 ```
 
-We can also plot the results for each partition and the consensus for each model:
+We can also plot the results for each replicate and the consensus for each model:
 
 ```{r plot models maxnet}
-#Predictions for each partition from model 192
-plot(p_maxnet$Model_192$Partitions)
+#Predictions for each replicate from model 192
+plot(p_maxnet$Model_192$Replicates)
 
-#Consensus across each partition from model 192
+#Consensus across each replicate from model 192
 plot(p_maxnet$Model_192$Model_consensus)
 ```
 
@@ -153,10 +153,10 @@ p_df <- predict_selected(models = fitted_model_maxnet,
 Now, instead of `SpatRaster` objects, the function returns `data.frame` objects with the predictions:
 
 ```{r predict df results}
-#Results by partition of the model 192
-head(p_df$Model_192$Partitions)
+#Results by replicate of the model 192
+head(p_df$Model_192$Replicates)
 
-#Consensus across partitions of the model 192
+#Consensus across replicates of the model 192
 head(p_df$Model_192$Model_consensus)
 
 #General consensus across all models
@@ -182,7 +182,7 @@ fitted_model_glm$omission_rate
 
 In both models, a 10% omission error rate was used to calculate the thresholds. This means that when predictions are binarized, approximately 10% of the presence records used in model calibration will fall into areas classified as unsuitable.
 
-The thresholds are summarized in two ways: the mean and median across partitions for each model, and the consensus mean and median across all selected models (when more than one model is selected). Let's check the thresholds for the general consensus:
+The thresholds are summarized in two ways: the mean and median across replicates for each model, and the consensus mean and median across all selected models (when more than one model is selected). Let's check the thresholds for the general consensus:
 
 ```{r thresholds}
 #For maxnet
@@ -360,7 +360,7 @@ If `new_variables` is a `SpatRaster`, the function will save the output files as
 p_save <- predict_selected(models = fitted_model_maxnet, 
                            new_variables = var, 
                            write_files = TRUE, #To save to the disk
-                           write_partitions = TRUE, #To save predictions for each partition
+                           write_replicates = TRUE, #To save predictions for each replicate
                            out_dir = tempdir(), #A path to save the resuls (here, the temporary directory)
                            progress_bar = FALSE)
 ```

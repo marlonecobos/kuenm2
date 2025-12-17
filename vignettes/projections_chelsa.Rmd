@@ -414,7 +414,7 @@ m_chelsa <- calibration(data = d_chelsa,
                         omission_rate = 10,
                         parallel = TRUE, #Set TRUE to run in parallel
                         ncores = 8)
-fitted_model_chelsa <- fit_selected(m_chelsa, n_partitions = 4)
+fitted_model_chelsa <- fit_selected(m_chelsa, n_replicates = 4)
 #usethis::use_data(fitted_model_chelsa)
 ```
 ```{r import fitted_model_chelsa, include=FALSE}
@@ -477,7 +477,7 @@ dir.create(out_dir_projections, recursive = TRUE)
 p <- project_selected(models = fitted_model_chelsa, 
                       projection_data = pr,
                       out_dir = out_dir_projections, 
-                      write_partitions = TRUE,
+                      write_replicates = TRUE,
                       progress_bar = FALSE, overwrite = T) #Do not print progress bar
 
 #Import mean of each projected scenario
