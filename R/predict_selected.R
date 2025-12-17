@@ -4,11 +4,11 @@
 #' This function predicts selected models for a single set of new data
 #' using either `maxnet` or `glm` It provides options to save the
 #' output and compute consensus results (mean, median, etc.) across
-#' partitions and models.
+#' replicates and models.
 #'
 #' @usage
 #' predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
-#'                  write_partitions = FALSE, out_dir = NULL,
+#'                  write_replicates = FALSE, out_dir = NULL,
 #'                  consensus_per_model = TRUE, consensus_general = TRUE,
 #'                  consensus = c("median", "range", "mean", "stdev"),
 #'                  extrapolation_type = "E", var_to_clamp = NULL,
@@ -24,17 +24,17 @@
 #' mask the variables before predict. Default is NULL.
 #' @param write_files (logical) whether to save the predictions (SpatRasters or
 #' data.frame) to disk. Default is FALSE.
-#' @param write_partitions (logical) whether to save the predictions for each
-#' partitions to disk. Only applicable if `write_files` is TRUE. Default is
+#' @param write_replicates (logical) whether to save the predictions for each
+#' replicates to disk. Only applicable if `write_files` is TRUE. Default is
 #' FALSE.
 #' @param out_dir (character) directory path where predictions will be saved.
 #' Only relevant if `write_files = TRUE`.
 #' @param consensus_per_model (logical) whether to compute consensus (mean,
-#' median, etc.) for each model across its partitions. Default is TRUE.
+#' median, etc.) for each model across its replicates. Default is TRUE.
 #' @param consensus_general (logical) whether to compute a general consensus
 #' across all models. Default is TRUE.
 #' @param consensus (character) vector specifying the types of consensus to
-#' calculate across partitions and models. Available options are `"median"`,
+#' calculate across replicates and models. Available options are `"median"`,
 #' `"range"`, `"mean"`, and `"stdev"` (standard deviation). Default is
 #' `c("median", "range", "mean", "stdev")`.
 #' @param extrapolation_type (character) extrapolation type of model. Models can
@@ -101,7 +101,7 @@ predict_selected <- function(models,
                              new_variables,
                              mask = NULL,
                              write_files = FALSE,
-                             write_partitions = FALSE,
+                             write_replicates = FALSE,
                              out_dir = NULL,
                              consensus_per_model = TRUE,
                              consensus_general = TRUE,
@@ -219,12 +219,12 @@ predict_selected <- function(models,
   nm <- names(models)
   nrep <- length(models[[1]])
 
-  # Get names of the models (partitions or full model)
+  # Get names of the models (replicates or full model)
   names_models <- unlist(unique(sapply(nm, function(i) {
     names(models[[i]])
   }, USE.NAMES = FALSE, simplify = FALSE)))
 
-  # If there are partitions, remove the full model from the dataset
+  # If there are replicates, remove the full model from the dataset
   if (any(grepl("Partition", names_models))) {
     models <- lapply(nm, function(i) {
       models[[i]][["Full_model"]] <- NULL
@@ -370,7 +370,7 @@ predict_selected <- function(models,
     }
   }
 
-  # Rename models and partitions
+  # Rename models and replicates
   names(p_models) <- nm
   for (i in nm) {
     names(p_models[[i]]) <- names(models[[i]])
@@ -393,13 +393,13 @@ predict_selected <- function(models,
         if ("mean" %in% consensus) {
           res$Consensus_per_model$mean <- terra::rast(lapply(p_models, terra::mean))
         }
-        if ("stdev" %in% consensus) {
-          res$Consensus_per_model$stdev <- terra::rast(lapply(p_models, terra::stdev))
-        }
         if ("range" %in% consensus) {
           res$Consensus_per_model$range <- terra::rast(lapply(p_models, function(r) {
             terra::diff(range(r))
           }))
+        }
+        if ("stdev" %in% consensus) {
+          res$Consensus_per_model$stdev <- terra::rast(lapply(p_models, terra::stdev))
         }
       }
     }
@@ -407,16 +407,16 @@ predict_selected <- function(models,
     gen_res <- list()
     if (consensus_general && length(p_models) == 1 && consensus_per_model) {
       if (nrep == 1) {
-        gen_res$Full_model <- res$Consensus_per_model$Full_model
+        gen_res$Full_model <- res$Consensus_per_model$Full_model[[1]]
       } else {
         if ("median" %in% consensus) {
           gen_res$median <- res$Consensus_per_model$median
         }
-        if ("range" %in% consensus) {
-          gen_res$range <- res$Consensus_per_model$range
-        }
         if ("mean" %in% consensus) {
           gen_res$mean <- res$Consensus_per_model$mean
+        }
+        if ("range" %in% consensus) {
+          gen_res$range <- res$Consensus_per_model$range
         }
         if ("stdev" %in% consensus) {
           gen_res$stdev <- res$Consensus_per_model$stdev
@@ -429,11 +429,11 @@ predict_selected <- function(models,
       if ("median" %in% consensus) {
         gen_res$median <- terra::median(all_rep)
       }
-      if ("range" %in% consensus) {
-        gen_res$range <- terra::diff(range(all_rep))
-      }
       if ("mean" %in% consensus) {
         gen_res$mean <- terra::mean(all_rep)
+      }
+      if ("range" %in% consensus) {
+        gen_res$range <- terra::diff(range(all_rep))
       }
       if ("stdev" %in% consensus) {
         gen_res$stdev <- terra::stdev(all_rep)
@@ -454,13 +454,13 @@ predict_selected <- function(models,
         })
         mcs <- terra::rast(mcs)
         names(mcs) <- consensus
-        list(Partitions = rep[[x]], Model_consensus = mcs)
+        list(Replicates = rep[[x]], Model_consensus = mcs)
       }
     })
 
     names(res) <- nm
-    if(nrep == 1){
-      res <- c(res, General_consensus = gen_res$Full_model[[1]])
+    if(nrep == 1 & length(p_models) == 1) {
+      res <- c(res, General_consensus = gen_res$Full_model)
     } else {
     res <- c(res, General_consensus = terra::rast(gen_res))
     }
@@ -548,7 +548,7 @@ predict_selected <- function(models,
           res$Consensus_per_model[[y]][[x]]
         })
         names(mcs) <- consensus
-        list(Partitions = rep[[x]], Model_consensus = as.data.frame(mcs))
+        list(Replicates = rep[[x]], Model_consensus = as.data.frame(mcs))
       }
     })
 
@@ -558,16 +558,16 @@ predict_selected <- function(models,
 
   # Write results to disk if required
   if (write_files) {
-    if (!file.exists(out_dir)) {
+    if (!dir.exists(out_dir)) {
       dir.create(out_dir, recursive = TRUE)
     }
 
     #Save if new_variables are spatraster
     if(inherits(new_variables, "SpatRaster")){
       sapply(nm, function(i) {
-        if (write_partitions & nrep > 1) {
-          terra::writeRaster(res[[i]]$Partitions,
-                           file.path(out_dir, paste0(i, "_partitions.tif")),
+        if (write_replicates & nrep > 1) {
+          terra::writeRaster(res[[i]]$Replicates,
+                           file.path(out_dir, paste0(i, "_replicates.tif")),
                            overwrite = overwrite)
           }
           terra::writeRaster(res[[i]]$Model_consensus,
@@ -575,16 +575,16 @@ predict_selected <- function(models,
                          overwrite = overwrite)
           })
       terra::writeRaster(res$General_consensus,
-                       file.path(out_dir, "General_consensus.tif"),
-                       overwrite = overwrite)
+                         file.path(out_dir, "General_consensus.tif"),
+                         overwrite = overwrite)
     }
 
     #Save if new_variables are data.frame
     if(inherits(new_variables, "data.frame")){
       sapply(nm, function(i) {
-        if (write_partitions & nrep > 1) {
-          utils::write.csv(res[[i]]$Partitions,
-                           file.path(out_dir, paste0(i, "_partitions.csv")))
+        if (write_replicates & nrep > 1) {
+          utils::write.csv(res[[i]]$Replicates,
+                           file.path(out_dir, paste0(i, "_replicates.csv")))
         }
         utils::write.csv(res[[i]]$Model_consensus,
                 file.path(out_dir, paste0(i, "_consensus.csv")))

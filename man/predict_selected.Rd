@@ -5,7 +5,7 @@
 \title{Predict selected models for a single scenario}
 \usage{
 predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
-                 write_partitions = FALSE, out_dir = NULL,
+                 write_replicates = FALSE, out_dir = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
                  extrapolation_type = "E", var_to_clamp = NULL,
@@ -26,21 +26,21 @@ mask the variables before predict. Default is NULL.}
 \item{write_files}{(logical) whether to save the predictions (SpatRasters or
 data.frame) to disk. Default is FALSE.}
 
-\item{write_partitions}{(logical) whether to save the predictions for each
-partitions to disk. Only applicable if \code{write_files} is TRUE. Default is
+\item{write_replicates}{(logical) whether to save the predictions for each
+replicates to disk. Only applicable if \code{write_files} is TRUE. Default is
 FALSE.}
 
 \item{out_dir}{(character) directory path where predictions will be saved.
 Only relevant if \code{write_files = TRUE}.}
 
 \item{consensus_per_model}{(logical) whether to compute consensus (mean,
-median, etc.) for each model across its partitions. Default is TRUE.}
+median, etc.) for each model across its replicates. Default is TRUE.}
 
 \item{consensus_general}{(logical) whether to compute a general consensus
 across all models. Default is TRUE.}
 
 \item{consensus}{(character) vector specifying the types of consensus to
-calculate across partitions and models. Available options are \code{"median"},
+calculate across replicates and models. Available options are \code{"median"},
 \code{"range"}, \code{"mean"}, and \code{"stdev"} (standard deviation). Default is
 \code{c("median", "range", "mean", "stdev")}.}
 
@@ -71,7 +71,7 @@ long with the consensus results for each model and the overall general consensus
 This function predicts selected models for a single set of new data
 using either \code{maxnet} or \code{glm} It provides options to save the
 output and compute consensus results (mean, median, etc.) across
-partitions and models.
+replicates and models.
 }
 \details{
 When predicting to areas where the variables are beyond the lower or upper
