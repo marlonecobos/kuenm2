@@ -447,7 +447,7 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmp7rlPKj/Projection_variables
+#> /tmp/Rtmpm1insN/Projection_variables
 ```
 
 We can check the files structured hierarchically in nested folders using
@@ -568,7 +568,7 @@ dir.create(out_dir_projections, recursive = TRUE)
 p <- project_selected(models = fitted_model_chelsa, 
                       projection_data = pr,
                       out_dir = out_dir_projections, 
-                      write_partitions = TRUE,
+                      write_replicates = TRUE,
                       progress_bar = FALSE, overwrite = T) #Do not print progress bar
 
 #Import mean of each projected scenario

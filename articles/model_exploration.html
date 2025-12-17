@@ -174,16 +174,16 @@ does not include the fitted <code>maxnet</code> (or <code>glm</code>)
 models themselves.</p>
 <p>To obtain the final fitted models, we need to use the
 <code><a href="../reference/fit_selected.html">fit_selected()</a></code> function. By default, this function fits a
-full model (i.e., without partitions and without splitting the data into
+full model (i.e., without replicates and without splitting the data into
 training and testing sets). However, you can configure it to fit final
-models with partitions if desired.</p>
-<p>In this example, we’ll fit the final models using the same partition
+models with replicates if desired.</p>
+<p>In this example, we’ll fit the final models using the same replicate
 settings (4-fold cross-validation) as used in the <a href="model_calibration.html">Model Calibration</a> vignette.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit selected models using calibration results</span></span>
 <span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_selected.html">fit_selected</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_maxnet</span>, </span>
 <span>                   replicate_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co"># Fitting partitions...</span></span>
+<span><span class="co"># Fitting replicates...</span></span>
 <span><span class="co">#   |========================================================================| 100%</span></span>
 <span><span class="co"># Fitting full models...</span></span>
 <span><span class="co">#   |========================================================================| 100%</span></span></code></pre></div>
@@ -197,7 +197,7 @@ by indexing its elements. For example, the fitted <code>maxnet</code>
 (or <code>glm</code>) model objects are stored within the
 <code>Models</code> element. Note that <code>Models</code> is a nested
 list: for each selected model (in this case, models 192 and 219), it
-includes both the partitions (if fitted with partitions) and the full
+includes both the replicates (if fitted with replicates) and the full
 model.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#See names of selected models</span></span>
@@ -222,7 +222,7 @@ that when the predictions are binarized, approximately 10% of the
 presence records used to calibrate the models will fall into cells with
 predicted values below the threshold.</p>
 <p>The thresholds are summarized in two ways: the mean and median across
-partitions for each model, and the consensus mean and median across all
+replicates for each model, and the consensus mean and median across all
 selected models (when more than one model is selected):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fm</span><span class="op">$</span><span class="va">thresholds</span></span>
@@ -511,12 +511,12 @@ specified during model calibration (10%).</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_ind</span><span class="op">$</span><span class="va">evaluation</span></span>
 <span><span class="co">#&gt;               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC</span></span>
-<span><span class="co">#&gt; 1         Model_192      mean           0.4352941       1.166789         0</span></span>
-<span><span class="co">#&gt; 2         Model_192    median           0.4000000       1.139045         0</span></span>
-<span><span class="co">#&gt; 3         Model_219      mean           0.4235294       1.190714         0</span></span>
-<span><span class="co">#&gt; 4         Model_219    median           0.4000000       1.138885         0</span></span>
-<span><span class="co">#&gt; 5 General_consensus    median           0.4000000       1.136853         0</span></span>
-<span><span class="co">#&gt; 6 General_consensus      mean           0.4352941       1.180920         0</span></span></code></pre></div>
+<span><span class="co">#&gt; 1         Model_192      mean           0.4117647       1.167488         0</span></span>
+<span><span class="co">#&gt; 2         Model_192    median           0.3882353       1.146009         0</span></span>
+<span><span class="co">#&gt; 3         Model_219      mean           0.4117647       1.185261         0</span></span>
+<span><span class="co">#&gt; 4         Model_219    median           0.4000000       1.133186         0</span></span>
+<span><span class="co">#&gt; 5 General_consensus    median           0.3882353       1.136191         0</span></span>
+<span><span class="co">#&gt; 6 General_consensus      mean           0.4117647       1.178995         0</span></span></code></pre></div>
 <p>When <code>perform_mop</code> is set to <code>TRUE</code>, the
 function also returns the <strong>mop_results</strong>, which is a list
 containing the output of <code><a href="https://rdrr.io/pkg/mop/man/mop.html" class="external-link">mop::mop()</a></code> function. The main
@@ -568,16 +568,16 @@ general consensus:</p>
 <span><span class="co"># Round to two decimal places</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/math-generics.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Model_192.mean Model_192.median Model_219.mean Model_219.median</span></span>
-<span><span class="co">#&gt; 81           0.57             0.63           0.58             0.65</span></span>
-<span><span class="co">#&gt; 82           0.54             0.60           0.55             0.62</span></span>
-<span><span class="co">#&gt; 83           1.00             1.00           0.96             1.00</span></span>
-<span><span class="co">#&gt; 84           1.00             1.00           1.00             1.00</span></span>
+<span><span class="co">#&gt; 81           0.55             0.61           0.57             0.61</span></span>
+<span><span class="co">#&gt; 82           0.52             0.57           0.52             0.59</span></span>
+<span><span class="co">#&gt; 83           0.80             1.00           0.77             0.99</span></span>
+<span><span class="co">#&gt; 84           0.99             1.00           0.94             1.00</span></span>
 <span><span class="co">#&gt; 85           0.00             0.00           0.00             0.00</span></span>
 <span><span class="co">#&gt;    General_consensus.median General_consensus.mean</span></span>
-<span><span class="co">#&gt; 81                     0.63                   0.58</span></span>
-<span><span class="co">#&gt; 82                     0.61                   0.54</span></span>
-<span><span class="co">#&gt; 83                     1.00                   0.98</span></span>
-<span><span class="co">#&gt; 84                     1.00                   1.00</span></span>
+<span><span class="co">#&gt; 81                     0.61                   0.56</span></span>
+<span><span class="co">#&gt; 82                     0.58                   0.52</span></span>
+<span><span class="co">#&gt; 83                     1.00                   0.79</span></span>
+<span><span class="co">#&gt; 84                     1.00                   0.96</span></span>
 <span><span class="co">#&gt; 85                     0.00                   0.00</span></span></code></pre></div>
 <p>If we set <code>return_binary = TRUE</code>, the function also
 returns the binary predictions, with values classified as suitable (1)

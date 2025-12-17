@@ -224,7 +224,7 @@ products (e.g., `bio_1:bio_7`), hinge (e.g., `hinge(bio_1)`), threshold
 `categorical(SoilType)`). Example of a valid formula:
 `~ bio_1 + bio_7 + I(bio_7^2) + bio_1:bio_7 + hinge(bio_1) + thresholds(bio_2) + categorical(SoilType)`.
 All variables appearing in the formulas must exist in the data.frame
-supplied through `user_data`.
+supplied as `user_data`.
 
 ## See also
 

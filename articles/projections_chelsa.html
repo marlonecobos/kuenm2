@@ -511,7 +511,7 @@ to the variables of each scenario:</p>
 <span>                        overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/Rtmp7rlPKj/Projection_variables</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/Rtmpm1insN/Projection_variables</span></span></code></pre></div>
 <p>We can check the files structured hierarchically in nested folders
 using the <code><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree()</a></code> function from the <code>fs</code>
 package:</p>
@@ -615,7 +615,7 @@ multiple scenarios</a> vignette.</p>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project_selected.html">project_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_chelsa</span>, </span>
 <span>                      projection_data <span class="op">=</span> <span class="va">pr</span>,</span>
 <span>                      out_dir <span class="op">=</span> <span class="va">out_dir_projections</span>, </span>
-<span>                      write_partitions <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                      write_replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="co">#Do not print progress bar</span></span>
 <span></span>
 <span><span class="co">#Import mean of each projected scenario</span></span>

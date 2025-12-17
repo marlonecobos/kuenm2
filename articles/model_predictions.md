@@ -43,7 +43,7 @@ fitted_model_maxnet
 #> Species: Myrcia hatschbachii 
 #> Algortihm: maxnet 
 #> Number of fitted models: 2 
-#> Models fitted with 4 replicates
+#> Only full models fitted, no replicates
 ```
 
 To compare the results, let’s import a `fitted_models` object generated
@@ -119,10 +119,10 @@ p_maxnet <- predict_selected(models = fitted_model_maxnet,
 ```
 
 By default, the function computes consensus metrics (mean, median,
-range, and standard deviation) for each model across its partitions (if
+range, and standard deviation) for each model across its replicates (if
 more than one model was selected), as well as a general consensus across
 all models. In this case, the output is a `list` containing `SpatRaster`
-predictions for each partition, along with the consensus results for
+predictions for each replicate, along with the consensus results for
 each model and the overall general consensus:
 
 ``` r
@@ -139,19 +139,19 @@ plot(p_maxnet$General_consensus)
 
 ![](model_predictions_files/figure-html/plot%20maxnet%20general-1.png)
 
-We can also plot the results for each partition and the consensus for
+We can also plot the results for each replicate and the consensus for
 each model:
 
 ``` r
-#Predictions for each partition from model 192
-plot(p_maxnet$Model_192$Partitions)
+#Predictions for each replicate from model 192
+plot(p_maxnet$Model_192$Replicates)
 ```
 
 ![](model_predictions_files/figure-html/plot%20models%20maxnet-1.png)
 
 ``` r
 
-#Consensus across each partition from model 192
+#Consensus across each replicate from model 192
 plot(p_maxnet$Model_192$Model_consensus)
 ```
 
@@ -215,35 +215,35 @@ Now, instead of `SpatRaster` objects, the function returns `data.frame`
 objects with the predictions:
 
 ``` r
-#Results by partition of the model 192
-head(p_df$Model_192$Partitions)
-#>   Partition_1  Partition_2  Partition_3  Partition_4
-#> 1 0.006521501 0.0006209852 0.0005883615 9.831561e-05
-#> 2 0.006446437 0.0005356316 0.0005713501 9.009486e-05
-#> 3 0.006233583 0.0003396879 0.0004975279 6.967025e-05
-#> 4 0.005797668 0.0001458500 0.0003605775 4.303576e-05
-#> 5 0.008513515 0.0002034105 0.0006532983 8.529550e-05
-#> 6 0.009240381 0.0001753492 0.0006784553 9.035171e-05
+#Results by replicate of the model 192
+head(p_df$Model_192$Replicates)
+#>   Partition_1  Partition_2  Partition_3  Partition_4   Full_model
+#> 1 0.006521501 0.0006209852 0.0005883615 9.831561e-05 9.526648e-08
+#> 2 0.006446437 0.0005356316 0.0005713501 9.009486e-05 8.993584e-08
+#> 3 0.006233583 0.0003396879 0.0004975279 6.967025e-05 8.559934e-08
+#> 4 0.005797668 0.0001458500 0.0003605775 4.303576e-05 8.306910e-08
+#> 5 0.008513515 0.0002034105 0.0006532983 8.529550e-05 4.220225e-07
+#> 6 0.009240381 0.0001753492 0.0006784553 9.035171e-05 6.540127e-07
 
-#Consensus across partitions of the model 192
+#Consensus across replicates of the model 192
 head(p_df$Model_192$Model_consensus)
 #>         median       range        mean       stdev
-#> 1 0.0006046734 0.006423186 0.001957291 0.003052184
-#> 2 0.0005534909 0.006356342 0.001910878 0.003031621
-#> 3 0.0004186079 0.006163912 0.001785117 0.002970901
-#> 4 0.0002532137 0.005754632 0.001586783 0.002810372
-#> 5 0.0004283544 0.008428219 0.002363880 0.004107054
-#> 6 0.0004269022 0.009150029 0.002546134 0.004470371
+#> 1 0.0005883615 0.006521406 0.001565852 0.002784420
+#> 2 0.0005356316 0.006446347 0.001528721 0.002761027
+#> 3 0.0003396879 0.006233497 0.001428111 0.002693874
+#> 4 0.0001458500 0.005797585 0.001269443 0.002535186
+#> 5 0.0002034105 0.008513093 0.001891188 0.003710540
+#> 6 0.0001753492 0.009239727 0.002037038 0.004035351
 
 #General consensus across all models
 head(p_df$General_consensus)
 #>         median       range        mean       stdev
-#> 1 0.0006049792 0.006423186 0.001882943 0.002691096
-#> 2 0.0005534909 0.006356342 0.001847258 0.002690840
-#> 3 0.0004186079 0.006163912 0.001737935 0.002664381
-#> 4 0.0002532730 0.005757458 0.001562733 0.002558575
-#> 5 0.0004283544 0.008435158 0.002337815 0.003756587
-#> 6 0.0004274250 0.009165160 0.002539356 0.004130584
+#> 1 0.0005892047 0.006521444 0.001506370 0.002502583
+#> 2 0.0005348599 0.006446378 0.001477821 0.002497636
+#> 3 0.0003390597 0.006233519 0.001390363 0.002461362
+#> 4 0.0001459093 0.005797595 0.001250202 0.002350678
+#> 5 0.0002032855 0.008513101 0.001870336 0.003456477
+#> 6 0.0001758720 0.009239727 0.002031620 0.003796839
 ```
 
   
@@ -275,7 +275,7 @@ approximately 10% of the presence records used in model calibration will
 fall into areas classified as unsuitable.
 
 The thresholds are summarized in two ways: the mean and median across
-partitions for each model, and the consensus mean and median across all
+replicates for each model, and the consensus mean and median across all
 selected models (when more than one model is selected). Let’s check the
 thresholds for the general consensus:
 
@@ -557,7 +557,7 @@ files.
 p_save <- predict_selected(models = fitted_model_maxnet, 
                            new_variables = var, 
                            write_files = TRUE, #To save to the disk
-                           write_partitions = TRUE, #To save predictions for each partition
+                           write_replicates = TRUE, #To save predictions for each replicate
                            out_dir = tempdir(), #A path to save the resuls (here, the temporary directory)
                            progress_bar = FALSE)
 ```

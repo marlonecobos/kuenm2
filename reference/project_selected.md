@@ -3,9 +3,9 @@
 This function performs predictions of selected models on multiple
 scenarios, as specified in a `projection_data` object created with the
 [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)
-function. In addition to generating predictions for each partition, the
+function. In addition to generating predictions for each replicate, the
 function calculates consensus measures (e.g., mean, median) across
-partitions and models.
+replicates and models.
 
 ## Usage
 
@@ -13,7 +13,7 @@ partitions and models.
 project_selected(models, projection_data, out_dir, mask = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
-                 write_partitions = FALSE, extrapolation_type = "E",
+                 write_replicates = FALSE, extrapolation_type = "E",
                  var_to_clamp = NULL, type = NULL, overwrite = FALSE,
                  parallel = FALSE, ncores = NULL,
                  progress_bar = TRUE, verbose = TRUE)
@@ -46,8 +46,8 @@ project_selected(models, projection_data, out_dir, mask = NULL,
 
 - consensus_per_model:
 
-  (logical) whether to calculate consensus across partitions when there
-  are more than one partition per model. Default is TRUE.
+  (logical) whether to calculate consensus across replicates when there
+  are more than one replicate per model. Default is TRUE.
 
 - consensus_general:
 
@@ -60,9 +60,9 @@ project_selected(models, projection_data, out_dir, mask = NULL,
   'median', 'range', 'mean' and 'stdev' (standard deviation). Default is
   c("median", "range", "mean", "stdev").
 
-- write_partitions:
+- write_replicates:
 
-  (logical) whether to write the projections for each partition. Default
+  (logical) whether to write the projections for each replicate. Default
   is FALSE.
 
 - extrapolation_type:
@@ -153,7 +153,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpOvuyJ6/Future_raw_wc
+#> /tmp/RtmppvPMA9/Future_raw_wc
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

@@ -47,7 +47,7 @@ fitted_model_maxnet
 #> Species: Myrcia hatschbachii 
 #> Algortihm: maxnet 
 #> Number of fitted models: 2 
-#> Models fitted with 4 replicates
+#> Only full models fitted, no replicates
 ```
 
 ## Pre-processing raster predictors
@@ -243,7 +243,7 @@ organize_future_worldclim(input_dir = in_dir, #Path to the raw variables from Wo
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpVgBWHq/Future_raw
+#> /tmp/RtmpXK2Wjh/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -364,7 +364,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpVgBWHq
+#> /tmp/RtmpXK2Wjh
 ```
 
 If we check the structure of the `prepared_projection` object, we can
@@ -400,7 +400,7 @@ dir.create(out_dir, recursive = TRUE)
 p <- project_selected(models = fitted_model_maxnet, 
                       projection_data = pr,
                       out_dir = out_dir, 
-                      write_partitions = TRUE,
+                      write_replicates = TRUE,
                       progress_bar = FALSE) #Do not print progress bar
 ```
 
@@ -419,7 +419,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpVgBWHq/Projection_results/maxnet
+#>  /tmp/RtmpXK2Wjh/Projection_results/maxnet
 ```
 
 Note that the results were saved hierarchically in nested subfolders,
@@ -437,74 +437,74 @@ dir_tree(out_dir)
 #> │   │   │   ├── ACCESS-CM2
 #> │   │   │   │   ├── General_consensus.tif
 #> │   │   │   │   ├── Model_192_consensus.tif
-#> │   │   │   │   ├── Model_192_partitions.tif
+#> │   │   │   │   ├── Model_192_replicates.tif
 #> │   │   │   │   ├── Model_219_consensus.tif
-#> │   │   │   │   └── Model_219_partitions.tif
+#> │   │   │   │   └── Model_219_replicates.tif
 #> │   │   │   └── MIROC6
 #> │   │   │       ├── General_consensus.tif
 #> │   │   │       ├── Model_192_consensus.tif
-#> │   │   │       ├── Model_192_partitions.tif
+#> │   │   │       ├── Model_192_replicates.tif
 #> │   │   │       ├── Model_219_consensus.tif
-#> │   │   │       └── Model_219_partitions.tif
+#> │   │   │       └── Model_219_replicates.tif
 #> │   │   └── ssp585
 #> │   │       ├── ACCESS-CM2
 #> │   │       │   ├── General_consensus.tif
 #> │   │       │   ├── Model_192_consensus.tif
-#> │   │       │   ├── Model_192_partitions.tif
+#> │   │       │   ├── Model_192_replicates.tif
 #> │   │       │   ├── Model_219_consensus.tif
-#> │   │       │   └── Model_219_partitions.tif
+#> │   │       │   └── Model_219_replicates.tif
 #> │   │       └── MIROC6
 #> │   │           ├── General_consensus.tif
 #> │   │           ├── Model_192_consensus.tif
-#> │   │           ├── Model_192_partitions.tif
+#> │   │           ├── Model_192_replicates.tif
 #> │   │           ├── Model_219_consensus.tif
-#> │   │           └── Model_219_partitions.tif
+#> │   │           └── Model_219_replicates.tif
 #> │   └── 2081-2100
 #> │       ├── ssp126
 #> │       │   ├── ACCESS-CM2
 #> │       │   │   ├── General_consensus.tif
 #> │       │   │   ├── Model_192_consensus.tif
-#> │       │   │   ├── Model_192_partitions.tif
+#> │       │   │   ├── Model_192_replicates.tif
 #> │       │   │   ├── Model_219_consensus.tif
-#> │       │   │   └── Model_219_partitions.tif
+#> │       │   │   └── Model_219_replicates.tif
 #> │       │   └── MIROC6
 #> │       │       ├── General_consensus.tif
 #> │       │       ├── Model_192_consensus.tif
-#> │       │       ├── Model_192_partitions.tif
+#> │       │       ├── Model_192_replicates.tif
 #> │       │       ├── Model_219_consensus.tif
-#> │       │       └── Model_219_partitions.tif
+#> │       │       └── Model_219_replicates.tif
 #> │       └── ssp585
 #> │           ├── ACCESS-CM2
 #> │           │   ├── General_consensus.tif
 #> │           │   ├── Model_192_consensus.tif
-#> │           │   ├── Model_192_partitions.tif
+#> │           │   ├── Model_192_replicates.tif
 #> │           │   ├── Model_219_consensus.tif
-#> │           │   └── Model_219_partitions.tif
+#> │           │   └── Model_219_replicates.tif
 #> │           └── MIROC6
 #> │               ├── General_consensus.tif
 #> │               ├── Model_192_consensus.tif
-#> │               ├── Model_192_partitions.tif
+#> │               ├── Model_192_replicates.tif
 #> │               ├── Model_219_consensus.tif
-#> │               └── Model_219_partitions.tif
+#> │               └── Model_219_replicates.tif
 #> ├── Present
 #> │   └── Present
 #> │       ├── General_consensus.tif
 #> │       ├── Model_192_consensus.tif
-#> │       ├── Model_192_partitions.tif
+#> │       ├── Model_192_replicates.tif
 #> │       ├── Model_219_consensus.tif
-#> │       └── Model_219_partitions.tif
+#> │       └── Model_219_replicates.tif
 #> └── Projection_paths.RDS
 ```
 
 By default, for each scenario, the function computes consensus metrics
 (mean, median, range, and standard deviation) for each model across its
-partitions (if more than one model was selected), as well as a general
+replicates (if more than one model was selected), as well as a general
 consensus across all models.
 
-Note that each selected model can also have partitions. By default, the
-function does not output these individual partitions unless
-`write_partitions = TRUE` is set. It is important to write the
-partitions if you intend to compute the variability across them using
+Note that each selected model can also have replicates. By default, the
+function does not output these individual replicates unless
+`write_replicates = TRUE` is set. It is important to write the
+replicates if you intend to compute the variability across them using
 [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md).
 For more details, check the vignette on [Explore Variability and
 Uncertainty in
@@ -556,7 +556,7 @@ plot(p_2060_ssp126, cex.main = 0.8)
 
 With the `model_projections` object, we can compute changes in suitable
 areas between scenarios (see the `projection_changes` function), explore
-variance stemming from partitions, model parameterizations, and GCMs
+variance stemming from replicates, model parameterizations, and GCMs
 (see `projection_variability`), and perform analysis of extrapolation
 risks (see `projection_mop`). For more details, check the vignette on
 [Explore Variability and Uncertainty in

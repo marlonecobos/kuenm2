@@ -125,7 +125,7 @@ Let’s load it.</p>
 <span><span class="co">#&gt; Species: Myrcia hatschbachii </span></span>
 <span><span class="co">#&gt; Algortihm: maxnet </span></span>
 <span><span class="co">#&gt; Number of fitted models: 2 </span></span>
-<span><span class="co">#&gt; Models fitted with 4 replicates</span></span></code></pre></div>
+<span><span class="co">#&gt; Only full models fitted, no replicates</span></span></code></pre></div>
 <p>To compare the results, let’s import a <code>fitted_models</code>
 object generated using the GLM algorithm:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -188,10 +188,10 @@ to this raster. Let’s begin by predicting the maxnet model:</p>
 <span>                             new_variables <span class="op">=</span> <span class="va">var</span>,</span>
 <span>                             progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>By default, the function computes consensus metrics (mean, median,
-range, and standard deviation) for each model across its partitions (if
+range, and standard deviation) for each model across its replicates (if
 more than one model was selected), as well as a general consensus across
 all models. In this case, the output is a <code>list</code> containing
-<code>SpatRaster</code> predictions for each partition, along with the
+<code>SpatRaster</code> predictions for each replicate, along with the
 consensus results for each model and the overall general consensus:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#See objects in the output of predict_selected</span></span>
@@ -201,15 +201,15 @@ consensus results for each model and the overall general consensus:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/plot%20maxnet%20general-1.png" class="r-plt" width="672"></p>
-<p>We can also plot the results for each partition and the consensus for
+<p>We can also plot the results for each replicate and the consensus for
 each model:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Predictions for each partition from model 192</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Partitions</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">#Predictions for each replicate from model 192</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Replicates</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-1.png" class="r-plt" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co">#Consensus across each partition from model 192</span></span>
+<span><span class="co">#Consensus across each replicate from model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Model_consensus</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-2.png" class="r-plt" width="672"></p>
 <p><br></p>
@@ -258,35 +258,35 @@ predict our Maxnet models to this <code>data.frame</code>:</p>
 <p>Now, instead of <code>SpatRaster</code> objects, the function returns
 <code>data.frame</code> objects with the predictions:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Results by partition of the model 192</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Partitions</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   Partition_1  Partition_2  Partition_3  Partition_4</span></span>
-<span><span class="co">#&gt; 1 0.006521501 0.0006209852 0.0005883615 9.831561e-05</span></span>
-<span><span class="co">#&gt; 2 0.006446437 0.0005356316 0.0005713501 9.009486e-05</span></span>
-<span><span class="co">#&gt; 3 0.006233583 0.0003396879 0.0004975279 6.967025e-05</span></span>
-<span><span class="co">#&gt; 4 0.005797668 0.0001458500 0.0003605775 4.303576e-05</span></span>
-<span><span class="co">#&gt; 5 0.008513515 0.0002034105 0.0006532983 8.529550e-05</span></span>
-<span><span class="co">#&gt; 6 0.009240381 0.0001753492 0.0006784553 9.035171e-05</span></span>
+<code class="sourceCode R"><span><span class="co">#Results by replicate of the model 192</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Replicates</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   Partition_1  Partition_2  Partition_3  Partition_4   Full_model</span></span>
+<span><span class="co">#&gt; 1 0.006521501 0.0006209852 0.0005883615 9.831561e-05 9.526648e-08</span></span>
+<span><span class="co">#&gt; 2 0.006446437 0.0005356316 0.0005713501 9.009486e-05 8.993584e-08</span></span>
+<span><span class="co">#&gt; 3 0.006233583 0.0003396879 0.0004975279 6.967025e-05 8.559934e-08</span></span>
+<span><span class="co">#&gt; 4 0.005797668 0.0001458500 0.0003605775 4.303576e-05 8.306910e-08</span></span>
+<span><span class="co">#&gt; 5 0.008513515 0.0002034105 0.0006532983 8.529550e-05 4.220225e-07</span></span>
+<span><span class="co">#&gt; 6 0.009240381 0.0001753492 0.0006784553 9.035171e-05 6.540127e-07</span></span>
 <span></span>
-<span><span class="co">#Consensus across partitions of the model 192</span></span>
+<span><span class="co">#Consensus across replicates of the model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Model_consensus</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         median       range        mean       stdev</span></span>
-<span><span class="co">#&gt; 1 0.0006046734 0.006423186 0.001957291 0.003052184</span></span>
-<span><span class="co">#&gt; 2 0.0005534909 0.006356342 0.001910878 0.003031621</span></span>
-<span><span class="co">#&gt; 3 0.0004186079 0.006163912 0.001785117 0.002970901</span></span>
-<span><span class="co">#&gt; 4 0.0002532137 0.005754632 0.001586783 0.002810372</span></span>
-<span><span class="co">#&gt; 5 0.0004283544 0.008428219 0.002363880 0.004107054</span></span>
-<span><span class="co">#&gt; 6 0.0004269022 0.009150029 0.002546134 0.004470371</span></span>
+<span><span class="co">#&gt; 1 0.0005883615 0.006521406 0.001565852 0.002784420</span></span>
+<span><span class="co">#&gt; 2 0.0005356316 0.006446347 0.001528721 0.002761027</span></span>
+<span><span class="co">#&gt; 3 0.0003396879 0.006233497 0.001428111 0.002693874</span></span>
+<span><span class="co">#&gt; 4 0.0001458500 0.005797585 0.001269443 0.002535186</span></span>
+<span><span class="co">#&gt; 5 0.0002034105 0.008513093 0.001891188 0.003710540</span></span>
+<span><span class="co">#&gt; 6 0.0001753492 0.009239727 0.002037038 0.004035351</span></span>
 <span></span>
 <span><span class="co">#General consensus across all models</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         median       range        mean       stdev</span></span>
-<span><span class="co">#&gt; 1 0.0006049792 0.006423186 0.001882943 0.002691096</span></span>
-<span><span class="co">#&gt; 2 0.0005534909 0.006356342 0.001847258 0.002690840</span></span>
-<span><span class="co">#&gt; 3 0.0004186079 0.006163912 0.001737935 0.002664381</span></span>
-<span><span class="co">#&gt; 4 0.0002532730 0.005757458 0.001562733 0.002558575</span></span>
-<span><span class="co">#&gt; 5 0.0004283544 0.008435158 0.002337815 0.003756587</span></span>
-<span><span class="co">#&gt; 6 0.0004274250 0.009165160 0.002539356 0.004130584</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 0.0005892047 0.006521444 0.001506370 0.002502583</span></span>
+<span><span class="co">#&gt; 2 0.0005348599 0.006446378 0.001477821 0.002497636</span></span>
+<span><span class="co">#&gt; 3 0.0003390597 0.006233519 0.001390363 0.002461362</span></span>
+<span><span class="co">#&gt; 4 0.0001459093 0.005797595 0.001250202 0.002350678</span></span>
+<span><span class="co">#&gt; 5 0.0002032855 0.008513101 0.001870336 0.003456477</span></span>
+<span><span class="co">#&gt; 6 0.0001758720 0.009239727 0.002031620 0.003796839</span></span></code></pre></div>
 <p><br></p>
 </div>
 <div class="section level3">
@@ -312,7 +312,7 @@ thresholds. This means that when predictions are binarized,
 approximately 10% of the presence records used in model calibration will
 fall into areas classified as unsuitable.</p>
 <p>The thresholds are summarized in two ways: the mean and median across
-partitions for each model, and the consensus mean and median across all
+replicates for each model, and the consensus mean and median across all
 selected models (when more than one model is selected). Let’s check the
 thresholds for the general consensus:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -557,7 +557,7 @@ will save the output files as Comma Separated Value (.csv) files.</p>
 <code class="sourceCode R"><span><span class="va">p_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
 <span>                           new_variables <span class="op">=</span> <span class="va">var</span>, </span>
 <span>                           write_files <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save to the disk</span></span>
-<span>                           write_partitions <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save predictions for each partition</span></span>
+<span>                           write_replicates <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co">#To save predictions for each replicate</span></span>
 <span>                           out_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="co">#A path to save the resuls (here, the temporary directory)</span></span>
 <span>                           progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, we can use <code><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster()</a></code> to save specific

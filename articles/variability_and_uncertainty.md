@@ -37,7 +37,7 @@ function, several types of analyses can be performed:
 - **Compute changes** between scenarios using the
   [`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
   function.
-- **Explore variability** arising from partitions, model
+- **Explore variability** arising from replicates, model
   parameterizations, and General Circulation Models (GCMs) with
   [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md).
 - **Assess extrapolation risks** through analysis with
@@ -83,7 +83,7 @@ organize_future_worldclim(input_dir = in_dir, #Path to the raw variables from Wo
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpBhaGD9/Future_raw
+#> /tmp/RtmpmtLvP3/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 #and copy the rawvariables there.
@@ -112,7 +112,7 @@ dir.create(out_dir, recursive = TRUE)
 p <- project_selected(models = fitted_model_maxnet, 
                       projection_data = pr,
                       out_dir = out_dir,
-                      write_partitions = TRUE,
+                      write_replicates = TRUE,
                       progress_bar = FALSE, #Do not print progress bar
                       overwrite = TRUE)
 ```
@@ -308,7 +308,7 @@ function.
 ## Explore Variance
 
 When projecting niche models, predictions can vary across different
-**partitions**, **selected models**, and **GCMs**. The
+**replicates**, **selected models**, and **GCMs**. The
 [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)
 function quantifies and spatializes these sources of variability,
 offering valuable insights into prediction uncertainty.
@@ -324,12 +324,12 @@ uses the **median consensus** to summarize variance across selected
 models and GCMs. Alternatively, users can specify other summary
 statistics such as `mean`, `range`, or `sd` (standard deviation).
 
-To analyze variability originating from partitions, ensure that
-`write_partitions = TRUE` is set when running
+To analyze variability originating from replicates, ensure that
+`write_replicates = TRUE` is set when running
 [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md).
 
 Below, we demonstrate how to calculate variance from these different
-sources (partitions, models, and GCMs) and save the results to the
+sources (replicates, models, and GCMs) and save the results to the
 designated `out_dir` directory.
 
 ``` r
@@ -341,12 +341,12 @@ v <- projection_variability(model_projections = p, write_files = TRUE,
 
 The output is a `variability_projections` object, a list containing
 `SpatRaster` layers that represent the variance attributed to
-partitions, models, and GCMs for each scenario, including the present
+replicates, models, and GCMs for each scenario, including the present
 time. These results highlight areas where prediction uncertainty is
 higher.
 
 For example, for the present time scenario, the variance mainly arises
-from differences among the partitions
+from differences among the replicates
 
 ``` r
 # Variance for the present time
@@ -356,7 +356,7 @@ plot(v$Present, range = c(0, 0.15))
 ![](variability_and_uncertainty_files/figure-html/plot%20variability%20present-1.png)
 
 In the most pessimistic scenario (SSP5-8.5) for the 2081–2100 period, a
-slight variance is observed, primarily arising from the partitions and
+slight variance is observed, primarily arising from the replicates and
 the different GCMs used.
 
 ``` r

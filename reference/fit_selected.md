@@ -163,7 +163,7 @@ fm
 #> Species: Myrcia hatschbachii 
 #> Algortihm: maxnet 
 #> Number of fitted models: 2 
-#> Only full models fitted, no replicates
+#> Models fitted with 4 replicates
 
 # An example with GLMs
 data(calib_results_glm, package = "kuenm2")
@@ -185,5 +185,5 @@ fm_glm
 #> Species: Myrcia hatschbachii 
 #> Algortihm: glm 
 #> Number of fitted models: 1 
-#> Only full models fitted, no replicates
+#> Models fitted with 5 replicates
 ```

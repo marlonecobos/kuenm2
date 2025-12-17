@@ -98,11 +98,11 @@ include the fitted `maxnet` (or `glm`) models themselves.
 To obtain the final fitted models, we need to use the
 [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
 function. By default, this function fits a full model (i.e., without
-partitions and without splitting the data into training and testing
-sets). However, you can configure it to fit final models with partitions
+replicates and without splitting the data into training and testing
+sets). However, you can configure it to fit final models with replicates
 if desired.
 
-In this example, we’ll fit the final models using the same partition
+In this example, we’ll fit the final models using the same replicate
 settings (4-fold cross-validation) as used in the [Model
 Calibration](https://marlonecobos.github.io/kuenm2/articles/model_calibration.md)
 vignette.
@@ -111,7 +111,7 @@ vignette.
 # Fit selected models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet, 
                    replicate_method = "kfolds", n_replicates = 4)
-# Fitting partitions...
+# Fitting replicates...
 #   |========================================================================| 100%
 # Fitting full models...
 #   |========================================================================| 100%
@@ -129,7 +129,7 @@ You can explore the contents of the `fitted_models` object by indexing
 its elements. For example, the fitted `maxnet` (or `glm`) model objects
 are stored within the `Models` element. Note that `Models` is a nested
 list: for each selected model (in this case, models 192 and 219), it
-includes both the partitions (if fitted with partitions) and the full
+includes both the replicates (if fitted with replicates) and the full
 model.
 
 ``` r
@@ -162,7 +162,7 @@ presence records used to calibrate the models will fall into cells with
 predicted values below the threshold.
 
 The thresholds are summarized in two ways: the mean and median across
-partitions for each model, and the consensus mean and median across all
+replicates for each model, and the consensus mean and median across all
 selected models (when more than one model is selected):
 
 ``` r
@@ -514,12 +514,12 @@ model calibration (10%).
 ``` r
 res_ind$evaluation
 #>               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC
-#> 1         Model_192      mean           0.4352941       1.166789         0
-#> 2         Model_192    median           0.4000000       1.139045         0
-#> 3         Model_219      mean           0.4235294       1.190714         0
-#> 4         Model_219    median           0.4000000       1.138885         0
-#> 5 General_consensus    median           0.4000000       1.136853         0
-#> 6 General_consensus      mean           0.4352941       1.180920         0
+#> 1         Model_192      mean           0.4117647       1.167488         0
+#> 2         Model_192    median           0.3882353       1.146009         0
+#> 3         Model_219      mean           0.4117647       1.185261         0
+#> 4         Model_219    median           0.4000000       1.133186         0
+#> 5 General_consensus    median           0.3882353       1.136191         0
+#> 6 General_consensus      mean           0.4117647       1.178995         0
 ```
 
 When `perform_mop` is set to `TRUE`, the function also returns the
@@ -571,16 +571,16 @@ consensus:
 # Round to two decimal places
 round(res_ind$predictions$continuous[81:85, 1:6], 2)
 #>    Model_192.mean Model_192.median Model_219.mean Model_219.median
-#> 81           0.57             0.63           0.58             0.65
-#> 82           0.54             0.60           0.55             0.62
-#> 83           1.00             1.00           0.96             1.00
-#> 84           1.00             1.00           1.00             1.00
+#> 81           0.55             0.61           0.57             0.61
+#> 82           0.52             0.57           0.52             0.59
+#> 83           0.80             1.00           0.77             0.99
+#> 84           0.99             1.00           0.94             1.00
 #> 85           0.00             0.00           0.00             0.00
 #>    General_consensus.median General_consensus.mean
-#> 81                     0.63                   0.58
-#> 82                     0.61                   0.54
-#> 83                     1.00                   0.98
-#> 84                     1.00                   1.00
+#> 81                     0.61                   0.56
+#> 82                     0.58                   0.52
+#> 83                     1.00                   0.79
+#> 84                     1.00                   0.96
 #> 85                     0.00                   0.00
 ```
 

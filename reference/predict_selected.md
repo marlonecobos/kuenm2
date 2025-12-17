@@ -2,14 +2,14 @@
 
 This function predicts selected models for a single set of new data
 using either `maxnet` or `glm` It provides options to save the output
-and compute consensus results (mean, median, etc.) across partitions and
+and compute consensus results (mean, median, etc.) across replicates and
 models.
 
 ## Usage
 
 ``` r
 predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
-                 write_partitions = FALSE, out_dir = NULL,
+                 write_replicates = FALSE, out_dir = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
                  extrapolation_type = "E", var_to_clamp = NULL,
@@ -42,9 +42,9 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
   (logical) whether to save the predictions (SpatRasters or data.frame)
   to disk. Default is FALSE.
 
-- write_partitions:
+- write_replicates:
 
-  (logical) whether to save the predictions for each partitions to disk.
+  (logical) whether to save the predictions for each replicates to disk.
   Only applicable if `write_files` is TRUE. Default is FALSE.
 
 - out_dir:
@@ -55,7 +55,7 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
 - consensus_per_model:
 
   (logical) whether to compute consensus (mean, median, etc.) for each
-  model across its partitions. Default is TRUE.
+  model across its replicates. Default is TRUE.
 
 - consensus_general:
 
@@ -65,7 +65,7 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
 - consensus:
 
   (character) vector specifying the types of consensus to calculate
-  across partitions and models. Available options are `"median"`,
+  across replicates and models. Available options are `"median"`,
   `"range"`, `"mean"`, and `"stdev"` (standard deviation). Default is
   `c("median", "range", "mean", "stdev")`.
 

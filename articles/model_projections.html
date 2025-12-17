@@ -134,7 +134,7 @@ Let’s load it.</p>
 <span><span class="co">#&gt; Species: Myrcia hatschbachii </span></span>
 <span><span class="co">#&gt; Algortihm: maxnet </span></span>
 <span><span class="co">#&gt; Number of fitted models: 2 </span></span>
-<span><span class="co">#&gt; Models fitted with 4 replicates</span></span></code></pre></div>
+<span><span class="co">#&gt; Only full models fitted, no replicates</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="pre-processing-raster-predictors">Pre-processing raster predictors<a class="anchor" aria-label="anchor" href="#pre-processing-raster-predictors"></a>
@@ -319,7 +319,7 @@ future scenarios:</p>
 <span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpVgBWHq/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/RtmpXK2Wjh/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Check files organized</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="va">out_dir_future</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -428,7 +428,7 @@ where the predictor rasters are stored:</p>
 <span><span class="co">#&gt;   - Scenarios: ssp126 | ssp585 </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All variables are located in the following root directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpVgBWHq</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/RtmpXK2Wjh</span></span></code></pre></div>
 <p>If we check the structure of the <code>prepared_projection</code>
 object, we can see it’s a list containing:</p>
 <ul>
@@ -462,7 +462,7 @@ across the multiple scenarios specified in
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project_selected.html">project_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
 <span>                      projection_data <span class="op">=</span> <span class="va">pr</span>,</span>
 <span>                      out_dir <span class="op">=</span> <span class="va">out_dir</span>, </span>
-<span>                      write_partitions <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                      write_replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co">#Do not print progress bar</span></span></code></pre></div>
 <p>The function returns a <code>model_projections</code> object. This
 object is similar to the <code>prepared_data</code> object, storing
@@ -478,7 +478,7 @@ resulting projection rasters were saved.</p>
 <span><span class="co">#&gt;   - Scenarios:  </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All raster files containing the projection results are located in the following root directory:</span></span>
-<span><span class="co">#&gt;  /tmp/RtmpVgBWHq/Projection_results/maxnet</span></span></code></pre></div>
+<span><span class="co">#&gt;  /tmp/RtmpXK2Wjh/Projection_results/maxnet</span></span></code></pre></div>
 <p>Note that the results were saved hierarchically in nested subfolders,
 each representing a distinct scenario. In the root directory, the
 function also saves a file named “Projection_paths.RDS”, which is the
@@ -494,71 +494,71 @@ R using
 <span><span class="co">#&gt; │   │   │   ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │   │   │   │   ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │   │   │   │   ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │   │   ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │   │   │   ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │   │   │   ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │   │   └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │   │   │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │   │   └── MIROC6</span></span>
 <span><span class="co">#&gt; │   │   │       ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │   │   │       ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │       ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │   │       ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │   │       ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │   │       └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │   │       └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │   └── ssp585</span></span>
 <span><span class="co">#&gt; │   │       ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │   │       │   ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │   │       │   ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │       │   ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │       │   ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │       │   ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │       │   └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │       │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │       └── MIROC6</span></span>
 <span><span class="co">#&gt; │   │           ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │   │           ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │           ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │           ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │   │           ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │   │           └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │   │           └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │   └── 2081-2100</span></span>
 <span><span class="co">#&gt; │       ├── ssp126</span></span>
 <span><span class="co">#&gt; │       │   ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │       │   │   ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │       │   │   ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │   │   ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │       │   │   ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │       │   │   ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │   │   └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │       │   │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │       │   └── MIROC6</span></span>
 <span><span class="co">#&gt; │       │       ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │       │       ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │       ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │       │       ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │       │       ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │       │       └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │       │       └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │       └── ssp585</span></span>
 <span><span class="co">#&gt; │           ├── ACCESS-CM2</span></span>
 <span><span class="co">#&gt; │           │   ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │           │   ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │           │   ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │           │   ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │           │   ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │           │   └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │           │   └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; │           └── MIROC6</span></span>
 <span><span class="co">#&gt; │               ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │               ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │               ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │               ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │               ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │               └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │               └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; ├── Present</span></span>
 <span><span class="co">#&gt; │   └── Present</span></span>
 <span><span class="co">#&gt; │       ├── General_consensus.tif</span></span>
 <span><span class="co">#&gt; │       ├── Model_192_consensus.tif</span></span>
-<span><span class="co">#&gt; │       ├── Model_192_partitions.tif</span></span>
+<span><span class="co">#&gt; │       ├── Model_192_replicates.tif</span></span>
 <span><span class="co">#&gt; │       ├── Model_219_consensus.tif</span></span>
-<span><span class="co">#&gt; │       └── Model_219_partitions.tif</span></span>
+<span><span class="co">#&gt; │       └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; └── Projection_paths.RDS</span></span></code></pre></div>
 <p>By default, for each scenario, the function computes consensus
 metrics (mean, median, range, and standard deviation) for each model
-across its partitions (if more than one model was selected), as well as
+across its replicates (if more than one model was selected), as well as
 a general consensus across all models.</p>
-<p>Note that each selected model can also have partitions. By default,
-the function does not output these individual partitions unless
-<code>write_partitions = TRUE</code> is set. It is important to write
-the partitions if you intend to compute the variability across them
+<p>Note that each selected model can also have replicates. By default,
+the function does not output these individual replicates unless
+<code>write_replicates = TRUE</code> is set. It is important to write
+the replicates if you intend to compute the variability across them
 using <code><a href="../reference/projection_variability.html">projection_variability()</a></code>. For more details, check the
 vignette on <a href="variability_and_uncertainty.html">Explore
 Variability and Uncertainty in Projections</a>.</p>
@@ -601,7 +601,7 @@ under the SSP 126:</p>
 <p>With the <code>model_projections</code> object, we can compute
 changes in suitable areas between scenarios (see the
 <code>projection_changes</code> function), explore variance stemming
-from partitions, model parameterizations, and GCMs (see
+from replicates, model parameterizations, and GCMs (see
 <code>projection_variability</code>), and perform analysis of
 extrapolation risks (see <code>projection_mop</code>). For more details,
 check the vignette on <a href="variability_and_uncertainty.html">Explore
