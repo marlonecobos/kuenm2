@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Project models to multiple scenarios • kuenm2</title>
+<title>6. Project Models to Multiple Scenarios • kuenm2</title>
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Project models to multiple scenarios">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="6. Project Models to Multiple Scenarios">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -71,7 +71,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Project models to multiple scenarios</h1>
+      <h1>6. Project Models to Multiple Scenarios</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/vignettes/model_projections.Rmd" class="external-link"><code>vignettes/model_projections.Rmd</code></a></small>
@@ -319,7 +319,7 @@ future scenarios:</p>
 <span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpXK2Wjh/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/Rtmp93P62i/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Check files organized</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="va">out_dir_future</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -428,7 +428,7 @@ where the predictor rasters are stored:</p>
 <span><span class="co">#&gt;   - Scenarios: ssp126 | ssp585 </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All variables are located in the following root directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpXK2Wjh</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/Rtmp93P62i</span></span></code></pre></div>
 <p>If we check the structure of the <code>prepared_projection</code>
 object, we can see it’s a list containing:</p>
 <ul>
@@ -478,7 +478,7 @@ resulting projection rasters were saved.</p>
 <span><span class="co">#&gt;   - Scenarios:  </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All raster files containing the projection results are located in the following root directory:</span></span>
-<span><span class="co">#&gt;  /tmp/RtmpXK2Wjh/Projection_results/maxnet</span></span></code></pre></div>
+<span><span class="co">#&gt;  /tmp/Rtmp93P62i/Projection_results/maxnet</span></span></code></pre></div>
 <p>Note that the results were saved hierarchically in nested subfolders,
 each representing a distinct scenario. In the root directory, the
 function also saves a file named “Projection_paths.RDS”, which is the

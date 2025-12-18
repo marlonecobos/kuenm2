@@ -1,4 +1,4 @@
-# Basic Data Cleaning
+# 1. Basic Data Cleaning
 
 - [Description](#description)
 - [Getting ready](#getting-ready)

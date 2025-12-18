@@ -1,4 +1,4 @@
-# Organize projections manually: An example with LGM from CHELSA
+# 8. Example of Projections Using CHELSA Data
 
 ## Summary
 
@@ -200,11 +200,8 @@ We will also rename the variables to the pattern “bio1”, “bio12”,
 “bio15”, and “bio7”.
 
 ``` r
-#Load package
-library(terra)
-
 # Import M
-m <- terra::vect(system.file("extdata", "m.gpkg", 
+m <- vect(system.file("extdata", "m.gpkg", 
                         package = "kuenm2"))
 
 # Import present variables
@@ -293,8 +290,8 @@ specifies that the variables from LGM have different units than the
 current ones. In the current time, bio_1 have values in ºC, while in the
 LGM it has values in K \* 10. bio_7 have values in ºC in the current
 time and in ºC \* 10 in LGM. The current precipitation variables are in
-milimeters (mm) or percentage of variation (bio_15), while in the LGM
-they are in mm \* 10 or % \* 10. **Yes, it’s a mess**.
+millimeters (mm) or percentage of variation (bio_15), while in the LGM
+they are in mm \* 10 or % \* 10.
 
 ``` r
 # Check units of variables in present
@@ -403,7 +400,7 @@ Remembering, here we save the processed current variables in the
 `present_dir` directory and the LGM variables in the `dir_lgm`:
 
 ``` r
-present_list <- list.files(path = present_dir, 
+present_list <- list.files(path = dir_current, 
                         pattern = "Current_CHELSA",
                         full.names = TRUE)
 lgm_list <- list.files(path = dir_lgm, 
@@ -447,7 +444,7 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmpm1insN/Projection_variables
+#> /tmp/RtmpHWbif5/Projection_variables
 ```
 
 We can check the files structured hierarchically in nested folders using

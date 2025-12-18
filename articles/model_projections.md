@@ -1,4 +1,4 @@
-# Project models to multiple scenarios
+# 6. Project Models to Multiple Scenarios
 
 - [Introduction](#introduction)
 - [Pre-processing raster predictors](#pre-processing-raster-predictors)
@@ -243,7 +243,7 @@ organize_future_worldclim(input_dir = in_dir, #Path to the raw variables from Wo
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpXK2Wjh/Future_raw
+#> /tmp/Rtmp93P62i/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -364,7 +364,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpXK2Wjh
+#> /tmp/Rtmp93P62i
 ```
 
 If we check the structure of the `prepared_projection` object, we can
@@ -419,7 +419,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpXK2Wjh/Projection_results/maxnet
+#>  /tmp/Rtmp93P62i/Projection_results/maxnet
 ```
 
 Note that the results were saved hierarchically in nested subfolders,

@@ -1,4 +1,4 @@
-# Fit and Explore Selected Models
+# 4. Fit and Explore Selected Models
 
 ## Summary
 
