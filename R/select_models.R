@@ -210,11 +210,12 @@ select_models <- function(calibration_results = NULL,
         concave_models <- candidate_models[candidate_models$Is_concave, "ID"]
 
         if (verbose) {
-          message("Removing ", length(concave_models), " model(s) with concave curves.")
+          message("Removing ", length(concave_models),
+                  " model(s) with concave curves.")
         }
 
         if(length(concave_models) > 0){
-        candidate_models <- candidate_models[-concave_models, ]
+          candidate_models <- candidate_models[!candidate_models$Is_concave, ]
         }
       } else {
         concave_models <- integer(0)
