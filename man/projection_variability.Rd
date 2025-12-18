@@ -4,7 +4,7 @@
 \alias{projection_variability}
 \title{Explores variance coming from distinct sources in model predictions}
 \usage{
-projection_variability(model_projections, by_partition = TRUE, by_gcm = TRUE,
+projection_variability(model_projections, by_replicate = TRUE, by_gcm = TRUE,
                        by_model = TRUE, consensus = "median",
                        write_files = FALSE, output_dir = NULL,
                        return_rasters = TRUE, progress_bar = FALSE,
@@ -16,8 +16,8 @@ projection_variability(model_projections, by_partition = TRUE, by_gcm = TRUE,
 paths to the raster projection results and the thresholds used for binarizing
 the predictions.}
 
-\item{by_partition}{(logical) whether to compute the variance originating
-from partitions.}
+\item{by_replicate}{(logical) whether to compute the variance originating
+from replicates.}
 
 \item{by_gcm}{(logical) whether to compute the variance originating from
 general circulation models (GCMs)}
@@ -52,7 +52,7 @@ Only applicable if \code{write_files} is set to TRUE. Default is FALSE.}
 \value{
 An object of class \code{variability_projections}. If \code{return_rasters = TRUE},
 the function returns a list containing the SpatRasters with the computed
-variances, categorized by partition, model, and GCMs. If \code{write_files = TRUE},
+variances, categorized by replicate, model, and GCMs. If \code{write_files = TRUE},
 it also returns the directory path where the computed rasters were saved to
 disk, and the object can then be used to import these files later with the
 \code{import_projections()} function. If both \code{return_rasters = FALSE} and
@@ -61,7 +61,7 @@ disk, and the object can then be used to import these files later with the
 \description{
 Calculates variance in model predictions, distinguishing
 between the different sources of variation. Potential sources include
-partitions, model parameterizations, and general circulation models (GCMs).
+replicates, model parameterizations, and general circulation models (GCMs).
 }
 \examples{
 # Step 1: Organize variables for current projection
@@ -113,11 +113,11 @@ p <- project_selected(models = fitted_model_maxnet, projection_data = pr,
                       out_dir = out_dir)
 
 # Step 5: Compute variance from distinct sources
-v <- projection_variability(model_projections = p, by_partition = FALSE)
+v <- projection_variability(model_projections = p, by_replicate = FALSE)
 
-#terra::plot(v$Present$by_partition)  # Variance from partitions, present projection
+#terra::plot(v$Present$by_replicate)  # Variance from replicates, present projection
 terra::plot(v$Present$by_model)  # From models
-#terra::plot(v$`Future_2041-2060_ssp126`$by_partition)  # From partitions in future projection
+#terra::plot(v$`Future_2041-2060_ssp126`$by_replicate)  # From replicates in future projection
 terra::plot(v$`Future_2041-2060_ssp126`$by_model)  # From models
 terra::plot(v$`Future_2041-2060_ssp126`$by_gcm)  # From GCMs
 }
