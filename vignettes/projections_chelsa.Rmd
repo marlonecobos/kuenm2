@@ -165,11 +165,8 @@ First, let's merge the variables from the present scenarios. To speed up the ana
 We will also rename the variables to the pattern "bio1", "bio12", "bio15", and "bio7".
 
 ```{r prepare present, eval=FALSE}
-#Load package
-library(terra)
-
 # Import M
-m <- terra::vect(system.file("extdata", "m.gpkg", 
+m <- vect(system.file("extdata", "m.gpkg", 
                         package = "kuenm2"))
 
 # Import present variables
@@ -248,7 +245,7 @@ lgm_by_gcm <- lapply(gcms, function(i){
 names(lgm_by_gcm) <- gcms
 ```
 
-One important thing to note is that the [Technical Specifications of CHELSA](https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification.pdf#page=38.00) specifies that the variables from LGM have different units than the current ones. In the current time, bio_1 have values in ºC, while in the LGM it has values in K * 10. bio_7 have values in ºC in the current time and in ºC * 10 in LGM. The current precipitation variables are in milimeters (mm) or percentage of variation (bio_15), while in the LGM they are in mm * 10 or % * 10. **Yes, it's a mess**. 
+One important thing to note is that the [Technical Specifications of CHELSA](https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification.pdf#page=38.00) specifies that the variables from LGM have different units than the current ones. In the current time, bio_1 have values in ºC, while in the LGM it has values in K * 10. bio_7 have values in ºC in the current time and in ºC * 10 in LGM. The current precipitation variables are in millimeters (mm) or percentage of variation (bio_15), while in the LGM they are in mm * 10 or % * 10. 
 
 ```{r check units, eval = FALSE}
 # Check units of variables in present
@@ -300,6 +297,7 @@ lapply(names(lgm_fixed_units), function(i){
               filename = file.path(dir_lgm, filename_i))
 })
 ```
+
 # Organize and structure variables
 
 At this points you must have:
@@ -321,19 +319,20 @@ The function also allows to use a spatial object (`SpatVector`, `SpatRaster`, or
 Let's use the `organize_for_projection()` function to organize the past variables representing the LGM conditions. The first step is using the `list.files(path, full.names = TRUE` to list the path to the variables representing present and LGM conditions. Remembering, here we save the processed current variables in the `present_dir` directory and the LGM variables in the `dir_lgm`:
 
 ```{r set directory with examples do not show, include=FALSE}
-present_dir <- system.file("extdata", package = "kuenm2")
+dir_current <- system.file("extdata", package = "kuenm2")
 dir_lgm <- system.file("extdata", package = "kuenm2")
 ```
 
 
 ```{r list files}
-present_list <- list.files(path = present_dir, 
+present_list <- list.files(path = dir_current, 
                         pattern = "Current_CHELSA",
                         full.names = TRUE)
 lgm_list <- list.files(path = dir_lgm, 
                         pattern = "LGM",
                         full.names = TRUE)
 ```
+
 Let's check the listed files to ensure they are storing the full path to the variables of each scenario:
 ```{r check files, eval=FALSE}
 present_list #The paths in your computer will be different
@@ -415,8 +414,8 @@ m_chelsa <- calibration(data = d_chelsa,
                         parallel = TRUE, #Set TRUE to run in parallel
                         ncores = 8)
 fitted_model_chelsa <- fit_selected(m_chelsa, n_replicates = 4)
-#usethis::use_data(fitted_model_chelsa)
 ```
+
 ```{r import fitted_model_chelsa, include=FALSE}
 fitted_model_chelsa <- kuenm2::fitted_model_chelsa
 ```
