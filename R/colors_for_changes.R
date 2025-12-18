@@ -87,6 +87,7 @@
 #' #Step 6: Set Colors for Change Maps
 #' changes_with_colors <- colors_for_changes(changes_projections = changes)
 #' terra::plot(changes_with_colors$Summary_changes)
+
 colors_for_changes <- function(changes_projections, gain_color = "#009E73",
                                loss_color = "#D55E00",
                                stable_suitable = "#0072B2",
@@ -126,8 +127,8 @@ colors_for_changes <- function(changes_projections, gain_color = "#009E73",
       r_by_change <- lapply(r_by_change, function(x){
         r_changes <- lapply(names(x), function(i){
           #Setcolor
-          color_i <- if(i == "Unsuitable-stable"){
-            stable_unsuitable} else if (i == "Suitable-stable"){
+          color_i <- if(i == "Stable unsuitable"){
+            stable_unsuitable} else if (i == "Stable suitable"){
               stable_suitable} else if (i == "Gain"){
                 gain_color} else if (i == "Loss"){
                   loss_color}
@@ -158,10 +159,10 @@ colors_for_changes <- function(changes_projections, gain_color = "#009E73",
       #Set colors
       colnames(l)[2] <- "Description"
       l$color <- NA
-      l$color[grepl("gain", l$Description)] <- gain_color
-      l$color[grepl("loss", l$Description)] <- loss_color
-      l$color[grepl(" suitable in current", l$Description)] <- stable_suitable
-      l$color[grepl(" unsuitable in current", l$Description)] <- stable_unsuitable
+      l$color[grepl("Gain", l$Description)] <- gain_color
+      l$color[grepl("Loss", l$Description)] <- loss_color
+      l$color[grepl(" suitable", l$Description)] <- stable_suitable
+      l$color[grepl(" unsuitable", l$Description)] <- stable_unsuitable
 
       #Set alphas
       a <- data.frame(n_gcms = 1:max(l$n_gcms),
