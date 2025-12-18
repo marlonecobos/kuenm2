@@ -1,5 +1,5 @@
 ---
-title: "Project models to multiple scenarios"
+title: "6. Project Models to Multiple Scenarios"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{model_projections}

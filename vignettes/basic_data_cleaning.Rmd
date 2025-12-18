@@ -1,5 +1,5 @@
 ---
-title: "Basic Data Cleaning"
+title: "1. Basic Data Cleaning"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{basic_bata_cleaning}

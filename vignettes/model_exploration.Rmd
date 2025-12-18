@@ -1,5 +1,5 @@
 ---
-title: "Fit and Explore Selected Models"
+title: "4. Fit and Explore Selected Models"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{model_exploration}

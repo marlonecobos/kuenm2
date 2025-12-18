@@ -1,5 +1,5 @@
 ---
-title: "Prepare Data for Model Calibration"
+title: "2. Prepare Data for Model Calibration"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{prepare_data}

@@ -1,5 +1,5 @@
 ---
-title: "Predict models to single scenario"
+title: "5. Project Models to a Single Scenario"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{model_predictions}

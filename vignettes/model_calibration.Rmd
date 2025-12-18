@@ -1,5 +1,5 @@
 ---
-title: "Model Calibration"
+title: "3. Model Calibration"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{model_calibration}

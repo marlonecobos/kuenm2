@@ -1,5 +1,5 @@
 ---
-title: "Organize projections manually: An example with LGM from CHELSA"
+title: "8. Example of Projections Using CHELSA Data"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{organize_past_chelsa}

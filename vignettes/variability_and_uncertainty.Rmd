@@ -1,5 +1,5 @@
 ---
-title: "Exploring Model Uncertainty and Variability"
+title: "7. Exploring Model Uncertainty and Variability"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{variability_and_uncertainty}
