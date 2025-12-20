@@ -200,7 +200,7 @@ partition_response_curves <- function(calibration_results,
 
     for (i in 1:length(acoefss[[h]])) {
       if (i == 1) {
-        ylab <- names(calibration_results$part_data)[h]
+        ylab <- paste0(names(calibration_results$part_data)[h], "_out")
       } else {
         ylab <- ""
       }
