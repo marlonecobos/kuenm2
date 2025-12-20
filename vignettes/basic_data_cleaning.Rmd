@@ -2,7 +2,7 @@
 title: "1. Basic Data Cleaning"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{basic_bata_cleaning}
+  %\VignetteIndexEntry{1. Basic Data Cleaning}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -54,6 +54,9 @@ getwd()
 
 # Define new directory
 #setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory
+
+# Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
 ```
 
 <br>
@@ -278,7 +281,11 @@ points(clean_data[, c("x", "y")])
 Notes: 
 
 - The functions that move records to valid pixels do not erase points that were not moved. Make sure to exclude them as indicated in the previous chunk of code, if that is what is needed.
-- After moving records outside valid pixels to the nearest cells with values, cell duplicates may be produced. Users can run `remove_cell_duplicates()` again to prevent this potential problem.
+
+```{r par_reset}
+# Reset plotting parameters
+par(original_par) 
+```
 
 <br>
 
