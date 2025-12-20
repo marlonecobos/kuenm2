@@ -14,6 +14,7 @@ Authors@R: c(
     person("Marlon E.", "Cobos", email = "manubio13@gmail.com", role = c("aut"),
     comment = c(ORCID = "0000-0002-2611-1767")))
 Maintainer: Weverton C. F. Trindade <wevertonf1993@gmail.com>
+BugReports: https://github.com/marlonecobos/kuenm2/issues
 Date: 2025-08-21
 Description: A new set of tools to help with the development of detailed ecological 
     niche models using multiple algorithms. Pre-modeling analyses and 
@@ -45,7 +46,7 @@ Imports:
     stats,
     terra (>= 1.6),
     utils
-BugReports: https://github.com/marlonecobos/kuenm2/issues
+SystemRequirements: GDAL (>= 2.2.3), GEOS (>= 3.4.0), PROJ (>= 4.9.3)
 Depends: 
     R (>= 3.5)
 License: GPL (>= 3)
