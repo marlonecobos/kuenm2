@@ -4,7 +4,8 @@
 \alias{variable_importance}
 \title{Variable importance}
 \usage{
-variable_importance(models, modelID = NULL, parallel = FALSE, ncores = NULL,
+variable_importance(models, modelID = NULL, by_terms = FALSE,
+                    parallel = FALSE, ncores = NULL,
                     progress_bar = TRUE, verbose = TRUE)
 }
 \arguments{
@@ -12,6 +13,10 @@ variable_importance(models, modelID = NULL, parallel = FALSE, ncores = NULL,
 \code{\link{fit_selected}}() function.}
 
 \item{modelID}{(character). Default = NULL.}
+
+\item{by_terms}{(logical) whether to calculate importance by model terms
+(e.g., \code{bio1}, \code{I(bio1^2)}, \code{hinge(bio1)}) instead of aggregating by
+variable. Default = FALSE.}
 
 \item{parallel}{(logical) whether to calculate importance in parallel.
 Default is FALSE.}
@@ -27,9 +32,9 @@ Default is TRUE.}
 Default is TRUE.}
 }
 \value{
-A data.frame containing the relative contribution of each variable. An
-identification for distinct models is added if \code{fitted} contains multiple
-models.
+A data.frame containing the relative contribution of each variable (or term
+if \code{by_terms = TRUE}). An identification for distinct models is added if
+\code{fitted} contains multiple models.
 }
 \description{
 Variable importance

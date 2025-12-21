@@ -10,7 +10,7 @@
 #' @param modelID (character). Default = NULL.
 #' @param by_terms (logical) whether to calculate importance by model terms
 #' (e.g., `bio1`, `I(bio1^2)`, `hinge(bio1)`) instead of aggregating by
-#' variable. Default is FALSE, which aggregates all terms of the same variable.
+#' variable. Default = FALSE.
 #' @param parallel (logical) whether to calculate importance in parallel.
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
