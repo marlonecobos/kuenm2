@@ -366,20 +366,14 @@ an additional column identifies each distinct model.
 
 ``` r
 imp
-#>      predictor contribution    Models
-#> 1   I(bio_1^2)  0.330546900 Model_192
-#> 2        bio_1  0.295001412 Model_192
-#> 3       bio_15  0.209668355 Model_192
-#> 4  I(bio_15^2)  0.156926301 Model_192
-#> 5   I(bio_7^2)  0.006279520 Model_192
-#> 6        bio_7  0.001577512 Model_192
-#> 7   I(bio_1^2)  0.368476226 Model_219
-#> 8        bio_1  0.332782286 Model_219
-#> 9       bio_15  0.155708606 Model_219
-#> 10 I(bio_15^2)  0.095186390 Model_219
-#> 11 I(bio_12^2)  0.022722557 Model_219
-#> 12      bio_12  0.021793617 Model_219
-#> 13  I(bio_7^2)  0.003330318 Model_219
+#>   predictor contribution    Models
+#> 1     bio_1  0.567815429 Model_192
+#> 2    bio_15  0.219231619 Model_192
+#> 3     bio_7  0.212952953 Model_192
+#> 4     bio_1  0.721574882 Model_219
+#> 5    bio_15  0.248819713 Model_219
+#> 6    bio_12  0.025950948 Model_219
+#> 7     bio_7  0.003654457 Model_219
 ```
 
 We can visualize variable importance using the

@@ -164,7 +164,7 @@ the package:</p>
 <span><span class="va">var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Current_variables.tif"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#Plot raster layers</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">var</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/Import%20raster%20layers-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/Import%20raster%20layers-1.png" class="r-plt" alt="" width="672"></p>
 <p>Let’s check which variables were used to calibrate our models. They
 are available in the <code>calibration_data</code> element of the
 object:</p>
@@ -200,18 +200,18 @@ consensus results for each model and the overall general consensus:</p>
 <p>Let’s plot the general consensus:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/plot%20maxnet%20general-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/plot%20maxnet%20general-1.png" class="r-plt" alt="" width="672"></p>
 <p>We can also plot the results for each replicate and the consensus for
 each model:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Predictions for each replicate from model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Replicates</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co">#Consensus across each replicate from model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Model_consensus</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-2.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/plot%20models%20maxnet-2.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 <p>For comparison, let’s predict the GLM model:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -227,7 +227,7 @@ each model:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid to plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"Maxnet"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_glm</span><span class="op">$</span><span class="va">General_consensus</span>, main <span class="op">=</span> <span class="st">"GLM"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p><br></p>
@@ -346,7 +346,7 @@ is only available when predicting to a <code>SpatRaster</code>):</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid to plot</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mean_maxnet_bin</span>, main <span class="op">=</span> <span class="st">"Maxnet"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mean_glm_bin</span>, main <span class="op">=</span> <span class="st">"GLM"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/binarize%20models-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/binarize%20models-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p><br></p>
@@ -362,7 +362,7 @@ For example, let’s examine the response curve of the Maxnet model for
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
 <span>               extrapolation_factor <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/response%20bio_7-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/response%20bio_7-1.png" class="r-plt" alt="" width="672"></p>
 <p>Note that higher suitability occurs at low values of the temperature
 range. However, the lower limit of the calibration data used to fit the
 models (dashed line) is at 15.7ºC. The premise that suitability will
@@ -395,7 +395,7 @@ extremely low values:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">var</span><span class="op">$</span><span class="va">bio_7</span>, main <span class="op">=</span> <span class="st">"Original bio_7"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">new_var</span><span class="op">$</span><span class="va">bio_7</span>, main <span class="op">=</span> <span class="st">"New bio_7"</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/create%20scenario-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/create%20scenario-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>Let’s predict the Maxnet models for this new scenario with both free
@@ -427,7 +427,7 @@ variables (<code>extrapolation_type = "EC"</code>):</p>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_difference</span>, main <span class="op">=</span> <span class="st">"Difference"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">new_bio7</span>, main <span class="op">=</span> <span class="st">"Hypothetical bio_7"</span>, type <span class="op">=</span> <span class="st">"interval"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>Note that when we clamp the variables, regions with extremely low
@@ -462,7 +462,7 @@ previous step to observe the difference:</p>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_no_extrapolation</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"No extrapolation"</span>,</span>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">new_bio7</span>, main <span class="op">=</span> <span class="st">"Hypothetical bio_7"</span>, type <span class="op">=</span> <span class="st">"interval"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/no%20extrapolation-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/no%20extrapolation-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p>n this example, a large portion of the predicted area shows zero
@@ -537,7 +537,7 @@ Maxnet models:</p>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_raw</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"Raw"</span>,</span>
 <span>     zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/output%20types-1.png" class="r-plt" width="672"></p>
+<p><img src="model_predictions_files/figure-html/output%20types-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
 <p><br></p>
