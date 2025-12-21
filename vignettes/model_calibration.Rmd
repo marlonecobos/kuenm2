@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Summary
+
 - [Description](#description)
 - [Getting ready](#getting-ready)
 - [Preparing data](#prepare-data)
