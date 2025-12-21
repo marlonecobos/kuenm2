@@ -2,7 +2,7 @@
 title: "6. Project Models to Multiple Scenarios"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{model_projections}
+  %\VignetteIndexEntry{6. Project Models to Multiple Scenarios}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

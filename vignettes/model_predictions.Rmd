@@ -2,7 +2,7 @@
 title: "5. Project Models to a Single Scenario"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{model_predictions}
+  %\VignetteIndexEntry{5. Project Models to a Single Scenario}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

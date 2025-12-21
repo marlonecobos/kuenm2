@@ -2,7 +2,7 @@
 title: "7. Exploring Model Uncertainty and Variability"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{variability_and_uncertainty}
+  %\VignetteIndexEntry{7. Exploring Model Uncertainty and Variability}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

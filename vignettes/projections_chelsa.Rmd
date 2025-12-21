@@ -2,7 +2,7 @@
 title: "8. Example of Projections Using CHELSA Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{organize_past_chelsa}
+  %\VignetteIndexEntry{8. Example of Projections Using CHELSA Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
