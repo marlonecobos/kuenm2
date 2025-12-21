@@ -89,7 +89,7 @@ Note that the `calibration_results` object stores only the information related t
 
 To obtain the final fitted models, we need to use the `fit_selected()` function. By default, this function fits a full model (i.e., without replicates and without splitting the data into training and testing sets). However, you can configure it to fit final models with replicates if desired.
 
-In this example, we'll fit the final models using the same replicate settings (4-fold cross-validation) as used in the [Model Calibration](model_calibration.html) vignette.
+In this example, we'll fit the final models with 4 k-fold replicates (leaving one fold out), as in the [Model Calibration](model_calibration.html) vignette.
 
 ```{r fit_selected not echo, warning=FALSE, echo=FALSE}
 # Fit models using calibration results
