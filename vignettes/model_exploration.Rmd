@@ -332,11 +332,11 @@ These two models look very similar, the only noticeable difference is that suita
 
 # Variable importance
 
-The relative importance of model predictors can be calculated exploring the deviance using the `var_importance()` function. This process starts by fitting the full model (`maxnet` or `glm`), which includes all predictors. Then, the function fits separate models excluding one predictor at a time, and quantifies how the removal affects model performance. 
+The relative importance of model predictors can be calculated exploring the deviance using the `var_importance()` function. This process starts by fitting the full model (`maxnet` or `glm`), which includes all predictors. Then, the function fits separate models excluding one predictor at a time, and quantifies how the removal affects model performance. The values of contribution are computed for variables by default, but explorations by terms are also possible using the argument `by_terms` (i.e., if the model includes linear and quadratic terms of a variable, the process will run for each of them separately).  
 
 By default, the function runs on a single core. You can enable parallel processing by setting `parallel = TRUE` and specifying the number of cores with `ncores`. Note that parallelization only speeds up the computation when there are many variables (e.g., >17) and the calibration dataset is large (e.g., over 15,000 total points).
 
-By default, variable importance is computed for all selected models:
+Variable importance is computed for all selected models by default:
 
 ```{r var importance not echo, echo=FALSE}
 # Calculate variable importance
@@ -366,7 +366,6 @@ imp
 We can visualize variable importance using the `plot_importance()` function. When the `fitted_models` object contains more than one selected model, contributions are displayed as a boxplot, along with the mean contribution, and the number (N) of fitted models with that predictor.
 
 ```{r plot importance}
-par(cex = 0.7, mar = c(3, 4, 2.5, 0.5))  # Set grid of plot
 plot_importance(imp)
 ```
 
@@ -379,9 +378,25 @@ If variable importance is computed for a single model, the plot displays a bars 
 imp_192 <- variable_importance(models = fm, modelID = "Model_192", 
                                progress_bar = FALSE)
 
-#Plot variable contribution for model 192
-par(cex = 0.9)
+# Plot variable contribution for model 192
 plot_importance(imp_192, main = "Variable importance: Model 192")
+```
+
+<br>
+
+The previous examples show how important are variables by checking the change in models if we remove a variable completely from the equation. To compute contribution of all variable terms (i.e., how important is to keep distinct terms of the same variable) set `by_terms = TRUE`:
+
+```{r term importance}
+# Calculate variable importance for a specific selected Model
+imp_terms <- variable_importance(models = fm, by_terms = TRUE, 
+                                 progress_bar = FALSE)
+
+# Check results
+imp_terms
+
+# Plot variable contribution for model 192
+par(cex = 0.7, mar = c(3, 4, 2.5, 0.5))  # Set grid of plot
+plot_importance(imp_terms, main = "Importance of variable terms")
 ```
 
 <br>
