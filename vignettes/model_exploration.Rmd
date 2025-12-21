@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
 - [Response curves](#response-curves)
   - [All response curves](#all-response-curves)
   - [Customized response curves](#customized-response-curves)
+  - [Bivariate response curves](#bivariate-response-curves)
 - [Variable importance](#variable-importance)
 - [Model evaluation with independent data](#model-evaluation-with-independent-data)
 - [Saving a fitted_models object](#saving-a-fitted_models-object)
@@ -285,6 +286,46 @@ Optionally, we can add the presence and background points used to fit the models
 response_curve(models = fm, variable = "bio_1", show_lines = TRUE,
                add_points = TRUE)
 ```
+
+<br>
+
+## Bivariate response curves
+
+All previous curve plots are showing responses to individual variables. Exploring responses to two variables at a time can help understand the small differences between models fitted with distinct terms. Let's see an example below:
+
+```{r bivariate}
+# First, let's check the terms in the models fitted
+## Model 192
+fm$Models$Model_192$Full_model$betas
+
+## Model 219
+fm$Models$Model_219$Full_model$betas
+
+# Example of a bivariate response plot 
+bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15", 
+                   modelID = "Model_192")
+```
+
+<br>
+
+In the previous plot, the dashed lines represent the limits of the data used for model fitting, and darker colors represent higher suitability. Let's now compare the two models and check if there are any differences. Multiple bivariate response plots can be put together in a single plot if the suitability bar legend is not used.
+
+```{r bivariate1}
+par(mfrow = c(1, 2), mar = c(4, 4, 2.5, 0.5))
+
+# Bivariate response model 192 
+bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15", 
+                   modelID = "Model_192", add_bar = FALSE, main = "Model 192")
+
+# Bivariate response model 219 
+bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15", 
+                   modelID = "Model_219", add_bar = FALSE, main = "Model 219", 
+                   ylab = "")
+```
+
+<br>
+
+These two models look very similar, the only noticeable difference is that suitability values above the threshold extend farther on variable bio_15 for model 219. More noticeable effects can be seen in bivariate representations when fitted models include or not product terms. However, as in this example, even a small variation on the number or type of terms included in a model can change how predictions look like.  
 
 <br>
 
