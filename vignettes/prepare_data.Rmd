@@ -22,23 +22,24 @@ knitr::opts_chunk$set(
 
 - [Description](#description)
 - [Getting ready](#getting-ready)
-- [Preparing data](#prepare-data)
+- [Preparing data](#preparing-data)
   - [Example data](#example-data)
   - [First steps in preparing data](#first-steps-in-preparing-data)
+  - [Using pre-processed data](#using-pre-processed-data)
+- [Exploring prepared data](#exploring-prepared-data)
+  - [Comparative histograms](#comparative-histograms)
+  - [Distribution of data for models](#distribution-of-data-for-models)
+  - [Similarity assessment in partitions](#similarity-assessment-in-partitions)
+- [More options to prepare data](#more-options-to-prepare-data)
   - [Custom formulas](#custom-formulas)
-- [PCA for variables](#pca-for-variables)
-  - [Internal PCA](#internal-pca)
-  - [External PCA](#external-pca)
-- [Preparing user pre-processed data](#prepare-user-pre-processed-data)
-- [Exploring calibration data](#exploring-calibration-data)
-  - [Histograms to visualize the distribution of predictor variables](#histograms-to-visualize-the-distribution-of-predictor-variables)
-  - [Spatial-distribution-of-occurrence-and-background-points](#spatial-distribution-of-occurrence-and-background-points)
- - [Using a bias file](#using-a-bias-file)
-- [Using external data partitions](#using-external-data-partitions)
-  - [Spatial partitioning with ENMeval](#spatial-partitioning-with-enmeval)
-  - [Spatial partitioning with flexsdm](#spatial-partitioning-with-flexsdm)
-- [Similarity assessment in partitions](#similarity-assessment-in-partitions)
-- [Saving a prepared_data object](#saving-a-prepared_data-object)
+  - [Using a bias file](#using-a-bias-file)
+  - [PCA for variables](#pca-for-variables)
+    - [Internal PCA](#internal-pca)
+    - [External PCA](#external-pca)
+  - [Using external data partitions](#using-external-data-partitions)
+    - [ENMeval partitions](#enmeval-partitions)
+    - [flexsdm partitions](#flexsdm-partitions)
+- [Saving prepared data](#saving-prepared-data)
 
 <hr>
 
@@ -73,7 +74,7 @@ original_par <- par(no.readonly = TRUE)
 
 <br>
 
-# Prepare data
+# Preparing data
 
 ## Example data
 
@@ -191,147 +192,7 @@ d_glm
 
 <br>
 
-## Custom formulas
-
-By default, *kuenm2* builds the formula grid automatically using the variables provided and the feature classes defined.
-
-For instance, if `raster_variables` or `user_data` contain *bio_1* and *bio_12*, and you set the features to `lq` (linear + quadratic), the formula will include linear and quadratic terms for each variable. In this example, the resulting formula would be:
-
-```{r formula example}
-"~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
-```
-
-<br>
-
-However, instead of letting the package build formulas based on the selected features, you can provide custom formulas.
-This is useful when you want full control over which terms are included (for example, testing only the quadratic version of specific variables):
-
-```{r user_formula}
-# Set custom formulas
-my_formulas <- c("~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)",
-                 "~ bio_1 + bio_12 + I(bio_1^2)",
-                 "~ bio_1 + bio_12 + I(bio_12^2)",
-                 "~ bio_1 + I(bio_1^2) + I(bio_12^2)")
-
-# Prepare data using custom formulas
-d_custom_formula <- prepare_data(algorithm = "maxnet",
-                                 occ = occ_data,
-                                 x = "x", y = "y",
-                                 raster_variables = var,
-                                 species = "Myrcia hatschbachii",
-                                 categorical_variables = "SoilType",
-                                 partition_method = "kfolds",
-                                 n_partitions = 4,
-                                 n_background = 1000,
-                                 user_formulas = my_formulas,  # Custom formulas
-                                 r_multiplier = c(0.1, 1, 2))
-
-# Check formula grid
-d_custom_formula$formula_grid
-```
-
-<br>
-
-
-## PCA for variables
-
-A common approach in ENM involves summarizing the information from a set of predictor variables into a smaller set of uncorrelated variables using Principal Component Analysis (PCA) (see [Cruz-Cardenaz et al. 2014](https://doi.org/10.7550/rmb.36723) for an example). In kuenm2 users can perform a PCA internally or use variables that have been externally prepared as PCs.
-
-<br>
-
-### Internal PCA
-
-kuenm2 can perform all PCA transformations internally, which eliminates the need of transforming raw variables into PCs when producing projections later on. This is particularly advantageous when projecting model results across multiple time scenarios (e.g., various Global Climate Models for different future periods). By performing PCA internally, you only need to store the raw environmental variables (e.g., `bio_1`, `bio_2`, etc.) on your directory, and the functions will handle the PCA transformation as needed.
-
-Let's explore how to implement this:
-
-```{r prepare data pca}
-# Prepare data for maxnet models using PCA parameters
-d_pca <- prepare_data(algorithm = "maxnet",
-                      occ = occ_data,
-                      x = "x", y = "y",
-                      raster_variables = var, 
-                      do_pca = TRUE, center = TRUE, scale = TRUE,  # PCA parameters
-                      species = "Myrcia hatschbachii",
-                      categorical_variables = "SoilType",
-                      n_background = 1000,
-                      partition_method = "kfolds",
-                      features = c("l", "q", "p", "lq", "lqp"),
-                      r_multiplier = c(0.1, 1, 2, 3, 5))
-
-print(d_pca)
-```
-
-<br> 
-
-The elements calibration data and formula grid have now been generated considering the principal components (PCs). By default, all continuous variables were included in the PCA, while categorical variables (e.g., "SoilType") were excluded. The default settings for the number of PCs selected retain the axes that collectively explain 95% of the total variance, and then further filter these, keeping only those axes that individually explain at least 5% of the variance. These parameters can be changed using other arguments in the function `prepare_data`
-
-```{r explore hist, out.width = "70%", fig.width = 7, fig.height = 4.5}
-# Check calibration data
-head(d_pca$calibration_data)
-
-# Check formula grid
-head(d_pca$formula_grid)
-
-# Explore variables distribution
-calib_hist_pca <- explore_calibration_hist(data = d_pca, raster_variables = var,
-                                           include_m = TRUE, breaks = 7)
-
-plot_calibration_hist(explore_calibration = calib_hist_pca)
-```
-
-As the PCA was performed internally, the `prepared_data` object contains all the necessary information to transform the raw environmental variables into the required PCs **This means that when predicting or projecting models, users should provide raw raster variables**, and the PCs will be obtained internally in the function.
-
-<br>
-
-### External PCA
-
-Alternatively, users can perform a PCA with their data by using the `perform_pca()` function, or one of their preference. See full documentation with `help(perform_pca)`. Se an example with `perform_pca()` below:
-
-```{r do PCA, out.width = "70%"}
-pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
-                       center = TRUE, scale = TRUE)
-
-# Plot
-terra::plot(pca_var$env)
-```
-
-<br>
-
-Now, let's use the PCs generated by `perform_pca()` to prepare the data:
-
-```{r prepare data pca external}
-# Prepare data for maxnet model using PCA variables
-d_pca_extern <- prepare_data(algorithm = "maxnet",
-                             occ = occ_data,
-                             x = "x", y = "y",
-                             raster_variables = pca_var$env,  # Output of perform_pca()
-                             do_pca = FALSE,  # Set to FALSE because variables are PCs
-                             species = "Myrcia hatschbachii",
-                             categorical_variables = "SoilType", 
-                             n_background = 1000, 
-                             partition_method = "kfolds",
-                             features = c("l", "q", "p", "lq", "lqp"),
-                             r_multiplier = c(0.1, 1, 2, 3, 5))
-
-print(d_pca_extern)
-```
-
-<br>
-
-Note that since PCA was performed  externally, `do_pca = FALSE`  is set within the `prepare_data` function. This is crucial because setting it to `TRUE` would incorrectly apply PCA to variables that are *already* PCs. Consequently, the `prepared_data` object in this scenario does not store any PCA-related information. This means that when users predict or project models, they must **must provide the PCs** instead of the raw raster variables.
-
-```{r check prepared pca externally}
-# Check calibration data
-head(d_pca_extern$calibration_data)
-
-# Check formula grid
-head(d_pca_extern$formula_grid)
-```
-
-<br>
-
-# Prepare user pre-processed data
+## Using pre-processed data
 
 If users already have data that has been prepared for calibration, they can use the `prepare_user_data()` function to create the object required for model calibration. User-prepared calibration data must be a `data.frame` that includes a column indicating **presence (1)** and **background (0)** records, along with columns with values for each of your **variables**. The package includes an example of such a `data.frame` for reference. See an example of its use below:
 
@@ -359,17 +220,19 @@ data_user <- prepare_user_data(algorithm = "maxnet",
 data_user 
 ```
 
+<br>
+
 This function also allows you to provide a list of index identifying test points for cross-validation to be used during model calibration. If `user_folds` is NULL, the function will automatically partition the data according to the specified `partition_method`, `n_partitions`, and `train_proportion`.
 
 <br>
 
-# Exploring calibration data
+# Exploring prepared data
 
 In the following examples, we'll use the object `d`, which was prepared for the `maxnet` algorithm without a mask. The same can be done with `prepared_data` that uses `glm` as de algorithm.
 
 <br>
 
-## Histograms to visualize the distribution of predictor variables
+## Comparative histograms
 
 Users can visualize the distribution of predictor values for occurrence records, background points, and the entire calibration area using histograms. An example is presented below. See full documentation with `help(explore_calibration_hist)` and `help(plot_explore_calibration)`.
 
@@ -382,11 +245,13 @@ calib_hist <- explore_calibration_hist(data = d, raster_variables = var,
 plot_calibration_hist(explore_calibration = calib_hist)
 ```
 
+<br>
+
 The gray bars represent values across the entire calibration area. Blue bars indicate background values, while green bars display values at presence points (magnified by a factor of 2 to enhance visualization). Both the colors and the magnification factor can be customized.
 
 <br>
 
-## Spatial distribution of occurrence and background points
+## Distribution of data for models
 
 Additionally, users can explore the geographic distribution of occurrence and background points, as well as how they were partitioned. See full documentation with `help(explore_partition_geo)`.
 
@@ -404,8 +269,116 @@ Note that, by default, background points are selected randomly within the calibr
 
 <br>
 
+## Similarity assessment in partitions
 
-# Using a bias file
+When we partition a dataset, some test records may fall in locations with environmental conditions not represented in the training data. As a result, model evaluation can occur under extrapolation, meaning the model is being tested on conditions outside the range it was calibrated on. The risk of extrapolation increases when spatial blocks are used for data partitioning. This is because environmental conditions in one spatial block may differ significantly from those in others. As an example, let’s use the `prepared_data` object that was partitioned using spatial blocks from the `ENMeval` package.
+
+The `explore_partition_extrapolation()` function calculates environmental dissimilarity and detects non-analogous conditions between training and test data for each partition using the MOP (Mobility-Oriented Parity) metric ([Owens et al. 2013](https://doi.org/10.1016/j.ecolmodel.2013.04.011)). It requires a `prepared_data` object. To visualize the spatial distribution of test data falling within or outside the training data range, you must also provide the `raster_variables` used during data preparation.
+
+By default, the function uses all training data (presences and backgrounds) to define the environmental range but computes MOP only for test presence records. To also compute MOP for test background points, set `include_test_background = TRUE`:
+
+```{r}
+mop_partition <- explore_partition_extrapolation(data = d, 
+                                                 include_test_background = T)
+```
+
+<br>
+
+The function returned a `data.frame` containing:
+
+- **mop_distance**: MOP distances;
+- **inside_range** an indicator of whether environmental conditions at each test record fall within the training range;
+- **n_var_out**: the number of variables outside the training range;
+- **towards_low** and **towards_high **: the names of variables with values lower or higher than the training range;
+- **SoilType**: because the `prepared_data` object includes a categorical variable, it also contains a column indicating which values in the testing data were not present in the training data.
+
+```{r mop_results}
+# Highlight some partitions with extrapolation risks
+head(mop_partition$Mop_results[mop_partition$Mop_results$n_var_out > 1, ])
+```
+
+<br>
+
+Now we can use the function `plot_explore_partition` to visualize the distribution of training presences and testing data in both geographic and environmental space. The plot type can also be specified: "simple" indicates whether records in a partition fall within the range of the other partitions, while "distance" displays the Euclidean distance of each record to the set of conditions represented in the other partitions.
+
+```{r, fig.width = 8, fig.height = 3.5, out.width = "75%"}
+# Simple plot in geographic space
+plot_explore_partition(explore_partition = mop_partition, space = "G", 
+                       type_of_plot = "simple")
+
+# Distance plot in geographic space
+plot_explore_partition(explore_partition = mop_partition, space = "G", 
+                       type_of_plot = "distance",
+                       lwd_legend = 4)
+
+# Simple plot in environmental space
+plot_explore_partition(explore_partition = mop_partition, space = "E", 
+                       type_of_plot = "simple", 
+                       variables = c("bio_7", "bio_15"))
+
+# Distance plot in environmental space
+plot_explore_partition(explore_partition = mop_partition, space = "E", 
+                       type_of_plot = "distance",
+                       variables = c("bio_7", "bio_15"), 
+                       lwd_legend = 4)
+
+```
+
+<br>
+
+Note that in Partition 1, some test records fall in locations with environmental conditions not represented in the training data. This partition also includes many background points representing conditions that were not used to calibrate its models.
+
+However, it's important to mention that this function only identifies environmental conditions that fall outside the range of the training data. To fully evaluate the risk of extrapolation, you should look at the MOP results together with the response curves. This combined analysis helps to see how the model behaves under those conditions. For more details, check the [Exploring Model Uncertainty and Variability](variability_and_uncertainty.html#comparing-mop-results-with-response-curves) vignette.
+
+<br>
+
+# More options to prepare data
+
+The examples of data preparation above show a few of the options that can be used to get data ready to start the ENM process. This section demonstrates multiple other options available for data preparation, including: (1) customizing the list of model formulas to test in model calibration; (2) principal component analysis for variables; and (3) using external data partitioning methods.  
+
+<br>
+
+## Custom formulas
+
+By default, *kuenm2* builds the formula grid automatically using the variables provided and the feature classes defined.
+
+For instance, if `raster_variables` or `user_data` contain *bio_1* and *bio_12*, and you set the features to `lq` (linear + quadratic), the formula will include linear and quadratic terms for each variable. In this example, the resulting formula would be:
+
+```{r formula example}
+"~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
+```
+
+<br>
+
+However, instead of letting the package build formulas based on the selected features, you can provide custom formulas. This is useful when you want full control over which terms are included (for example, including the quadratic version of specific variables):
+
+```{r user_formula}
+# Set custom formulas
+my_formulas <- c("~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)",
+                 "~ bio_1 + bio_12 + I(bio_1^2)",
+                 "~ bio_1 + bio_12 + I(bio_12^2)",
+                 "~ bio_1 + I(bio_1^2) + I(bio_12^2)")
+
+# Prepare data using custom formulas
+d_custom_formula <- prepare_data(algorithm = "maxnet",
+                                 occ = occ_data,
+                                 x = "x", y = "y",
+                                 raster_variables = var,
+                                 species = "Myrcia hatschbachii",
+                                 categorical_variables = "SoilType",
+                                 partition_method = "kfolds",
+                                 n_partitions = 4,
+                                 n_background = 1000,
+                                 user_formulas = my_formulas,  # Custom formulas
+                                 r_multiplier = c(0.1, 1, 2))
+
+# Check formula grid
+d_custom_formula$formula_grid
+```
+
+<br>
+
+## Using a bias file
 
 A bias file is a `SpatRaster` object that contains values that influence the selection of background points within the calibration area. This can be particularly useful for mitigating sampling bias, for instance, by incorporating the density of records from a target group (as discussed in [Ponder et al. 2001](https://doi.org/10.1046/j.1523-1739.2001.015003648.x), [Anderson et al. 2003](https://doi.org/10.1046/j.1365-2699.2003.00867.x), and [Barber et al. 2020](https://doi.org/10.1111/ddi.13442)).
 
@@ -475,6 +448,106 @@ terra::plot(geo_dist_bias$Background, main = "Direct Bias Effect",
             plg = list(cex = 0.75))  # Decrease size of legend text)
 terra::plot(geo_dist_bias_inv$Background, main = "Inverse Bias Effect", 
             plg = list(cex = 0.75))  # Decrease size of legend text)
+```
+
+<br>
+
+## PCA for variables
+
+A common approach in ENM involves summarizing the information from a set of predictor variables into a smaller set of uncorrelated variables using Principal Component Analysis (PCA) (see [Cruz-Cardenaz et al. 2014](https://doi.org/10.7550/rmb.36723) for an example). In kuenm2 users can perform a PCA internally or use variables that have been externally prepared as PCs.
+
+<br>
+
+### Internal PCA
+
+kuenm2 can perform all PCA transformations internally, which eliminates the need of transforming raw variables into PCs when producing projections later on. This is particularly advantageous when projecting model results across multiple time scenarios (e.g., various Global Climate Models for different future periods). By performing PCA internally, you only need to store the raw environmental variables (e.g., `bio_1`, `bio_2`, etc.) on your directory, and the functions will handle the PCA transformation as needed.
+
+Let's explore how to implement this:
+
+```{r prepare data pca}
+# Prepare data for maxnet models using PCA parameters
+d_pca <- prepare_data(algorithm = "maxnet",
+                      occ = occ_data,
+                      x = "x", y = "y",
+                      raster_variables = var, 
+                      do_pca = TRUE, center = TRUE, scale = TRUE,  # PCA parameters
+                      species = "Myrcia hatschbachii",
+                      categorical_variables = "SoilType",
+                      n_background = 1000,
+                      partition_method = "kfolds",
+                      features = c("l", "q", "p", "lq", "lqp"),
+                      r_multiplier = c(0.1, 1, 2, 3, 5))
+
+print(d_pca)
+```
+
+<br> 
+
+The elements calibration data and formula grid have now been generated considering the principal components (PCs). By default, all continuous variables were included in the PCA, while categorical variables (e.g., "SoilType") were excluded. The default settings for the number of PCs selected retain the axes that collectively explain 95% of the total variance, and then further filter these, keeping only those axes that individually explain at least 5% of the variance. These parameters can be changed using other arguments in the function `prepare_data`
+
+```{r explore hist, out.width = "70%", fig.width = 7, fig.height = 4.5}
+# Check calibration data
+head(d_pca$calibration_data)
+
+# Check formula grid
+head(d_pca$formula_grid)
+
+# Explore variables distribution
+calib_hist_pca <- explore_calibration_hist(data = d_pca, raster_variables = var,
+                                           include_m = TRUE, breaks = 7)
+
+plot_calibration_hist(explore_calibration = calib_hist_pca)
+```
+
+<br>
+
+As the PCA was performed internally, the `prepared_data` object contains all the necessary information to transform the raw environmental variables into the required PCs **This means that when predicting or projecting models, users should provide raw raster variables**, and the PCs will be obtained internally in the function.
+
+<br>
+
+### External PCA
+
+Alternatively, users can perform a PCA with their data by using the `perform_pca()` function, or one of their preference. See full documentation with `help(perform_pca)`. Se an example with `perform_pca()` below:
+
+```{r do PCA, out.width = "70%"}
+pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
+                       center = TRUE, scale = TRUE)
+
+# Plot
+terra::plot(pca_var$env)
+```
+
+<br>
+
+Now, let's use the PCs generated by `perform_pca()` to prepare the data:
+
+```{r prepare data pca external}
+# Prepare data for maxnet model using PCA variables
+d_pca_extern <- prepare_data(algorithm = "maxnet",
+                             occ = occ_data,
+                             x = "x", y = "y",
+                             raster_variables = pca_var$env,  # Output of perform_pca()
+                             do_pca = FALSE,  # Set to FALSE because variables are PCs
+                             species = "Myrcia hatschbachii",
+                             categorical_variables = "SoilType", 
+                             n_background = 1000, 
+                             partition_method = "kfolds",
+                             features = c("l", "q", "p", "lq", "lqp"),
+                             r_multiplier = c(0.1, 1, 2, 3, 5))
+
+print(d_pca_extern)
+```
+
+<br>
+
+Note that since PCA was performed  externally, `do_pca = FALSE`  is set within the `prepare_data` function. This is crucial because setting it to `TRUE` would incorrectly apply PCA to variables that are *already* PCs. Consequently, the `prepared_data` object in this scenario does not store any PCA-related information. This means that when users predict or project models, they must **must provide the PCs** instead of the raw raster variables.
+
+```{r check prepared pca externally}
+# Check calibration data
+head(d_pca_extern$calibration_data)
+
+# Check formula grid
+head(d_pca_extern$formula_grid)
 ```
 
 <br>
@@ -694,65 +767,6 @@ terra::plot(geo_block_flexsdm[[c("Presence", "Background")]])
 
 <br>
 
-# Similarity assessment in partitions
-
-When we partition a dataset, some test records may fall in locations with environmental conditions not represented in the training data. As a result, model evaluation can occur under extrapolation, meaning the model is being tested on conditions outside the range it was calibrated on. The risk of extrapolation increases when spatial blocks are used for data partitioning. This is because environmental conditions in one spatial block may differ significantly from those in others. As an example, let’s use the `prepared_data` object that was partitioned using spatial blocks from the `ENMeval` package.
-
-The `explore_partition_extrapolation()` function calculates environmental dissimilarity and detects non-analogous conditions between training and test data for each partition using the MOP (Mobility-Oriented Parity) metric ([Owens et al. 2013](https://doi.org/10.1016/j.ecolmodel.2013.04.011)). It requires a `prepared_data` object. To visualize the spatial distribution of test data falling within or outside the training data range, you must also provide the `raster_variables` used during data preparation.
-
-By default, the function uses all training data (presences and backgrounds) to define the environmental range but computes MOP only for test presence records. To also compute MOP for test background points, set `include_test_background = TRUE`:
-
-```{r}
-mop_partition <- explore_partition_extrapolation(data = d_spatial_block, 
-                                                 include_test_background = T)
-```
-
-<br>
-
-The function returned a `data.frame` containing:
-
-- **mop_distance**: MOP distances;
-- **inside_range** an indicator of whether environmental conditions at each test record fall within the training range;
-- **n_var_out**: the number of variables outside the training range;
-- **towards_low** and **towards_high **: the names of variables with values lower or higher than the training range;
-- **SoilType**: because the `prepared_data` object includes a categorical variable, it also contains a column indicating which values in the testing data were not present in the training data.
-
-```{r mop_results}
-# Highlight some partitions with extrapolation risks
-head(mop_partition$Mop_results[mop_partition$Mop_results$n_var_out > 1, ])
-```
-
-<br>
-
-Now we can use the function `plot_explore_partition` to visualize the distribution of training presences and testing data in both geographic and environmental space. The plot type can also be specified: "simple" indicates whether records in a partition fall within the range of the other partitions, while "distance" displays the Euclidean distance of each record to the set of conditions represented in the other partitions.
-
-```{r, fig.width = 8, fig.height = 3.5, out.width = "75%"}
-# Simple plot in geographic space
-plot_explore_partition(explore_partition = mop_partition, space = "G", 
-                       type_of_plot = "simple")
-
-# Distance plot in geographic space
-plot_explore_partition(explore_partition = mop_partition, space = "G", 
-                       type_of_plot = "distance",
-                       lwd_legend = 4)
-
-# Simple plot in environmental space
-plot_explore_partition(explore_partition = mop_partition, space = "E", 
-                       type_of_plot = "simple", 
-                       variables = c("bio_7", "bio_15"))
-
-# Distance plot in environmental space
-plot_explore_partition(explore_partition = mop_partition, space = "E", 
-                       type_of_plot = "distance",
-                       variables = c("bio_7", "bio_15"), 
-                       lwd_legend = 4)
-
-```
-
-Note that in Partition 1, some test records fall in locations with environmental conditions not represented in the training data. This partition also includes many background points representing conditions that were not used to calibrate its models.
-
-However, it's important to mention that this function only identifies environmental conditions that fall outside the range of the training data. To fully evaluate the risk of extrapolation, you should look at the MOP results together with the response curves. This combined analysis helps to see how the model behaves under those conditions. For more details, check the [Exploring Model Uncertainty and Variability](variability_and_uncertainty.html#comparing-mop-results-with-response-curves) vignette.
-
 ```{r par_reset}
 # Reset plotting parameters
 par(original_par) 
@@ -760,7 +774,7 @@ par(original_par)
 
 <br> 
 
-# Saving a prepared_data object
+# Saving prepared data
 
 The `prepared_data` object is crucial for the next step in the ENM workflow in kuenm2, model calibration. As this object is essentially a list, users can save it to a local directory using `saveRDS()`. Saving the object facilitates loading it back into your R session later using `readRDS()`. See an example below:
 
