@@ -2,7 +2,7 @@
 title: "2. Prepare Data for Model Calibration"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{prepare_data}
+  %\VignetteIndexEntry{2. Prepare Data for Model Calibration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,6 +17,8 @@ knitr::opts_chunk$set(
   out.width = "95%"
 )
 ```
+
+# Summary
 
 - [Description](#description)
 - [Getting ready](#getting-ready)
@@ -42,7 +44,7 @@ knitr::opts_chunk$set(
 
 # Description
 
-Before starting the ENM process, data must be formatted in a specific structure required by functions in **kuenm2**. This vignette guides users through the steps necessary to prepare occurrence data and environmental predictors using built-in tools. It covers the use of `prepare_data()` and `prepare_user_data()` to generate standardized objects, which are essential for model calibration. The vignette also demonstrates options for applying PCA to variables, incorporating sampling bias, integrating external data partition methods, assess and saving prepared data for later use.
+Before starting the ENM process, data must be formatted in a specific structure required by functions in **kuenm2**. This vignette guides users through the steps necessary to prepare occurrence data and environmental predictors using built-in tools. It covers the use of `prepare_data()` and `prepare_user_data()` to generate standardized objects, which are essential for model calibration. The guide also demonstrates options to compute principal components from variables (PCA), incorporating sampling bias, integrating data partitioning schemes from external methods, exploring and saving prepared data for later use.
 
 <br>
 
@@ -64,6 +66,9 @@ getwd()
 
 # Define new directory
 #setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory
+
+# Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
 ```
 
 <br>
@@ -191,9 +196,12 @@ d_glm
 By default, *kuenm2* builds the formula grid automatically using the variables supplied in `raster_variables` together with the selected features.
 
 For instance, if `raster_variables` contains *bio_1* and *bio_12*, and you set the features to `lq` (linear + quadratic), the generated formula will include linear and quadratic terms for each variable. In this example, the resulting formula would be:
+
 ```{r formula example}
 "~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
 ```
+
+<br>
 
 However, instead of letting the package build formulas based on the selected features, you can provide custom formulas.
 This is useful when you want full control over which terms are included (for example, testing only the quadratic version of specific variables):
@@ -206,19 +214,17 @@ my_formulas <- c("~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)",
                  "~ bio_1 + I(bio_1^2) + I(bio_12^2)")
 
 # Prepare data using custom formulas
-d_custom_formula <- prepare_data(
-  algorithm = "maxnet",
-  occ = occ_data,
-  x = "x", y = "y",
-  raster_variables = var,
-  species = "Myrcia hatschbachii",
-  categorical_variables = "SoilType",
-  partition_method = "kfolds",
-  n_partitions = 4,
-  n_background = 1000,
-  user_formulas = my_formulas,  # Custom formulas
-  r_multiplier = c(0.1, 1, 2)
-)
+d_custom_formula <- prepare_data(algorithm = "maxnet",
+                                 occ = occ_data,
+                                 x = "x", y = "y",
+                                 raster_variables = var,
+                                 species = "Myrcia hatschbachii",
+                                 categorical_variables = "SoilType",
+                                 partition_method = "kfolds",
+                                 n_partitions = 4,
+                                 n_background = 1000,
+                                 user_formulas = my_formulas,  # Custom formulas
+                                 r_multiplier = c(0.1, 1, 2))
 
 # Check formula grid
 d_custom_formula$formula_grid
@@ -235,7 +241,7 @@ A common approach in ENM involves summarizing the information from a set of pred
 
 ### Internal PCA
 
-kuenm2 can perform all PCA transformations internally, which eliminates the need of transforming raw variables into PCs when producing projections later on. This is particularly advantageous when projecting model results across multiple time scenarios (e.g., various Global Climate Models for different future periods). By performing PCA internally, you only need to store the raw environmental variables (e.g., `bio_1`, `bio_2`, etc.) on your directory, and the functions will handle the PCA transformation as needed. 
+kuenm2 can perform all PCA transformations internally, which eliminates the need of transforming raw variables into PCs when producing projections later on. This is particularly advantageous when projecting model results across multiple time scenarios (e.g., various Global Climate Models for different future periods). By performing PCA internally, you only need to store the raw environmental variables (e.g., `bio_1`, `bio_2`, etc.) on your directory, and the functions will handle the PCA transformation as needed.
 
 Let's explore how to implement this:
 
@@ -287,7 +293,7 @@ pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                        center = TRUE, scale = TRUE)
 
 # Plot
-plot(pca_var$env)
+terra::plot(pca_var$env)
 ```
 
 <br>
@@ -360,6 +366,8 @@ This function also allows you to provide a list of index identifying test points
 # Exploring calibration data
 
 In the following examples, we'll use the object `d`, which was prepared for the `maxnet` algorithm without a mask. The same can be done with `prepared_data` that uses `glm` as de algorithm.
+
+<br>
 
 ## Histograms to visualize the distribution of predictor variables
 
@@ -439,15 +447,16 @@ d_bias_inverse <- prepare_data(algorithm = "maxnet",
                                categorical_variables = "SoilType",
                                n_background = 1000,
                                partition_method = "kfolds",
-                               bias_file = bias, bias_effect = "inverse",   # bias parameters
+                               bias_file = bias, bias_effect = "inverse",  # bias parameters
                                features = c("l", "q", "p", "lq", "lqp"),
                                r_multiplier = c(0.1, 1, 2, 3, 5))
 ```
 
+<br>
+
 Let's use the `explore_partition_geo` function to see the effect of using a bias file.
 
-```{r}
-
+```{r exp_part_geobias}
 # Explore spatial distribution of points
 geo_dist <- explore_partition_geo(data = d, raster_variables = var)
 geo_dist_bias <- explore_partition_geo(data = d_bias_direct,
@@ -455,21 +464,17 @@ geo_dist_bias <- explore_partition_geo(data = d_bias_direct,
 geo_dist_bias_inv <- explore_partition_geo(data = d_bias_inverse,
                                            raster_variables = var)
 
-## Saving original plotting parameters
-original_par <- par(no.readonly = TRUE)
-
 ## Adjusting plotting grid
 par(mfrow = c(2, 2))  
 
 ## The plots to show sampling bias effects
-plot(bias, main = "Bias file")
-plot(geo_dist$Background, main = "Random Background", 
-     plg=list(cex=0.75))  # Decrease size of legend text)
-plot(geo_dist_bias$Background, main = "Direct Bias Effect", 
-     plg=list(cex=0.75))  # Decrease size of legend text)
-plot(geo_dist_bias_inv$Background, main = "Inverse Bias Effect", 
-     plg=list(cex=0.75))  # Decrease size of legend text)
-par(original_par)  # Reset grid
+terra::plot(bias, main = "Bias file")
+terra::plot(geo_dist$Background, main = "Random Background", 
+            plg = list(cex = 0.75))  # Decrease size of legend text)
+terra::plot(geo_dist_bias$Background, main = "Direct Bias Effect", 
+            plg = list(cex = 0.75))  # Decrease size of legend text)
+terra::plot(geo_dist_bias_inv$Background, main = "Inverse Bias Effect", 
+            plg = list(cex = 0.75))  # Decrease size of legend text)
 ```
 
 <br>
@@ -487,6 +492,8 @@ The functions `prepare_data()` and `prepare_user_data()` in the `kuenm2` package
 Other methods for data partitioning are also available, including those based on spatial rules ([Radosavljevic and Anderson, 2014](https://onlinelibrary.wiley.com/doi/pdf/10.1111/jbi.12227)). Although `kuenm2` does not currently implement spatial partitioning techniques, it is possible to apply them using other R packages and then incorporate the resulting partitions into the `prepared_data` object for model calibration within the `kuenm2` framework.
 
 The [ENMeval](https://jamiemkass.github.io/ENMeval/articles/ENMeval-2.0-vignette.html#partition) and [flexsdm](https://sjevelazco.github.io/flexsdm/articles/v01_pre_modeling.html#data-partitioning) R packages offers some options. Below, we provide examples on how to split the data using this packages and include this partition into the `prepared_data` object to run with `kuenm2`.
+
+<br>
 
 ## Spatial partitioning with ENMeval
 
@@ -516,7 +523,7 @@ calib_occ <- d$data_xy[d$calibration_data$pr_bg == 1,] #Presences
 calib_bg <- d$data_xy[d$calibration_data$pr_bg == 0,] #Background
 
 # Apply spatial block partitioning using ENMeval
-enmeval_block <- get.block(occs = calib_occ, bg = calib_bg)
+enmeval_block <- ENMeval::get.block(occs = calib_occ, bg = calib_bg)
 
 # Inspect the structure of the output
 str(enmeval_block)
@@ -524,6 +531,8 @@ str(enmeval_block)
 #>  $ occs.grp: num [1:51] 1 1 2 2 1 4 2 2 4 2 ...
 #>  $ bg.grp  : num [1:957] 2 4 4 1 3 3 3 1 1 3 ...
 ```
+
+<br>
 
 Note that the output of `get.block()` is a list with two elements: `occs.grp` and `bg.grp`. The `occs.grp` vector has the same length as the number of occurrence records, and `bg.grp` has the same length as the background points. Both vectors contain numeric values from 1 to 4, indicating the spatial group to which each point belongs. For example, an occurrence labeled with `1` belongs to the first spatial block, `2` to the second block, and so on.
 
@@ -533,6 +542,8 @@ In contrast, `kuenm2` stores partitioned data in a different format: it expects 
 ```{r index part kuenm2}
 str(d$part_data)
 ```
+
+<br>
 
 We can convert the spatial group information stored in `enmeval_block` into a format compatible with `kuenm2`:
 
@@ -561,6 +572,8 @@ names(new_part_data) <- paste0("Partition_", id_blocks)
 str(new_part_data)
 ```
 
+<br>
+
 We now have a list containing four vectors, each storing the indices of test data defined using the `get.block()` function from the `ENMeval` package. The final step is to replace the original `part_data` in the `prepared_data` object with `new_part_data`. We should also update the partitioning method to reflect this change.
 
 ```{r replace part_data}
@@ -575,13 +588,17 @@ d_spatial_block$partition_method <- "Spatial block (ENMeval)"  # You can use any
 print(d_spatial_block)
 ```
 
+<br>
+
 Let's check the spatial distribution of the partitioned data:
 
 ```{r plot spatial block, fig.width = 9, fig.height = 4}
+# Explore data partitioning in geography
 geo_block <- explore_partition_geo(d_spatial_block, raster_variables = var[[1]])
-plot(geo_block[[c("Presence", "Background")]])
-```
 
+# Plot data partition in geography
+terra::plot(geo_block[[c("Presence", "Background")]])
+```
 
 <br>
 
@@ -605,11 +622,11 @@ if (!require("flexsdm")) {
 calib_data <- cbind(d$data_xy, d$calibration_data)
 
 # Split data in test and train using flexsdm
-flexsdm_block <- part_sblock(env_layer = var, data = calib_data, 
-                             x = "x", y = "y",
-                             pr_ab = "pr_bg", min_res_mult = 1,
-                             max_res_mult = 500, num_grids = 30, n_part = 4, 
-                             prop = 0.5)
+flexsdm_block <- flexsdm::part_sblock(env_layer = var, data = calib_data, 
+                                      x = "x", y = "y", pr_ab = "pr_bg", 
+                                      min_res_mult = 1, max_res_mult = 500, 
+                                      num_grids = 30, n_part = 4, 
+                                      prop = 0.5)
 #> The following grid cell sizes will be tested:
 #> 0.17 | 3.03 | 5.9 | 8.77 | 11.64 | 14.51 | 17.37 | 20.24 | 23.11 | 25.98 | 
 #> 28.84 | 31.71 | 34.58 | 37.45 | 40.32 | 43.18 | 46.05 | 48.92 | 51.79 | 
@@ -628,6 +645,8 @@ str(flexsdm_block$part)
 #>  $ pr_ab: num  1 1 1 1 1 1 1 1 1 1 ...
 #>  $ .part: int  3 1 3 2 3 3 1 4 4 3 ...
 ```
+
+<br>
 
 The output from `flexsdm` differs from that of `ENMeval`. Instead of returning a list with vectors of spatial group IDs for occurrences and background points separately, `flexsdm` appends the group assignments as a new column within the `part` element of its output.
 
@@ -659,11 +678,18 @@ d_block_flexsdm$partition_method <- "Spatial block (flexsdm)"  # You can choose 
 # Display the updated prepared_data object
 print(d_block_flexsdm)
 ```
+
+<br>
+
 Let's check the spatial distribution of the partitioned data:
 
 ```{r plot spatial block flexsdm, fig.width = 9, fig.height = 4}
-geo_block_flexsdm <- explore_partition_geo(d_block_flexsdm, raster_variables = var[[1]])
-plot(geo_block_flexsdm[[c("Presence", "Background")]])
+# Explore data partitioning in geography
+geo_block_flexsdm <- explore_partition_geo(d_block_flexsdm, 
+                                           raster_variables = var[[1]])
+
+# Plot data partition in geography
+terra::plot(geo_block_flexsdm[[c("Presence", "Background")]])
 ```
 
 <br>
@@ -681,6 +707,8 @@ mop_partition <- explore_partition_extrapolation(data = d_spatial_block,
                                                  include_test_background = T)
 ```
 
+<br>
+
 The function returned a `data.frame` containing:
 
 - **mop_distance**: MOP distances;
@@ -693,6 +721,8 @@ The function returned a `data.frame` containing:
 # Highlight some partitions with extrapolation risks
 head(mop_partition$Mop_results[mop_partition$Mop_results$n_var_out > 1, ])
 ```
+
+<br>
 
 Now we can use the function `plot_explore_partition` to visualize the distribution of training presences and testing data in both geographic and environmental space. The plot type can also be specified: "simple" indicates whether records in a partition fall within the range of the other partitions, while "distance" displays the Euclidean distance of each record to the set of conditions represented in the other partitions.
 
@@ -722,6 +752,11 @@ plot_explore_partition(explore_partition = mop_partition, space = "E",
 Note that in Partition 1, some test records fall in locations with environmental conditions not represented in the training data. This partition also includes many background points representing conditions that were not used to calibrate its models.
 
 However, it's important to mention that this function only identifies environmental conditions that fall outside the range of the training data. To fully evaluate the risk of extrapolation, you should look at the MOP results together with the response curves. This combined analysis helps to see how the model behaves under those conditions. For more details, check the [Exploring Model Uncertainty and Variability](variability_and_uncertainty.html#comparing-mop-results-with-response-curves) vignette.
+
+```{r par_reset}
+# Reset plotting parameters
+par(original_par) 
+```
 
 <br> 
 

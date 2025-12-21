@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
 
 ## Description
 
-Model calibration is one of the most computationally intensive processes automated in **kuenm2**. In this step, candidate models are trained and tested using a cross-validation approach as defined in the object `prepared_data`. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. The main function used in this step is `calibration()`.
+Model calibration is one of the most computationally intensive processes automated in **kuenm2**. In this step, candidate models are trained and tested using a cross-validation approach as defined in the object `prepared_data`. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. This vignette guides users in running model calibration examples to explore and understand the options included and the results from the process.
 
 <br>
 
