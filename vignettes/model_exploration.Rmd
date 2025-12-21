@@ -74,20 +74,21 @@ calib_results_maxnet
 
 <br>
 
-This object contains the results of candidate models calibrated using the `maxnet` algorithm. The package also provides a similar example using the `glm` algorithm, which works in exactly the same way.
+This object contains the results of candidate models calibrated using the `maxnet` algorithm. The package also provides a similar example wit models created using the `glm` algorithm. See below how to load the `calib_results_glm` object in case you want to explore it. 
 
 ```{r import glm}
 # Import calib_results_glm
 data("calib_results_glm", package = "kuenm2")
+
 # Print calibration result
 calib_results_glm
 ```
 
 <br>
 
-Note that the `calibration_results` object stores only the information related to the calibration process and model evaluation—it does not include the fitted `maxnet` (or `glm`) models themselves. 
+Note that the `calibration_results` object stores only the information related to the calibration process and model evaluation, it does not include the fitted `maxnet` (or `glm`) models. 
 
-To obtain the final fitted models, we need to use the `fit_selected()` function. By default, this function fits a full model (i.e., without replicates and without splitting the data into training and testing sets). However, you can configure it to fit final models with replicates if desired.
+To obtain fitted models, we need to use the `fit_selected()` function. By default, this function fits a full model (i.e., without replicates and without splitting the data into training and testing sets). However, you can configure it to fit final models with replicates if desired.
 
 In this example, we'll fit the final models with 4 k-fold replicates (leaving one fold out), as in the [Model Calibration](model_calibration.html) vignette.
 
@@ -129,7 +130,7 @@ The `fitted_models` object also stores the thresholds that can be used to binari
 You can access the omission error used to calculate the thresholds directly from the object:
 
 ```{r omission error}
-# Get omission error used to select models and calculate the thesholds
+# Get omission error used to select models and calculate the theshold values
 fm$omission_rate
 ```
 
