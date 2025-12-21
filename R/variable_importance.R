@@ -1,12 +1,16 @@
 #' Variable importance
 #'
 #' @usage
-#' variable_importance(models, modelID = NULL, parallel = FALSE, ncores = NULL,
+#' variable_importance(models, modelID = NULL, by_terms = FALSE,
+#'                     parallel = FALSE, ncores = NULL,
 #'                     progress_bar = TRUE, verbose = TRUE)
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
 #' @param modelID (character). Default = NULL.
+#' @param by_terms (logical) whether to calculate importance by model terms
+#' (e.g., `bio1`, `I(bio1^2)`, `hinge(bio1)`) instead of aggregating by
+#' variable. Default is FALSE, which aggregates all terms of the same variable.
 #' @param parallel (logical) whether to calculate importance in parallel.
 #' Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
@@ -18,9 +22,9 @@
 #' Default is TRUE.
 #'
 #' @return
-#' A data.frame containing the relative contribution of each variable. An
-#' identification for distinct models is added if `fitted` contains multiple
-#' models.
+#' A data.frame containing the relative contribution of each variable (or term
+#' if `by_terms = TRUE`). An identification for distinct models is added if
+#' `fitted` contains multiple models.
 #'
 #' @export
 #'
@@ -55,13 +59,14 @@
 #' plot_importance(imp_glm)
 
 variable_importance <- function(models, modelID = NULL,
+                                by_terms = FALSE,
                                 parallel = FALSE,
                                 ncores = NULL,
                                 progress_bar = TRUE,
                                 verbose = TRUE) {
   # initial tests
   if (missing(models)) {
-    stop("Argument 'model' must be defined.")
+    stop("Argument 'models' must be defined.")
   }
 
   if (!is.null(modelID)) {
@@ -83,7 +88,7 @@ variable_importance <- function(models, modelID = NULL,
   list_models <- models[["Models"]]
   model_info  <- models[["selected_models"]]
   data        <- models[["calibration_data"]]
-  algorithm  <- models[["algorithm"]]
+  algorithm   <- models[["algorithm"]]
 
   if (is.null(modelID)) {
     models <- names(list_models)
@@ -99,6 +104,7 @@ variable_importance <- function(models, modelID = NULL,
         f = model_info[model_info$ID == gsub("Model_", "", models[y]), "Formulas"],
         rm = model_info[model_info$ID == gsub("Model_", "", models[y]), "R_multiplier"],
         algorithm = algorithm,
+        by_terms = by_terms,
         parallel = parallel,
         ncores = ncores,
         progress_bar = progress_bar,
@@ -118,6 +124,7 @@ variable_importance <- function(models, modelID = NULL,
       f = model_info[model_info$ID == gsub("Model_", "", modelID), "Formulas"],
       rm = model_info[model_info$ID == gsub("Model_", "", modelID), "R_multiplier"],
       algorithm = algorithm,
+      by_terms = by_terms,
       parallel = parallel,
       ncores = ncores,
       progress_bar = progress_bar,
@@ -129,31 +136,13 @@ variable_importance <- function(models, modelID = NULL,
 }
 
 
+#
 # Aux function to evaluate the Variable Contribution of the predictors
 #
 
-#to get deviance of a model after excluding predictors
-get_red_devmx <- function(reduce_var, p, data, f, rm, algorithm) {
-  if (algorithm == "maxnet") {
-    reduce_model <- glmnet_mx(
-      p = p, data = data, regmult = rm,
-      f = as.formula(paste(f, " - ", reduce_var)),
-      calculate_AIC = FALSE,
-      addsamplestobackground = TRUE
-    )
-    return(deviance(reduce_model)[200])
-
-  } else if (algorithm == "glm") {
-    reduce_model <-
-      glm_mx(formula = as.formula(paste("pr_bg", f, " - ", reduce_var)),
-             data = data)
-    return(deviance(reduce_model))
-  }
-}
-
-
 # get variable contribution for an individual model
 var_importance_indmx <- function(model, p, data, f, rm, algorithm,
+                                 by_terms,
                                  parallel,
                                  ncores,
                                  progress_bar,
@@ -177,25 +166,48 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
     names(coef(model)[-1])
   }
 
-  #Fix categorical terms
-  coefs <- unique(gsub("categorical\\(([^\\)]+)\\):[0-9]+", "categorical(\\1)",
-                       coefs))
+  # Fix categorical, threshold and hinge terms
+  coefs <- ifelse(
+    grepl("^(thresholds|hinge|categorical)\\(", coefs),
+    sub(":.*$", "", coefs),
+    coefs
+  )
+  coefs <- unique(coefs)
+
+  # Determine what to iterate: terms or variables
+  if  (by_terms) {
+    # By terms: each term is evaluated individually
+    items_to_eval <- as.list(coefs)
+    names(items_to_eval) <- coefs
+  } else {
+    # By variable: group all terms by their base variable
+    var_names_list <- extract_variable_name(coefs)
+    unique_vars <- unique(unlist(var_names_list))
+
+    items_to_eval <- lapply(unique_vars, function(v) {
+      belongs_to_var <- sapply(var_names_list, function(vars) v %in% vars)
+      coefs[belongs_to_var]
+    })
+    names(items_to_eval) <- unique_vars
+  }
+
+  n_items <- length(items_to_eval)
 
   # Progress bar setup
   if (progress_bar) {
-    pb <- utils::txtProgressBar(0, length(coefs), style = 3)
+    pb <- utils::txtProgressBar(0, n_items, style = 3)
     progress <- function(n) utils::setTxtProgressBar(pb, n)
   }
 
-  # Adjust parallelization based on number of tasks and cores
-  if (length(coefs) == 1 & parallel) {
+  # Parallelization
+  if (n_items == 1 && parallel) {
     parallel <- FALSE
   }
 
-  # Fit the best models (either in parallel or sequentially)
+  # Fit the reduced models (either in parallel or sequentially)
   if (parallel) {
-    if (length(coefs) < ncores) {
-      ncores <- length(coefs)
+    if (n_items < ncores) {
+      ncores <- n_items
     }
 
     cl <- parallel::makeCluster(ncores)
@@ -207,48 +219,105 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
       NULL
     }
 
-    dev_reduction <- foreach::foreach(x = 1:length(coefs),
+    dev_reduction <- foreach::foreach(x = seq_along(items_to_eval),
                                       .options.snow = opts,
                                       .combine = 'c'
     ) %dopar% {
-      dev_full - get_red_devmx(coefs[x], p, data, f, rm, algorithm)
+      # Pass all terms for this variable/term to get_red_devmx
+      dev_full - get_red_devmx(items_to_eval[[x]], p, data, f, rm, algorithm)
     }
   } else {
     dev_reduction <- c()
-    for (x in 1:length(coefs)) {
-      dev_reduction[x] <- dev_full - get_red_devmx(coefs[x], p, data,
+    for (x in seq_along(items_to_eval)) {
+      # Pass all terms for this variable/term to get_red_devmx
+      dev_reduction[x] <- dev_full - get_red_devmx(items_to_eval[[x]], p, data,
                                                    f, rm, algorithm)
       if (progress_bar) utils::setTxtProgressBar(pb, x)
     }
   }
-  names(dev_reduction) <- coefs
+  names(dev_reduction) <- names(items_to_eval)
 
   # Stop the cluster
   if (parallel) {
     parallel::stopCluster(cl)
   }
 
-  # # deviance of the reduced models
-  # dev_reduction <- sapply(coefs, function(variable) {
-  #
-  #   #abs(dev_full - get_red_devmx(variable, p, data, f, rm)) # negative values?
-  #   dev_full - get_red_devmx(variable, p, data, f, rm, algorithm)
-  # })
+  # Close progress bar
+  if (progress_bar && !parallel) {
+    close(pb)
+  }
 
   deviance_importance <- dev_reduction / sum(dev_reduction)
 
   # preparing results
   tab_contr <- data.frame(predictor = names(deviance_importance),
+                          contribution = as.numeric(deviance_importance),
                           stringsAsFactors = FALSE)
-  tab_contr$contribution <- deviance_importance
 
   ord <- order(tab_contr$contribution, decreasing = TRUE)
   tab_contr <- tab_contr[ord, ]
   tab_contr$cum_contribution <- cumsum(tab_contr$contribution)
+  rownames(tab_contr) <- NULL
 
   # returning results
   return(tab_contr)
 }
+
+
+#
+# Aux function to extract the base variable name from model terms
+#
+
+extract_variable_name <- function(terms) {
+  # Returns a list where each element contains the variable(s) for that term
+  lapply(terms, function(term) {
+    #  I(var^2) -> var
+    if (grepl("^I\\(", term)) {
+      var <- gsub("^I\\(([^\\^\\)]+).*\\)$", "\\1", term)
+      return(var)
+    }
+
+    # Handle hinge, threshold, categorical: func(var) -> var
+    if (grepl("^(hinge|thresholds|categorical)\\(", term)) {
+      var <- gsub("^(hinge|thresholds|categorical)\\(([^\\)]+)\\)$", "\\2", term)
+      return(var)
+    }
+
+    # Handle interactions: var1:var2 -> return BOTH variables
+    if (grepl(":", term)) {
+      vars <- strsplit(term, ":")[[1]]
+      return(vars)
+    }
+
+    # Plain variable name
+    return(term)
+  })
+}
+
+
+# to get deviance of a model after excluding predictors
+# reduce_var can be a single term or a vector of terms to remove
+get_red_devmx <- function(reduce_var, p, data, f, rm, algorithm) {
+  # Build the formula reduction string (remove all terms)
+  reduce_terms <- paste(reduce_var, collapse = " - ")
+
+  if (algorithm == "maxnet") {
+    reduce_model <- glmnet_mx(
+      p = p, data = data, regmult = rm,
+      f = as.formula(paste(f, " - ", reduce_terms)),
+      calculate_AIC = FALSE,
+      addsamplestobackground = TRUE
+    )
+    return(deviance(reduce_model)[200])
+
+  } else if (algorithm == "glm") {
+    reduce_model <-
+      glm_mx(formula = as.formula(paste("pr_bg", f, " - ", reduce_terms)),
+             data = data)
+    return(deviance(reduce_model))
+  }
+}
+
 
 
 #' Summary plot for variable importance in models
