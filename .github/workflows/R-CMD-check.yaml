@@ -51,4 +51,4 @@ jobs:
           # Arguments for R CMD check
           args: 'c("--no-manual", "--as-cran")'
           # Arguments for R CMD build
-          build_args: '["--no-manual"]'
+          build_args: 'c("--no-manual")'
