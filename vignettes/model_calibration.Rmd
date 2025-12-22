@@ -33,15 +33,15 @@ knitr::opts_chunk$set(
 
 ## Description
 
-Model calibration is one of the most computationally intensive processes automated in **kuenm2**. In this step, candidate models are trained and tested using a cross-validation approach as defined in the object `prepared_data`. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. This vignette guides users in running model calibration examples to explore and understand the options included and the results from the process.
+Model calibration is one of the most computationally intensive processes automated in `kuenm2`. In this step, candidate models are trained and tested using a cross-validation approach as defined in the object `prepared_data`. Then, models are selected based on multiple criteria to warranty that the models used in later steps are the most robust among the candidates. This vignette guides users in running model calibration examples to explore and understand the options included and the results from the process.
 
 <br>
 
 ## Getting ready
 
-At this point it is assumed that kuenm2 is installed (if not, see the [Main guide](../index.html)). Load kuenm2 and any other required packages, and define a working directory (if needed). 
+At this point it is assumed that `kuenm2` is installed (if not, see the [Main guide](../index.html)). Load `kuenm2` and any other required packages, and define a working directory (if needed). 
 
-Note: functions from other packages (i.e., not from base R or kuenm2) used in this guide will be displayed as `package::function()`. 
+Note: functions from other packages (i.e., not from base R or `kuenm2`) used in this guide will be displayed as `package::function()`. 
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 # Load packages
