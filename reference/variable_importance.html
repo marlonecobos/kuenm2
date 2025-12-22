@@ -56,7 +56,8 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">variable_importance</span><span class="op">(</span><span class="va">models</span>, modelID <span class="op">=</span> <span class="cn">NULL</span>, parallel <span class="op">=</span> <span class="cn">FALSE</span>, ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">variable_importance</span><span class="op">(</span><span class="va">models</span>, modelID <span class="op">=</span> <span class="cn">NULL</span>, by_terms <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                    parallel <span class="op">=</span> <span class="cn">FALSE</span>, ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                    progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -71,6 +72,12 @@
 
 <dt id="arg-modelid">modelID<a class="anchor" aria-label="anchor" href="#arg-modelid"></a></dt>
 <dd><p>(character). Default = NULL.</p></dd>
+
+
+<dt id="arg-by-terms">by_terms<a class="anchor" aria-label="anchor" href="#arg-by-terms"></a></dt>
+<dd><p>(logical) whether to calculate importance by model terms
+(e.g., <code>bio1</code>, <code>I(bio1^2)</code>, <code>hinge(bio1)</code>) instead of aggregating by
+variable. Default = FALSE.</p></dd>
 
 
 <dt id="arg-parallel">parallel<a class="anchor" aria-label="anchor" href="#arg-parallel"></a></dt>
@@ -96,9 +103,9 @@ Default is TRUE.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data.frame containing the relative contribution of each variable. An
-identification for distinct models is added if <code>fitted</code> contains multiple
-models.</p>
+    <p>A data.frame containing the relative contribution of each variable (or term
+if <code>by_terms = TRUE</code>). An identification for distinct models is added if
+<code>fitted</code> contains multiple models.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -136,6 +136,22 @@ conditions in the calibration data and assess similarities among
 training and testing partitions, an exclusive feature of kuenm2 among
 ENM tools.
 
+#### Data exploration
+
+The data that has been prepared can be explored to understand how it
+looks like in environmental and geographic spaces. This can give users
+an idea of what to expect from models, or whether some changes in the
+way data has been prepared are necessary. The main functions in the step
+of the workflow are
+[`explore_calibration_hist()`](https://marlonecobos.github.io/kuenm2/reference/explore_calibration_hist.md),
+[`plot_calibration_hist()`](https://marlonecobos.github.io/kuenm2/reference/plot_calibration_hist.md),
+[`explore_partition_geo()`](https://marlonecobos.github.io/kuenm2/reference/explore_partition_geo.md),
+[`explore_partition_extrapolation()`](https://marlonecobos.github.io/kuenm2/reference/explore_partition_extrapolation.md),
+and
+[`plot_explore_partition()`](https://marlonecobos.github.io/kuenm2/reference/plot_explore_partition.md).
+
+  
+
 ### Model development
 
 #### Model calibration
@@ -155,29 +171,37 @@ using the
 function.
 
 To support a deeper understanding of the calibration process, a step to
-explore further extrapolation risks in the testing partitions can be
-performed in kuenm2. Tools in the package help to produce visualizations
-of response curves from training data overlapped with environmental
-conditions at testing sites for selected models. This another option
-exclusive to kuenm2.
+explore extrapolation risks during the process of training and testing
+models can be performed in kuenm2. The function
+[`partition_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/partition_response_curves.md)
+helps to produce visualizations of response curves from training data
+overlapped with environmental conditions at testing sites for selected
+models (another option exclusive to kuenm2).
 
 #### Model explorations
 
 Once best models are selected, they must be fitted using
 [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
 to analyze their characteristics and behavior. Fitted models can be
-explored to assess variable importance and examine response curves. This
-offers insights into predictor influence in models and ecological
+explored to assess
+[`variable_importance()`](https://marlonecobos.github.io/kuenm2/reference/variable_importance.md)
+and examine response curves
+([`response_curve()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)
+and
+[`all_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)).
+This offers insights into predictor influence in models and ecological
 interpretation.
 
 If an independent set of records (not included for model calibration) is
 available, it can be used to re-evaluate the predictive performance of
-selected models. Partial ROC and omission rates are calculated for these
-new records to measure model performance, but extrapolation risks also
-are assessed for these points using the MOP metric (exclusive to
-kuenm2). Results from this evaluation can help further filter the
-selected models or inform the decision to incorporate the independent
-records into the calibration dataset.
+selected models using
+[`independent_evaluation()`](https://marlonecobos.github.io/kuenm2/reference/independent_evaluation.md).
+Partial ROC and omission rates are calculated for these new records to
+measure model performance, but extrapolation risks also are assessed for
+these points using the MOP metric (exclusive to kuenm2). Results from
+this evaluation can help further filter the selected models or inform
+the decision to incorporate the independent records into the calibration
+dataset.
 
 #### Model projections
 
@@ -192,6 +216,8 @@ periods, emission pathways, or GCMs), users should first prepare and
 organize data using functions in *kuenm2* that facilitate the process
 (e.g.,
 [`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md)).
+
+  
 
 ### Post-modeling analysis
 
@@ -221,8 +247,10 @@ explicit representation of model uncertainty.
 ## Checking the vignettes
 
 Users can check kuenm2 vignettes for a full explanation of the package
-functionality. If installing the development version form GitHub, make
-sure to use the argument `build_vignettes = TRUE`.
+functionality. The vignettes can be checked online at the [kuenm2
+site](https://marlonecobos.github.io/kuenm2/) under the menu *Articles*.
+To build the vignettes when installing the package, if installing form
+GitHub, make sure to use the argument `build_vignettes = TRUE`.
 
 Check each of the vignettes with the code below:
 

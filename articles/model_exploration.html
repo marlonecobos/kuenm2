@@ -84,10 +84,21 @@
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <ul>
-<li><a href="#introduction">Introduction</a></li>
-<li><a href="#response-curve">Response curve</a></li>
+<li><a href="#description">Description</a></li>
+<li><a href="#getting-ready">Getting ready</a></li>
+<li><a href="#fitting-selected-models">Fitting selected models</a></li>
+<li>
+<a href="#response-curves">Response curves</a>
+<ul>
+<li><a href="#all-response-curves">All response curves</a></li>
+<li><a href="#customized-response-curves">Customized response
+curves</a></li>
+<li><a href="#bivariate-response-curves">Bivariate response
+curves</a></li>
+</ul>
+</li>
 <li><a href="#variable-importance">Variable importance</a></li>
-<li><a href="#evaluate-models-with-independent-data">Evaluate models
+<li><a href="#model-evaluation-with-independent-data">Model evaluation
 with independent data</a></li>
 <li><a href="#saving-a-fitted_models-object">Saving a fitted_models
 object</a></li>
@@ -95,29 +106,56 @@ object</a></li>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+<h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
 </h2>
 <p>After the best performing models have been selected, users need to
 fit this models (using <code><a href="../reference/fit_selected.html">fit_selected()</a></code>) in order to explore
 their characteristics and continue with the next steps. Fitted models
 can then be used to assess variable importance in models, as well as to
-explore variable response curves. We can also evaluate the selected
-models using independent presence records that were not used during
-model calibration.</p>
+explore variable response curves. Selected models can also be evaluated
+using independent records that were not used during calibration. This
+vignettes contains examples to explore the multiple options available to
+fit and explore selected models.</p>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="getting-ready">Getting ready<a class="anchor" aria-label="anchor" href="#getting-ready"></a>
+</h2>
+<p>At this point it is assumed that <code>kuenm2</code> is installed (if
+not, see the <a href="../index.html">Main guide</a>). Load
+<code>kuenm2</code> and any other required packages, and define a
+working directory (if needed).</p>
+<p>Note: functions from other packages (i.e., not from base R or
+<code>kuenm2</code>) used in this guide will be displayed as
+<code>package::function()</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Current directory</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define new directory</span></span>
+<span><span class="co">#setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory</span></span>
+<span></span>
+<span><span class="co"># Saving original plotting parameters</span></span>
+<span><span class="va">original_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>no.readonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="fitting-selected-models">Fitting selected models<a class="anchor" aria-label="anchor" href="#fitting-selected-models"></a>
+</h2>
 <p>To fit the selected models, we need a
 <code>calibration_results</code> object. For more details in model
 calibration, please refer to the vignette <a href="model_calibration.html">Model Calibration</a>. The
 <code>calibration_results</code> object generated in this vignette is
 available as a data example in the package. Let’s load it.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Load packages</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.86</span></span>
-<span></span>
-<span><span class="co">#Import calib_results_maxnet</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import an example of calibration results </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"calib_results_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
-<span><span class="co">#Print calibration result</span></span>
+<span></span>
+<span><span class="co"># Print calibration result</span></span>
 <span><span class="va">calib_results_maxnet</span></span>
 <span><span class="co">#&gt; calibration_results object summary (maxnet)</span></span>
 <span><span class="co">#&gt; =============================================================</span></span>
@@ -143,14 +181,17 @@ available as a data example in the package. Let’s load it.</p>
 <span><span class="co">#&gt;         dAIC Parameters</span></span>
 <span><span class="co">#&gt; 192 0.000000          6</span></span>
 <span><span class="co">#&gt; 219 1.179293          7</span></span></code></pre></div>
+<p><br></p>
 <p>This object contains the results of candidate models calibrated using
 the <code>maxnet</code> algorithm. The package also provides a similar
-example using the <code>glm</code> algorithm, which works in exactly the
-same way.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Import calib_results_glm</span></span>
+example wit models created using the <code>glm</code> algorithm. See
+below how to load the <code>calib_results_glm</code> object in case you
+want to explore it.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import calib_results_glm</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"calib_results_glm"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
-<span><span class="co">#Print calibration result</span></span>
+<span></span>
+<span><span class="co"># Print calibration result</span></span>
 <span><span class="va">calib_results_glm</span></span>
 <span><span class="co">#&gt; calibration_results object summary (glm)</span></span>
 <span><span class="co">#&gt; =============================================================</span></span>
@@ -168,18 +209,20 @@ same way.</p>
 <span><span class="co">#&gt; 85 85 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2)       lq</span></span>
 <span><span class="co">#&gt;    pval_pROC_at_10.mean Omission_rate_at_10.mean dAIC Parameters</span></span>
 <span><span class="co">#&gt; 85                    0                   0.0904    0          6</span></span></code></pre></div>
+<p><br></p>
 <p>Note that the <code>calibration_results</code> object stores only the
-information related to the calibration process and model evaluation—it
+information related to the calibration process and model evaluation, it
 does not include the fitted <code>maxnet</code> (or <code>glm</code>)
-models themselves.</p>
-<p>To obtain the final fitted models, we need to use the
+models.</p>
+<p>To obtain fitted models, we need to use the
 <code><a href="../reference/fit_selected.html">fit_selected()</a></code> function. By default, this function fits a
 full model (i.e., without replicates and without splitting the data into
 training and testing sets). However, you can configure it to fit final
 models with replicates if desired.</p>
-<p>In this example, we’ll fit the final models using the same replicate
-settings (4-fold cross-validation) as used in the <a href="model_calibration.html">Model Calibration</a> vignette.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>In this example, we’ll fit the final models with 4 k-fold replicates
+(leaving one fold out), as in the <a href="model_calibration.html">Model
+Calibration</a> vignette.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Fit selected models using calibration results</span></span>
 <span><span class="va">fm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_selected.html">fit_selected</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">calib_results_maxnet</span>, </span>
 <span>                   replicate_method <span class="op">=</span> <span class="st">"kfolds"</span>, n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
@@ -199,24 +242,26 @@ by indexing its elements. For example, the fitted <code>maxnet</code>
 list: for each selected model (in this case, models 192 and 219), it
 includes both the replicates (if fitted with replicates) and the full
 model.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#See names of selected models</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># See names of selected models</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Model_192" "Model_219"</span></span>
 <span></span>
-<span><span class="co">#See models inside Model 192</span></span>
+<span><span class="co"># See models inside Model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">$</span><span class="va">Model_192</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Replicate_1" "Replicate_2" "Replicate_3" "Replicate_4" "Full_model"</span></span></code></pre></div>
+<p><br></p>
 <p>The <code>fitted_models</code> object also stores the thresholds that
 can be used to binarize the models into suitable and unsuitable areas.
 These thresholds correspond to the omission error used during model
 selection (e.g., 5% or 10%).</p>
 <p>You can access the omission error used to calculate the thresholds
 directly from the object:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Get omission error used to select models and calculate the thesholds</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Get omission error used to select models and calculate the theshold values</span></span>
 <span><span class="va">fm</span><span class="op">$</span><span class="va">omission_rate</span></span>
 <span><span class="co">#&gt; [1] 10</span></span></code></pre></div>
+<p><br></p>
 <p>The omission error used to calculate the thresholds was 10%, meaning
 that when the predictions are binarized, approximately 10% of the
 presence records used to calibrate the models will fall into cells with
@@ -224,7 +269,7 @@ predicted values below the threshold.</p>
 <p>The thresholds are summarized in two ways: the mean and median across
 replicates for each model, and the consensus mean and median across all
 selected models (when more than one model is selected):</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fm</span><span class="op">$</span><span class="va">thresholds</span></span>
 <span><span class="co">#&gt; $Model_192</span></span>
 <span><span class="co">#&gt; $Model_192$mean</span></span>
@@ -252,130 +297,247 @@ selected models (when more than one model is selected):</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $type</span></span>
 <span><span class="co">#&gt; [1] "cloglog"</span></span></code></pre></div>
-<p>Now, we can use the <code>fitted_models</code> object to generate
-response curves and compute variable importance.</p>
 <p><br></p>
 </div>
 <div class="section level2">
-<h2 id="response-curve">Response curve<a class="anchor" aria-label="anchor" href="#response-curve"></a>
+<h2 id="response-curves">Response curves<a class="anchor" aria-label="anchor" href="#response-curves"></a>
 </h2>
-<p>The response curves illustrate how each environmental variable
-influences the predicted suitability, while keeping all other variables
-constant.</p>
+<p>The selected models in the <code>fitted_models</code> object can be
+used to generate response curves. Individual variable response curves
+illustrate how each environmental variables influences suitability,
+while keeping all other variables constant.</p>
 <p>By default, the curves are generated with all other variables set to
-their mean values (or the mode for categorical variables), calculated
-from the combined set of presence and background localities
-(<code>averages_from = "pr_bg"</code>). You can change this behavior to
-use only the presence localities by setting
+their mean values (or the mode for categorical variables). The mean or
+mode are calculated from the combined set of presence and background
+data (<code>averages_from = "pr_bg"</code>). You can change this
+behavior to use only the presence localities by setting
 <code>averages_from = "pr"</code>.</p>
-<p>Let’s check which variables are available to plot by examining the
-coefficients of the full models:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Get variables with non-zero coefficients in the models</span></span>
-<span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span> <span class="co">#From the first model selected</span></span>
+<p><br></p>
+<div class="section level3">
+<h3 id="all-response-curves">All response curves<a class="anchor" aria-label="anchor" href="#all-response-curves"></a>
+</h3>
+<p>An easy way to explore response curves for all variables is as
+follows:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Produce response curves for all variables in all fitted models</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">all_response_curves</a></span><span class="op">(</span><span class="va">fm</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/all%20var%20resps-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>In the previous plot, the dashed lines indicate the range of
+variables values in the data used to fit models. If multiple models were
+fitted, variability is shown via a Generalized Additive Model (GAM)
+using the mean and the 95% confidence interval. For a more detailed view
+of what the response curve for each of the models fitted look like, the
+argument <code>show_lines</code> can be set to <code>TRUE</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># All response curves showing each model as a different line</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">all_response_curves</a></span><span class="op">(</span><span class="va">fm</span>, show_lines <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/all%20var%20resps1-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>To explore response curves of all variables for each model
+independently, the argument <code>model_ID</code> can be used. The plot
+will show variable response curves for the full model.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># All response curves for model 219</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">all_response_curves</a></span><span class="op">(</span><span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_219"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/all%20var%20resps2-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>To get a view of variability in response curves for a model produced
+with replicates, use <code>show_variability = TRUE</code>. Both, the GAM
+or the multiple-line approaches can be used to show variability.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># All response curves for model 219 (GAM for variability)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">all_response_curves</a></span><span class="op">(</span><span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_219"</span>, show_variability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/all%20var%20resps3-1.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># All response curves for model 219 (each curve is a replicate)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">all_response_curves</a></span><span class="op">(</span><span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_219"</span>, show_variability <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>                    show_lines <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/all%20var%20resps3-2.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+</div>
+<div class="section level3">
+<h3 id="customized-response-curves">Customized response curves<a class="anchor" aria-label="anchor" href="#customized-response-curves"></a>
+</h3>
+<p>The previous plots help to gain a quick understanding of response
+curves for fitted models, but little can be done make each panel look
+better. To produce nicer plots, response curves for each variable at a
+time can be produced. Let’s check which variables are available to plot
+by examining the coefficients of the full models:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Get variables with non-zero coefficients in the models</span></span>
+<span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span>  <span class="co"># From the first model selected</span></span>
 <span><span class="co">#&gt;        bio_1        bio_7       bio_15   I(bio_1^2)   I(bio_7^2)  I(bio_15^2) </span></span>
 <span><span class="co">#&gt; 11.572321659  0.215970079  0.369077970 -0.356605446 -0.020306099 -0.006200151</span></span>
-<span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span> <span class="co">#From the second model selected</span></span>
+<span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span>  <span class="co"># From the second model selected</span></span>
 <span><span class="co">#&gt;         bio_1        bio_12        bio_15    I(bio_1^2)    I(bio_7^2) </span></span>
 <span><span class="co">#&gt;  1.178814e+01  1.638570e-02  3.406100e-01 -3.625405e-01 -1.440450e-02 </span></span>
 <span><span class="co">#&gt;   I(bio_12^2)   I(bio_15^2) </span></span>
 <span><span class="co">#&gt; -5.261860e-06 -5.623987e-03</span></span></code></pre></div>
+<p><br></p>
 <p>The variables <code>bio_1</code>, <code>bio_7</code>,
 <code>bio_12</code> and <code>bio_15</code>have non-zero coefficient
 values, which means they contribute to the model and are available for
 generating response curves.</p>
-<p>By default, response curves are computed using all selected models.
-The resulting plots include a line for the mean response, along with a
-shaded area representing the 95% confidence interval.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span><span class="op">)</span></span></code></pre></div>
+<p>Remember that response curves are computed using all selected models.
+This time let’s change the margins and labels for each plot</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid of plot</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, ylab <span class="op">=</span> <span class="st">""</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, ylab <span class="op">=</span> <span class="st">""</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/response%20curve-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
+<p><br></p>
 <p>We can also specify which of the selected models should be used to
 generate the response curves:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>,</span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, main <span class="op">=</span> <span class="st">"Model_192"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, </span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_219"</span>, main <span class="op">=</span> <span class="st">"Model_219"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_192"</span>, main <span class="op">=</span> <span class="st">"Model_192"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
-<span>               modelID <span class="op">=</span> <span class="st">"Model_219"</span>, main <span class="op">=</span> <span class="st">"Model_219"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid of plot</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, modelID <span class="op">=</span> <span class="st">"Model_192"</span>, </span>
+<span>               main <span class="op">=</span> <span class="st">"Model_192"</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, modelID <span class="op">=</span> <span class="st">"Model_219"</span>, </span>
+<span>               main <span class="op">=</span> <span class="st">"Model_219"</span>, ylab <span class="op">=</span> <span class="st">""</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, modelID <span class="op">=</span> <span class="st">"Model_192"</span>, </span>
+<span>               main <span class="op">=</span> <span class="st">"Model_192"</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, modelID <span class="op">=</span> <span class="st">"Model_219"</span>, </span>
+<span>               main <span class="op">=</span> <span class="st">"Model_219"</span>, ylab <span class="op">=</span> <span class="st">""</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/response%20ID-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
-<p>The dashed lines indicate the range of the variable within the
-calibration data. By default, the plot extends beyond these limits based
-on the variable’s minimum and maximum values and the
-<code>extrapolation_factor</code> (when
-<code>extrapolation = TRUE</code>). The default extrapolation is set to
-10% of the variable’s range (i.e., <strong>range × 0.1</strong>).</p>
+<p><br></p>
+<p>By default, the response curve extends beyond the range of model
+fitting limits (dashed lines) based on the observed range of values and
+an <code>extrapolation_factor</code> (when
+<code>extrapolation = TRUE</code>). The default extrapolation factor is
+set to 10% of the range.</p>
 <p>If <code>extrapolation = FALSE</code>, no extrapolation occurs, and
-the plot limits match the calibration data range exactly.</p>
+the plot limits match the fitting data range exactly.</p>
 <p>We can increase the extrapolation factor to allow a broader range
 beyond the observed data. Below is the response curve plotted with an
 extrapolation factor of 2:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid of plot</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid of plot</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span>, </span>
+<span>               las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>               ylab <span class="op">=</span> <span class="st">""</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>               las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>               ylab <span class="op">=</span> <span class="st">""</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/extrapolation%20factor-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span> <span class="co">#Reinitiate grid</span></span></code></pre></div>
+<p><br></p>
 <p>Note that the response curve now extends further beyond the observed
-data range (indicated by the dashed lines).</p>
-<p>Optionally, we can manually set the lower and upper limits of the
-variables. For example, since <code>bio_12</code> represents annual
-precipitation and negative values are not meaningful, we can set its
-lower limit to 0:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, </span>
-<span>               extrapolation_factor <span class="op">=</span> <span class="fl">0.1</span>, </span>
+data range. Optionally, we can manually set the lower and upper limits
+of the variables. For example, since <code>bio_12</code> represents
+annual precipitation and negative values are not realistic, we can set
+its lower limit to 0:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">0.1</span>, </span>
 <span>               l_limit <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/lower%20limit-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
 <p>Now, the lower limit of the plot for <code>bio_12</code> is set to 0.
 Since we did not specify an upper limit, the plot uses the extrapolation
 factor (here, 0.1) to define the upper limit.</p>
-<p>Optionally, we can add the original presence and background points to
-the plot by setting <code>add_point = TRUE</code>:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, </span>
+<p>The other aspect to notice after increasing the extrapolation factor
+is that the curves looked like they were not perfectly unimodal.
+Unfortunately, using a GAM to summarize and represent variability can
+some times generate this effect. However, plotting responses for each
+model as independent curves will show the real shape of the curve, see
+the differences after setting <code>show_lines = TRUE</code>.</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid of plot</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">0.5</span>, </span>
+<span>               las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, extrapolation_factor <span class="op">=</span> <span class="fl">0.5</span>, </span>
+<span>               show_lines <span class="op">=</span> <span class="cn">TRUE</span>, ylab <span class="op">=</span> <span class="st">""</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/GAM%20vs%20lines-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>Optionally, we can add the presence and background points used to fit
+the models to the response curve plot by setting
+<code>add_points = TRUE</code>:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, show_lines <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>               add_points <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/add%20points-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 </div>
+<div class="section level3">
+<h3 id="bivariate-response-curves">Bivariate response curves<a class="anchor" aria-label="anchor" href="#bivariate-response-curves"></a>
+</h3>
+<p>All previous curve plots are showing responses to individual
+variables. Exploring responses to two variables at a time can help
+understand the small differences between models fitted with distinct
+terms. Let’s see an example below:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># First, let's check the terms in the models fitted</span></span>
+<span><span class="co">## Model 192</span></span>
+<span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span></span>
+<span><span class="co">#&gt;        bio_1        bio_7       bio_15   I(bio_1^2)   I(bio_7^2)  I(bio_15^2) </span></span>
+<span><span class="co">#&gt; 11.572321659  0.215970079  0.369077970 -0.356605446 -0.020306099 -0.006200151</span></span>
+<span></span>
+<span><span class="co">## Model 219</span></span>
+<span><span class="va">fm</span><span class="op">$</span><span class="va">Models</span><span class="op">$</span><span class="va">Model_219</span><span class="op">$</span><span class="va">Full_model</span><span class="op">$</span><span class="va">betas</span></span>
+<span><span class="co">#&gt;         bio_1        bio_12        bio_15    I(bio_1^2)    I(bio_7^2) </span></span>
+<span><span class="co">#&gt;  1.178814e+01  1.638570e-02  3.406100e-01 -3.625405e-01 -1.440450e-02 </span></span>
+<span><span class="co">#&gt;   I(bio_12^2)   I(bio_15^2) </span></span>
+<span><span class="co">#&gt; -5.261860e-06 -5.623987e-03</span></span>
+<span></span>
+<span><span class="co"># Example of a bivariate response plot </span></span>
+<span><span class="fu"><a href="../reference/bivariate_response.html">bivariate_response</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable1 <span class="op">=</span> <span class="st">"bio_1"</span>, variable2 <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
+<span>                   modelID <span class="op">=</span> <span class="st">"Model_192"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/bivariate-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>In the previous plot, the dashed lines represent the limits of the
+data used for model fitting, and darker colors represent higher
+suitability. Let’s now compare the two models and check if there are any
+differences. Multiple bivariate response plots can be put together in a
+single plot if the suitability bar legend is not used.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Bivariate response model 192 </span></span>
+<span><span class="fu"><a href="../reference/bivariate_response.html">bivariate_response</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable1 <span class="op">=</span> <span class="st">"bio_1"</span>, variable2 <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
+<span>                   modelID <span class="op">=</span> <span class="st">"Model_192"</span>, add_bar <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"Model 192"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Bivariate response model 219 </span></span>
+<span><span class="fu"><a href="../reference/bivariate_response.html">bivariate_response</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable1 <span class="op">=</span> <span class="st">"bio_1"</span>, variable2 <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
+<span>                   modelID <span class="op">=</span> <span class="st">"Model_219"</span>, add_bar <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"Model 219"</span>, </span>
+<span>                   ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/bivariate1-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>These two models look very similar, the only noticeable difference is
+that suitability values above the threshold extend farther on variable
+bio_15 for model 219. More noticeable effects can be seen in bivariate
+representations when fitted models include or not product terms.
+However, as in this example, even a small variation on the number or
+type of terms included in a model can change how predictions look
+like.</p>
+<p><br></p>
+</div>
+</div>
 <div class="section level2">
 <h2 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
 </h2>
-<p>The relative importance of predictor variables can be calculated
-using explained deviance through the <code>var_importance()</code>
-function. This process starts by fitting the full model
-(<code>maxnet</code> or <code>glm</code>), which includes all predictor
-variables. Then, the function fits separate models excluding one
-variable at a time, assessing how the removal affects model
-performance.</p>
-<p>By systematically evaluating the impact of each predictor’s
-exclusion, the function provides insights into the individual
-contribution of each variable to the model’s overall performance and
-explanatory power.</p>
+<p>The relative importance of model predictors can be calculated
+exploring the deviance using the <code>var_importance()</code> function.
+This process starts by fitting the full model (<code>maxnet</code> or
+<code>glm</code>), which includes all predictors. Then, the function
+fits separate models excluding one predictor at a time, and quantifies
+how the removal affects model performance. The values of contribution
+are computed for variables by default, but explorations by terms are
+also possible using the argument <code>by_terms</code> (i.e., if the
+model includes linear and quadratic terms of a variable, the process
+will run for each of them separately).</p>
 <p>By default, the function runs on a single core. You can enable
 parallel processing by setting <code>parallel = TRUE</code> and
 specifying the number of cores with <code>ncores</code>. Note that
 parallelization only speeds up the computation when there are many
-variables (more than 7) and a large calibration dataset (over 15,000
-presence and background points).</p>
-<p>By default, variable importance is computed for all selected
-models:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+variables (e.g., &gt;17) and the calibration dataset is large (e.g.,
+over 15,000 total points).</p>
+<p>Variable importance is computed for all selected models by
+default:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate variable importance</span></span>
 <span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span><span class="op">)</span></span>
 <span></span>
@@ -383,11 +545,12 @@ models:</p>
 <span><span class="co">#   |======================================================================| 100%</span></span>
 <span><span class="co"># Calculating variable contribution for model 2 of 2</span></span>
 <span><span class="co">#   |======================================================================| 100%</span></span></code></pre></div>
+<p><br></p>
 <p>The function returns a <code>data.frame</code> with the relative
 contribution of each variable. If multiple models are included in the
 <code>fitted</code> object, an additional column identifies each
-distinct model.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+model.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imp</span></span>
 <span><span class="co">#&gt;   predictor contribution    Models</span></span>
 <span><span class="co">#&gt; 1     bio_1  0.567815429 Model_192</span></span>
@@ -397,47 +560,89 @@ distinct model.</p>
 <span><span class="co">#&gt; 5    bio_15  0.248819713 Model_219</span></span>
 <span><span class="co">#&gt; 6    bio_12  0.025950948 Model_219</span></span>
 <span><span class="co">#&gt; 7     bio_7  0.003654457 Model_219</span></span></code></pre></div>
+<p><br></p>
 <p>We can visualize variable importance using the
 <code><a href="../reference/plot_importance.html">plot_importance()</a></code> function. When the
 <code>fitted_models</code> object contains more than one selected model,
-the plot displays a boxplot of contributions, along with the mean
-contribution and the number (N) of fitted models.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+contributions are displayed as a boxplot, along with the mean
+contribution, and the number (N) of fitted models with that
+predictor.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/plot%20importance-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
 <p>If variable importance is computed for a single model, the plot
-displays a barplot instead of a boxplot:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+displays a bars instead of boxes:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate variable importance for a specific selected Model</span></span>
-<span><span class="va">imp_192</span><span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_192"</span>, </span>
+<span><span class="va">imp_192</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_192"</span>, </span>
 <span>                               progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#Plot variable contribution for model 192</span></span>
-<span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_192</span>, main <span class="op">=</span> <span class="st">"Variable importance - Model 192"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/one%20model%20importance-1.png" class="r-plt" alt="" width="672"><br></p>
+<span></span>
+<span><span class="co"># Plot variable contribution for model 192</span></span>
+<span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_192</span>, main <span class="op">=</span> <span class="st">"Variable importance: Model 192"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/one%20model%20importance-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>The previous examples show how important are variables by checking
+the change in models if we remove a variable completely from the
+equation. To compute contribution of all variable terms (i.e., how
+important is to keep distinct terms of the same variable) set
+<code>by_terms = TRUE</code>:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Calculate variable importance for a specific selected Model</span></span>
+<span><span class="va">imp_terms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, by_terms <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>                                 progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating variable contribution for model 1 of 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Calculating variable contribution for model 2 of 2</span></span>
+<span></span>
+<span><span class="co"># Check results</span></span>
+<span><span class="va">imp_terms</span></span>
+<span><span class="co">#&gt;      predictor contribution    Models</span></span>
+<span><span class="co">#&gt; 1   I(bio_1^2)  0.330546900 Model_192</span></span>
+<span><span class="co">#&gt; 2        bio_1  0.295001412 Model_192</span></span>
+<span><span class="co">#&gt; 3       bio_15  0.209668355 Model_192</span></span>
+<span><span class="co">#&gt; 4  I(bio_15^2)  0.156926301 Model_192</span></span>
+<span><span class="co">#&gt; 5   I(bio_7^2)  0.006279520 Model_192</span></span>
+<span><span class="co">#&gt; 6        bio_7  0.001577512 Model_192</span></span>
+<span><span class="co">#&gt; 7   I(bio_1^2)  0.368476226 Model_219</span></span>
+<span><span class="co">#&gt; 8        bio_1  0.332782286 Model_219</span></span>
+<span><span class="co">#&gt; 9       bio_15  0.155708606 Model_219</span></span>
+<span><span class="co">#&gt; 10 I(bio_15^2)  0.095186390 Model_219</span></span>
+<span><span class="co">#&gt; 11 I(bio_12^2)  0.022722557 Model_219</span></span>
+<span><span class="co">#&gt; 12      bio_12  0.021793617 Model_219</span></span>
+<span><span class="co">#&gt; 13  I(bio_7^2)  0.003330318 Model_219</span></span>
+<span></span>
+<span><span class="co"># Plot variable contribution for model 192</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>cex <span class="op">=</span> <span class="fl">0.7</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2.5</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid of plot</span></span>
+<span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_terms</span>, main <span class="op">=</span> <span class="st">"Importance of variable terms"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_exploration_files/figure-html/term%20importance-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
 </div>
 <div class="section level2">
-<h2 id="evaluate-models-with-independent-data">Evaluate models with independent data<a class="anchor" aria-label="anchor" href="#evaluate-models-with-independent-data"></a>
+<h2 id="model-evaluation-with-independent-data">Model evaluation with independent data<a class="anchor" aria-label="anchor" href="#model-evaluation-with-independent-data"></a>
 </h2>
-<p>We can evaluate the selected models using an independent set of
-presence records that were not used during model calibration. This
-approach is especially useful when new records become available or when
-working with invasive species. In the latter case, models are first
-calibrated using presence data from the native area and subsequently
-evaluated with data from the invaded area.</p>
-<p>The <code><a href="../reference/independent_evaluation.html">independent_evaluation()</a></code> function computes the
-omission rate - i.e., the proportion of independent records that fall in
-unsuitable areas, where “unsuitable” is defined according to the
-omission threshold used during model calibration and selection (e.g.,
-10%) - as well as the partial ROC. It also assesses whether the
-environmental conditions in the independent data are analogous (i.e.,
-within the range) to those in the calibration data.</p>
-<p>As example of independent data, let’s use the <code>new_occ</code>
-data example provided in the package. It contains coordinates of the
+<p>Selected models can be evaluated using an independent set of presence
+records (not used when fitting selected models). This approach is
+especially useful when new records become available. This can be useful
+to assess models for invasive species, for which model fitting is
+usually done in native areas with transfers to potential invasive
+areas.</p>
+<p>The <code><a href="../reference/independent_evaluation.html">independent_evaluation()</a></code> function computes omission
+rates (i.e., the proportion of independent records predicted as below
+the suitability threshold) and partial ROC. The function also assesses
+whether environmental conditions in independent data are analogous those
+under which models were fit using the mobility oriented-parity metric
+(MOP; <a href="https://biogeography.pensoft.net/article/132916/" class="external-link">Cobos
+et al. 2024</a>).</p>
+<p>Let’s use the <code>new_occ</code> as an example of independent data
+(provided in the package). This dataset contains coordinates of
 <em>Myrcia hatschbachii</em> sourced from NeotropicTree (<a href="http://www.neotroptree.info/" class="external-link">Oliveira-Filho, 2017</a>), and they
-were not part of the <code>occ_data</code>used to train the models.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+were not part of the data used to fit the models.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import independent records</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"new_occ"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># See data structure</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">new_occ</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Classes 'data.table' and 'data.frame':   82 obs. of  3 variables:</span></span>
@@ -445,11 +650,12 @@ were not part of the <code>occ_data</code>used to train the models.</p>
 <span><span class="co">#&gt;  $ x      : num  -48.3 -49.1 -49.9 -49.4 -49.9 ...</span></span>
 <span><span class="co">#&gt;  $ y      : num  -25.2 -25 -24.5 -24.5 -24.8 ...</span></span>
 <span><span class="co">#&gt;  - attr(*, ".internal.selfref")=&lt;externalptr&gt;</span></span></code></pre></div>
-<p>For predicting the model to this new set of occurrence records, we
-need to extract the environmental conditions on this locals. Let’s
-import the variables we used to fit the models and extract to the
-<code>new_occ</code> conditions:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<p><br></p>
+<p>In order to evaluate predictive ability of models and how analogous
+conditions in independent data are to fitting conditions, environmental
+values need to be extracted to these new records. Let’s import the
+raster variables and extract values for <code>new_occ</code>:</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import raster layers</span></span>
 <span><span class="va">var</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Current_variables.tif"</span>,</span>
 <span>                               package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
@@ -457,6 +663,7 @@ import the variables we used to fit the models and extract to the
 <span><span class="co"># Extract variables to occurrences</span></span>
 <span><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract_occurrence_variables.html">extract_occurrence_variables</a></span><span class="op">(</span>occ <span class="op">=</span> <span class="va">new_occ</span>, x <span class="op">=</span> <span class="st">"x"</span>, y <span class="op">=</span> <span class="st">"y"</span>,</span>
 <span>                                         raster_variables <span class="op">=</span> <span class="va">var</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># See data structure</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">new_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    82 obs. of  8 variables:</span></span>
@@ -468,17 +675,15 @@ import the variables we used to fit the models and extract to the
 <span><span class="co">#&gt;  $ bio_12  : num  2015 1456 1526 1414 1578 ...</span></span>
 <span><span class="co">#&gt;  $ bio_15  : num  43.8 33.7 29.1 32.2 26.5 ...</span></span>
 <span><span class="co">#&gt;  $ SoilType: num  6 6 6 6 6 10 10 10 10 10 ...</span></span></code></pre></div>
-<p>Especially when using independent records that fall outside the
-calibration area (e.g., in an invaded region on another continent), it
-is common for the environmental conditions in these new records to be
-non-analogous (i.e., outside the range) to those in the calibration
-data.</p>
-<p>To better illustrate this case, let’s add three fake records, in
-which some variables have non-analogous values, either higher than the
-upper limit or lower than the lower limit observed in the calibration
-data.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Add some fake data beyond the limits of calibration ranges</span></span>
+<p><br></p>
+<p>Finding non-analogous conditions in independent records is not
+uncommon, especially in regions outside model calibration areas. To
+better illustrate this case, let’s add three fake records, in which some
+variables have non-analogous values, either higher than the upper limit
+or lower than the lower limit observed in the data used to fit
+models.</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Add some fake data beyond the limits of calibration ranges</span></span>
 <span><span class="va">fake_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"pr_bg"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                        <span class="st">"x"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
 <span>                        <span class="st">"y"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
@@ -487,117 +692,132 @@ data.</p>
 <span>                        <span class="st">"bio_12"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2300</span>, <span class="fl">2000</span>, <span class="fl">1000</span><span class="op">)</span>,</span>
 <span>                        <span class="st">"bio_15"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">50</span><span class="op">)</span>,</span>
 <span>                        <span class="st">"SoilType"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Bind data</span></span>
 <span><span class="va">new_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="va">new_data</span>, <span class="va">fake_data</span><span class="op">)</span></span></code></pre></div>
-<p>Now, let’s evaluate this independent dataset (keep in mind that the
-last three records are fake):</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<p><br></p>
+<p>Now, let’s evaluate models with this independent dataset (keep in
+mind that the last three records are fake):</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Evaluate models with independent data</span></span>
-<span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_evaluation.html">independent_evaluation</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
-<span>                                  new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span></code></pre></div>
-<p>The output is a list with three elements. The first one,
-<strong>evaluation</strong>, presents the evaluation metrics (omission
-rate and pROC) for each selected model, as well as for the overall
-consensus. We can see that all selected models have significant pROC
-values, but show higher omission rates (around 40% of the independent
-records fall in areas predicted as unsuitable) compared to the threshold
-specified during model calibration (10%).</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_evaluation.html">independent_evaluation</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fm</span>, new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
+<p>The output is a list with three elements:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>evaluation</strong> metrics (omission rate and pROC) for
+each selected model, as well as for the overall consensus.</li>
+<li>
+<strong>mop_results</strong>, a list containing the output of MOP
+analysis comparing conditions in independent data and those used to fit
+models. This happens because the <code>perform_mop</code> argument is
+set to <code>TRUE</code> (the default).</li>
+<li>
+<strong>predictions</strong> of continuous and binary suitability
+for each of the independent records (the default;
+<code>return_predictions = TRUE</code>). In addition, MOP results are
+included for all the records.</li>
+</ol>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_ind</span><span class="op">$</span><span class="va">evaluation</span></span>
 <span><span class="co">#&gt;               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC</span></span>
-<span><span class="co">#&gt; 1         Model_192      mean           0.4117647       1.167488         0</span></span>
-<span><span class="co">#&gt; 2         Model_192    median           0.3882353       1.146009         0</span></span>
-<span><span class="co">#&gt; 3         Model_219      mean           0.4117647       1.185261         0</span></span>
-<span><span class="co">#&gt; 4         Model_219    median           0.4000000       1.133186         0</span></span>
-<span><span class="co">#&gt; 5 General_consensus    median           0.3882353       1.136191         0</span></span>
-<span><span class="co">#&gt; 6 General_consensus      mean           0.4117647       1.178995         0</span></span></code></pre></div>
-<p>When <code>perform_mop</code> is set to <code>TRUE</code>, the
-function also returns the <strong>mop_results</strong>, which is a list
-containing the output of <code><a href="https://rdrr.io/pkg/mop/man/mop.html" class="external-link">mop::mop()</a></code> function. The main
-results of the MOP analysis are appended to the
-<strong>predictions</strong> element of the list.</p>
-<p>For each records, the following information is provided:</p>
+<span><span class="co">#&gt; 1         Model_192      mean           0.3647059       1.167024         0</span></span>
+<span><span class="co">#&gt; 2         Model_192    median           0.3764706       1.175520         0</span></span>
+<span><span class="co">#&gt; 3         Model_219      mean           0.3882353       1.144704         0</span></span>
+<span><span class="co">#&gt; 4         Model_219    median           0.3764706       1.145789         0</span></span>
+<span><span class="co">#&gt; 5 General_consensus    median           0.3882353       1.163761         0</span></span>
+<span><span class="co">#&gt; 6 General_consensus      mean           0.3764706       1.157164         0</span></span></code></pre></div>
+<p><br></p>
+<p>All selected models have significant pROC values, but show higher
+omission rates than expected based on the 10% omission threshold used
+for calibration (~35% of the independent records are predicted as
+unsuitable) .</p>
+<p>For each records, the following MOP results are provided:</p>
 <ul>
 <li>
-<strong>mop_distance</strong>: the distance (i.e., dissimilarity)
-between the environmental conditions in calibration data and those at
-the location of the independent record.</li>
+<strong>mop_distance</strong>: the environmental distance (i.e.,
+dissimilarity) of the independent record to the nearest set of
+conditions considered to fit the models.</li>
 <li>
-<strong>inside_range</strong>: wheter the environmental conditions
-at the location of the independent record fall within the calibration
+<strong>inside_range</strong>: whether the environmental conditions
+at the location of the independent record fall within the model fitting
 range.</li>
 <li>
-<strong>n_var_out</strong>: the number of variables at the location
-of the independent record that are non-analogous (i.e., fall outside the
-calibration range).</li>
+<strong>n_var_out</strong>: the number of variables for which the
+independent record is outside the model fitting range.</li>
 <li>
 <strong>towards_low</strong>: the names of variables with values
-lower than the minimum observed in the calibration data.</li>
+lower than the minimum observed in the model fitting data.</li>
 <li>
 <strong>towards_high</strong>: the names of variables with values
-higher than the maximum observed in the calibration data.</li>
+higher than the maximum observed in the model fitting data.</li>
 </ul>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show the mop results for the last 5 independent records</span></span>
-<span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span> ,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mop_distance"</span>, <span class="st">"inside_range"</span>, <span class="st">"n_var_out"</span>, </span>
-<span>                                  <span class="st">"towards_low"</span>, <span class="st">"towards_high"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span> , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mop_distance"</span>, <span class="st">"inside_range"</span>, </span>
+<span>                                         <span class="st">"n_var_out"</span>, <span class="st">"towards_low"</span>, </span>
+<span>                                         <span class="st">"towards_high"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    mop_distance inside_range n_var_out  towards_low towards_high</span></span>
 <span><span class="co">#&gt; 81     7.753558         TRUE         0         &lt;NA&gt;         &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 82     6.622770         TRUE         0         &lt;NA&gt;         &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 83   157.782905        FALSE         3 bio_7, bio_1       bio_12</span></span>
 <span><span class="co">#&gt; 84    21.045482         TRUE         0         &lt;NA&gt;         &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 85   183.905420        FALSE         2       bio_12        bio_1</span></span></code></pre></div>
+<p><br></p>
 <p>Note that two of the three fake records we added to
 <code>new_data</code> have non-analogous environmental conditions. One
 of them falls in a location where <em>bio_7</em> and <em>bio_1</em> have
-values lower than the minimum observed in the calibration data, while
-<em>bio_12</em> has a value higher than the maximum. Another record is
-in a location where <em>bio_12</em> is below the calibration range, and
-<em>bio_1</em> exceeds the upper limit.</p>
-<p>When we set<code>return_predictions = TRUE</code>, the function also
-returns the continuous predictions for each selected model and for the
-general consensus:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+values lower than the minimum observed in the model fitting data,
+whereas <em>bio_12</em> has a value higher than the maximum. Another
+record is in a location where <em>bio_12</em> is below the model fitting
+range, and <em>bio_1</em> exceeds the upper limit.</p>
+<p><br></p>
+<p>When we set <code>return_predictions = TRUE</code> (the default), the
+function also returns the predictions for each selected model and for
+the general consensus:</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show the continuous predictions for the last 5 independent records</span></span>
 <span><span class="co"># Round to two decimal places</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/math-generics.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Model_192.mean Model_192.median Model_219.mean Model_219.median</span></span>
-<span><span class="co">#&gt; 81           0.55             0.61           0.57             0.61</span></span>
-<span><span class="co">#&gt; 82           0.52             0.57           0.52             0.59</span></span>
-<span><span class="co">#&gt; 83           0.80             1.00           0.77             0.99</span></span>
-<span><span class="co">#&gt; 84           0.99             1.00           0.94             1.00</span></span>
+<span><span class="co">#&gt; 81           0.49             0.48           0.52             0.51</span></span>
+<span><span class="co">#&gt; 82           0.44             0.44           0.45             0.42</span></span>
+<span><span class="co">#&gt; 83           0.00             0.00           0.00             0.00</span></span>
+<span><span class="co">#&gt; 84           0.95             0.96           0.76             0.78</span></span>
 <span><span class="co">#&gt; 85           0.00             0.00           0.00             0.00</span></span>
 <span><span class="co">#&gt;    General_consensus.median General_consensus.mean</span></span>
-<span><span class="co">#&gt; 81                     0.61                   0.56</span></span>
-<span><span class="co">#&gt; 82                     0.58                   0.52</span></span>
-<span><span class="co">#&gt; 83                     1.00                   0.79</span></span>
-<span><span class="co">#&gt; 84                     1.00                   0.96</span></span>
-<span><span class="co">#&gt; 85                     0.00                   0.00</span></span></code></pre></div>
-<p>If we set <code>return_binary = TRUE</code>, the function also
-returns the binary predictions, with values classified as suitable (1)
-or unsuitable (0), based on the threshold calculated using the omission
-rate applied during model evaluation and selection:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Show the continuous predictions for the last 5 independent records</span></span>
+<span><span class="co">#&gt; 81                     0.50                   0.50</span></span>
+<span><span class="co">#&gt; 82                     0.44                   0.44</span></span>
+<span><span class="co">#&gt; 83                     0.00                   0.00</span></span>
+<span><span class="co">#&gt; 84                     0.94                   0.85</span></span>
+<span><span class="co">#&gt; 85                     0.00                   0.00</span></span>
+<span></span>
+<span><span class="co"># Show the binary predictions for the last 5 independent records</span></span>
 <span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">binary</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    Model_192.mean Model_192.median Model_219.mean Model_219.median</span></span>
 <span><span class="co">#&gt; 81              1                1              1                1</span></span>
 <span><span class="co">#&gt; 82              1                1              1                1</span></span>
-<span><span class="co">#&gt; 83              1                1              1                1</span></span>
+<span><span class="co">#&gt; 83              0                0              0                0</span></span>
 <span><span class="co">#&gt; 84              1                1              1                1</span></span>
 <span><span class="co">#&gt; 85              0                0              0                0</span></span>
 <span><span class="co">#&gt;    General_consensus.mean General_consensus.median</span></span>
 <span><span class="co">#&gt; 81                      1                        1</span></span>
 <span><span class="co">#&gt; 82                      1                        1</span></span>
-<span><span class="co">#&gt; 83                      1                        1</span></span>
+<span><span class="co">#&gt; 83                      0                        0</span></span>
 <span><span class="co">#&gt; 84                      1                        1</span></span>
 <span><span class="co">#&gt; 85                      0                        0</span></span></code></pre></div>
-<p>These results help determine whether the independent data should be
-incorporated into the calibration dataset to re-run the models. If
-omission rates for the independent records are too high, pROC values are
-non-significant, or most of the records fall in locations with
-non-analogous environmental conditions, this suggests it may be a good
-idea to re-run the models, including the independent data this time.</p>
+<p><br></p>
+<p>These results can help determine whether independent data should be
+incorporated into the calibration dataset to re-run models. If omission
+rates for independent records are too high, pROC values are
+non-significant, or most of the records show non-analogous environmental
+conditions, it might be a good idea to re-run the models including
+independent records.</p>
+<p><br></p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Reset plotting parameters</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">original_par</span><span class="op">)</span> </span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="saving-a-fitted_models-object">Saving a fitted_models object<a class="anchor" aria-label="anchor" href="#saving-a-fitted_models-object"></a>
@@ -608,7 +828,7 @@ single or multiple scenarios. As this object is essentially a list,
 users can save it to a local directory using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">saveRDS()</a></code>.
 Saving the object facilitates loading it back into your R session later
 using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code>. See an example below:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set directory to save (here, in a temporary directory)</span></span>
 <span><span class="va">dir_to_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>

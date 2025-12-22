@@ -84,6 +84,7 @@
 </li>
 <li><a href="#checking-the-vignettes">Checking the vignettes</a></li>
 </ul>
+<!-- badges: start -->
 <hr>
 <p><br></p>
 <div class="section level2">
@@ -129,7 +130,7 @@
 </h2>
 <p>The kuenm2 package facilitates the following steps in the ENM process: basic data cleaning, data preparation, model calibration, model exploration, model projections, projection comparisons, and exploration of variability and uncertainty. The figure below shows a schematic view of how the package works. A brief description of the steps that can be performed with the package is presented below. For a complete description and demonstration of the steps, see the package vignettes listed in the section <a href="#checking-the-vignettes">Checking the vignettes</a>.</p>
 <div class="figure" style="text-align: center">
-<img src="reference/figures/kuenm2_map_gs.png" alt="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling." width="461"><p class="caption">
+<img src="reference/figures/kuenm2_map_gs.png" alt="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling."><p class="caption">
 Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 </p>
 </div>
@@ -146,6 +147,12 @@ Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 </h4>
 <p>For data preparation, users can input raw occurrence records and raster layers or provide a pre-processed data frame. Two primary functions, <code><a href="reference/prepare_data.html">prepare_data()</a></code> and <code><a href="reference/prepare_user_data.html">prepare_user_data()</a></code>, guide users through the process of choosing modeling algorithms, defining parameter sets (e.g., feature classes, regularization multipliers, and predictor variables), and selecting data partitioning strategies. Additional tools allow users to visualize environmental conditions in the calibration data and assess similarities among training and testing partitions, an exclusive feature of kuenm2 among ENM tools.</p>
 </div>
+<div class="section level4">
+<h4 id="data-exploration">Data exploration<a class="anchor" aria-label="anchor" href="#data-exploration"></a>
+</h4>
+<p>The data that has been prepared can be explored to understand how it looks like in environmental and geographic spaces. This can give users an idea of what to expect from models, or whether some changes in the way data has been prepared are necessary. The main functions in the step of the workflow are <code><a href="reference/explore_calibration_hist.html">explore_calibration_hist()</a></code>, <code><a href="reference/plot_calibration_hist.html">plot_calibration_hist()</a></code>, <code><a href="reference/explore_partition_geo.html">explore_partition_geo()</a></code>, <code><a href="reference/explore_partition_extrapolation.html">explore_partition_extrapolation()</a></code>, and <code><a href="reference/plot_explore_partition.html">plot_explore_partition()</a></code>.</p>
+<p><br></p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="model-development">Model development<a class="anchor" aria-label="anchor" href="#model-development"></a>
@@ -154,18 +161,19 @@ Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 <h4 id="model-calibration">Model calibration<a class="anchor" aria-label="anchor" href="#model-calibration"></a>
 </h4>
 <p>Model calibration in kuenm2 is computationally intensive, involving training and testing of candidate models using various partitioning strategies such as k-fold cross-validation, subsampling, and bootstrapping. Custom partitions generated using external tools (e.g., block or checkerboard methods) can also be imported. Models are evaluated using multiple performance criteria that emphasize sensitivity due to the frequent lack of true absence data. These criteria include: bimodality in response curves, partial ROC for statistical significance, omission rates for predictive performance, and Akaike Information Criterion (AIC) for model complexity. Model calibration is executed using the <code><a href="reference/calibration.html">calibration()</a></code> function.</p>
-<p>To support a deeper understanding of the calibration process, a step to explore further extrapolation risks in the testing partitions can be performed in kuenm2. Tools in the package help to produce visualizations of response curves from training data overlapped with environmental conditions at testing sites for selected models. This another option exclusive to kuenm2.</p>
+<p>To support a deeper understanding of the calibration process, a step to explore extrapolation risks during the process of training and testing models can be performed in kuenm2. The function <code><a href="reference/partition_response_curves.html">partition_response_curves()</a></code> helps to produce visualizations of response curves from training data overlapped with environmental conditions at testing sites for selected models (another option exclusive to kuenm2).</p>
 </div>
 <div class="section level4">
 <h4 id="model-explorations">Model explorations<a class="anchor" aria-label="anchor" href="#model-explorations"></a>
 </h4>
-<p>Once best models are selected, they must be fitted using <code><a href="reference/fit_selected.html">fit_selected()</a></code> to analyze their characteristics and behavior. Fitted models can be explored to assess variable importance and examine response curves. This offers insights into predictor influence in models and ecological interpretation.</p>
-<p>If an independent set of records (not included for model calibration) is available, it can be used to re-evaluate the predictive performance of selected models. Partial ROC and omission rates are calculated for these new records to measure model performance, but extrapolation risks also are assessed for these points using the MOP metric (exclusive to kuenm2). Results from this evaluation can help further filter the selected models or inform the decision to incorporate the independent records into the calibration dataset.</p>
+<p>Once best models are selected, they must be fitted using <code><a href="reference/fit_selected.html">fit_selected()</a></code> to analyze their characteristics and behavior. Fitted models can be explored to assess <code><a href="reference/variable_importance.html">variable_importance()</a></code> and examine response curves (<code><a href="reference/response_curve.html">response_curve()</a></code> and <code><a href="reference/response_curve.html">all_response_curves()</a></code>). This offers insights into predictor influence in models and ecological interpretation.</p>
+<p>If an independent set of records (not included for model calibration) is available, it can be used to re-evaluate the predictive performance of selected models using <code><a href="reference/independent_evaluation.html">independent_evaluation()</a></code>. Partial ROC and omission rates are calculated for these new records to measure model performance, but extrapolation risks also are assessed for these points using the MOP metric (exclusive to kuenm2). Results from this evaluation can help further filter the selected models or inform the decision to incorporate the independent records into the calibration dataset.</p>
 </div>
 <div class="section level4">
 <h4 id="model-projections">Model projections<a class="anchor" aria-label="anchor" href="#model-projections"></a>
 </h4>
 <p>Fitted models can be projected to new environmental scenarios, including larger geographic areas or different temporal conditions (e.g., past or future climates). For single scenario projections, use <code><a href="reference/predict_selected.html">predict_selected()</a></code>; for multiple scenarios, use <code><a href="reference/project_selected.html">project_selected()</a></code>. Before projecting to complex future scenarios (e.g., multiple time periods, emission pathways, or GCMs), users should first prepare and organize data using functions in <em>kuenm2</em> that facilitate the process (e.g., <code><a href="reference/organize_future_worldclim.html">organize_future_worldclim()</a></code>).</p>
+<p><br></p>
 </div>
 </div>
 <div class="section level3">
@@ -187,7 +195,7 @@ Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 <div class="section level2">
 <h2 id="checking-the-vignettes">Checking the vignettes<a class="anchor" aria-label="anchor" href="#checking-the-vignettes"></a>
 </h2>
-<p>Users can check kuenm2 vignettes for a full explanation of the package functionality. If installing the development version form GitHub, make sure to use the argument <code>build_vignettes = TRUE</code>.</p>
+<p>Users can check kuenm2 vignettes for a full explanation of the package functionality. The vignettes can be checked online at the <a href="https://marlonecobos.github.io/kuenm2/">kuenm2 site</a> under the menu <em>Articles</em>. To build the vignettes when installing the package, if installing form GitHub, make sure to use the argument <code>build_vignettes = TRUE</code>.</p>
 <p>Check each of the vignettes with the code below:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Guide to basic data cleaning before the ENM process</span></span>
@@ -249,7 +257,12 @@ Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/marlonecobos/kuenm2/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/marlonecobos/kuenm2/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>

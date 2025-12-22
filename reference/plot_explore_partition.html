@@ -116,10 +116,9 @@ variables available in <code>explore_partition</code> are used to define the E s
 
 <dt id="arg-calibration-area">calibration_area<a class="anchor" aria-label="anchor" href="#arg-calibration-area"></a></dt>
 <dd><p>(SpatRaster, SpatVector, or SpatExtent) A spatial
-object representing the calibration area. Preferably, the same object
-provided to <code>prepare_data</code>. Required only when "G" is included in
-<code>type_of_plot</code>. Default is NULL, meaning the coordinates of the records are
-used to define the calibration area.</p></dd>
+object representing the calibration area. Preferably, one of the raster layers
+used as variables to <code>prepare_data</code>. Required only when <code>type_of_plot = "G"</code>.
+The default, NULL, uses a basic Spatvector of the world.</p></dd>
 
 
 <dt id="arg-show-limits">show_limits<a class="anchor" aria-label="anchor" href="#arg-show-limits"></a></dt>

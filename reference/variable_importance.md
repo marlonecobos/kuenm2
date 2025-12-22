@@ -5,7 +5,8 @@ Variable importance
 ## Usage
 
 ``` r
-variable_importance(models, modelID = NULL, parallel = FALSE, ncores = NULL,
+variable_importance(models, modelID = NULL, by_terms = FALSE,
+                    parallel = FALSE, ncores = NULL,
                     progress_bar = TRUE, verbose = TRUE)
 ```
 
@@ -20,6 +21,12 @@ variable_importance(models, modelID = NULL, parallel = FALSE, ncores = NULL,
 - modelID:
 
   (character). Default = NULL.
+
+- by_terms:
+
+  (logical) whether to calculate importance by model terms (e.g.,
+  `bio1`, `I(bio1^2)`, `hinge(bio1)`) instead of aggregating by
+  variable. Default = FALSE.
 
 - parallel:
 
@@ -44,9 +51,9 @@ variable_importance(models, modelID = NULL, parallel = FALSE, ncores = NULL,
 
 ## Value
 
-A data.frame containing the relative contribution of each variable. An
-identification for distinct models is added if `fitted` contains
-multiple models.
+A data.frame containing the relative contribution of each variable (or
+term if `by_terms = TRUE`). An identification for distinct models is
+added if `fitted` contains multiple models.
 
 ## See also
 

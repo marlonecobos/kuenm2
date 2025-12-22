@@ -1,5 +1,7 @@
 # 1. Basic Data Cleaning
 
+## Summary
+
 - [Description](#description)
 - [Getting ready](#getting-ready)
 - [Cleaning data](#cleaning-data)
@@ -16,7 +18,7 @@ As any modeling technique, ecological niche modeling depends on the
 quality of the input data, particularly species occurrence records.
 Cleaning these data is a critical step to minimize biases, reduce
 errors, and ensure meaningful model outcomes. This vignette introduces
-tools available in the **kuenm2** package to facilitate the *cleaning of
+tools available in the `kuenm2` package to facilitate the *cleaning of
 occurrence data* prior to modeling. It guides users through inspecting
 data, applying cleaning functions, and saving cleaned datasets, all
 within a reproducible R workflow.
@@ -31,18 +33,18 @@ modeling.
 
 ## Getting ready
 
-If kuenm2 has not been installed yet, please do so. See the [Main
+If `kuenm` has not been installed yet, please do so. See the [Main
 guide](https://marlonecobos.github.io/kuenm2/index.md) for installation
 instructions.
 
-Load kuenm2 and any other required packages, and define a working
+Load `kuenm` and any other required packages, and define a working
 directory (if needed). In general, setting a working directory in R is
 considered good practice, as it provides better control over where files
 are read from or saved to. If users are not working within an R project,
 we recommend setting a working directory, since at least one file will
 be saved at later stages of this guide.
 
-Note: functions from other packages (i.e., not from base R or kuenm2)
+Note: functions from other packages (i.e., not from base R or `kuenm`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
@@ -55,6 +57,9 @@ getwd()
 
 # Define new directory
 #setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory
+
+# Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
 ```
 
   
@@ -63,7 +68,7 @@ getwd()
 
 ### Import data
 
-We will use occurrence records provided within the kuenm2 package. Most
+We will use occurrence records provided within the `kuenm` package. Most
 example data sets in the package were derived from [Trindade & Marques
 (2024)](https://doi.org/10.1111/ddi.13931). The `occ_data_noclean`
 object contains 51 valid occurrences of *Myrcia hatschbachii* (a tree
@@ -129,7 +134,7 @@ points(occ_data_noclean[, c("x", "y")])
 
 ### Basic cleaning steps
 
-The basic data cleaning steps implemented in kuenm2 help to: remove
+The basic data cleaning steps implemented in `kuenm` help to: remove
 missing data, eliminate duplicates, exclude typically (though not
 always) erroneous coordinates with 0 longitude and 0 latitude, and
 filter out records with low coordinate precision based on the number of
@@ -257,7 +262,7 @@ points(clean_init[, c("x", "y")])
 
 ### Other cleaning steps
 
-Two additional cleaning steps are implemented in kuenm2, removing cell
+Two additional cleaning steps are implemented in `kuenm`, removing cell
 duplicates and moving points to valid cells.
 
 Removing cell duplicates involves excluding records that are not exact
@@ -287,7 +292,7 @@ the boundaries of cells with data. In such cases, an alternative is to
 move these records to the nearest valid cell. A distance limit is
 applied to avoid relocating records that are too far from the study
 area. See below for an example of how to use this functionality of
-kuenm2. See full documentation with
+`kuenm`. See full documentation with
 [`help(move_2closest_cell)`](https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.md).
 
 ``` r
@@ -364,16 +369,17 @@ Notes:
 - The functions that move records to valid pixels do not erase points
   that were not moved. Make sure to exclude them as indicated in the
   previous chunk of code, if that is what is needed.
-- After moving records outside valid pixels to the nearest cells with
-  values, cell duplicates may be produced. Users can run
-  [`remove_cell_duplicates()`](https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.md)
-  again to prevent this potential problem.
+
+``` r
+# Reset plotting parameters
+par(original_par) 
+```
 
   
 
 ## Saving results
 
-The results of the data cleaning steps in kuenm2 are simple
+The results of the data cleaning steps in `kuenm` are simple
 `data.frames` that may include a few additional columns and fewer
 records than the original dataset. An easy way to save these results is
 by writing them to CSV files. Although multiple options exist for saving

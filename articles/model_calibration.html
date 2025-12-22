@@ -80,8 +80,13 @@
 
     
     
+<div class="section level2">
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h2>
 <ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#description">Description</a></li>
+<li><a href="#getting-ready">Getting ready</a></li>
+<li><a href="#prepare-data">Preparing data</a></li>
 <li>
 <a href="#calibration">Calibration</a>
 <ul>
@@ -91,32 +96,62 @@
 </ul>
 </li>
 <li><a href="#re-selecting-models">Re-selecting models</a></li>
+<li><a href="#training-partion-effects">Training partion
+effects</a></li>
 <li><a href="#saving-a-calibration_results-object">Saving a
 calibration_results object</a></li>
 </ul>
 <hr>
+</div>
 <div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+<h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
 </h2>
-<p>Model calibration is the most computationally challenging process
-automated in <strong>kuenm2</strong>. In this step, candidate models are
-trained and tested using a k-fold cross-validation approach. Then,
-models are selected based on multiple criteria to warranty that the
-models used in later steps are the most robust among the candidates. The
-main function used in this step is <code><a href="../reference/calibration.html">calibration()</a></code>.</p>
+<p>Model calibration is one of the most computationally intensive
+processes automated in <code>kuenm2</code>. In this step, candidate
+models are trained and tested using a cross-validation approach as
+defined in the object <code>prepared_data</code>. Then, models are
+selected based on multiple criteria to warranty that the models used in
+later steps are the most robust among the candidates. This vignette
+guides users in running model calibration examples to explore and
+understand the options included and the results from the process.</p>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="getting-ready">Getting ready<a class="anchor" aria-label="anchor" href="#getting-ready"></a>
+</h2>
+<p>At this point it is assumed that <code>kuenm2</code> is installed (if
+not, see the <a href="../index.html">Main guide</a>). Load
+<code>kuenm2</code> and any other required packages, and define a
+working directory (if needed).</p>
+<p>Note: functions from other packages (i.e., not from base R or
+<code>kuenm2</code>) used in this guide will be displayed as
+<code>package::function()</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Current directory</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define new directory</span></span>
+<span><span class="co">#setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory</span></span>
+<span></span>
+<span><span class="co"># Saving original plotting parameters</span></span>
+<span><span class="va">original_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>no.readonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="preparing-data">Preparing data<a class="anchor" aria-label="anchor" href="#preparing-data"></a>
+</h2>
 <p>To start the calibration process, we need a
 <code>prepared_data</code> object. For more details in data preparation,
 please refer to the vignette <a href="prepare_data.html">prepare data
 for model calibration</a>.</p>
-<p>To start, let’s create two <code>prepared_data</code> object: one
-using the maxnet as algorithm, and another with GLM:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Load packages</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.86</span></span>
-<span></span>
-<span><span class="co"># Import occurrences</span></span>
+<p>To start, let’s create two <code>prepared_data</code> objects: one
+using the maxnet as the algorithm, and another with GLMs:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import occurrences</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">occ_data</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Import raster layers</span></span>
@@ -147,7 +182,7 @@ using the maxnet as algorithm, and another with GLM:</p>
 <span>                      train_proportion <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>                      n_background <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>                      features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"l"</span>, <span class="st">"q"</span>, <span class="st">"p"</span>, <span class="st">"lq"</span>, <span class="st">"lqp"</span><span class="op">)</span>,</span>
-<span>                      r_multiplier <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="co">#Not necessary with glms</span></span></code></pre></div>
+<span>                      r_multiplier <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>  <span class="co"># Not necessary with glms</span></span></code></pre></div>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -156,17 +191,18 @@ using the maxnet as algorithm, and another with GLM:</p>
 <p>The <code><a href="../reference/calibration.html">calibration()</a></code> function fits and evaluates candidate
 models considering the follow metrics:</p>
 <ul>
+<li>Unimodality (optional) of responses: Assessing the coefficients of
+quadratic terms, following <a href="https://journals.ku.edu/jbi/article/view/21742" class="external-link">Arias-Giraldo
+&amp; Cobos (2024)</a>.</li>
 <li>Omission error: calculated using models trained with separate
 testing data subsets. Users can specify multiple omission rates to be
 considered (e.g., c(5%, 10%)), though only one can be used as the
 threshold for selecting the best models.</li>
-<li>Partial ROC: calculated following <a href="http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008" class="external-link">Peterson et
-al. (2008)</a>.</li>
 <li>Model complexity (AIC): assessed using models generated with the
 complete set of occurrences.</li>
-<li>Unimodality (optional): Assessed through the beta coefficients of
-quadratic terms, following <a href="https://journals.ku.edu/jbi/article/view/21742" class="external-link">Arias-Giraldo
-&amp; Cobos (2024)</a>.</li>
+<li>Partial ROC: calculated following <a href="http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008" class="external-link">Peterson et
+al. (2008)</a>, for models that meet previous criteria (by
+default).</li>
 </ul>
 <p><br></p>
 <p>In summary, to calibrate and evaluate the models, the function
@@ -193,24 +229,23 @@ add presence samples to the background (default is <code>TRUE</code>),
 and whether to employ user-specified weights. For a comprehensive
 description of all arguments, refer to <code><a href="../reference/calibration.html">?calibration</a></code>.</p>
 <p>In this example, we will evaluate the models considering two omission
-errors (5% and 10%), with model selection based on the 5% omission
-error. To improve computational speed, you can set <code>parallel</code>
-to <code>TRUE</code> and specify the number of cores to utilize; the
-candidate models will be distributed among these cores. To detect the
-number of available cores on your machine, run
+errors (5% and 10%), with model selection based on a 10% omission error.
+To accelerate the process, the argument <code>parallel</code> can be set
+to <code>TRUE</code> and specify the number of cores to utilize. To
+detect the number of available cores on your machine, run
 <code><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">parallel::detectCores()</a></code>.</p>
 <p><br></p>
 <div class="section level3">
 <h3 id="maxnet-models">Maxnet Models<a class="anchor" aria-label="anchor" href="#maxnet-models"></a>
 </h3>
 <p>Let’s calibrate the maxnet models:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Calibrate maxnet models</span></span>
 <span><span class="va">m_maxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibration.html">calibration</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d_maxnet</span>, </span>
-<span>                 error_considered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span>
-<span>                 omission_rate <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>                 parallel <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co">#Set TRUE to run in parallel</span></span>
-<span>                 ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">#Define number of cores to run in parallel</span></span>
+<span>                        error_considered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>                        omission_rate <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>                        parallel <span class="op">=</span> <span class="cn">FALSE</span>,  <span class="co"># Set TRUE to run in parallel</span></span>
+<span>                        ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>  <span class="co"># Define number of cores to run in parallel</span></span>
 <span><span class="co"># Task 1/1: fitting and evaluating models:</span></span>
 <span><span class="co">#   |=====================================================================| 100%</span></span>
 <span><span class="co"># </span></span>
@@ -228,14 +263,15 @@ number of available cores on your machine, run
 <p><br></p>
 <p>The <code><a href="../reference/calibration.html">calibration()</a></code> function returns a
 <code>calibration_results</code> object, a list containing various
-essential pieces of information from the model calibration process. The
-elements of the <code>calibration_results</code> object can be explored
-by indexing them. For example, all evaluation metrics are stored within
-the <code>calibration_results</code> element:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+essential pieces of information from the calibration process. The
+elements of this object can be explored by printing the object or
+indexing them. All evaluation metrics are stored within the
+<code>calibration_results</code> element, see how to explore them
+below:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See first rows of the summary of calibration results</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">calibration_results</span><span class="op">$</span><span class="va">Summary</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Omission_rate_at_10.mean"</span>, <span class="st">"AICc"</span>,</span>
-<span>                                      <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">calibration_results</span><span class="op">$</span><span class="va">Summary</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Omission_rate_at_10.mean"</span>, </span>
+<span>                                              <span class="st">"AICc"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   ID Omission_rate_at_10.mean     AICc Is_concave</span></span>
 <span><span class="co">#&gt; 1  1                   0.0978 665.8779      FALSE</span></span>
 <span><span class="co">#&gt; 2  2                   0.0978 665.9493      FALSE</span></span>
@@ -245,10 +281,10 @@ the <code>calibration_results</code> element:</p>
 <span><span class="co">#&gt; 6  6                   0.1170 678.1182      FALSE</span></span></code></pre></div>
 <p><br></p>
 <p>We can also examine the details of the selected models:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See first rows of the summary of calibration results</span></span>
-<span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"R_multiplier"</span>, </span>
-<span>                     <span class="st">"Omission_rate_at_10.mean"</span>, <span class="st">"AICc"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"R_multiplier"</span>,</span>
+<span>                             <span class="st">"Omission_rate_at_10.mean"</span>, <span class="st">"AICc"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;      ID</span></span>
 <span><span class="co">#&gt; 192 192</span></span>
 <span><span class="co">#&gt; 219 219</span></span>
@@ -266,8 +302,8 @@ and the number of models exhibiting concave curves (along with an
 indication of whether these were removed). Additionally, it reports the
 number of models excluded due to non-significant partial ROC (pROC)
 values, high omission error rates, or elevated AIC values. Finally, a
-summary of the metrics for the selected models is presented.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+summary of the metrics for up to five selected models is presented.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="va">m_maxnet</span><span class="op">)</span></span>
 <span><span class="co">#&gt; calibration_results object summary (maxnet)</span></span>
 <span><span class="co">#&gt; =============================================================</span></span>
@@ -295,22 +331,22 @@ summary of the metrics for the selected models is presented.</p>
 <span><span class="co">#&gt; 219 1.179293          7</span></span></code></pre></div>
 <p><br></p>
 <p>In this example, of the 300 candidate <strong>maxnet</strong> models
-fitted, two was selected based on a significant pROC value, a low
+fitted, two were selected based on a significant pROC value, a low
 omission error (&lt;10%), and a low AIC score (&lt;2).</p>
 <p><br></p>
 </div>
 <div class="section level3">
 <h3 id="glm-models">GLM Models<a class="anchor" aria-label="anchor" href="#glm-models"></a>
 </h3>
-<p>Now, let’s calibrate the GLM Models to see if with this algorith we
-achieve different selected models:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>Now, let’s calibrate the GLM Models to see if different models
+factors are selected with this algorithm:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Calibrate maxnet models</span></span>
 <span><span class="va">m_glm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibration.html">calibration</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d_glm</span>, </span>
 <span>                     error_considered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span>
 <span>                     omission_rate <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>                     parallel <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co">#Set TRUE to run in parallel</span></span>
-<span>                     ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co">#Define number of cores to run in parallel</span></span>
+<span>                     parallel <span class="op">=</span> <span class="cn">FALSE</span>,  <span class="co"># Set TRUE to run in parallel</span></span>
+<span>                     ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>  <span class="co"># Define number of cores to run in parallel</span></span>
 <span><span class="co"># Task 1/1: fitting and evaluating models:</span></span>
 <span><span class="co">#   |=====================================================================| 100%</span></span>
 <span><span class="co"># Model selection step:</span></span>
@@ -324,8 +360,9 @@ achieve different selected models:</p>
 <span><span class="co"># Validating pROC of selected models...</span></span>
 <span><span class="co">#   |=====================================================================| 100%</span></span>
 <span><span class="co"># All selected models have significant pROC values.</span></span></code></pre></div>
+<p><br></p>
 <p>Now, instead of two selected models, we have only one:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_glm</span></span>
 <span><span class="co">#&gt; calibration_results object summary (glm)</span></span>
 <span><span class="co">#&gt; =============================================================</span></span>
@@ -349,18 +386,25 @@ achieve different selected models:</p>
 <h3 id="concave-curves">Concave curves<a class="anchor" aria-label="anchor" href="#concave-curves"></a>
 </h3>
 <p>It is worth noting that with both maxnet and glm algorithm, some
-models were identified as having concave curves. Concave (or bimodal)
-curves indicate that the peak suitability is found at the extremes of
-the variable range. For example, as shown in the right panel of the
-figure below, higher suitability is observed in both the driest and
-wettest regions, with lower suitabilities occurring at intermediate
-precipitation levels.</p>
-<p><img src="vignettes_img/concave_curves.png" class="r-plt" alt="" width="82%" style="display: block; margin: auto;"></p>
+models were identified as having concave response curves. Concave (or
+bimodal) curves indicate that higher suitability is found at variable
+values around a point of lower suitability. For example, as shown in the
+right panel of the figure below, higher suitability is observed in both
+the driest and wettest regions, with lower suitabilities occurring at
+intermediate precipitation levels.</p>
+<div class="figure" style="text-align: center">
+<img src="vignettes_img/concave_curves.png" class="r-plt" alt="Figure 1. Representation of convex (left) and concave (right) response curves. Dashed lines indicate limist of envrionmental conditions for model training." width="82%"><p class="caption">
+Figure 1. Representation of convex (left) and concave (right) response
+curves. Dashed lines indicate limist of envrionmental conditions for
+model training.
+</p>
+</div>
 <p><br></p>
-<p>In our example, none of the selected models have concave curves:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p>In our example, none of the maxnet selected models have concave
+responses, but the GLM selected had at least one concave response:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Selected maxnet models</span></span>
-<span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;      ID</span></span>
 <span><span class="co">#&gt; 192 192</span></span>
 <span><span class="co">#&gt; 219 219</span></span>
@@ -372,21 +416,20 @@ precipitation levels.</p>
 <span><span class="co">#&gt; 219      FALSE</span></span>
 <span></span>
 <span><span class="co">#Selected glm models</span></span>
-<span><span class="va">m_glm</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">m_glm</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;    ID                                                        Formulas</span></span>
 <span><span class="co">#&gt; 85 85 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2)</span></span>
 <span><span class="co">#&gt;    Is_concave</span></span>
 <span><span class="co">#&gt; 85       TRUE</span></span></code></pre></div>
 <p><br></p>
-<p>However, occasionally, a model with concave curves might be selected
-if it has sufficiently low omission rate and AIC values. To
-<strong>ensure that none of the selected models have concave
-curves</strong>, you can set <code>remove_concave = TRUE</code> within
-the <code><a href="../reference/calibration.html">calibration()</a></code> function. Let’s test it with the maxnet
-algorithm:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>This shows that a model with concave responses could be selected if
+it has low omission rate and AIC values. To <strong>ensure that none of
+the selected models have concave curves</strong>, you can set
+<code>remove_concave = TRUE</code> within the <code><a href="../reference/calibration.html">calibration()</a></code>
+function. Let’s test it with the maxnet algorithm:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_unimodal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calibration.html">calibration</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d_maxnet</span>, </span>
-<span>                          remove_concave <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Ensures concave models are not selected</span></span>
+<span>                          remove_concave <span class="op">=</span> <span class="cn">TRUE</span>,  <span class="co"># Ensures concave models are not selected</span></span>
 <span>                          error_considered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span>
 <span>                          omission_rate <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co"># Task 1/2: checking for concave responses in models:</span></span>
@@ -410,26 +453,16 @@ algorithm:</p>
 <p><br></p>
 <p>Note that the process is now divided into two tasks:</p>
 <ul>
-<li><p>Task 1/2: Only candidate models that include quadratic terms are
-fitted. For Maxent models (using the maxnet algorithm), the function
-first fits the candidate model with the highest regularization
-multiplier (e.g., 5) for each formula. This approach is used because if
-a particular formula produces a concave response at a high
-regularization value, it will also produce concave responses at lower
-regularization values. By checking the model with the highest
-regularization first, the function can skip fitting the other models
-with the same formula but lower regularization values, saving time and
-computation.</p></li>
-<li>
-<p>Task 2/2: In this step, the function fits and evaluates two
-groups of models:</p>
-<ul>
-<li>Models without quadratic terms.</li>
-<li>Models with quadratic terms, but only those with formulas that did
-not produce concave responses in Task 1/2 (i.e., they passed the
-concavity check at the higher regularization multiplier).</li>
-</ul>
-</li>
+<li><p>Task 1: Only candidate models that include quadratic terms are
+fitted. For GLMs, all models with quadratic terms are tested. For maxnet
+models, the version of the models with quadratic terms with the highest
+regularization multiplier is tested. This is because if a maxnet model
+produces a concave response at a high regularization value, it will do
+the same at lower values.</p></li>
+<li><p>Task 2: In this step, the function fits and evaluates two groups
+of models: (1) models without quadratic terms; and (2) models with
+quadratic terms, but only those with formulas that did not produce
+concave responses in Task 1.</p></li>
 </ul>
 <p><br></p>
 </div>
@@ -440,14 +473,16 @@ concavity check at the higher regularization multiplier).</li>
 <p>The model selection procedure is conducted internally during the
 calibration process. However, it is possible to re-select models by
 considering other omission rates (since these were calculated during
-calibration), model complexity (delta AIC) and concave curves.</p>
-<p>By default, <code><a href="../reference/calibration.html">calibration()</a></code> calculates pROC values only
-for the selected models to optimize computational time. Consequently,
-pROC values for non-selected models are filled with <code>NA</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+calibration), model complexity (delta AIC), and removing or not models
+with concave responses.</p>
+<p>To optimize computational time, <code><a href="../reference/calibration.html">calibration()</a></code> calculates
+pROC values only for models pre-selected based on omission and
+complexity considerations (default). Consequently, pROC values for
+models that were not pre-selected are filled with <code>NA</code>.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See first rows of the summary of calibration results (pROC values)</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">calibration_results</span><span class="op">$</span><span class="va">Summary</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Mean_AUC_ratio_at_10.mean"</span>,</span>
-<span>                                 <span class="st">"pval_pROC_at_10.mean"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">calibration_results</span><span class="op">$</span><span class="va">Summary</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Mean_AUC_ratio_at_10.mean"</span>,</span>
+<span>                                              <span class="st">"pval_pROC_at_10.mean"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   ID Mean_AUC_ratio_at_10.mean pval_pROC_at_10.mean</span></span>
 <span><span class="co">#&gt; 1  1                        NA                   NA</span></span>
 <span><span class="co">#&gt; 2  2                        NA                   NA</span></span>
@@ -456,8 +491,8 @@ pROC values for non-selected models are filled with <code>NA</code>.</p>
 <span><span class="co">#&gt; 5  5                        NA                   NA</span></span>
 <span><span class="co">#&gt; 6  6                        NA                   NA</span></span>
 <span><span class="co"># See pROC values of selected models</span></span>
-<span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Mean_AUC_ratio_at_10.mean"</span>,</span>
-<span>                                 <span class="st">"pval_pROC_at_10.mean"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Mean_AUC_ratio_at_10.mean"</span>, </span>
+<span>                             <span class="st">"pval_pROC_at_10.mean"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;      ID Mean_AUC_ratio_at_10.mean pval_pROC_at_10.mean</span></span>
 <span><span class="co">#&gt; 192 192                  1.497376                    0</span></span>
 <span><span class="co">#&gt; 219 219                  1.502309                    0</span></span></code></pre></div>
@@ -465,16 +500,15 @@ pROC values for non-selected models are filled with <code>NA</code>.</p>
 <p>When pROC is not calculated for all models during
 <code><a href="../reference/calibration.html">calibration()</a></code>, the <code><a href="../reference/select_models.html">select_models()</a></code> function
 requires the <code>prepared_data</code> used during the calibration
-step, and <code>compute_proc</code> must be set to
-<code>TRUE</code>.</p>
-<p>For instance, let’s re-select the maxnet models from the calibration
-results, applying an omission rate of 5% instead 10%:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Re-select maxnet models</span></span>
+step, and <code>compute_proc</code> must be set to <code>TRUE</code>.
+For instance, let’s re-select maxnet models applying an omission rate of
+5% instead 10%:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Re-select maxnet models</span></span>
 <span><span class="va">new_m_maxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_models.html">select_models</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">m_maxnet</span>, </span>
-<span>                              data <span class="op">=</span> <span class="va">d_maxnet</span>, <span class="co">#Necessary for computing pROC</span></span>
+<span>                              data <span class="op">=</span> <span class="va">d_maxnet</span>,  <span class="co"># Needed to compute pROC</span></span>
 <span>                              compute_proc <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span>                              omission_rate <span class="op">=</span> <span class="fl">5</span><span class="op">)</span> <span class="co"># New omission rate</span></span>
+<span>                              omission_rate <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>  <span class="co"># New omission rate</span></span>
 <span><span class="co">#&gt; Selecting best among 300 models.</span></span>
 <span><span class="co">#&gt; Calculating pROC...</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -485,6 +519,7 @@ results, applying an omission rate of 5% instead 10%:</p>
 <span><span class="co">#&gt; Validating pROC of selected models...</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; All selected models have significant pROC values.</span></span>
+<span></span>
 <span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="va">new_m_maxnet</span><span class="op">)</span></span>
 <span><span class="co">#&gt; calibration_results object summary (maxnet)</span></span>
 <span><span class="co">#&gt; =============================================================</span></span>
@@ -512,17 +547,18 @@ results, applying an omission rate of 5% instead 10%:</p>
 <code><a href="../reference/select_models.html">select_models()</a></code> will return a
 <code>calibration_results</code> output with the selected models and
 summary updated. Note that we now have different selected models with
-the maxnet algoritm:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+the maxnet algorithm:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">new_m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"R_multiplier"</span>, </span>
-<span>                     <span class="st">"Omission_rate_at_5.mean"</span>, <span class="st">"Mean_AUC_ratio_at_5.mean"</span>,</span>
-<span>                     <span class="st">"AICc"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
+<span>                                <span class="st">"Omission_rate_at_5.mean"</span>, </span>
+<span>                                <span class="st">"Mean_AUC_ratio_at_5.mean"</span>,</span>
+<span>                                <span class="st">"AICc"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;      ID                                                           Formulas</span></span>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.479116 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.510198 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.478911 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.515821 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
@@ -534,10 +570,10 @@ in the output of the <code><a href="../reference/calibration.html">calibration()
 <code>object$calibration_results$Summary</code>. In this case, the
 function will return a list containing the selected models along with
 summaries of the model selection process.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Re-select models using data.frame</span></span>
 <span><span class="va">new_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_models.html">select_models</a></span><span class="op">(</span>candidate_models <span class="op">=</span> <span class="va">m_maxnet</span><span class="op">$</span><span class="va">calibration_results</span><span class="op">$</span><span class="va">Summary</span>,</span>
-<span>                             data <span class="op">=</span> <span class="va">d_maxnet</span>, <span class="co">#Necessary for computing pROC</span></span>
+<span>                             data <span class="op">=</span> <span class="va">d_maxnet</span>,  <span class="co"># Needed to compute pROC</span></span>
 <span>                             compute_proc <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>                             omission_rate <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Selecting best among 300 models.</span></span>
@@ -556,18 +592,64 @@ summaries of the model selection process.</p>
 <span><span class="co">#&gt; [1] "list"</span></span>
 <span></span>
 <span><span class="co">#See selected models</span></span>
-<span><span class="va">new_summary</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"R_multiplier"</span>, </span>
-<span>                     <span class="st">"Omission_rate_at_5.mean"</span>, <span class="st">"Mean_AUC_ratio_at_5.mean"</span>,</span>
-<span>                     <span class="st">"AICc"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">new_summary</span><span class="op">$</span><span class="va">selected_models</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"Formulas"</span>, <span class="st">"R_multiplier"</span>, </span>
+<span>                                <span class="st">"Omission_rate_at_5.mean"</span>, </span>
+<span>                                <span class="st">"Mean_AUC_ratio_at_5.mean"</span>,</span>
+<span>                                <span class="st">"AICc"</span>, <span class="st">"Is_concave"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;      ID                                                           Formulas</span></span>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.481150 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.513732 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.479033 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.515884 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="training-partion-effects">Training partion effects<a class="anchor" aria-label="anchor" href="#training-partion-effects"></a>
+</h2>
+<p>After model calibration, selected models can be explored to
+understand the effect of leaving testing data out in every
+cross-validation process. This can help understand if leaving a testing
+partition out changes dramatically response curves compared to using
+other sets of data. These explorations can also be used to understand if
+the ability of models to predict testing records derives from
+extrapolation or not, and whether extrapolations are safe.</p>
+<p>The function <code><a href="../reference/partition_response_curves.html">partition_response_curves()</a></code> can be used to
+perform the explorations mentioned above for each of the selected models
+in the <code>calibration_results</code> object.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># ID of models that were selected</span></span>
+<span><span class="va">m_maxnet</span><span class="op">$</span><span class="va">selected_models</span><span class="op">$</span><span class="va">ID</span></span>
+<span><span class="co">#&gt; [1] 192 219</span></span>
+<span></span>
+<span><span class="co"># Response curves for model 192</span></span>
+<span><span class="fu"><a href="../reference/partition_response_curves.html">partition_response_curves</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">m_maxnet</span>, modelID <span class="op">=</span> <span class="fl">192</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_calibration_files/figure-html/extrap_partitions-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>In the multi-panel plot produced above, we can see the response
+curves for each of the variables used in the model. Each panel
+shows:</p>
+<ul>
+<li>The response curve for the variable in a model fit with a portion of
+the data that leaves out the partition labeled in the y axis.</li>
+<li>Points of records used for testing, the ones corresponding to the
+partition left out.</li>
+<li>Dashed lines representing the limits of the environmental values in
+the data used to fit models.</li>
+</ul>
+<p>The same can be done for each of the models selected. Below is a plot
+for the second model selected in this example.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Response curves for model 219</span></span>
+<span><span class="fu"><a href="../reference/partition_response_curves.html">partition_response_curves</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">m_maxnet</span>, modelID <span class="op">=</span> <span class="fl">219</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_calibration_files/figure-html/extrap_partitions1-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Reset plotting parameters</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">original_par</span><span class="op">)</span> </span></code></pre></div>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -580,7 +662,7 @@ essentially a list, users can save it to a local directory using
 <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">saveRDS()</a></code>. Saving the object facilitates loading it back
 into your R session later using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code>. See an example
 below:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set directory to save (here, in a temporary directory)</span></span>
 <span><span class="va">dir_to_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
