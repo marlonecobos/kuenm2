@@ -48,5 +48,7 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          # Simplified build_args to avoid potential missing tool errors
-          build_args: '--no-manual'
+          # Arguments for R CMD check
+          args: 'c("--no-manual", "--as-cran")'
+          # Arguments for R CMD build
+          build_args: '["--no-manual"]'
