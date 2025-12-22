@@ -18,10 +18,9 @@
 #' the environmental space. Default is NULL, meaning the first two continuous
 #' variables available in `explore_partition` are used to define the E space.
 #' @param calibration_area (SpatRaster, SpatVector, or SpatExtent) A spatial
-#' object representing the calibration area. Preferably, the same object
-#' provided to `prepare_data`. Required only when "G" is included in
-#' `type_of_plot`. Default is NULL, meaning the coordinates of the records are
-#' used to define the calibration area.
+#' object representing the calibration area. Preferably, one of the raster layers
+#' used as variables to `prepare_data`. Required only when `type_of_plot = "G"`.
+#' The default, NULL, uses a basic Spatvector of the world.
 #' @param show_limits (logical) whether to draw a box representing the lower and
 #' upper limits of the variables, considering the other partitions (i.e., in
 #' Partition 1, the box represents the limits considering Partitions 2, 3, and

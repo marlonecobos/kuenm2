@@ -48,10 +48,9 @@ the environmental space. Default is NULL, meaning the first two continuous
 variables available in \code{explore_partition} are used to define the E space.}
 
 \item{calibration_area}{(SpatRaster, SpatVector, or SpatExtent) A spatial
-object representing the calibration area. Preferably, the same object
-provided to \code{prepare_data}. Required only when "G" is included in
-\code{type_of_plot}. Default is NULL, meaning the coordinates of the records are
-used to define the calibration area.}
+object representing the calibration area. Preferably, one of the raster layers
+used as variables to \code{prepare_data}. Required only when \code{type_of_plot = "G"}.
+The default, NULL, uses a basic Spatvector of the world.}
 
 \item{show_limits}{(logical) whether to draw a box representing the lower and
 upper limits of the variables, considering the other partitions (i.e., in
