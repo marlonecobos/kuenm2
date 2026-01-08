@@ -348,6 +348,10 @@ prepare_data <- function(algorithm,
     }
   }
 
+  if(do_pca && !is.null(user_formulas)){
+    stop("Internal PCA cannot be run when 'user_formulas' is provided. To use PCA with custom formulas, run PCA externally with perform_pca(), supply the resulting PCA rasters via 'raster_variables' and set 'do_pca = FALSE'.")
+  }
+
   sp_name <- species
 
   if (do_pca) {

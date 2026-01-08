@@ -464,7 +464,7 @@ terra::plot(geo_dist_bias_inv$Background, main = "Inverse Bias Effect",
 
 ## PCA for variables
 
-A common approach in ENM involves summarizing the information from a set of variables into a smaller set of orthogonal variables using Principal Component Analysis (PCA) (see [Cruz-Cardenaz et al. 2014](https://doi.org/10.7550/rmb.36723) for an example). `kuenm2` has options to perform a PCA internally or use variables that have been externally prepared as PCs.
+A common approach in ENM involves summarizing the information from a set of variables into a smaller set of orthogonal variables using Principal Component Analysis (PCA) (see [Trindade et al. 2025](https://onlinelibrary.wiley.com/doi/epdf/10.1111/jbi.70103) for an example). `kuenm2` has options to perform a PCA internally or use variables that have been externally prepared as PCs.
 
 <br>
 
