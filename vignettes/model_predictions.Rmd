@@ -114,23 +114,22 @@ Let's check which variables were used to calibrate our models. They are availabl
 # Variables used to calibrate maxnet models
 colnames(fitted_model_maxnet$calibration_data)
 
-# Variables used to calibrate glm models
+# Variables used to calibrate glms
 colnames(fitted_model_glm$calibration_data)
 ```
 
 <br> 
 
-The first column, "pr_bg", indicates the presence (1) and absence (0) records, while the other columns represent the environmental variables. In this case, the variables are `bio_1`, `bio_7`, `bio_12`, `bio_15`, and `SoilType`. All these variables are present in the `SpatRaster` (`var`) we imported. Therefore, we can now predict our models to this raster. Let's begin by predicting the maxnet model:
+The first column, "pr_bg", indicates the presence (1) and background (0) records, while the other columns represent the environmental variables. In this case, the variables are `bio_1`, `bio_7`, `bio_12`, `bio_15`, and `SoilType`. All these variables are present in the `SpatRaster` (`var`) imported, so, we can predict our models to this raster. Let's begin by predicting the maxnet model:
 
 ```{r predict maxnet}
-p_maxnet <- predict_selected(models = fitted_model_maxnet, 
-                             new_variables = var,
+p_maxnet <- predict_selected(models = fitted_model_maxnet, new_variables = var,
                              progress_bar = FALSE)
 ```
 
 <br> 
 
-By default, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its replicates (if more than one model was selected), as well as a general consensus across all models. In this case, the output is a `list` containing `SpatRaster` predictions for each replicate, along with the consensus results for each model and the overall general consensus:
+By default, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its replicates (if they were produced), as well as a general consensus across all models (if multiple were selected). In this case, the output is a `list` containing `SpatRasters` for predictions, the consensus for each model, and the general consensus:
 
 ```{r check maxnet predictions}
 # See objects in the output of predict_selected
@@ -159,10 +158,10 @@ terra::plot(p_maxnet$Model_192$Model_consensus)
 
 <br>
 
-For comparison, let's predict the GLM model:
+For comparison, let's predict the GLM:
 
 ```{r}
-# Predict glm model
+# Predict glm 
 p_glm <- predict_selected(models = fitted_model_glm, 
                           new_variables = var,
                           progress_bar = FALSE)
@@ -170,7 +169,7 @@ p_glm <- predict_selected(models = fitted_model_glm,
 names(p_glm)
 
 # Compare general consensus (mean) between maxnet and glm
-par(mfrow= c(1, 2))  # Set grid to plot
+par(mfrow = c(1, 2))  # Set grid to plot
 terra::plot(p_maxnet$General_consensus$mean, main = "Maxnet")
 terra::plot(p_glm$General_consensus, main = "GLM")
 
@@ -180,7 +179,7 @@ terra::plot(p_glm$General_consensus, main = "GLM")
 
 ## Predict to data.frame 
 
-Instead of a `SpatRaster`, we can also predict the models to a `data.frame` that stores the variable values. To see an example, let's convert the raster variables `var` to a `data.frame`:
+Instead of a `SpatRaster`, we can also predict the models to a `data.frame` with the variable values. As an example, let's convert the raster variables `var` to a `data.frame`:
 
 ```{r var to df}
 var_df <- as.data.frame(var)
@@ -218,11 +217,11 @@ head(p_df$General_consensus)
 
 ## Output type
 
-Maximum entropy models (maxnet) produce four different types of output for their predictions: raw, cumulative, logistic, and cloglog. These are described in [Merow et al. 2013](https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/j.1600-0587.2013.07872.x) and [Phillips et al. 2017](https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/ecog.03049).
+Maxnet models produce four different types of output for their predictions: raw, cumulative, logistic, and cloglog. These are described in [Merow et al. 2013](https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/j.1600-0587.2013.07872.x) and [Phillips et al. 2017](https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/ecog.03049).
 
-All four output types are monotonically related. Therefore, rank-based metrics for model fit (e.g., omission rate and partial ROC) will be identical. However, the output types have different scaling, which leads to distinct interpretations and visually different prediction maps.
+All four output types are monotonically related; thus, rank-based metrics for model fit (e.g., omission rate and partial ROC) will be identical. However, the output types have different scaling, which leads to distinct interpretations and visually different prediction maps.
 
--   **Raw (or exponential) output** is interpreted as a Relative Occurrence Rate (ROR). The ROR sums to 1 when predicted to the calibration data.
+-   **Raw (or exponential) output** is interpreted as a Relative Occurrence Rate (ROR). The ROR sums to 1 when predicted to the data used to train the model.
 -   **Cumulative output** assigns to a location the sum of all raw values less than or equal to the raw value for that location, and then rescales this to range between 0 and 100. Cumulative output can be interpreted in terms of an omission rate because thresholding at a value of *c* to predict a suitable/unsuitable cell will omit approximately *c*% of presences.
 -   **Cloglog output (Default)** transforms the raw values into a scale of relative suitability ranging between 0 and 1, using a logistic transformation based on a user-specified parameter '$\tau$', which represents the probability of presence at 'average' presence locations. In this context, the tau value defaults to $\tau \approx 0.632$.
 -   **Logistic output** is similar to Cloglog, but it assumes that $\tau = 0.5$.
@@ -235,21 +234,19 @@ p_cloglog <- predict_selected(models = fitted_model_maxnet, new_variables = var,
 p_logistic <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
                               type = "logistic", progress_bar = FALSE)
 p_cumulative <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
-                              type = "cumulative", progress_bar = FALSE)
+                                 type = "cumulative", progress_bar = FALSE)
 p_raw <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
-                              type = "raw", progress_bar = FALSE)
+                          type = "raw", progress_bar = FALSE)
 
 # Plot the differences
-par(mfrow = c(2,2))
+par(mfrow = c(2, 2))
 terra::plot(p_cloglog$General_consensus$mean, main = "Cloglog (Default)",
-     zlim = c(0, 1))
-terra::plot(p_logistic$General_consensus$mean, main = "Logistic",
-     zlim = c(0, 1))
+            zlim = c(0, 1))
+terra::plot(p_logistic$General_consensus$mean, main = "Logistic", 
+            zlim = c(0, 1))
 terra::plot(p_cumulative$General_consensus$mean, main = "Cumulative",
-     zlim = c(0, 1))
-terra::plot(p_raw$General_consensus$mean, main = "Raw",
-     zlim = c(0, 1))
-
+            zlim = c(0, 1))
+terra::plot(p_raw$General_consensus$mean, main = "Raw", zlim = c(0, 1))
 ```
 
 <br>
@@ -265,9 +262,9 @@ response_curve(models = fitted_model_maxnet, variable = "bio_7",
 
 <br> 
 
-Note that higher suitability occurs at low values of the temperature range. However, the lower limit of the calibration data used to fit the models (dashed line) is at 15.7ºC. The premise that suitability will increase and stabilize at lower values of `bio_7` is an extrapolation of the model (the area to the left of the dashed line). It's possible that suitability could begin to decrease at extremely low values, rendering this extrapolation inaccurate, but the calibration data is insufficient for the model to predict this.
+Note that higher suitability occurs at low values of the temperature range. However, the lower limit of the calibration data used to fit the models (dashed line) is at 15.7ºC. The premise that suitability will increase and stabilize at lower values of `bio_7` is an extrapolation of the model (the area to the left of the dashed line). It's possible that suitability decreases at extremely low values, but training data is insufficient for the model to predict this.
 
-One way to address this is by clamping the variables. This means that all values outside the calibration range (both below the lower value and above the upper value) are set to the respective lower and upper limits of the calibration range. For example, in the calibration data for the Maxnet models, the lower and upper limits for `bio_7` are 15.7ºC and 23.3ºC, respectively:
+One way to address this is by clamping the variables. This means that all prediction values outside the training range (both below the lower value and above the upper value) are set to the prediction values found at the limits of the range. For example, in the calibration data for the Maxnet models, the lower and upper limits for `bio_7` are 15.7ºC and 23.3ºC, respectively:
 
 ```{r check lower and upper limits}
 range(fitted_model_maxnet$calibration_data$bio_7)
@@ -275,13 +272,15 @@ range(fitted_model_maxnet$calibration_data$bio_7)
 
 <br> 
 
-To observe the effect of clamping this variable, let's create a hypothetical (and extreme) scenario where `bio_7` has extremely low values:
+To observe the effect of clamping this variable, let's create a hypothetical scenario where `bio_7` has very low values:
 
 ```{r create scenario}
 # From bio_7, reduce values
 new_bio7 <- var$bio_7 - 3
+
 # Create new scenario
 new_var <- var
+
 # Replace bio_7 with new_bio7 in this scenario
 new_var$bio_7 <- new_bio7
 
@@ -289,7 +288,6 @@ new_var$bio_7 <- new_bio7
 par(mfrow = c(1, 2))
 terra::plot(var$bio_7, main = "Original bio_7", range = c(5, 25))
 terra::plot(new_var$bio_7, main = "New bio_7", range = c(5, 25))
-
 ```
 
 <br> 
@@ -299,16 +297,16 @@ Let's predict the Maxnet models for this new scenario with both free extrapolati
 ```{r}
 # Predict to hypothetical scenario with free extrapolation
 p_free_extrapolation <- predict_selected(models = fitted_model_maxnet, 
-                                         new_variables = new_var, #New scenario
+                                         new_variables = new_var,  # New scenario
                                          consensus = "mean",
-                                         extrapolation_type = "E", #Free extrapolation (Default)
+                                         extrapolation_type = "E",  # Free extrapolation (Default)
                                          progress_bar = FALSE)
 
 # Predict to hypothetical scenario with clamping
 p_clamping <- predict_selected(models = fitted_model_maxnet, 
-                               new_variables = new_var, #New scenario
+                               new_variables = new_var,  # New scenario
                                consensus = "mean",
-                               extrapolation_type = "EC", #Extrapolation with clamping
+                               extrapolation_type = "EC",  # Extrapolation with clamping
                                progress_bar = FALSE)
 
 # Get and see differences
@@ -316,17 +314,17 @@ p_difference <- p_free_extrapolation$General_consensus$mean - p_clamping$General
 
 # Plot the differences
 par(mfrow = c(2, 2))
-terra::plot(p_free_extrapolation$General_consensus$mean, main = "Free extrapolation",
-     zlim = c(0, 1))
+terra::plot(p_free_extrapolation$General_consensus$mean, 
+            main = "Free extrapolation", zlim = c(0, 1))
 terra::plot(p_clamping$General_consensus$mean, main = "Clamping",
-     zlim = c(0, 1))
+             zlim = c(0, 1))
 terra::plot(p_difference, main = "Difference")
 terra::plot(new_bio7, main = "Hypothetical bio_7", type = "interval")
 ```
 
 <br> 
 
-Note that when we clamp the variables, regions with extremely low values of (the hypothetical) `bio_7` exhibit lower predicted suitabilities compared to when free extrapolation is allowed.
+Note that when we clamp the variables, regions with extremely low values of (the hypothetical) `bio_7` exhibit lower predicted suitability values compared to when free extrapolation is allowed.
 
 By default, when `extrapolation_type = "EC"` is set, all predictor variables are clamped. You can specify which variables to clamp using the `var_to_clamp` argument.
 
@@ -334,29 +332,29 @@ By default, when `extrapolation_type = "EC"` is set, all predictor variables are
 
 ## No extrapolation
 
-A more rigorous approach is to **predict with no extrapolation**, where regions outside the limits of the calibration data are assigned a suitability value of 0. Let's predict the Maxnet models using the hypothetical scenario we created in the previous step to observe the difference:
+A more rigorous approach is to *predict with no extrapolation*. Here regions outside the limits of the training data are assigned a suitability value of 0. Let's proceed to observe the differences:
 
 ```{r no extrapolation}
 # Predict to hypothetical scenario with no extrapolation
 p_no_extrapolation <- predict_selected(models = fitted_model_maxnet, 
-                                       new_variables = new_var, #New scenario
+                                       new_variables = new_var,  # New scenario
                                        consensus = "mean",
-                                       extrapolation_type = "NE", #No extrapolation
+                                       extrapolation_type = "NE",  # No extrapolation
                                        progress_bar = FALSE)
 # Plot the differences
-par(mfrow = c(2,2))
+par(mfrow = c(2, 2))
 terra::plot(p_free_extrapolation$General_consensus$mean, main = "Free extrapolation",
-     zlim = c(0, 1))
+            zlim = c(0, 1))
 terra::plot(p_clamping$General_consensus$mean, main = "Clamping",
-     zlim = c(0, 1))
+            zlim = c(0, 1))
 terra::plot(p_no_extrapolation$General_consensus$mean, main = "No extrapolation",
-     zlim = c(0, 1))
+            zlim = c(0, 1))
 terra::plot(new_bio7, main = "Hypothetical bio_7", type = "interval")
 ```
 
 <br> 
 
-In this example, a large portion of the predicted area shows zero suitability. This is because, in this hypothetical scenario, much of the region has `bio_7` values lower than those in the calibration data, which has a minimum of 15ºC. Suitability values greater than zero are only predicted in areas where `bio_7` falls within the range of the calibration data.
+In this example, a large portion of the predicted area shows zero suitability. This is because, in this hypothetical scenario, much of the region has `bio_7` values lower than those in the training data, which has a minimum of 15ºC. Suitability values greater than zero are only in areas where `bio_7` falls within the training range.
 
 By default, when `extrapolation_type = "NE"` is set, all predictor variables are considered for this process. You can specify a subset of variables to be considered for extrapolation using the `var_to_clamp` argument.
 
@@ -364,7 +362,7 @@ By default, when `extrapolation_type = "NE"` is set, all predictor variables are
 
 # Binarize predictions
 
-The `fitted_models` object stores the thresholds that can be used to binarize the models into suitable and unsuitable areas. These thresholds correspond to the omission error rate used during model selection (e.g., 5% or 10%).
+The `fitted_models` object stores the thresholds that can be used to classify model predictions into suitable and unsuitable areas. These thresholds correspond to the omission error rate used during model selection (e.g., 5% or 10%).
 
 You can access the omission error rate used to calculate the thresholds directly from the object:
 
@@ -373,13 +371,13 @@ You can access the omission error rate used to calculate the thresholds directly
 ## For maxnet model
 fitted_model_maxnet$omission_rate
 
-## For glm model
+## For glm
 fitted_model_glm$omission_rate
 ```
 
 <br> 
 
-In both models, a 10% omission error rate was used to calculate the thresholds. This means that when predictions are binarized, approximately 10% of the presence records used in model calibration will fall into areas classified as unsuitable.
+In both models, a 10% omission error rate was used to calculate the thresholds. This means that when predictions are binarized, approximately 10% of the presence records used to train models will fall into areas classified as unsuitable.
 
 The thresholds are summarized in two ways: the mean and median across replicates for each model, and the consensus mean and median across all selected models (when more than one model is selected). Let's check the thresholds for the general consensus:
 
@@ -393,22 +391,21 @@ fitted_model_glm$thresholds$consensus
 
 <br> 
 
-Let's use these thresholds to binarize the models (this functionality is only available when predicting to a `SpatRaster`):
+Let's use these threshold values to binarize models predictions:
 
 ```{r binarize models}
-# Get the thersholds for models (general consensus)
-thr_mean_maxnet <- fitted_model_maxnet$thresholds$consensus$mean #Maxnet
-thr_mean_glm <- fitted_model_glm$thresholds$consensus$mean #glm
+# Get the threshold values for models (general consensus)
+thr_mean_maxnet <- fitted_model_maxnet$thresholds$consensus$mean  # Maxnet
+thr_mean_glm <- fitted_model_glm$thresholds$consensus$mean  # glm
 
 # Binarize models
 mean_maxnet_bin <- (p_maxnet$General_consensus$mean > thr_mean_maxnet) * 1
 mean_glm_bin <- (p_glm$General_consensus > thr_mean_glm) * 1
 
 # Compare results
-par(mfrow= c(1, 2)) #Set grid to plot
+par(mfrow = c(1, 2))  # Set grid to plot
 terra::plot(mean_maxnet_bin, main = "Maxnet")
 terra::plot(mean_glm_bin, main = "GLM")
-
 ```
 
 <br>
@@ -424,14 +421,14 @@ par(original_par)
 
 We can save the predictions to the disk by setting `write_files = TRUE`. When this option is enabled, you must provide a directory path in the `out_dir` argument.
 
-If `new_variables` is a `SpatRaster`, the function will save the output files as GeoTIFF (.tif) files. If `new_variables` is a `data.frame`, the function will save the output files as Comma Separated Value (.csv) files.
+If `new_variables` is a `SpatRaster`, the function will save files as GeoTIFF (.tif) files. If `new_variables` is a `data.frame`, the function will save the output files as Comma Separated Value (.csv) files.
 
 ```{r save, eval=FALSE}
 p_save <- predict_selected(models = fitted_model_maxnet, 
                            new_variables = var, 
-                           write_files = TRUE, #To save to the disk
-                           write_replicates = TRUE, #To save predictions for each replicate
-                           out_dir = tempdir(), #A path to save the resuls (here, the temporary directory)
+                           write_files = TRUE,  # To save to the disk
+                           write_replicates = TRUE,  # To save predictions for each replicate
+                           out_dir = tempdir(),  # Directory to save the results (temporary directory)
                            progress_bar = FALSE)
 ```
 
