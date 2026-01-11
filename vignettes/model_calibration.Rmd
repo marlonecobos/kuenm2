@@ -22,8 +22,8 @@ knitr::opts_chunk$set(
 - [Getting ready](#getting-ready)
 - [Preparing data](#prepare-data)
 - [Calibration](#calibration)
-  - [Maxnet Models](#maxnet-models)
-  - [GLM Models](#glm-models)
+  - [Maxnet models](#maxnet-models)
+  - [GLMs](#glms)
   - [Concave curves](#concave-curves)
 - [Re-selecting models](#re-selecting-models)
 - [Training partion effects](#training-partion-effects)
@@ -126,7 +126,7 @@ In this example, we will evaluate the models considering two omission errors (5%
 
 <br>
 
-### Maxnet Models
+### Maxnet models
 
 Let's calibrate the maxnet models:
 
@@ -191,7 +191,7 @@ In this example, of the 300 candidate **maxnet** models fitted, two were selecte
 
 <br>
 
-### GLM Models
+### GLMs
 
 Now, let's calibrate the GLM Models to see if different models factors are selected with this algorithm:
 
