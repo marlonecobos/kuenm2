@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
   - [Customized response curves](#customized-response-curves)
   - [Bivariate response curves](#bivariate-response-curves)
 - [Variable importance](#variable-importance)
-- [Model evaluation with independent data](#model-evaluation-with-independent-data)
+- [Evaluation with independent data](#evaluation-with-independent-data)
 - [Saving a fitted_models object](#saving-a-fitted_models-object)
 
 <hr>
@@ -401,7 +401,7 @@ plot_importance(imp_terms, main = "Importance of variable terms")
 
 <br>
 
-# Model evaluation with independent data
+# Evaluation with independent data
 
 Selected models can be evaluated using an independent set of presence records (not used when fitting selected models). This approach is especially useful when new records become available. This can be useful to assess models for invasive species, for which model fitting is usually done in native areas with transfers to potential invasive areas. 
 
