@@ -101,7 +101,7 @@ print.prepared_data <- function(x, ...) {
   if(x$partition_method %in% c("kfolds", "leave-one-out"))
     cat("  - Number of kfolds:", length(x$part_data), "\n")
   if(x$partition_method%in% c("subsample", "bootstrap")){
-    cat("  - Number of replicates:", x$n_replicates, "\n")
+    cat("  - Number of partitions:", x$n_partitions, "\n")
     cat("  - Train proportion:", x$train_proportion, "\n")
   }
 
