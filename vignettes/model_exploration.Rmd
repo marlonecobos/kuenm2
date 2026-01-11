@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
 
 # Description
 
-After the best performing models have been selected, users need to fit this models (using `fit_selected()`) in order to explore their characteristics and continue with the next steps. Fitted models can then be used to assess variable importance in models, as well as to explore variable response curves. Selected models can also be evaluated using independent records that were not used during calibration. This vignettes contains examples to explore the multiple options available to fit and explore selected models.
+After the best performing models have been selected, users need to fit this models (using `fit_selected()`) in order to explore their characteristics and continue with the next steps. Fitted models can then be used to assess variable importance in models, as well as to explore variable response curves. Selected models can also be evaluated using independent records that were not used during calibration. This vignette contains examples to explore the multiple options available to fit and explore selected models.
 
 <br>
 

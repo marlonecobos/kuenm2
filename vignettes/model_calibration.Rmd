@@ -307,12 +307,11 @@ m_maxnet$selected_models[, c("ID", "Mean_AUC_ratio_at_10.mean",
 
 <br>
 
-When pROC is not calculated for all models during `calibration()`, the `select_models()` function requires the `prepared_data` used during the calibration step, and `compute_proc` must be set to `TRUE`. For instance, let's re-select maxnet models applying an omission rate of 5% instead 10%:
+When pROC is not calculated for all models during calibration, the `select_models()` function requires to set `compute_proc = TRUE` to obtain the necessary results for selections with new criteria. Let's re-select maxnet models applying an omission rate of 5% instead 10%:
 
 ```{r}
 # Re-select maxnet models
 new_m_maxnet <- select_models(calibration_results = m_maxnet, 
-                              data = d_maxnet,  # Needed to compute pROC
                               compute_proc = TRUE, 
                               omission_rate = 5)  # New omission rate
 

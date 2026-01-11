@@ -16,60 +16,97 @@ knitr::opts_chunk$set(
 )
 ```
 
--   [Introduction](#introduction)
--   [Predict selected models for a single scenario](#predict-selected-models-for-a-single-scenario)
-    -   [Predict to SpatRaster](#predict-to-spatraster)
-    -   [Predict to data.frame](#predict-to-data.frame)
-    -   [Binarize models](#binarize-models)
-    -   [Clamping variables](#clamping-variables)
-    -   [No Extrapolation](#no-extrapolation)
-    -   [Output Type](#output-type)
--   [Saving Predictions](#saving-predictions)
+# Summary
+
+- [Description](#description)
+- [Getting ready](#getting-ready)
+- [Fitted models](#fitted-models)
+- [Model predictions](#model-predictions)
+  - [Predict to SpatRaster](#predict-to-spatraster)
+  - [Predict to data.frame](#predict-to-data.frame)
+- [Options for predictions](#options-for-predictions)
+  - [Output type](#output-type)
+  - [Clamping variables](#clamping-variables)
+  - [No extrapolation](#no-extrapolation)
+- [Binarize predictions](#binarize-predictions)
+- [Saving Predictions](#saving-predictions)
 
 <hr>
 
-## Introduction {#introduction}
+# Description
 
-Once selected models have been fit using `fit_selected()`, projections to single or multiple scenarios can be performed. The `predict_selected()` function is designed for projections to single scenarios.
+Once selected models have been fit and explored, projections to single or multiple scenarios can be performed. The `predict_selected()` function is designed for projections to single scenarios (i.e., a single set of new data). This vignette contains examples of how to use many of the options available for model predictions. 
 
-To predict using the selected models, a `fitted_models` object is required. For detailed information on model fitting, please consult the vignette [Fit and Explore Selected Models](model_exploration.html). The `fitted_models` object generated in that vignette is included as an example dataset within the package. Let's load it.
+<br>
 
-```{r import maxnet calib, warning=FALSE}
-#Load packages
+# Getting ready
+
+At this point it is assumed that `kuenm2` is installed (if not, see the [Main guide](../index.html)). Load `kuenm2` and any other required packages, and define a working directory (if needed). 
+
+Note: functions from other packages (i.e., not from base R or `kuenm2`) used in this guide will be displayed as `package::function()`. 
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+# Load packages
 library(kuenm2)
 library(terra)
 
-#Import calib_results_maxnet
+# Current directory
+getwd()
+
+# Define new directory
+#setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory
+
+# Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
+```
+
+<br>
+
+# Fitted models
+
+To predict using the selected models, a `fitted_models` object is required. For detailed information on model fitting, check the vignette [Fit and Explore Selected Models](model_exploration.html). The `fitted_models` object generated in that vignette is included as an example dataset within the package. Let's load it.
+
+```{r import maxnet calib, warning=FALSE}
+# Import fitted_model_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
-#Print calibration result
+
+# Print calibration result
 fitted_model_maxnet
 ```
+
+<br> 
 
 To compare the results, let's import a `fitted_models` object generated using the GLM algorithm:
 
 ```{r import glm calib, warning=FALSE}
-#Import calib_results_maxnet
+# Import calib_results_maxnet
 data("fitted_model_glm", package = "kuenm2")
-#Print calibration result
+
+# Print calibration result
 fitted_model_glm
 ```
 
 <br>
 
-# Predict Selected Models for a Single Scenario {#predict-selected-models-for-a-single-scenario}
+# Model predictions
 
 To predict selected models for a single scenario, you need a `fitted_models` object and the corresponding predictor variables. These predictor variables can be provided as either a `SpatRaster` or a `data.frame`. The names of the variables (or columns in the `data.frame`) must precisely match those used for model calibration or those used when running PCA (if `do_pca = TRUE` was set in the `prepare_data()` function; see [Prepare Data for Model Calibration](prepare_data.html) for more details).
 
-## Predict to SpatRaster {#predict-to-spatraster}
+<br> 
+
+## Predict to SpatRaster
 
 Let's use the same raster variables that were used to prepare the data and calibrate the models. These are included as example data within the package:
 
 ```{r Import raster layers}
 # Import raster layers
 var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
-#Plot raster layers
-plot(var)
+
+# Plot raster layers
+terra::plot(var)
 ```
+
+<br> 
 
 Let's check which variables were used to calibrate our models. They are available in the `calibration_data` element of the object:
 
@@ -77,9 +114,11 @@ Let's check which variables were used to calibrate our models. They are availabl
 # Variables used to calibrate maxnet models
 colnames(fitted_model_maxnet$calibration_data)
 
-#Variables used to calibrate glm models
+# Variables used to calibrate glm models
 colnames(fitted_model_glm$calibration_data)
 ```
+
+<br> 
 
 The first column, "pr_bg", indicates the presence (1) and absence (0) records, while the other columns represent the environmental variables. In this case, the variables are `bio_1`, `bio_7`, `bio_12`, `bio_15`, and `SoilType`. All these variables are present in the `SpatRaster` (`var`) we imported. Therefore, we can now predict our models to this raster. Let's begin by predicting the maxnet model:
 
@@ -89,27 +128,33 @@ p_maxnet <- predict_selected(models = fitted_model_maxnet,
                              progress_bar = FALSE)
 ```
 
+<br> 
+
 By default, the function computes consensus metrics (mean, median, range, and standard deviation) for each model across its replicates (if more than one model was selected), as well as a general consensus across all models. In this case, the output is a `list` containing `SpatRaster` predictions for each replicate, along with the consensus results for each model and the overall general consensus:
 
 ```{r check maxnet predictions}
-#See objects in the output of predict_selected
+# See objects in the output of predict_selected
 names(p_maxnet)
 ```
+
+<br> 
 
 Let's plot the general consensus:
 
 ```{r plot maxnet general}
-plot(p_maxnet$General_consensus)
+terra::plot(p_maxnet$General_consensus)
 ```
+
+<br> 
 
 We can also plot the results for each replicate and the consensus for each model:
 
 ```{r plot models maxnet}
-#Predictions for each replicate from model 192
-plot(p_maxnet$Model_192$Replicates)
+# Predictions for each replicate from model 192
+terra::plot(p_maxnet$Model_192$Replicates)
 
-#Consensus across each replicate from model 192
-plot(p_maxnet$Model_192$Model_consensus)
+# Consensus across each replicate from model 192
+terra::plot(p_maxnet$Model_192$Model_consensus)
 ```
 
 <br>
@@ -121,19 +166,19 @@ For comparison, let's predict the GLM model:
 p_glm <- predict_selected(models = fitted_model_glm, 
                           new_variables = var,
                           progress_bar = FALSE)
-#See selected models that were predicted
+# See selected models that were predicted
 names(p_glm)
 
-#Compare general consensus (mean) between maxnet and glm
-par(mfrow= c(1, 2)) #Set grid to plot
-plot(p_maxnet$General_consensus$mean, main = "Maxnet")
-plot(p_glm$General_consensus, main = "GLM")
-on.exit() #Reinitiate grid
+# Compare general consensus (mean) between maxnet and glm
+par(mfrow= c(1, 2))  # Set grid to plot
+terra::plot(p_maxnet$General_consensus$mean, main = "Maxnet")
+terra::plot(p_glm$General_consensus, main = "GLM")
+
 ```
 
 <br>
 
-## Predict to data.frame {#predict-to-data.frame}
+## Predict to data.frame 
 
 Instead of a `SpatRaster`, we can also predict the models to a `data.frame` that stores the variable values. To see an example, let's convert the raster variables `var` to a `data.frame`:
 
@@ -142,178 +187,36 @@ var_df <- as.data.frame(var)
 head(var_df)
 ```
 
+<br> 
+
 Note that each column stores the values for each variable. Let's predict our Maxnet models to this `data.frame`:
 
 ```{r predict to df}
 p_df <- predict_selected(models = fitted_model_maxnet, 
-                         new_variables = var_df, #Now, a data.frame
+                         new_variables = var_df,  # Now, a data.frame
                          progress_bar = FALSE) 
 ```
+
+<br> 
 
 Now, instead of `SpatRaster` objects, the function returns `data.frame` objects with the predictions:
 
 ```{r predict df results}
-#Results by replicate of the model 192
+# Results by replicate of the model 192
 head(p_df$Model_192$Replicates)
 
-#Consensus across replicates of the model 192
+# Consensus across replicates of the model 192
 head(p_df$Model_192$Model_consensus)
 
-#General consensus across all models
+# General consensus across all models
 head(p_df$General_consensus)
 ```
 
 <br>
 
-## Binarize Models {#binarize-models}
+# Options for predictions
 
-The `fitted_models` object stores the thresholds that can be used to binarize the models into suitable and unsuitable areas. These thresholds correspond to the omission error rate used during model selection (e.g., 5% or 10%).
-
-You can access the omission error rate used to calculate the thresholds directly from the object:
-
-```{r omission error}
-#Get omission error used to select models and calculate the thesholds
-## For maxnet model
-fitted_model_maxnet$omission_rate
-
-## For glm model
-fitted_model_glm$omission_rate
-```
-
-In both models, a 10% omission error rate was used to calculate the thresholds. This means that when predictions are binarized, approximately 10% of the presence records used in model calibration will fall into areas classified as unsuitable.
-
-The thresholds are summarized in two ways: the mean and median across replicates for each model, and the consensus mean and median across all selected models (when more than one model is selected). Let's check the thresholds for the general consensus:
-
-```{r thresholds}
-#For maxnet
-fitted_model_maxnet$thresholds$consensus
-
-#For glm
-fitted_model_glm$thresholds$consensus
-```
-
-Let's use these thresholds to binarize the models (this functionality is only available when predicting to a `SpatRaster`):
-
-```{r binarize models}
-#Get the thersholds for models (general consensus)
-thr_mean_maxnet <- fitted_model_maxnet$thresholds$consensus$mean #Maxnet
-thr_mean_glm <- fitted_model_glm$thresholds$consensus$mean #glm
-
-#Binarize models
-mean_maxnet_bin <- (p_maxnet$General_consensus$mean > thr_mean_maxnet) * 1
-mean_glm_bin <- (p_glm$General_consensus > thr_mean_glm) * 1
-
-#Compare results
-par(mfrow= c(1, 2)) #Set grid to plot
-plot(mean_maxnet_bin, main = "Maxnet")
-plot(mean_glm_bin, main = "GLM")
-on.exit() #Reinitiate grid
-```
-
-<br>
-
-## Clamping Variables {#clamping-variables}
-
-By default, predictions are performed with free extrapolation (`extrapolation_type = "E"`). This can be problematic when the peak of suitability occurs at the extremes of a predictor's range. For example, let's examine the response curve of the Maxnet model for `bio_7` (Temperature Annual Range):
-
-```{r response bio_7}
-response_curve(models = fitted_model_maxnet, variable = "bio_7", 
-               extrapolation_factor = 1)
-```
-
-Note that higher suitability occurs at low values of the temperature range. However, the lower limit of the calibration data used to fit the models (dashed line) is at 15.7ºC. The premise that suitability will increase and stabilize at lower values of `bio_7` is an extrapolation of the model (the area to the left of the dashed line). It's possible that suitability could begin to decrease at extremely low values, rendering this extrapolation inaccurate, but the calibration data is insufficient for the model to predict this.
-
-One way to address this is by clamping the variables. This means that all values outside the calibration range (both below the lower value and above the upper value) are set to the respective lower and upper limits of the calibration range. For example, in the calibration data for the Maxnet models, the lower and upper limits for `bio_7` are 15.7ºC and 23.3ºC, respectively:
-
-```{r check lower and upper limits}
-range(fitted_model_maxnet$calibration_data$bio_7)
-```
-
-To observe the effect of clamping this variable, let's create a hypothetical (and extreme) scenario where `bio_7` has extremely low values:
-
-```{r create scenario}
-#From bio_7, reduce values
-new_bio7 <- var$bio_7 - 3
-#Create new scenario
-new_var <- var
-#Replace bio_7 with new_bio7 in this scenario
-new_var$bio_7 <- new_bio7
-
-#Plot the differences
-par(mfrow = c(1,2))
-plot(var$bio_7, main = "Original bio_7", range = c(5, 25))
-plot(new_var$bio_7, main = "New bio_7", range = c(5, 25))
-on.exit() #Reinitiate grid
-```
-
-Let's predict the Maxnet models for this new scenario with both free extrapolation (`extrapolation_type = "E"`) and with clamped variables (`extrapolation_type = "EC"`):
-
-```{r}
-#Predict to hypothetical scenario with free extrapolation
-p_free_extrapolation <- predict_selected(models = fitted_model_maxnet, 
-                                         new_variables = new_var, #New scenario
-                                         consensus = "mean",
-                                         extrapolation_type = "E", #Free extrapolation (Default)
-                                         progress_bar = FALSE)
-
-#Predict to hypothetical scenario with clamping
-p_clamping <- predict_selected(models = fitted_model_maxnet, 
-                               new_variables = new_var, #New scenario
-                               consensus = "mean",
-                               extrapolation_type = "EC", #Extrapolation with clamping
-                               progress_bar = FALSE)
-
-#Get and see differences
-p_difference <- p_free_extrapolation$General_consensus$mean - p_clamping$General_consensus$mean
-
-#Plot the differences
-par(mfrow = c(2,2))
-plot(p_free_extrapolation$General_consensus$mean, main = "Free extrapolation",
-     zlim = c(0, 1))
-plot(p_clamping$General_consensus$mean, main = "Clamping",
-     zlim = c(0, 1))
-plot(p_difference, main = "Difference")
-plot(new_bio7, main = "Hypothetical bio_7", type = "interval")
-on.exit() #Reinitiate grid
-
-```
-
-Note that when we clamp the variables, regions with extremely low values of (the hypothetical) `bio_7` exhibit lower predicted suitabilities compared to when free extrapolation is allowed.
-
-By default, when `extrapolation_type = "EC"` is set, all predictor variables are clamped. You can specify which variables to clamp using the `var_to_clamp` argument.
-
-<br>
-
-## No Extrapolation
-
-A more rigorous approach is to **predict with no extrapolation**, where regions outside the limits of the calibration data are assigned a suitability value of 0. Let's predict the Maxnet models using the hypothetical scenario we created in the previous step to observe the difference:
-
-```{r no extrapolation}
-#Predict to hypothetical scenario with no extrapolation
-p_no_extrapolation <- predict_selected(models = fitted_model_maxnet, 
-                                       new_variables = new_var, #New scenario
-                                       consensus = "mean",
-                                       extrapolation_type = "NE", #No extrapolation
-                                       progress_bar = FALSE)
-#Plot the differences
-par(mfrow = c(2,2))
-plot(p_free_extrapolation$General_consensus$mean, main = "Free extrapolation",
-     zlim = c(0, 1))
-plot(p_clamping$General_consensus$mean, main = "Clamping",
-     zlim = c(0, 1))
-plot(p_no_extrapolation$General_consensus$mean, main = "No extrapolation",
-     zlim = c(0, 1))
-plot(new_bio7, main = "Hypothetical bio_7", type = "interval")
-on.exit() #Reinitiate grid
-```
-
-n this example, a large portion of the predicted area shows zero suitability. This is because, in this hypothetical scenario, much of the region has `bio_7` values lower than those in the calibration data, which has a minimum of 15ºC. Suitability values greater than zero are only predicted in areas where `bio_7` falls within the range of the calibration data.
-
-By default, when `extrapolation_type = "NE"` is set, all predictor variables are considered for this process. You can specify a subset of variables to be considered for extrapolation using the `var_to_clamp` argument.
-
-<br>
-
-## Output Type
+## Output type
 
 Maximum entropy models (maxnet) produce four different types of output for their predictions: raw, cumulative, logistic, and cloglog. These are described in [Merow et al. 2013](https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/j.1600-0587.2013.07872.x) and [Phillips et al. 2017](https://nsojournals.onlinelibrary.wiley.com/doi/10.1111/ecog.03049).
 
@@ -336,21 +239,188 @@ p_cumulative <- predict_selected(models = fitted_model_maxnet, new_variables = v
 p_raw <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
                               type = "raw", progress_bar = FALSE)
 
-#Plot the differences
+# Plot the differences
 par(mfrow = c(2,2))
-plot(p_cloglog$General_consensus$mean, main = "Cloglog (Default)",
+terra::plot(p_cloglog$General_consensus$mean, main = "Cloglog (Default)",
      zlim = c(0, 1))
-plot(p_logistic$General_consensus$mean, main = "Logistic",
+terra::plot(p_logistic$General_consensus$mean, main = "Logistic",
      zlim = c(0, 1))
-plot(p_cumulative$General_consensus$mean, main = "Cumulative",
+terra::plot(p_cumulative$General_consensus$mean, main = "Cumulative",
      zlim = c(0, 1))
-plot(p_raw$General_consensus$mean, main = "Raw",
+terra::plot(p_raw$General_consensus$mean, main = "Raw",
      zlim = c(0, 1))
-on.exit() #Reinitiate grid
+
 ```
+
 <br>
 
-# Saving Predictions
+## Clamping variables
+
+By default, predictions are performed with free extrapolation (`extrapolation_type = "E"`). This can be problematic when the peak of suitability occurs at the extremes of a predictor's range. For example, let's examine the response curve of the Maxnet model for `bio_7` (Temperature Annual Range):
+
+```{r response bio_7}
+response_curve(models = fitted_model_maxnet, variable = "bio_7", 
+               extrapolation_factor = 1)
+```
+
+<br> 
+
+Note that higher suitability occurs at low values of the temperature range. However, the lower limit of the calibration data used to fit the models (dashed line) is at 15.7ºC. The premise that suitability will increase and stabilize at lower values of `bio_7` is an extrapolation of the model (the area to the left of the dashed line). It's possible that suitability could begin to decrease at extremely low values, rendering this extrapolation inaccurate, but the calibration data is insufficient for the model to predict this.
+
+One way to address this is by clamping the variables. This means that all values outside the calibration range (both below the lower value and above the upper value) are set to the respective lower and upper limits of the calibration range. For example, in the calibration data for the Maxnet models, the lower and upper limits for `bio_7` are 15.7ºC and 23.3ºC, respectively:
+
+```{r check lower and upper limits}
+range(fitted_model_maxnet$calibration_data$bio_7)
+```
+
+<br> 
+
+To observe the effect of clamping this variable, let's create a hypothetical (and extreme) scenario where `bio_7` has extremely low values:
+
+```{r create scenario}
+# From bio_7, reduce values
+new_bio7 <- var$bio_7 - 3
+# Create new scenario
+new_var <- var
+# Replace bio_7 with new_bio7 in this scenario
+new_var$bio_7 <- new_bio7
+
+# Plot the differences
+par(mfrow = c(1, 2))
+terra::plot(var$bio_7, main = "Original bio_7", range = c(5, 25))
+terra::plot(new_var$bio_7, main = "New bio_7", range = c(5, 25))
+
+```
+
+<br> 
+
+Let's predict the Maxnet models for this new scenario with both free extrapolation (`extrapolation_type = "E"`) and with clamped variables (`extrapolation_type = "EC"`):
+
+```{r}
+# Predict to hypothetical scenario with free extrapolation
+p_free_extrapolation <- predict_selected(models = fitted_model_maxnet, 
+                                         new_variables = new_var, #New scenario
+                                         consensus = "mean",
+                                         extrapolation_type = "E", #Free extrapolation (Default)
+                                         progress_bar = FALSE)
+
+# Predict to hypothetical scenario with clamping
+p_clamping <- predict_selected(models = fitted_model_maxnet, 
+                               new_variables = new_var, #New scenario
+                               consensus = "mean",
+                               extrapolation_type = "EC", #Extrapolation with clamping
+                               progress_bar = FALSE)
+
+# Get and see differences
+p_difference <- p_free_extrapolation$General_consensus$mean - p_clamping$General_consensus$mean
+
+# Plot the differences
+par(mfrow = c(2, 2))
+terra::plot(p_free_extrapolation$General_consensus$mean, main = "Free extrapolation",
+     zlim = c(0, 1))
+terra::plot(p_clamping$General_consensus$mean, main = "Clamping",
+     zlim = c(0, 1))
+terra::plot(p_difference, main = "Difference")
+terra::plot(new_bio7, main = "Hypothetical bio_7", type = "interval")
+```
+
+<br> 
+
+Note that when we clamp the variables, regions with extremely low values of (the hypothetical) `bio_7` exhibit lower predicted suitabilities compared to when free extrapolation is allowed.
+
+By default, when `extrapolation_type = "EC"` is set, all predictor variables are clamped. You can specify which variables to clamp using the `var_to_clamp` argument.
+
+<br>
+
+## No extrapolation
+
+A more rigorous approach is to **predict with no extrapolation**, where regions outside the limits of the calibration data are assigned a suitability value of 0. Let's predict the Maxnet models using the hypothetical scenario we created in the previous step to observe the difference:
+
+```{r no extrapolation}
+# Predict to hypothetical scenario with no extrapolation
+p_no_extrapolation <- predict_selected(models = fitted_model_maxnet, 
+                                       new_variables = new_var, #New scenario
+                                       consensus = "mean",
+                                       extrapolation_type = "NE", #No extrapolation
+                                       progress_bar = FALSE)
+# Plot the differences
+par(mfrow = c(2,2))
+terra::plot(p_free_extrapolation$General_consensus$mean, main = "Free extrapolation",
+     zlim = c(0, 1))
+terra::plot(p_clamping$General_consensus$mean, main = "Clamping",
+     zlim = c(0, 1))
+terra::plot(p_no_extrapolation$General_consensus$mean, main = "No extrapolation",
+     zlim = c(0, 1))
+terra::plot(new_bio7, main = "Hypothetical bio_7", type = "interval")
+```
+
+<br> 
+
+In this example, a large portion of the predicted area shows zero suitability. This is because, in this hypothetical scenario, much of the region has `bio_7` values lower than those in the calibration data, which has a minimum of 15ºC. Suitability values greater than zero are only predicted in areas where `bio_7` falls within the range of the calibration data.
+
+By default, when `extrapolation_type = "NE"` is set, all predictor variables are considered for this process. You can specify a subset of variables to be considered for extrapolation using the `var_to_clamp` argument.
+
+<br>
+
+# Binarize predictions
+
+The `fitted_models` object stores the thresholds that can be used to binarize the models into suitable and unsuitable areas. These thresholds correspond to the omission error rate used during model selection (e.g., 5% or 10%).
+
+You can access the omission error rate used to calculate the thresholds directly from the object:
+
+```{r omission error}
+# Get omission error used to select models and calculate the thesholds
+## For maxnet model
+fitted_model_maxnet$omission_rate
+
+## For glm model
+fitted_model_glm$omission_rate
+```
+
+<br> 
+
+In both models, a 10% omission error rate was used to calculate the thresholds. This means that when predictions are binarized, approximately 10% of the presence records used in model calibration will fall into areas classified as unsuitable.
+
+The thresholds are summarized in two ways: the mean and median across replicates for each model, and the consensus mean and median across all selected models (when more than one model is selected). Let's check the thresholds for the general consensus:
+
+```{r thresholds}
+# For maxnet
+fitted_model_maxnet$thresholds$consensus
+
+# For glm
+fitted_model_glm$thresholds$consensus
+```
+
+<br> 
+
+Let's use these thresholds to binarize the models (this functionality is only available when predicting to a `SpatRaster`):
+
+```{r binarize models}
+# Get the thersholds for models (general consensus)
+thr_mean_maxnet <- fitted_model_maxnet$thresholds$consensus$mean #Maxnet
+thr_mean_glm <- fitted_model_glm$thresholds$consensus$mean #glm
+
+# Binarize models
+mean_maxnet_bin <- (p_maxnet$General_consensus$mean > thr_mean_maxnet) * 1
+mean_glm_bin <- (p_glm$General_consensus > thr_mean_glm) * 1
+
+# Compare results
+par(mfrow= c(1, 2)) #Set grid to plot
+terra::plot(mean_maxnet_bin, main = "Maxnet")
+terra::plot(mean_glm_bin, main = "GLM")
+
+```
+
+<br>
+
+```{r par_reset}
+# Reset plotting parameters
+par(original_par) 
+```
+
+<br> 
+
+# Saving predictions
 
 We can save the predictions to the disk by setting `write_files = TRUE`. When this option is enabled, you must provide a directory path in the `out_dir` argument.
 
@@ -364,6 +434,8 @@ p_save <- predict_selected(models = fitted_model_maxnet,
                            out_dir = tempdir(), #A path to save the resuls (here, the temporary directory)
                            progress_bar = FALSE)
 ```
+
+<br> 
 
 Alternatively, we can use `writeRaster()` to save specific output predictions manually. For example, to save only the mean layer from the general consensus results:
 
