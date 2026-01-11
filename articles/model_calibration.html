@@ -90,8 +90,8 @@
 <li>
 <a href="#calibration">Calibration</a>
 <ul>
-<li><a href="#maxnet-models">Maxnet Models</a></li>
-<li><a href="#glm-models">GLM Models</a></li>
+<li><a href="#maxnet-models">Maxnet models</a></li>
+<li><a href="#glms">GLMs</a></li>
 <li><a href="#concave-curves">Concave curves</a></li>
 </ul>
 </li>
@@ -236,7 +236,7 @@ detect the number of available cores on your machine, run
 <code><a href="https://rdrr.io/r/parallel/detectCores.html" class="external-link">parallel::detectCores()</a></code>.</p>
 <p><br></p>
 <div class="section level3">
-<h3 id="maxnet-models">Maxnet Models<a class="anchor" aria-label="anchor" href="#maxnet-models"></a>
+<h3 id="maxnet-models">Maxnet models<a class="anchor" aria-label="anchor" href="#maxnet-models"></a>
 </h3>
 <p>Let’s calibrate the maxnet models:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -336,7 +336,7 @@ omission error (&lt;10%), and a low AIC score (&lt;2).</p>
 <p><br></p>
 </div>
 <div class="section level3">
-<h3 id="glm-models">GLM Models<a class="anchor" aria-label="anchor" href="#glm-models"></a>
+<h3 id="glms">GLMs<a class="anchor" aria-label="anchor" href="#glms"></a>
 </h3>
 <p>Now, let’s calibrate the GLM Models to see if different models
 factors are selected with this algorithm:</p>
@@ -497,16 +497,14 @@ models that were not pre-selected are filled with <code>NA</code>.</p>
 <span><span class="co">#&gt; 192 192                  1.497376                    0</span></span>
 <span><span class="co">#&gt; 219 219                  1.502309                    0</span></span></code></pre></div>
 <p><br></p>
-<p>When pROC is not calculated for all models during
-<code><a href="../reference/calibration.html">calibration()</a></code>, the <code><a href="../reference/select_models.html">select_models()</a></code> function
-requires the <code>prepared_data</code> used during the calibration
-step, and <code>compute_proc</code> must be set to <code>TRUE</code>.
-For instance, let’s re-select maxnet models applying an omission rate of
-5% instead 10%:</p>
+<p>When pROC is not calculated for all models during calibration, the
+<code><a href="../reference/select_models.html">select_models()</a></code> function requires to set
+<code>compute_proc = TRUE</code> to obtain the necessary results for
+selections with new criteria. Let’s re-select maxnet models applying an
+omission rate of 5% instead 10%:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Re-select maxnet models</span></span>
 <span><span class="va">new_m_maxnet</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_models.html">select_models</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">m_maxnet</span>, </span>
-<span>                              data <span class="op">=</span> <span class="va">d_maxnet</span>,  <span class="co"># Needed to compute pROC</span></span>
 <span>                              compute_proc <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>                              omission_rate <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>  <span class="co"># New omission rate</span></span>
 <span><span class="co">#&gt; Selecting best among 300 models.</span></span>
@@ -557,8 +555,8 @@ the maxnet algorithm:</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.479618 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.516169 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.480652 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.511029 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
@@ -600,8 +598,8 @@ summaries of the model selection process.</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.478808 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.514022 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.483125 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.510789 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>

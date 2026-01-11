@@ -293,7 +293,7 @@ d_glm
 #>   - Presence: 51 
 #>   - Background: 292 
 #> Partition Method: subsample 
-#>   - Number of replicates: 
+#>   - Number of partitions: 10 
 #>   - Train proportion: 0.7 
 #> Continuous Variables:
 #>   - bio_1, bio_7, bio_12, bio_15 
@@ -365,7 +365,7 @@ data_user
 #>   - Presence: 51 
 #>   - Background: 476 
 #> Partition Method: bootstrap 
-#>   - Number of replicates: 
+#>   - Number of partitions: 4 
 #>   - Train proportion: 0.7 
 #> Continuous Variables:
 #>   - bio_1, bio_7, bio_12, bio_15 

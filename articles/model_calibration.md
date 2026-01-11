@@ -6,8 +6,8 @@
 - [Getting ready](#getting-ready)
 - [Preparing data](#prepare-data)
 - [Calibration](#calibration)
-  - [Maxnet Models](#maxnet-models)
-  - [GLM Models](#glm-models)
+  - [Maxnet models](#maxnet-models)
+  - [GLMs](#glms)
   - [Concave curves](#concave-curves)
 - [Re-selecting models](#re-selecting-models)
 - [Training partion effects](#training-partion-effects)
@@ -155,7 +155,7 @@ available cores on your machine, run
 
   
 
-### Maxnet Models
+### Maxnet models
 
 Let’s calibrate the maxnet models:
 
@@ -271,7 +271,7 @@ selected based on a significant pROC value, a low omission error
 
   
 
-### GLM Models
+### GLMs
 
 Now, let’s calibrate the GLM Models to see if different models factors
 are selected with this algorithm:
@@ -455,18 +455,15 @@ m_maxnet$selected_models[, c("ID", "Mean_AUC_ratio_at_10.mean",
 
   
 
-When pROC is not calculated for all models during
-[`calibration()`](https://marlonecobos.github.io/kuenm2/reference/calibration.md),
-the
+When pROC is not calculated for all models during calibration, the
 [`select_models()`](https://marlonecobos.github.io/kuenm2/reference/select_models.md)
-function requires the `prepared_data` used during the calibration step,
-and `compute_proc` must be set to `TRUE`. For instance, let’s re-select
-maxnet models applying an omission rate of 5% instead 10%:
+function requires to set `compute_proc = TRUE` to obtain the necessary
+results for selections with new criteria. Let’s re-select maxnet models
+applying an omission rate of 5% instead 10%:
 
 ``` r
 # Re-select maxnet models
 new_m_maxnet <- select_models(calibration_results = m_maxnet, 
-                              data = d_maxnet,  # Needed to compute pROC
                               compute_proc = TRUE, 
                               omission_rate = 5)  # New omission rate
 #> Selecting best among 300 models.
@@ -521,8 +518,8 @@ new_m_maxnet$selected_models[,c("ID", "Formulas", "R_multiplier",
 #> 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1
 #> 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1
 #>     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc
-#> 159          0.1                  0.0192                 1.479618 622.7677
-#> 189          0.1                  0.0192                 1.516169 621.9095
+#> 159          0.1                  0.0192                 1.480652 622.7677
+#> 189          0.1                  0.0192                 1.511029 621.9095
 #>     Is_concave
 #> 159      FALSE
 #> 189      FALSE
@@ -569,8 +566,8 @@ new_summary$selected_models[, c("ID", "Formulas", "R_multiplier",
 #> 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1
 #> 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1
 #>     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc
-#> 159          0.1                  0.0192                 1.478808 622.7677
-#> 189          0.1                  0.0192                 1.514022 621.9095
+#> 159          0.1                  0.0192                 1.483125 622.7677
+#> 189          0.1                  0.0192                 1.510789 621.9095
 #>     Is_concave
 #> 159      FALSE
 #> 189      FALSE

@@ -10,8 +10,7 @@
   - [Customized response curves](#customized-response-curves)
   - [Bivariate response curves](#bivariate-response-curves)
 - [Variable importance](#variable-importance)
-- [Model evaluation with independent
-  data](#model-evaluation-with-independent-data)
+- [Evaluation with independent data](#evaluation-with-independent-data)
 - [Saving a fitted_models object](#saving-a-fitted_models-object)
 
 ------------------------------------------------------------------------
@@ -25,7 +24,7 @@ in order to explore their characteristics and continue with the next
 steps. Fitted models can then be used to assess variable importance in
 models, as well as to explore variable response curves. Selected models
 can also be evaluated using independent records that were not used
-during calibration. This vignettes contains examples to explore the
+during calibration. This vignette contains examples to explore the
 multiple options available to fit and explore selected models.
 
   
@@ -640,7 +639,7 @@ plot_importance(imp_terms, main = "Importance of variable terms")
 
   
 
-## Model evaluation with independent data
+## Evaluation with independent data
 
 Selected models can be evaluated using an independent set of presence
 records (not used when fitting selected models). This approach is
