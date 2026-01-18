@@ -567,8 +567,8 @@ thr_mean_maxnet <- fitted_model_maxnet$thresholds$consensus$mean  # Maxnet
 thr_mean_glm <- fitted_model_glm$thresholds$consensus$mean  # glm
 
 # Binarize models
-mean_maxnet_bin <- (p_maxnet$General_consensus$mean > thr_mean_maxnet) * 1
-mean_glm_bin <- (p_glm$General_consensus > thr_mean_glm) * 1
+mean_maxnet_bin <- (p_maxnet$General_consensus$mean >= thr_mean_maxnet) * 1
+mean_glm_bin <- (p_glm$General_consensus >= thr_mean_glm) * 1
 
 # Compare results
 par(mfrow = c(1, 2))  # Set grid to plot

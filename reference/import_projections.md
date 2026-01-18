@@ -124,7 +124,7 @@ A SpatRaster or a list of SpatRasters, structured according to the input
 ``` r
 # Load packages
 library(terra)
-#> terra 1.8.86
+#> terra 1.8.93
 # Step 1: Organize variables for current projection
 ## Import current variables (used to fit models)
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
@@ -152,7 +152,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpAOfvXT/Future_raw2
+#> /tmp/RtmpXerevA/Future_raw2
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

@@ -58,7 +58,7 @@ vignette.
 #Load packages
 library(kuenm2)
 library(terra)
-#> terra 1.8.86
+#> terra 1.8.93
 
 #Import calib_results_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
@@ -83,7 +83,7 @@ organize_future_worldclim(input_dir = in_dir, #Path to the raw variables from Wo
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpzXnrCm/Future_raw
+#> /tmp/RtmpTw5Ebt/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 #and copy the rawvariables there.
