@@ -461,7 +461,7 @@ compared to when free extrapolation is allowed.
 
 By default, when `extrapolation_type = "EC"` is set, all predictor
 variables are clamped. You can specify which variables to clamp using
-the `var_to_clamp` argument.
+the `var_to_restrict` argument.
 
   
 
@@ -501,7 +501,7 @@ areas where `bio_7` falls within the training range.
 
 By default, when `extrapolation_type = "NE"` is set, all predictor
 variables are considered for this process. You can specify a subset of
-variables to be considered for extrapolation using the `var_to_clamp`
+variables to be considered for extrapolation using the `var_to_restrict`
 argument.
 
   

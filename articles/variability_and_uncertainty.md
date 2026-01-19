@@ -2,31 +2,69 @@
 
 ## Summary
 
-- [Introduction](#introduction)
-- [Compute Changes Between
-  Scenarios](#compute-changes-between-scenarios)
-  - [Set Colors for Change Maps](#set-colors-for-change-maps)
-  - [Types os results](#types-os-results)
-  - [Importing Results](#importing-results)
-  - [Save changes_projections](#save-changes_projections)
-- [Explore Variance](#explore-variance)
-  - [Importing Results](#importing-results-1)
-  - [Saving the variability_projections
-    Object](#saving-the-variability_projections-object)
-- [Analyze Extrapolation Risks Using the MOP
-  Metric](#analyze-extrapolation-risks-using-the-mop-metric)
+- [Description](#description)
+- [Getting ready](#getting-ready)
+- [Loading data](#loading-data)
+- [Detecting changes in projections](#detecting-changes-in-projections)
+  - [Seting colors for maps](#seting-colors-for-maps)
+  - [Types of results](#types-of-results)
+  - [Importing results](#importing-results)
+  - [Saving results](#saving-results)
+- [Exploring variance](#exploring-variance)
+  - [Importing results](#importing-results-1)
+  - [Saving results](#saving-results-1)
+- [Assessing extrapolation risks](#assessing-extrapolation-risks)
   - [MOP types](#mop-types)
     - [Distances](#distances)
     - [Basic](#basic)
     - [Simple](#simple)
     - [Combined Towards High/Low](#combined-towards-highlow)
     - [Towards High/Low End](#towards-highlow-end)
-  - [Handling In-Range Values: NA or
-    Zero](#handling-in-range-values-na-or-zero)
+  - [Handling values within range](#handling-values-within-range)
   - [Comparing MOP Results with Response
     Curves](#comparing-mop-results-with-response-curves)
   - [Saving and Importing MOP
     Results](#saving-and-importing-mop-results)
+
+------------------------------------------------------------------------
+
+## Description
+
+Once selected models have been fit and explored, projections to single
+or multiple scenarios can be performed. The
+[`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md)
+function is designed for projections to single scenarios (i.e., a single
+set of new data). This vignette contains examples of how to use many of
+the options available for model predictions.
+
+  
+
+## Getting ready
+
+At this point it is assumed that `kuenm2` is installed (if not, see the
+[Main guide](https://marlonecobos.github.io/kuenm2/index.md)). Load
+`kuenm2` and any other required packages, and define a working directory
+(if needed).
+
+Note: functions from other packages (i.e., not from base R or `kuenm2`)
+used in this guide will be displayed as `package::function()`.
+
+``` r
+# Load packages
+library(kuenm2)
+library(terra)
+
+# Current directory
+getwd()
+
+# Define new directory
+#setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory
+
+# Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
+```
+
+  
 
 ## Introduction
 
@@ -58,7 +96,6 @@ vignette.
 #Load packages
 library(kuenm2)
 library(terra)
-#> terra 1.8.93
 
 #Import calib_results_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
@@ -74,16 +111,16 @@ soiltype <- var$SoilType
 
 # Organize and structure WorldClim files
 #Create folder to save structured files
-out_dir_future <- file.path(tempdir(), "Future_raw") #Here, in a temporary directory
+out_dir_future <- file.path(tempdir(), "Future_raw")  # Here, in a temporary directory
 #Organize
-organize_future_worldclim(input_dir = in_dir, #Path to the raw variables from WorldClim
+organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from WorldClim
                           output_dir = out_dir_future, 
-                          name_format = "bio_", #Name format
-                          static_variables = var$SoilType, #Static variables
+                          name_format = "bio_",  # Name format
+                          static_variables = var$SoilType,  # Static variables
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpSpUbOB/Future_raw
+#> /tmp/RtmpQLCDXs/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 #and copy the rawvariables there.
@@ -96,8 +133,8 @@ terra::writeRaster(var, file.path(out_dir_current, "Variables.tif"),
 
 # Prepare projections using fitted models to check variables
 pr <- prepare_projection(models = fitted_model_maxnet,
-                         present_dir = out_dir_current, #Directory with present-day variables
-                         future_dir = out_dir_future, #Directory with future variables
+                         present_dir = out_dir_current,  # Directory with present-day variables
+                         future_dir = out_dir_future,  # Directory with future variables
                          future_period = c("2041-2060", "2081-2100"),
                          future_pscen = c("ssp126", "ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"))
@@ -113,9 +150,11 @@ p <- project_selected(models = fitted_model_maxnet,
                       projection_data = pr,
                       out_dir = out_dir,
                       write_replicates = TRUE,
-                      progress_bar = FALSE, #Do not print progress bar
+                      progress_bar = FALSE,  # Do not print progress bar
                       overwrite = TRUE)
 ```
+
+  
 
 ## Compute Changes Between Scenarios
 
@@ -161,9 +200,11 @@ the binarized results to disk.
 ``` r
 changes <- projection_changes(model_projections = p, 
                               output_dir = out_dir, 
-                              write_bin_models = TRUE, # Write individual binarized results
+                              write_bin_models = TRUE,  # Write individual binarized results
                               return_raster = TRUE)
 ```
+
+  
 
 ### Set Colors for Change Maps
 
@@ -188,7 +229,9 @@ changes_col <- colors_for_changes(changes)
 The function returns the same `changes_projections` object, but with
 color tables embedded in its `SpatRasters`. These colors are
 automatically applied when visualizing the data using
-[`plot()`](https://rspatial.github.io/terra/reference/plot.html).
+[`terra::plot()`](https://rspatial.github.io/terra/reference/plot.html).
+
+  
 
 ### Types os results
 
@@ -204,19 +247,23 @@ by GCM, results by change, and a general summary considering all GCMs:
   `user_threshold` argument.
 
 ``` r
-plot(changes_col$Binarized, cex.main = 0.8)
+terra::plot(changes_col$Binarized, cex.main = 0.8)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/binarized-1.png)
+
+  
 
 - **Results by gcm**: provides the computed changes (gain, loss,
   stability) for each GCM individually.
 
 ``` r
-plot(changes_col$Results_by_gcm, cex.main = 0.8)
+terra::plot(changes_col$Results_by_gcm, cex.main = 0.8)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/results%20by%20gcm-1.png)
+
+  
 
 - **Results by change**: a list where each `SpatRaster` represents a
   specific type of change (e.g., gain, loss, stability) across all GCMs
@@ -224,20 +271,24 @@ plot(changes_col$Results_by_gcm, cex.main = 0.8)
 
 ``` r
 # Results by change for the scenario of 2041-2060 (ssp126)
-plot(changes_col$Results_by_change$`Future_2041-2060_ssp126`)
+terra::plot(changes_col$Results_by_change$`Future_2041-2060_ssp126`)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/Results_by_change-1.png)
+
+  
 
 - **Summary changes**: provides a general summary indicating how many
   GCMs project gain, loss, and stability for each scenario.
 
 ``` r
-plot(changes_col$Summary_changes, 
-     plg=list(cex=0.75)) #Decrease size of legend text
+terra::plot(changes_col$Summary_changes, 
+     plg=list(cex=0.75))  # Decrease size of legend text
 ```
 
 ![](variability_and_uncertainty_files/figure-html/summary%20changes-1.png)
+
+  
 
 ### Importing Results
 
@@ -269,11 +320,13 @@ general_changes <- import_projections(projection = changes,
 general_changes <- colors_for_changes(general_changes)
 
 #Plot
-plot(general_changes$Summary, main = names(general_changes$Summary),
-     plg=list(cex=0.75)) #Decrease size of legend text
+terra::plot(general_changes$Summary, main = names(general_changes$Summary),
+     plg=list(cex=0.75))  # Decrease size of legend text
 ```
 
 ![](variability_and_uncertainty_files/figure-html/import%20general%20summary-1.png)
+
+  
 
 ### Save changes_projections
 
@@ -291,6 +344,8 @@ writeRaster(changes$Summary_changes,
             file.path(out_dir, "Summary_changes.tif"))
 ```
 
+  
+
 If the results were saved to disk, the `changes_projections` object is
 automatically stored in a folder named *Projection_changes* inside the
 specified `output_dir`. You can load it back into R using
@@ -300,10 +355,14 @@ specified `output_dir`. You can load it back into R using
 changes <- readRDS(file.path(out_dir, "Projection_changes/changes_projections.rds"))
 ```
 
+  
+
 After loading, this object can be used to import specific results with
 the
 [`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
 function.
+
+  
 
 ## Explore Variance
 
@@ -339,6 +398,8 @@ v <- projection_variability(model_projections = p, write_files = TRUE,
                             verbose = FALSE, overwrite = T)
 ```
 
+  
+
 The output is a `variability_projections` object, a list containing
 `SpatRaster` layers that represent the variance attributed to
 replicates, models, and GCMs for each scenario, including the present
@@ -350,20 +411,24 @@ from differences among the replicates
 
 ``` r
 # Variance for the present time
-plot(v$Present, range = c(0, 0.15))
+terra::plot(v$Present, range = c(0, 0.15))
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20variability%20present-1.png)
+
+  
 
 In the most pessimistic scenario (SSP5-8.5) for the 2081–2100 period, a
 slight variance is observed, primarily arising from the replicates and
 the different GCMs used.
 
 ``` r
-plot(v$`Future_2081-2100_ssp585`, range = c(0, 0.1))
+terra::plot(v$`Future_2081-2100_ssp585`, range = c(0, 0.1))
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20variability%20future-1.png)
+
+  
 
 ### Importing Results
 
@@ -379,20 +444,24 @@ v$root_directory
 #> [1] "Temp/Projection_results/maxnet/variance"
 ```
 
+  
+
 As an example, we will import the results for the 2041–2060 period under
 the SSP1-2.6 scenario. In this scenario, the variability mainly
 originates from differences among the selected models.
 
 ``` r
 v_2041_2060_ssp126 <- import_projections(projection = v, 
-                                         present = FALSE, #Do not import results from the present time
+                                         present = FALSE,  # Do not import results from the present time
                                          future_period = "2041-2060", 
                                          future_pscen = "ssp126")
 # Plot
-plot(v_2041_2060_ssp126, range = c(0, 0.1))
+terra::plot(v_2041_2060_ssp126, range = c(0, 0.1))
 ```
 
 ![](variability_and_uncertainty_files/figure-html/import%20variability_projections-1.png)
+
+  
 
 ### Saving the variability_projections Object
 
@@ -411,6 +480,8 @@ writeRaster(v$`Future_2081-2100_ssp585`,
             file.path(out_dir, "Future_2081-2100_ssp585.tif"))
 ```
 
+  
+
 If the results were saved to disk, the `variability_projections` object
 is automatically stored in a folder named *variance* within the
 specified `output_dir`. You can reload it into R using the
@@ -421,9 +492,13 @@ function:
 v <- readRDS(file.path(out_dir, "variance/variability_projections.rds"))
 ```
 
+  
+
 This object can then be used to import the results with the
 [`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
 function.
+
+  
 
 ## Analyze Extrapolation Risks Using the MOP Metric
 
@@ -438,6 +513,8 @@ calibration area was $22.7^{\circ}C$:
 max(fitted_model_maxnet$calibration_data$bio_1)
 #> [1] 22.6858
 ```
+
+  
 
 However, in future scenarios, conditions are projected to become warmer,
 and temperatures may reach higher values. To illustrate this, let’s
@@ -454,11 +531,13 @@ minmax(future_ACCESS_CM2$bio_1)
 #> max  29.6
 
 #Plot
-plot(future_ACCESS_CM2$bio_1, 
-     breaks = c(-Inf, 22.7, Inf)) #Highlight regions with temperature above 22.7ºC
+terra::plot(future_ACCESS_CM2$bio_1, 
+     breaks = c(-Inf, 22.7, Inf))  # Highlight regions with temperature above 22.7ºC
 ```
 
 ![](variability_and_uncertainty_files/figure-html/Highlight%20non-analogous-1.png)
+
+  
 
 Note that in most of the projected area, temperatures are expected to
 exceed the current maximum temperature.
@@ -512,11 +591,15 @@ kmop <- projection_mop(data = fitted_model_maxnet, projection_data = pr,
                        overwrite = TRUE, progress_bar = FALSE)
 ```
 
+  
+
 The function returns a `mop_projections` object, which contains the
 paths to the directories where the results were saved. This object can
 be used with the
 [`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
 function to load the results.
+
+  
 
 ### MOP types
 
@@ -543,12 +626,14 @@ Below, we examine all MOP results for the SSP5-8.5 scenario during the
 mop_ssp585_2100 <- import_projections(projection = kmop,
                                       future_period = "2081-2100", 
                                       future_pscen = "ssp585")
-#See types of results
+# See types of results
 names(mop_ssp585_2100)
 #> [1] "distances"             "simple"                "basic"                
 #> [4] "towards_high_combined" "towards_low_combined"  "towards_high_end"     
 #> [7] "towards_low_end"
 ```
+
+  
 
 #### Distances
 
@@ -559,10 +644,12 @@ dissimilarity from the calibration conditions, highlighting areas with
 increased extrapolation risk.
 
 ``` r
-plot(mop_ssp585_2100$distances)
+terra::plot(mop_ssp585_2100$distances)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20distance-1.png)
+
+  
 
 #### Basic
 
@@ -572,10 +659,12 @@ variable differs from the reference (calibration) conditions. A value of
 area and scenario.
 
 ``` r
-plot(mop_ssp585_2100$basic)
+terra::plot(mop_ssp585_2100$basic)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20basic-1.png)
+
+  
 
 #### Simple
 
@@ -584,10 +673,12 @@ the projected area that are non-analogous to those in the calibration
 data.
 
 ``` r
-plot(mop_ssp585_2100$simple)
+terra::plot(mop_ssp585_2100$simple)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20simple-1.png)
+
+  
 
 #### Combined Towards High/Low
 
@@ -599,7 +690,7 @@ highlights variables with values below the calibration range.
 
 ``` r
 # Non-analogous conditions towards high values
-plot(mop_ssp585_2100$towards_high_combined)
+terra::plot(mop_ssp585_2100$towards_high_combined)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png)
@@ -607,10 +698,12 @@ plot(mop_ssp585_2100$towards_high_combined)
 ``` r
 
 # Non-analogous conditions towards low values
-plot(mop_ssp585_2100$towards_low_combined)
+terra::plot(mop_ssp585_2100$towards_low_combined)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20towars%20combined-2.png)
+
+  
 
 #### Towards High/Low End
 
@@ -620,7 +713,7 @@ for each variable.
 
 ``` r
 # Non-analogous conditions towards high values in the ACCESS-CM2 scenario
-plot(mop_ssp585_2100$towards_high_end$`Future_2081-2100_ssp585_ACCESS-CM2`)
+terra::plot(mop_ssp585_2100$towards_high_end$`Future_2081-2100_ssp585_ACCESS-CM2`)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20towards%20end-1.png)
@@ -628,11 +721,13 @@ plot(mop_ssp585_2100$towards_high_end$`Future_2081-2100_ssp585_ACCESS-CM2`)
 ``` r
 
 # Non-analogous conditions towards low values in the MIROC6 scenario
-plot(mop_ssp585_2100$towards_low_end$`Future_2081-2100_ssp585_ACCESS-CM2`,
+terra::plot(mop_ssp585_2100$towards_low_end$`Future_2081-2100_ssp585_ACCESS-CM2`,
      main = names(mop_ssp585_2100$towards_low_end$`Future_2081-2100_ssp585_ACCESS-CM2`))
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20towards%20end-2.png)
+
+  
 
 ### Handling In-Range Values: NA or Zero
 
@@ -652,12 +747,14 @@ dir.create(out_dir_mop_zero, recursive = TRUE)
 # Run MOP
 kmop_zero <- projection_mop(data = fitted_model_maxnet, projection_data = pr, 
                             subset_variables = TRUE, 
-                            na_in_range = FALSE, #Assign 0 to cells within range
+                            na_in_range = FALSE,  # Assign 0 to cells within range
                             calculate_distance = TRUE,
                             out_dir = out_dir_mop_zero, 
                             type = "detailed", 
                             overwrite = TRUE, progress_bar = FALSE)
 ```
+
+  
 
 Let’s explore how this setting affects the *simple* and *detailed* MOP
 outputs:
@@ -670,7 +767,7 @@ mop_ssp585_2100_zero <- import_projections(projection = kmop_zero,
 
 # Compare with the MOP that assigns NA to cells within the calibration range
 # Simple MOP
-plot(c(mop_ssp585_2100$simple$`Future_2081-2100_ssp585_ACCESS-CM2`, 
+terra::plot(c(mop_ssp585_2100$simple$`Future_2081-2100_ssp585_ACCESS-CM2`, 
        mop_ssp585_2100_zero$simple$`Future_2081-2100_ssp585_ACCESS-CM2`),
      main = c("Within range as NA", "Within range as 0"))
 ```
@@ -680,13 +777,15 @@ plot(c(mop_ssp585_2100$simple$`Future_2081-2100_ssp585_ACCESS-CM2`,
 ``` r
 
 # Detailed MOP
-plot(c(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`, 
+terra::plot(c(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`, 
        mop_ssp585_2100_zero$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`),
      main = c("Within range as NA", "Within range as 0"),
      plg=list(cex=0.6))
 ```
 
 ![](variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-2.png)
+
+  
 
 ### Comparing MOP Results with Response Curves
 
@@ -705,10 +804,12 @@ calibration data.
 
 ``` r
 # Non-analogous conditions towards high values in the MIROC6 scenario
-plot(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
+terra::plot(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
 ```
 
 ![](variability_and_uncertainty_files/figure-html/plot%20towards%20high%20values-1.png)
+
+  
 
 Now, let’s examine the response curves for these variables. To better
 visualize how the model responds to the range of values projected in
@@ -716,7 +817,7 @@ this future scenario, we can set the plotting limits using the
 scenario’s variable values as `new_data`:
 
 ``` r
-par(mfrow = c(1,3)) #Set plot grid
+par(mfrow = c(1,3))  # Set plot grid
 response_curve(models = fitted_model_maxnet, variable = "bio_1", 
                new_data = future_ACCESS_CM2)
 response_curve(models = fitted_model_maxnet, variable = "bio_12", 
@@ -728,9 +829,12 @@ response_curve(models = fitted_model_maxnet, variable = "bio_15",
 ![](variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png)
 
 ``` r
-#Reinitiate grids
+
+# Reinitiate grids
 on.exit()
 ```
+
+  
 
 In the response curves for bio_1, bio_12, and bio_15, higher values
 correspond to lower suitability, reaching zero near the upper limit of
@@ -745,8 +849,9 @@ of the calibration data:
 
 ``` r
 # Non-analogous conditions towards low values in the MIROC6 scenario
-par(mfrow = c(1,2)) #Set grid
-plot(mop_ssp585_2100$towards_low_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
+par(mfrow = c(1,2))  # Set grid
+terra::plot(mop_ssp585_2100$towards_low_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
+
 ## It's bio 7. Plot response curve:
 response_curve(models = fitted_model_maxnet, variable = "bio_7", 
                new_data = future_ACCESS_CM2)
@@ -755,9 +860,12 @@ response_curve(models = fitted_model_maxnet, variable = "bio_7",
 ![](variability_and_uncertainty_files/figure-html/plot%20towards%20low%20values-1.png)
 
 ``` r
-#Reinitiate grid
+
+# Reinitiate grid
 on.exit()
 ```
+
+  
 
 In some regions of the projected scenario, `bio_7` (Temperature Annual
 Range) exhibits values **below the lower limit of the calibration
@@ -770,6 +878,15 @@ decline.
 
 This example highlights why we strongly recommend interpreting MOP
 results alongside the response curves.
+
+  
+
+``` r
+# Reset plotting parameters
+par(original_par) 
+```
+
+  
 
 ### Saving and Importing MOP Results
 

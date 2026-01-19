@@ -25,6 +25,9 @@
 library(kuenm2)
 library(terra)
 #> terra 1.8.93
+
+# Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
 ```
 
 In the [“Project models to multiple
@@ -444,7 +447,7 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpwfKxAL/Projection_variables
+#> /tmp/RtmpyPOcWy/Projection_variables
 ```
 
 We can check the files structured hierarchically in nested folders using
@@ -634,3 +637,10 @@ plot(summary_with_colors$Summary_changes)
 
 In this example, we can see that under present-day conditions, most GCMs
 indicate the species lost much of its suitable area during the LGM.
+
+  
+
+``` r
+# Reset plotting parameters
+par(original_par) 
+```

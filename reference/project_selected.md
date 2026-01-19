@@ -14,7 +14,7 @@ project_selected(models, projection_data, out_dir, mask = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
                  write_replicates = FALSE, extrapolation_type = "E",
-                 var_to_clamp = NULL, type = NULL, overwrite = FALSE,
+                 var_to_restrict = NULL, type = NULL, overwrite = FALSE,
                  parallel = FALSE, ncores = NULL,
                  progress_bar = TRUE, verbose = TRUE)
 ```
@@ -72,11 +72,12 @@ project_selected(models, projection_data, out_dir, mask = NULL,
   clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See
   details.
 
-- var_to_clamp:
+- var_to_restrict:
 
-  (character) vector specifying which variables to clamp. Only
-  applicable if extrapolation_type is "EC" or "NE". Default is `NULL`,
-  meaning all variables will be clamped or not extrapolated.
+  (character) vector specifying which variables to clamp or not to
+  extrapolate for. Only applicable if extrapolation_type is "EC" or
+  "NE". Default is `NULL`, clamping and no extrapolation will be done
+  for all variables.
 
 - type:
 
@@ -153,7 +154,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpOM8IH9/Future_raw_wc
+#> /tmp/RtmpIukcQ6/Future_raw_wc
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

@@ -71,7 +71,7 @@ calibration data.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">independent_evaluation</span><span class="op">(</span><span class="va">fitted_models</span>, <span class="va">new_data</span>,</span>
 <span>                              consensus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"median"</span><span class="op">)</span>,</span>
 <span>                              type <span class="op">=</span> <span class="st">"cloglog"</span>, extrapolation_type <span class="op">=</span> <span class="st">"E"</span>,</span>
-<span>                              var_to_clamp <span class="op">=</span> <span class="cn">NULL</span>, perform_mop <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                              var_to_restrict <span class="op">=</span> <span class="cn">NULL</span>, perform_mop <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                              mop_type <span class="op">=</span> <span class="st">"detailed"</span>,</span>
 <span>                              calculate_distance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                              where_distance <span class="op">=</span> <span class="st">"all"</span>,</span>
@@ -115,7 +115,7 @@ be transferred with three options: free extrapolation ('E'), extrapolation
 with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.</p></dd>
 
 
-<dt id="arg-var-to-clamp">var_to_clamp<a class="anchor" aria-label="anchor" href="#arg-var-to-clamp"></a></dt>
+<dt id="arg-var-to-restrict">var_to_restrict<a class="anchor" aria-label="anchor" href="#arg-var-to-restrict"></a></dt>
 <dd><p>(character) vector specifying which variables to clamp or
 not extrapolate. Only applicable if extrapolation_type is "EC" or "NE".
 Default is <code>NULL</code>, meaning all variables will be clamped or not extrapolated.</p></dd>

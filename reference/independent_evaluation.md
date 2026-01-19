@@ -12,7 +12,7 @@ within the range) to those in the calibration data.
 independent_evaluation(fitted_models, new_data,
                               consensus = c("mean", "median"),
                               type = "cloglog", extrapolation_type = "E",
-                              var_to_clamp = NULL, perform_mop = TRUE,
+                              var_to_restrict = NULL, perform_mop = TRUE,
                               mop_type = "detailed",
                               calculate_distance = TRUE,
                               where_distance = "all",
@@ -55,7 +55,7 @@ independent_evaluation(fitted_models, new_data,
   clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See
   details.
 
-- var_to_clamp:
+- var_to_restrict:
 
   (character) vector specifying which variables to clamp or not
   extrapolate. Only applicable if extrapolation_type is "EC" or "NE".

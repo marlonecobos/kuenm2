@@ -12,7 +12,7 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
                  write_replicates = FALSE, out_dir = NULL,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
-                 extrapolation_type = "E", var_to_clamp = NULL,
+                 extrapolation_type = "E", var_to_restrict = NULL,
                  type = "cloglog", overwrite = FALSE, progress_bar = TRUE)
 ```
 
@@ -76,12 +76,12 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
   clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See
   details.
 
-- var_to_clamp:
+- var_to_restrict:
 
-  (character) vector specifying which variables to clamp or not
-  extrapolate. Only applicable if extrapolation_type is "EC" or "NE".
-  Default is `NULL`, meaning all variables will be clamped or not
-  extrapolated.
+  (character) vector specifying which variables to clamp or not to
+  extrapolate for. Only applicable if extrapolation_type is "EC" or
+  "NE". Default is `NULL`, clamping and no extrapolation will be done
+  for all variables.
 
 - type:
 
@@ -116,8 +116,8 @@ with clamping (extrapolation_type = "EC"), or not extrapolate
 (extrapolation_type = "NE"). When clamping, the variables are set to
 minimum and maximum values established for the maximum and minimum
 values within calibration data. In the no extrapolation approach, any
-cell with at least one variable listed in `var_to_clamp` falling outside
-the calibration range is assigned a suitability value of 0.
+cell with at least one variable listed in `var_to_restrict` falling
+outside the calibration range is assigned a suitability value of 0.
 
 ## Examples
 

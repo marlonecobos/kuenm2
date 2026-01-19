@@ -69,7 +69,7 @@ replicates and models.</p>
 <span>                 write_replicates <span class="op">=</span> <span class="cn">FALSE</span>, out_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                 consensus_per_model <span class="op">=</span> <span class="cn">TRUE</span>, consensus_general <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                 consensus <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"median"</span>, <span class="st">"range"</span>, <span class="st">"mean"</span>, <span class="st">"stdev"</span><span class="op">)</span>,</span>
-<span>                 extrapolation_type <span class="op">=</span> <span class="st">"E"</span>, var_to_clamp <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                 extrapolation_type <span class="op">=</span> <span class="st">"E"</span>, var_to_restrict <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                 type <span class="op">=</span> <span class="st">"cloglog"</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span>, progress_bar <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -133,10 +133,10 @@ be transferred with three options: free extrapolation ('E'), extrapolation
 with clamping ('EC'), and no extrapolation ('NE'). Default = 'E'. See details.</p></dd>
 
 
-<dt id="arg-var-to-clamp">var_to_clamp<a class="anchor" aria-label="anchor" href="#arg-var-to-clamp"></a></dt>
-<dd><p>(character) vector specifying which variables to clamp or
-not extrapolate. Only applicable if extrapolation_type is "EC" or "NE".
-Default is <code>NULL</code>, meaning all variables will be clamped or not extrapolated.</p></dd>
+<dt id="arg-var-to-restrict">var_to_restrict<a class="anchor" aria-label="anchor" href="#arg-var-to-restrict"></a></dt>
+<dd><p>(character) vector specifying which variables to clamp
+or not to extrapolate for. Only applicable if extrapolation_type is "EC" or "NE".
+Default is <code>NULL</code>, clamping and no extrapolation will be done for all variables.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -170,7 +170,7 @@ predictions (<code>extrapolation_type = "E"</code>), extrapolate with clamping
 When clamping, the variables are set to minimum and maximum values
 established for the maximum and minimum values within calibration data. In
 the no extrapolation approach, any cell with at least one variable listed in
-<code>var_to_clamp</code> falling outside the calibration range is assigned a suitability
+<code>var_to_restrict</code> falling outside the calibration range is assigned a suitability
 value of 0.</p>
     </div>
 

@@ -84,30 +84,29 @@
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
 <ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#description">Description</a></li>
+<li><a href="#getting-ready">Getting ready</a></li>
+<li><a href="#loading-data">Loading data</a></li>
 <li>
-<a href="#compute-changes-between-scenarios">Compute Changes Between
-Scenarios</a>
+<a href="#detecting-changes-in-projections">Detecting changes in
+projections</a>
 <ul>
-<li><a href="#set-colors-for-change-maps">Set Colors for Change
-Maps</a></li>
-<li><a href="#types-os-results">Types os results</a></li>
-<li><a href="#importing-results">Importing Results</a></li>
-<li><a href="#save-changes_projections">Save
-changes_projections</a></li>
+<li><a href="#seting-colors-for-maps">Seting colors for maps</a></li>
+<li><a href="#types-of-results">Types of results</a></li>
+<li><a href="#importing-results">Importing results</a></li>
+<li><a href="#saving-results">Saving results</a></li>
 </ul>
 </li>
 <li>
-<a href="#explore-variance">Explore Variance</a>
+<a href="#exploring-variance">Exploring variance</a>
 <ul>
-<li><a href="#importing-results-1">Importing Results</a></li>
-<li><a href="#saving-the-variability_projections-object">Saving the
-variability_projections Object</a></li>
+<li><a href="#importing-results-1">Importing results</a></li>
+<li><a href="#saving-results-1">Saving results</a></li>
 </ul>
 </li>
 <li>
-<a href="#analyze-extrapolation-risks-using-the-mop-metric">Analyze
-Extrapolation Risks Using the MOP Metric</a>
+<a href="#assessing-extrapolation-risks">Assessing extrapolation
+risks</a>
 <ul>
 <li>
 <a href="#mop-types">MOP types</a>
@@ -120,8 +119,8 @@ High/Low</a></li>
 <li><a href="#towards-highlow-end">Towards High/Low End</a></li>
 </ul>
 </li>
-<li><a href="#handling-in-range-values-na-or-zero">Handling In-Range
-Values: NA or Zero</a></li>
+<li><a href="#handling-values-within-range">Handling values within
+range</a></li>
 <li><a href="#comparing-mop-results-with-response-curves">Comparing MOP
 Results with Response Curves</a></li>
 <li><a href="#saving-and-importing-mop-results">Saving and Importing MOP
@@ -129,6 +128,43 @@ Results</a></li>
 </ul>
 </li>
 </ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
+</h2>
+<p>Once selected models have been fit and explored, projections to
+single or multiple scenarios can be performed. The
+<code><a href="../reference/predict_selected.html">predict_selected()</a></code> function is designed for projections to
+single scenarios (i.e., a single set of new data). This vignette
+contains examples of how to use many of the options available for model
+predictions.</p>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="getting-ready">Getting ready<a class="anchor" aria-label="anchor" href="#getting-ready"></a>
+</h2>
+<p>At this point it is assumed that <code>kuenm2</code> is installed (if
+not, see the <a href="../index.html">Main guide</a>). Load
+<code>kuenm2</code> and any other required packages, and define a
+working directory (if needed).</p>
+<p>Note: functions from other packages (i.e., not from base R or
+<code>kuenm2</code>) used in this guide will be displayed as
+<code>package::function()</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Current directory</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define new directory</span></span>
+<span><span class="co">#setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory</span></span>
+<span></span>
+<span><span class="co"># Saving original plotting parameters</span></span>
+<span><span class="va">original_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>no.readonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
@@ -155,11 +191,10 @@ projection rasters are saved.</p>
 <p>To create this object, follow the steps outlined below and described
 in the <a href="model_projections.html">“Project models to multiple
 scenarios”</a> vignette.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.93</span></span>
 <span></span>
 <span><span class="co">#Import calib_results_maxnet</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"fitted_model_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
@@ -175,16 +210,16 @@ scenarios”</a> vignette.</p>
 <span></span>
 <span><span class="co"># Organize and structure WorldClim files</span></span>
 <span><span class="co">#Create folder to save structured files</span></span>
-<span><span class="va">out_dir_future</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Future_raw"</span><span class="op">)</span> <span class="co">#Here, in a temporary directory</span></span>
+<span><span class="va">out_dir_future</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Future_raw"</span><span class="op">)</span>  <span class="co"># Here, in a temporary directory</span></span>
 <span><span class="co">#Organize</span></span>
-<span><span class="fu"><a href="../reference/organize_future_worldclim.html">organize_future_worldclim</a></span><span class="op">(</span>input_dir <span class="op">=</span> <span class="va">in_dir</span>, <span class="co">#Path to the raw variables from WorldClim</span></span>
+<span><span class="fu"><a href="../reference/organize_future_worldclim.html">organize_future_worldclim</a></span><span class="op">(</span>input_dir <span class="op">=</span> <span class="va">in_dir</span>,  <span class="co"># Path to the raw variables from WorldClim</span></span>
 <span>                          output_dir <span class="op">=</span> <span class="va">out_dir_future</span>, </span>
-<span>                          name_format <span class="op">=</span> <span class="st">"bio_"</span>, <span class="co">#Name format</span></span>
-<span>                          static_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span>, <span class="co">#Static variables</span></span>
+<span>                          name_format <span class="op">=</span> <span class="st">"bio_"</span>,  <span class="co"># Name format</span></span>
+<span>                          static_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span>,  <span class="co"># Static variables</span></span>
 <span>                          progress_bar <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpSpUbOB/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/RtmpQLCDXs/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Create a "Current_raw" folder in a temporary directory</span></span>
 <span><span class="co">#and copy the rawvariables there.</span></span>
@@ -197,8 +232,8 @@ scenarios”</a> vignette.</p>
 <span></span>
 <span><span class="co"># Prepare projections using fitted models to check variables</span></span>
 <span><span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_projection.html">prepare_projection</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
-<span>                         present_dir <span class="op">=</span> <span class="va">out_dir_current</span>, <span class="co">#Directory with present-day variables</span></span>
-<span>                         future_dir <span class="op">=</span> <span class="va">out_dir_future</span>, <span class="co">#Directory with future variables</span></span>
+<span>                         present_dir <span class="op">=</span> <span class="va">out_dir_current</span>,  <span class="co"># Directory with present-day variables</span></span>
+<span>                         future_dir <span class="op">=</span> <span class="va">out_dir_future</span>,  <span class="co"># Directory with future variables</span></span>
 <span>                         future_period <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2041-2060"</span>, <span class="st">"2081-2100"</span><span class="op">)</span>,</span>
 <span>                         future_pscen <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ssp126"</span>, <span class="st">"ssp585"</span><span class="op">)</span>,</span>
 <span>                         future_gcm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ACCESS-CM2"</span>, <span class="st">"MIROC6"</span><span class="op">)</span><span class="op">)</span></span>
@@ -214,8 +249,9 @@ scenarios”</a> vignette.</p>
 <span>                      projection_data <span class="op">=</span> <span class="va">pr</span>,</span>
 <span>                      out_dir <span class="op">=</span> <span class="va">out_dir</span>,</span>
 <span>                      write_replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co">#Do not print progress bar</span></span>
+<span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span>,  <span class="co"># Do not print progress bar</span></span>
 <span>                      overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="compute-changes-between-scenarios">Compute Changes Between Scenarios<a class="anchor" aria-label="anchor" href="#compute-changes-between-scenarios"></a>
@@ -260,11 +296,12 @@ of GCMs predicting gain, loss, and stability for each time scenario.</p>
 not save the binarized results for individual GCMs. In the example
 below, we demonstrate how to configure the function to both return the
 resulting rasters and write the binarized results to disk.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projection_changes.html">projection_changes</a></span><span class="op">(</span>model_projections <span class="op">=</span> <span class="va">p</span>, </span>
 <span>                              output_dir <span class="op">=</span> <span class="va">out_dir</span>, </span>
-<span>                              write_bin_models <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Write individual binarized results</span></span>
+<span>                              write_bin_models <span class="op">=</span> <span class="cn">TRUE</span>,  <span class="co"># Write individual binarized results</span></span>
 <span>                              return_raster <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <div class="section level3">
 <h3 id="set-colors-for-change-maps">Set Colors for Change Maps<a class="anchor" aria-label="anchor" href="#set-colors-for-change-maps"></a>
 </h3>
@@ -278,13 +315,14 @@ you can customize these colors as needed.</p>
 number of GCMs: it is highest (as defined by <code>max_alpha</code>)
 when all GCMs agree on a prediction, and decreases progressively (down
 to <code>min_alpha</code>) as fewer GCMs support that outcome.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Set colors for change maps</span></span>
 <span><span class="va">changes_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/colors_for_changes.html">colors_for_changes</a></span><span class="op">(</span><span class="va">changes</span><span class="op">)</span></span></code></pre></div>
 <p>The function returns the same <code>changes_projections</code>
 object, but with color tables embedded in its <code>SpatRasters</code>.
 These colors are automatically applied when visualizing the data using
-<code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot()</a></code>.</p>
+<code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">terra::plot()</a></code>.</p>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="types-os-results">Types os results<a class="anchor" aria-label="anchor" href="#types-os-results"></a>
@@ -300,37 +338,41 @@ the binarization applies the omission error threshold used when
 selecting the best models (e.g., 10%). You can specify a different
 threshold using the <code>user_threshold</code> argument.</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Binarized</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Binarized</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/binarized-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 <ul>
 <li>
 <strong>Results by gcm</strong>: provides the computed changes
 (gain, loss, stability) for each GCM individually.</li>
 </ul>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_gcm</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_gcm</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/results%20by%20gcm-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 <ul>
 <li>
 <strong>Results by change</strong>: a list where each
 <code>SpatRaster</code> represents a specific type of change (e.g.,
 gain, loss, stability) across all GCMs for a given scenario.</li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Results by change for the scenario of 2041-2060 (ssp126)</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_change</span><span class="op">$</span><span class="va">`Future_2041-2060_ssp126`</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_change</span><span class="op">$</span><span class="va">`Future_2041-2060_ssp126`</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/Results_by_change-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 <ul>
 <li>
 <strong>Summary changes</strong>: provides a general summary
 indicating how many GCMs project gain, loss, and stability for each
 scenario.</li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Summary_changes</span>, </span>
-<span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.75</span><span class="op">)</span><span class="op">)</span> <span class="co">#Decrease size of legend text</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Summary_changes</span>, </span>
+<span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.75</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Decrease size of legend text</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/summary%20changes-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="importing-results">Importing Results<a class="anchor" aria-label="anchor" href="#importing-results"></a>
@@ -350,7 +392,7 @@ scenario.</p>
 plotting.</p>
 <p>For example, below we import only the general summary for the
 2041–2060 period under the SSP5-8.5 scenario:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">general_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_projections.html">import_projections</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">changes</span>, </span>
 <span>                                      future_period <span class="op">=</span> <span class="st">"2041-2060"</span>, </span>
 <span>                                      future_pscen <span class="op">=</span> <span class="st">"ssp585"</span>,</span>
@@ -359,9 +401,10 @@ plotting.</p>
 <span><span class="va">general_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/colors_for_changes.html">colors_for_changes</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Plot</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span>, main <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span><span class="op">)</span>,</span>
-<span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.75</span><span class="op">)</span><span class="op">)</span> <span class="co">#Decrease size of legend text</span></span></code></pre></div>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span>, main <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span><span class="op">)</span>,</span>
+<span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.75</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Decrease size of legend text</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/import%20general%20summary-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="save-changes_projections">Save changes_projections<a class="anchor" aria-label="anchor" href="#save-changes_projections"></a>
@@ -374,18 +417,21 @@ results were saved (if <code>write_results = TRUE</code>).</p>
 can save the <code>SpatRaster</code> objects afterward using the
 <code><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster()</a></code> function. For example, to save the general
 summary raster:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">changes</span><span class="op">$</span><span class="va">Summary_changes</span>,</span>
 <span>            <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"Summary_changes.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>If the results were saved to disk, the
 <code>changes_projections</code> object is automatically stored in a
 folder named <em>Projection_changes</em> inside the specified
 <code>output_dir</code>. You can load it back into R using
 <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code>:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"Projection_changes/changes_projections.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>After loading, this object can be used to import specific results
 with the <code><a href="../reference/import_projections.html">import_projections()</a></code> function.</p>
+<p><br></p>
 </div>
 </div>
 <div class="section level2">
@@ -409,11 +455,12 @@ statistics such as <code>mean</code>, <code>range</code>, or
 <p>Below, we demonstrate how to calculate variance from these different
 sources (replicates, models, and GCMs) and save the results to the
 designated <code>out_dir</code> directory.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a directory to save results</span></span>
 <span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projection_variability.html">projection_variability</a></span><span class="op">(</span>model_projections <span class="op">=</span> <span class="va">p</span>, write_files <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                            output_dir <span class="op">=</span> <span class="va">out_dir</span>,</span>
 <span>                            verbose <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>The output is a <code>variability_projections</code> object, a list
 containing <code>SpatRaster</code> layers that represent the variance
 attributed to replicates, models, and GCMs for each scenario, including
@@ -421,16 +468,18 @@ the present time. These results highlight areas where prediction
 uncertainty is higher.</p>
 <p>For example, for the present time scenario, the variance mainly
 arises from differences among the replicates</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Variance for the present time</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">Present</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.15</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">Present</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.15</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20variability%20present-1.png" class="r-plt" alt="" width="60%"></p>
+<p><br></p>
 <p>In the most pessimistic scenario (SSP5-8.5) for the 2081–2100 period,
 a slight variance is observed, primarily arising from the replicates and
 the different GCMs used.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585`</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585`</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20variability%20future-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 <div class="section level3">
 <h3 id="importing-results-1">Importing Results<a class="anchor" aria-label="anchor" href="#importing-results-1"></a>
 </h3>
@@ -439,21 +488,23 @@ the different GCMs used.</p>
 the results were saved. You can use this path with the
 <code><a href="../reference/import_projections.html">import_projections()</a></code> function to load the results whenever
 needed.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See the folder where the results were saved</span></span>
 <span><span class="va">v</span><span class="op">$</span><span class="va">root_directory</span></span>
 <span><span class="co">#&gt; [1] "Temp/Projection_results/maxnet/variance"</span></span></code></pre></div>
+<p><br></p>
 <p>As an example, we will import the results for the 2041–2060 period
 under the SSP1-2.6 scenario. In this scenario, the variability mainly
 originates from differences among the selected models.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">v_2041_2060_ssp126</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_projections.html">import_projections</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">v</span>, </span>
-<span>                                         present <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co">#Do not import results from the present time</span></span>
+<span>                                         present <span class="op">=</span> <span class="cn">FALSE</span>,  <span class="co"># Do not import results from the present time</span></span>
 <span>                                         future_period <span class="op">=</span> <span class="st">"2041-2060"</span>, </span>
 <span>                                         future_pscen <span class="op">=</span> <span class="st">"ssp126"</span><span class="op">)</span></span>
 <span><span class="co"># Plot</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v_2041_2060_ssp126</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">v_2041_2060_ssp126</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/import%20variability_projections-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="saving-the-variability_projections-object">Saving the variability_projections Object<a class="anchor" aria-label="anchor" href="#saving-the-variability_projections-object"></a>
@@ -466,18 +517,21 @@ results were saved (if <code>write_files = TRUE</code>).</p>
 save the <code>SpatRaster</code> layers afterward using the
 <code><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster()</a></code> function. For example, to save the
 variability map for one of the future scenarios:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">v</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585`</span>, </span>
 <span>            <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"Future_2081-2100_ssp585.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>If the results were saved to disk, the
 <code>variability_projections</code> object is automatically stored in a
 folder named <em>variance</em> within the specified
 <code>output_dir</code>. You can reload it into R using the
 <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code> function:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"variance/variability_projections.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>This object can then be used to import the results with the
 <code><a href="../reference/import_projections.html">import_projections()</a></code> function.</p>
+<p><br></p>
 </div>
 </div>
 <div class="section level2">
@@ -489,15 +543,16 @@ environmental conditions not present in the calibration area.</p>
 <p>For example, the <strong>maximum temperature</strong> (bio_1) in our
 model’s calibration area was
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>22.7</mn><mo>∘</mo></msup><mi>C</mi></mrow><annotation encoding="application/x-tex">22.7^\circ C</annotation></semantics></math>:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">fitted_model_maxnet</span><span class="op">$</span><span class="va">calibration_data</span><span class="op">$</span><span class="va">bio_1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 22.6858</span></span></code></pre></div>
+<p><br></p>
 <p>However, in future scenarios, conditions are projected to become
 warmer, and temperatures may reach higher values. To illustrate this,
 let’s import environmental variables from one of the GCMs (ACCESS-CM2)
 under the future scenario SSP5-8.5 and examine the maximum
 temperature:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Import variables from the 2081-2100 period (SSP585, GCM MIROC6)</span></span>
 <span><span class="va">future_ACCESS_CM2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir_future</span>,</span>
 <span>                                <span class="st">"2081-2100/ssp585/ACCESS-CM2/Variables.tif"</span><span class="op">)</span><span class="op">)</span></span>
@@ -507,9 +562,10 @@ temperature:</p>
 <span><span class="co">#&gt; max  29.6</span></span>
 <span></span>
 <span><span class="co">#Plot</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">future_ACCESS_CM2</span><span class="op">$</span><span class="va">bio_1</span>, </span>
-<span>     breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">22.7</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span> <span class="co">#Highlight regions with temperature above 22.7ºC</span></span></code></pre></div>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">future_ACCESS_CM2</span><span class="op">$</span><span class="va">bio_1</span>, </span>
+<span>     breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="cn">Inf</span>, <span class="fl">22.7</span>, <span class="cn">Inf</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Highlight regions with temperature above 22.7ºC</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/Highlight%20non-analogous-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 <p>Note that in most of the projected area, temperatures are expected to
 exceed the current maximum temperature.</p>
 <p>The <code><a href="../reference/projection_mop.html">projection_mop()</a></code> function performs Mobility-Oriented
@@ -545,7 +601,7 @@ to identify exactly which variables exhibit non-analogous
 conditions.</p>
 <p>Below, we perform a detailed MOP to identify areas with extrapolation
 risk in the future scenarios for which predictions were made:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a folder to save MOP results</span></span>
 <span><span class="va">out_dir_mop</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"MOPresults"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">out_dir_mop</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -557,10 +613,12 @@ risk in the future scenarios for which predictions were made:</p>
 <span>                       out_dir <span class="op">=</span> <span class="va">out_dir_mop</span>, </span>
 <span>                       type <span class="op">=</span> <span class="st">"detailed"</span>, </span>
 <span>                       overwrite <span class="op">=</span> <span class="cn">TRUE</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>The function returns a <code>mop_projections</code> object, which
 contains the paths to the directories where the results were saved. This
 object can be used with the <code><a href="../reference/import_projections.html">import_projections()</a></code> function
 to load the results.</p>
+<p><br></p>
 <div class="section level3">
 <h3 id="mop-types">MOP types<a class="anchor" aria-label="anchor" href="#mop-types"></a>
 </h3>
@@ -581,15 +639,16 @@ default, all available MOP types are imported, including:</p>
 </ul>
 <p>Below, we examine all MOP results for the SSP5-8.5 scenario during
 the 2081–2100 period:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mop_ssp585_2100</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_projections.html">import_projections</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">kmop</span>,</span>
 <span>                                      future_period <span class="op">=</span> <span class="st">"2081-2100"</span>, </span>
 <span>                                      future_pscen <span class="op">=</span> <span class="st">"ssp585"</span><span class="op">)</span></span>
-<span><span class="co">#See types of results</span></span>
+<span><span class="co"># See types of results</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "distances"             "simple"                "basic"                </span></span>
 <span><span class="co">#&gt; [4] "towards_high_combined" "towards_low_combined"  "towards_high_end"     </span></span>
 <span><span class="co">#&gt; [7] "towards_low_end"</span></span></code></pre></div>
+<p><br></p>
 <div class="section level4">
 <h4 id="distances">Distances<a class="anchor" aria-label="anchor" href="#distances"></a>
 </h4>
@@ -598,9 +657,10 @@ distance between the projected environmental conditions (G) and those in
 the calibration dataset (M). Higher distance values indicate greater
 dissimilarity from the calibration conditions, highlighting areas with
 increased extrapolation risk.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">distances</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">distances</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20distance-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level4">
 <h4 id="basic">Basic<a class="anchor" aria-label="anchor" href="#basic"></a>
@@ -609,9 +669,10 @@ increased extrapolation risk.</p>
 environmental variable differs from the reference (calibration)
 conditions. A value of ‘1’ indicates the presence of non-analogous
 conditions in that specific area and scenario.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">basic</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">basic</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20basic-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level4">
 <h4 id="simple">Simple<a class="anchor" aria-label="anchor" href="#simple"></a>
@@ -619,9 +680,10 @@ conditions in that specific area and scenario.</p>
 <p>The <em>simple</em> result quantifies the number of environmental
 variables in the projected area that are non-analogous to those in the
 calibration data.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">simple</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">simple</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20simple-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level4">
 <h4 id="combined-towards-highlow">Combined Towards High/Low<a class="anchor" aria-label="anchor" href="#combined-towards-highlow"></a>
@@ -632,15 +694,16 @@ Specifically, <em>towards_high_combined</em> highlights variables with
 values exceeding those observed in the calibration data, while
 <em>towards_low_combined</em> highlights variables with values below the
 calibration range.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png" class="r-plt" alt="" width="95%"></p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">)</span></span></code></pre></div>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png" class="r-plt" alt="" width="95%"></p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Non-analogous conditions towards low values</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_combined</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_combined</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20towars%20combined-2.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level4">
 <h4 id="towards-highlow-end">Towards High/Low End<a class="anchor" aria-label="anchor" href="#towards-highlow-end"></a>
@@ -648,16 +711,17 @@ calibration range.</p>
 <p>The <em>towards_high_end</em> and <em>towards_low_end</em> results
 are similar to their “combined” counterparts but provide individual
 <code>SpatRaster</code> layers for each variable.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values in the ACCESS-CM2 scenario</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20end-1.png" class="r-plt" alt="" width="95%"></p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values in the ACCESS-CM2 scenario</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span></code></pre></div>
+<p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20end-1.png" class="r-plt" alt="" width="95%"></p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Non-analogous conditions towards low values in the MIROC6 scenario</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>,</span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_end</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20end-2.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 </div>
 <div class="section level3">
@@ -669,7 +733,7 @@ calibration data, indicating they are considered analogous.
 Alternatively, you can assign a value of 0 to these cells by setting
 <code>na_in_range = FALSE</code> when running
 <code><a href="../reference/projection_mop.html">projection_mop()</a></code>.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a folder to save MOP results, now assigning 0 to cells within the range</span></span>
 <span><span class="va">out_dir_mop_zero</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"MOPresults_zero"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">out_dir_mop_zero</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -677,14 +741,15 @@ Alternatively, you can assign a value of 0 to these cells by setting
 <span><span class="co"># Run MOP</span></span>
 <span><span class="va">kmop_zero</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projection_mop.html">projection_mop</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, projection_data <span class="op">=</span> <span class="va">pr</span>, </span>
 <span>                            subset_variables <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span>                            na_in_range <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co">#Assign 0 to cells within range</span></span>
+<span>                            na_in_range <span class="op">=</span> <span class="cn">FALSE</span>,  <span class="co"># Assign 0 to cells within range</span></span>
 <span>                            calculate_distance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                            out_dir <span class="op">=</span> <span class="va">out_dir_mop_zero</span>, </span>
 <span>                            type <span class="op">=</span> <span class="st">"detailed"</span>, </span>
 <span>                            overwrite <span class="op">=</span> <span class="cn">TRUE</span>, progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>Let’s explore how this setting affects the <em>simple</em> and
 <em>detailed</em> MOP outputs:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import MOP for the scenario ssp585 in 2081-2100</span></span>
 <span><span class="va">mop_ssp585_2100_zero</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_projections.html">import_projections</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">kmop_zero</span>,</span>
 <span>                                           future_period <span class="op">=</span> <span class="st">"2081-2100"</span>, </span>
@@ -692,18 +757,19 @@ Alternatively, you can assign a value of 0 to these cells by setting
 <span></span>
 <span><span class="co"># Compare with the MOP that assigns NA to cells within the calibration range</span></span>
 <span><span class="co"># Simple MOP</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">simple</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>, </span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">simple</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>, </span>
 <span>       <span class="va">mop_ssp585_2100_zero</span><span class="op">$</span><span class="va">simple</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Within range as NA"</span>, <span class="st">"Within range as 0"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-1.png" class="r-plt" alt="" width="95%"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Detailed MOP</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>, </span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span>, </span>
 <span>       <span class="va">mop_ssp585_2100_zero</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span>,</span>
 <span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Within range as NA"</span>, <span class="st">"Within range as 0"</span><span class="op">)</span>,</span>
 <span>     plg<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex<span class="op">=</span><span class="fl">0.6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-2.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="comparing-mop-results-with-response-curves">Comparing MOP Results with Response Curves<a class="anchor" aria-label="anchor" href="#comparing-mop-results-with-response-curves"></a>
@@ -717,16 +783,17 @@ ACCESS-CM2 under SSP5-8.5 for 2081–2100), where values of bio_1 (Annual
 Mean Temperature), bio_12 (Annual Precipitation) and bio_15
 (Precipitation Seasonality) exceed the upper limits observed in the
 calibration data.</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards high values in the MIROC6 scenario</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_high_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20high%20values-1.png" class="r-plt" alt="" width="95%"></p>
+<p><br></p>
 <p>Now, let’s examine the response curves for these variables. To better
 visualize how the model responds to the range of values projected in
 this future scenario, we can set the plotting limits using the
 scenario’s variable values as <code>new_data</code>:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set plot grid</span></span>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set plot grid</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, </span>
 <span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, </span>
@@ -734,9 +801,11 @@ scenario’s variable values as <code>new_data</code>:</p>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
 <span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png" class="r-plt" alt="" width="95%"></p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Reinitiate grids</span></span>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Reinitiate grids</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>In the response curves for bio_1, bio_12, and bio_15, higher values
 correspond to lower suitability, reaching zero near the upper limit of
 the calibration data (indicated by a dashed line). Beyond this upper
@@ -746,17 +815,20 @@ which provides greater confidence in the model’s extrapolation for these
 variables.</p>
 <p>Next, let’s investigate the variables with values below the lower
 limit of the calibration data:</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards low values in the MIROC6 scenario</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="co">#Set grid</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co">## It's bio 7. Plot response curve:</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_7"</span>, </span>
 <span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/plot%20towards%20low%20values-1.png" class="r-plt" alt="" width="95%"></p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Reinitiate grid</span></span>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Reinitiate grid</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/on.exit.html" class="external-link">on.exit</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>In some regions of the projected scenario, <code>bio_7</code>
 (Temperature Annual Range) exhibits values <strong>below the lower limit
 of the calibration data</strong>. The response curve indicates that,
@@ -768,6 +840,11 @@ we don’t know whether suitability truly continues to rise at these low
 decline.</p>
 <p>This example highlights why we strongly recommend interpreting MOP
 results alongside the response curves.</p>
+<p><br></p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Reset plotting parameters</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">original_par</span><span class="op">)</span> </span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level3">
 <h3 id="saving-and-importing-mop-results">Saving and Importing MOP Results<a class="anchor" aria-label="anchor" href="#saving-and-importing-mop-results"></a>
@@ -776,7 +853,7 @@ results alongside the response curves.</p>
 <code>mop_projections</code> object as an RDS file in the specified
 <code>out_dir</code>. You can reload this object in R at any time using
 the <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code> function:</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check for RDS files in the directory where we saved the MOP results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">out_dir_mop</span>, pattern <span class="op">=</span> <span class="st">"rds"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "mop_projections.rds"</span></span>
