@@ -121,11 +121,11 @@ out_dir_future <- file.path(tempdir(), "Future_raw5")
 ## Organize and rename the future climate data (structured by year and GCM)
 ### 'SoilType' will be appended as a static variable in each scenario
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
-                          name_format = "bio_", fixed_variables = var$SoilType)
+                          name_format = "bio_", static_variables = var$SoilType)
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpXerevA/Future_raw5
+#> /tmp/Rtmpz16rr3/Future_raw5
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
@@ -163,11 +163,5 @@ terra::plot(v$Present$from_parameters)  # From models with distinct parameters
 #terra::plot(v$`Future_2041-2060_ssp126`$from_replicates)  # From replicates in future projection
 terra::plot(v$`Future_2041-2060_ssp126`$from_parameters)  # From models
 
-terra::plot(v$`Future_2041-2060_ssp585`$from_gcms)  # From GCMs
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-#> Warning: no non-missing arguments to min; returning Inf
-#> Warning: no non-missing arguments to max; returning -Inf
-
-#> Error in plot.window(...): need finite 'xlim' values
+terra::plot(v$`Future_2041-2060_ssp126`$from_gcms)  # From GCMs
 ```

@@ -79,11 +79,11 @@ out_dir_future <- file.path(tempdir(), "Future_raw") #Here, in a temporary direc
 organize_future_worldclim(input_dir = in_dir, #Path to the raw variables from WorldClim
                           output_dir = out_dir_future, 
                           name_format = "bio_", #Name format
-                          fixed_variables = var$SoilType, #Static variables
+                          static_variables = var$SoilType, #Static variables
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpTw5Ebt/Future_raw
+#> /tmp/RtmpBNlFXZ/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 #and copy the rawvariables there.

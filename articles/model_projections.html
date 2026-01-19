@@ -80,54 +80,85 @@
 
     
     
+<div class="section level2">
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h2>
 <ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#description">Description</a></li>
+<li><a href="#getting-ready">Getting ready</a></li>
+<li><a href="#fitted-models">Fitted models</a></li>
 <li>
-<a href="#pre-processing-raster-predictors">Pre-processing raster
-predictors</a>
+<a href="#predictors-for-projections">Predictors for projections</a>
 <ul>
 <li>
-<a href="#organize-and-structure-future-climate-variables-from-worldClim">Organize
-and structure future climate variables from WorldClim</a>
+<a href="#preparing-predictors-from-worldclim">Preparing predictors
+from WorldClim</a>
 <ul>
 <li><a href="#format-for-renaming">Format for renaming</a></li>
-<li><a href="#fixed-variables">Fixed variables</a></li>
-<li><a href="#organize-and-structure-worldClim-files">Organize and
-structure WorldClim files</a></li>
+<li><a href="#static-variables">Static variables</a></li>
+<li><a href="#organizing-files">Organizing files</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#preparation-of-data-for-model-projections">Preparation of
-data for model projections</a></li>
-<li><a href="#project-selected-models-to-multiple-scenarios">Project
-selected models to multiple scenarios</a></li>
-<li><a href="#import-rasters-resulting-from-projections">Import rasters
-resulting from projections</a></li>
+<li><a href="#preparing-data-for-projections">Preparing data for
+projections</a></li>
+<li><a href="#projecting-to-multiple-scenarios">Projecting to multiple
+scenarios</a></li>
+<li><a href="#importing-results-from-projections">Importing results from
+projections</a></li>
 </ul>
 <hr>
-<div class="section level3">
-<h3 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h3>
-<p>Once selected models have been fit using <code><a href="../reference/fit_selected.html">fit_selected()</a></code>,
-projections to single or multiple scenarios can be performed. The
+</div>
+<div class="section level2">
+<h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
+</h2>
+<p>Once selected models have been fit and explored, projections to
+single or multiple scenarios can be performed. The
 <code><a href="../reference/project_selected.html">project_selected()</a></code> function is designed for projections to
-multiple scenarios.</p>
-<p>To project using the selected models, a <code>fitted_models</code>
-object is required. For detailed information on model fitting, please
-consult the vignette <a href="model_exploration.html">Fit and Explore
-Selected Models</a>. The <code>fitted_models</code> object generated in
-that vignette is included as an example dataset within the package.
-Let’s load it.</p>
+multiple scenarios (i.e., multiple sets of data, each representing
+distinct environmental scenarios). This vignette contains examples of
+how to use many of the options available for model projections.</p>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="getting-ready">Getting ready<a class="anchor" aria-label="anchor" href="#getting-ready"></a>
+</h2>
+<p>At this point it is assumed that <code>kuenm2</code> is installed (if
+not, see the <a href="../index.html">Main guide</a>). Load
+<code>kuenm2</code> and any other required packages, and define a
+working directory (if needed).</p>
+<p>Note: functions from other packages (i.e., not from base R or
+<code>kuenm2</code>) used in this guide will be displayed as
+<code>package::function()</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Load packages</span></span>
+<code class="sourceCode R"><span><span class="co"># Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://marlonecobos.github.io/kuenm2/">kuenm2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; terra 1.8.93</span></span>
 <span></span>
-<span><span class="co">#Import calib_results_maxnet</span></span>
+<span><span class="co"># Current directory</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Define new directory</span></span>
+<span><span class="co">#setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory</span></span>
+<span></span>
+<span><span class="co"># Saving original plotting parameters</span></span>
+<span><span class="va">original_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>no.readonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="fitted-models">Fitted models<a class="anchor" aria-label="anchor" href="#fitted-models"></a>
+</h2>
+<p>To project selected models, a <code>fitted_models</code> object is
+required. For detailed information on model fitting, check the vignette
+<a href="model_exploration.html">Fit and Explore Selected Models</a>.
+The <code>fitted_models</code> object generated in that vignette is
+included as an example dataset within the package. Let’s load it.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import fitted_model_maxnet</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"fitted_model_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
-<span><span class="co">#Print calibration result</span></span>
+<span></span>
+<span><span class="co"># Print fitted models</span></span>
 <span><span class="va">fitted_model_maxnet</span></span>
 <span><span class="co">#&gt; fitted_models object summary</span></span>
 <span><span class="co">#&gt; ============================</span></span>
@@ -135,29 +166,35 @@ Let’s load it.</p>
 <span><span class="co">#&gt; Algortihm: maxnet </span></span>
 <span><span class="co">#&gt; Number of fitted models: 2 </span></span>
 <span><span class="co">#&gt; Models fitted with 4 replicates</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level2">
-<h2 id="pre-processing-raster-predictors">Pre-processing raster predictors<a class="anchor" aria-label="anchor" href="#pre-processing-raster-predictors"></a>
+<h2 id="predictors-for-projections">Predictors for projections<a class="anchor" aria-label="anchor" href="#predictors-for-projections"></a>
 </h2>
-<p>While predicting models for a single scenario requires a single
+<p>Ppredicting models for a single scenario requires a single
 <code>SpatRaster</code> object containing the predictor variables (as
-detailed in <a href="model_predictions.html">Predict models to single
-scenario</a>), projecting models to multiple scenarios necessitates a
-folder that stores the predictor variables for each scenario.</p>
-<p>These folders must be organized in a specific hierarchical manner: a
-root directory should contain nested folders representing different
-scenarios, with the raster variables stored within. At the first level
-inside the root folder, subfolders should correspond to distinct time
-periods (e.g., future years like “2070” or “2100,” or past periods such
-as “Mid-holocene” or “LGM”). Within each period folder, if applicable,
-you should include subfolders for each emission scenario (e.g.,
-“ssp126”, “ssp585”). Finally, within each emission scenario or time
-period folder, include a separate folder for each General Circulation
-Model (GCM) (e.g., “BCC-CSM2-MR”, “MIROC6”). This structured
-organization enables the function to automatically access and process
-the data according to period, emission scenario, and GCM.</p>
+detailed in <a href="model_predictions.html">Predict Models to a Single
+Scenario</a>). In contrast, projecting models to multiple scenarios
+requires a folder that stores predictor variables for each scenario
+organized in a certain way.</p>
+<p>To ensure the following automated process can correctly track
+variables, the data must follow a strict hierarchical directory
+structure. At the top level, a <em>Base Directory</em> serves as the
+primary container for all project data. Inside this base folder, the
+first level of organization consists of subfolders for distinct <em>Time
+Periods</em>, such as future years (e.g., “2070”, “2100”) or
+paleoclimate eras (e.g., “Mid-holocene”, “LGM”). Within each period
+folder, <em>if applicable</em>, you should include subfolders at the
+second level for each <em>Emission Scenario</em> (e.g., “ssp126”,
+“ssp585”). Finally, within each emission scenario or time period folder,
+the third level should include a separate folder for each <em>General
+Circulation Model</em> (GCM) (e.g., “BCC-CSM2-MR”, “MIROC6”) to house
+the actual raster variables. This structured organization enables the
+function to automatically access and process the data according to
+period, emission scenario, and GCM.</p>
+<p><br></p>
 <div class="section level3">
-<h3 id="organize-and-structure-future-climate-variables-from-worldclim">Organize and structure future climate variables from WorldClim<a class="anchor" aria-label="anchor" href="#organize-and-structure-future-climate-variables-from-worldclim"></a>
+<h3 id="preparing-predictors-from-worldclim">Preparing predictors from WorldClim<a class="anchor" aria-label="anchor" href="#preparing-predictors-from-worldclim"></a>
 </h3>
 <p>The package provides a function to import future climate variables
 downloaded from WorldClim (version 2.1). This function renames the files
@@ -175,7 +212,7 @@ work properly.</p>
 WorldClim 2.1. This example includes bioclimatic predictions for the
 periods “2041-2060” and “2081-2100”, for two SSPs (125 and 585) and two
 GCMs (ACCESS-CM2 and MIROC6), at 10 arc-minutes resolution.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See raster files with future predictors provided as example</span></span>
 <span><span class="co"># The data is located in the "inst/extdata" folder.</span></span>
 <span><span class="va">in_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
@@ -200,38 +237,46 @@ GCMs (ACCESS-CM2 and MIROC6), at 10 arc-minutes resolution.</p>
 <span><span class="co">#&gt; [18] "wc2.1_10m_bioc_MIROC6_ssp585_2041-2060.tif"    </span></span>
 <span><span class="co">#&gt; [19] "wc2.1_10m_bioc_MIROC6_ssp585_2081-2100.tif"    </span></span>
 <span><span class="co">#&gt; [20] "world.gpkg"</span></span></code></pre></div>
+<p><br></p>
 <p>Note that all variables are in the same folder and retain the
 original names provided by WorldClim. You can download these variables
 directly from <a href="https://worldclim.org/data/cmip6/cmip6climate.html" class="external-link">WorldClim</a>
-or by using the <code>geodata</code> R package:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Install geodata if necessary</span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st">"geodata"</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+or by using the <code>geodata</code> R package (see example code
+below):</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install geodata if necessary</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st">"geodata"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"geodata"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="co">#Load geodata</span></span>
+<span></span>
+<span><span class="co"># Load geodata</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">geodata</span><span class="op">)</span></span>
-<span><span class="co">#Create folder to save the raster files</span></span>
-<span><span class="co">#Here, in a temporary directory</span></span>
+<span></span>
+<span><span class="co"># Create folder to save the raster files</span></span>
+<span><span class="co"># Here, in a temporary directory</span></span>
 <span><span class="va">geodata_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Future_worldclim"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">geodata_dir</span><span class="op">)</span></span>
-<span><span class="co">#Define GCMs, SSPs and time periods</span></span>
+<span></span>
+<span><span class="co"># Define GCMs, SSPs and time periods</span></span>
 <span><span class="va">gcms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ACCESS-CM2"</span>, <span class="st">"MIROC6"</span><span class="op">)</span></span>
 <span><span class="va">ssps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"126"</span>, <span class="st">"585"</span><span class="op">)</span></span>
 <span><span class="va">periods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2041-2060"</span>, <span class="st">"2061-2080"</span><span class="op">)</span></span>
-<span><span class="co">#Create a grid of combination of periods, ssps and gcms</span></span>
+<span></span>
+<span><span class="co"># Create a grid of combination of periods, ssps and gcms</span></span>
 <span><span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span><span class="st">"period"</span> <span class="op">=</span> <span class="va">periods</span>, <span class="st">"ssps"</span> <span class="op">=</span> <span class="va">ssps</span>, <span class="st">"gcms"</span> <span class="op">=</span> <span class="va">gcms</span><span class="op">)</span></span>
-<span><span class="va">g</span> <span class="co">#Each line is a specific scenario for future</span></span>
-<span><span class="co">#Loop to download variables for each scenario</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span></span>
+<span><span class="va">g</span>  <span class="co"># Each line is a specific scenario for future</span></span>
+<span></span>
+<span><span class="co"># Loop to download variables for each scenario (It can take a while)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">cmip6_world</span><span class="op">(</span>model <span class="op">=</span> <span class="va">g</span><span class="op">$</span><span class="va">gcms</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, </span>
 <span>              ssp <span class="op">=</span> <span class="va">g</span><span class="op">$</span><span class="va">ssps</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, </span>
 <span>              time <span class="op">=</span> <span class="va">g</span><span class="op">$</span><span class="va">period</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, </span>
 <span>              var <span class="op">=</span> <span class="st">"bioc"</span>, </span>
 <span>              res <span class="op">=</span> <span class="fl">10</span>, path <span class="op">=</span> <span class="va">geodata_dir</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span> <span class="co">#It will take a while...</span></span></code></pre></div>
+<span><span class="op">}</span><span class="op">)</span>  </span></code></pre></div>
+<p><br></p>
 <p>Let’s check the variables inside the “geodata_dir” folder:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">geodata_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "climate/wc2.1_10m/wc2.1_10m_bioc_ACCESS-CM2_ssp126_2041-2060.tif"</span></span>
 <span><span class="co">#&gt; [2] "climate/wc2.1_10m/wc2.1_10m_bioc_ACCESS-CM2_ssp126_2061-2080.tif"</span></span>
@@ -244,23 +289,23 @@ or by using the <code>geodata</code> R package:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; #Set climate as input directory</span></span>
 <span><span class="co">#&gt; in_dir &lt;- file.path(geodata_dir, "climate")</span></span></code></pre></div>
+<p><br></p>
 <p>Now, we can organize and structure the files using the
-<code>organize_future_worldclim</code> function.</p>
+<code><a href="../reference/organize_future_worldclim.html">organize_future_worldclim()</a></code> function.</p>
+<p><br></p>
 <div class="section level4">
 <h4 id="format-for-renaming">Format for renaming<a class="anchor" aria-label="anchor" href="#format-for-renaming"></a>
 </h4>
-<p>An important argument is <code>name_format</code>, which defines the
-format for renaming variables. The names of the variables in the
-<code>SpatRaster</code> must precisely match those used for model
-calibration or when running PCA (if <code>do_pca = TRUE</code> was set
-in the <code><a href="../reference/prepare_data.html">prepare_data()</a></code> function; see <a href="prepare_data.html">Prepare Data for Model Calibration</a> for more
-details).</p>
-<p>Therefore, if the variables used to calibrate the models are named
-“bio_1”, “bio_2”, etc., the variables in the future raster layers must
-also be named “bio_1”, “bio_2”, etc. However, if the variables have a
-different pattern, such as starting with uppercase letters and using
-zeros before single-digit numbers (e.g., “Bio_01”, “Bio_02”, etc.), they
-must be named “Bio_01”, “Bio_02”, etc. The function provides four
+<p>The argument <code>name_format</code> defines the format for renaming
+variables. The names of the variables in the <code>SpatRaster</code>
+must precisely match those used when preparing data, even if a PCA was
+performed internally (if <code>do_pca = TRUE</code>; see <a href="prepare_data.html">Prepare Data for Model Calibration</a> for
+details). If the variables used to create the models were “bio_1”,
+“bio_2”, etc., the variables representing other scenarios must be
+“bio_1”, “bio_2”, etc. However, if the names don’t match exactly,
+projections can fail (always check uppercase letters or zeros before
+single-digit numbers (e.g., “Bio_01”, “Bio_02”, etc.). The function
+<code><a href="../reference/organize_future_worldclim.html">organize_future_worldclim()</a></code> provides four renaming
 options:</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -282,44 +327,49 @@ options:</p>
 </ol>
 <p>Let’s check how the variables were named in our
 <code>fitted_model</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fitted_model_maxnet</span><span class="op">$</span><span class="va">continuous_variables</span></span>
 <span><span class="co">#&gt; [1] "bio_1"  "bio_7"  "bio_12" "bio_15"</span></span></code></pre></div>
-<p>The variables follows the standards of the first option
+<p><br></p>
+<p>The variables follow the standards of the first option
 (<code>"bio_"</code>).</p>
+<p><br></p>
 </div>
 <div class="section level4">
-<h4 id="fixed-variables">Fixed variables<a class="anchor" aria-label="anchor" href="#fixed-variables"></a>
+<h4 id="static-variables">Static variables<a class="anchor" aria-label="anchor" href="#static-variables"></a>
 </h4>
-<p>When predicting for other times, you can assume that some variables
-will be static (i.e., they remain unchanged in the projected scenarios).
-The <code>fixed_variables</code> argument allows you to append static
-variables alongside the bioclimatic variables.</p>
-<p>Here, let’s assume <code>soilType</code> will remain static in the
-future scenarios:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>When predicting to other times, some variables could be static (i.e.,
+they remain unchanged in scenarios of projections). The
+<code>static_variables</code> argument allows users to append static
+variables alongside the Bioclimatic ones. First, let’s bring
+<code>soilType</code>, which will remain static in future scenarios (we
+will use it in a later step).</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import raster layers (same used to calibrate and fit final models)</span></span>
 <span><span class="va">var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Current_variables.tif"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#Get soilType</span></span>
+<span></span>
+<span><span class="co"># Get soilType</span></span>
 <span><span class="va">soiltype</span> <span class="op">&lt;-</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level4">
-<h4 id="organize-and-structure-worldclim-files">Organize and structure WorldClim files<a class="anchor" aria-label="anchor" href="#organize-and-structure-worldclim-files"></a>
+<h4 id="organizing-files">Organizing files<a class="anchor" aria-label="anchor" href="#organizing-files"></a>
 </h4>
 <p>Now, let’s organize the WorldClim files with the
 <code><a href="../reference/organize_future_worldclim.html">organize_future_worldclim()</a></code> function:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Create folder to save structured files</span></span>
-<span><span class="va">out_dir_future</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Future_raw"</span><span class="op">)</span> <span class="co">#Here, in a temporary directory</span></span>
-<span><span class="co">#Organize</span></span>
-<span><span class="fu"><a href="../reference/organize_future_worldclim.html">organize_future_worldclim</a></span><span class="op">(</span>input_dir <span class="op">=</span> <span class="va">in_dir</span>, <span class="co">#Path to the raw variables from WorldClim</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create folder to save structured files</span></span>
+<span><span class="va">out_dir_future</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Future_raw"</span><span class="op">)</span>  <span class="co"># a temporary directory</span></span>
+<span></span>
+<span><span class="co"># Organize</span></span>
+<span><span class="fu"><a href="../reference/organize_future_worldclim.html">organize_future_worldclim</a></span><span class="op">(</span>input_dir <span class="op">=</span> <span class="va">in_dir</span>,  <span class="co"># Path to variables from WorldClim</span></span>
 <span>                          output_dir <span class="op">=</span> <span class="va">out_dir_future</span>, </span>
-<span>                          name_format <span class="op">=</span> <span class="st">"bio_"</span>, <span class="co">#Name format</span></span>
-<span>                          fixed_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span><span class="op">)</span> <span class="co">#Static variables</span></span>
+<span>                          name_format <span class="op">=</span> <span class="st">"bio_"</span>,  <span class="co"># Name format</span></span>
+<span>                          static_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span><span class="op">)</span>  <span class="co"># Static variables</span></span>
 <span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/Rtmpv7tSrE/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/RtmpSMViXT/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Check files organized</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="va">out_dir_future</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -331,14 +381,16 @@ future scenarios:</p>
 <span><span class="co">#&gt; [6] "2081-2100/ssp126/MIROC6/Variables.tif"    </span></span>
 <span><span class="co">#&gt; [7] "2081-2100/ssp585/ACCESS-CM2/Variables.tif"</span></span>
 <span><span class="co">#&gt; [8] "2081-2100/ssp585/MIROC6/Variables.tif"</span></span></code></pre></div>
+<p><br></p>
 <p>We can check the files structured hierarchically in nested folders
 using the <code><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree()</a></code> function from the <code>fs</code>
 package:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Install package if necessary</span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://fs.r-lib.org" class="external-link">"fs"</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install package if necessary</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://fs.r-lib.org" class="external-link">"fs"</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fs"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
+<span></span>
 <span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">out_dir_future</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Temp\RtmpkhmGWN/Future_raw</span></span>
 <span><span class="co">#&gt; ├── 2041-2060</span></span>
@@ -363,26 +415,29 @@ package:</p>
 <span><span class="co">#&gt;         │   └── Variables.tif</span></span>
 <span><span class="co">#&gt;         └── MIROC6</span></span>
 <span><span class="co">#&gt;             └── Variables.tif</span></span></code></pre></div>
-<p>After organizing variables, the next step is to create the
-<code>prepared_projection</code> object.</p>
+<p><br></p>
+<p>After organizing variables, the next step is to create an object that
+prepares things for projections.</p>
+<p><br></p>
 </div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="preparation-of-data-for-model-projections">Preparation of data for model projections<a class="anchor" aria-label="anchor" href="#preparation-of-data-for-model-projections"></a>
+<h2 id="preparing-data-for-projections">Preparing data for projections<a class="anchor" aria-label="anchor" href="#preparing-data-for-projections"></a>
 </h2>
-<p>Now, let’s prepare data for model projections across multiple
-scenarios, storing the paths to the rasters representing each
-scenario.</p>
+<p>To prepare data for model projections across multiple scenarios,
+storing the paths to the raster layers representing each scenario, we
+use the function <code><a href="../reference/prepare_projection.html">prepare_projection()</a></code>.</p>
 <p>In contrast to <code><a href="../reference/predict_selected.html">predict_selected()</a></code>, which requires a
-<code>SpatRaster</code> object, we need the paths to the folders where
-the raster files are stored. This includes the variables for the present
-time, which were used to calibrate and fit the models.</p>
-<p>Currently, we only have the future climate files. The present-day
-predictor variables must reside in the same root directory as the
-processed future variables. Let’s copy the rasters used for model
-calibration and fitting to this folder:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code>SpatRaster</code> object, when projecting to multiple scenarios,
+we need the paths to the folders where the raster files are stored. This
+includes the variables for the present time, which were used to
+calibrate and fit the models. Currently, we only have the future climate
+files. The present-day predictor variables must reside in the same base
+directory as the processed future variables. Let’s copy the raster
+layers used for model fitting to a folder we can easily direct the
+function that runs the next step:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create a "Current_raw" folder in a temporary directory</span></span>
 <span><span class="co"># and copy the rawvariables there.</span></span>
 <span><span class="va">out_dir_current</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Current_raw"</span><span class="op">)</span></span>
@@ -391,34 +446,37 @@ calibration and fitting to this folder:</p>
 <span><span class="co"># Save current variables in temporary directory</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">var</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir_current</span>, <span class="st">"Variables.tif"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">#Check folder</span></span>
+<span><span class="co"># Check folder</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">out_dir_current</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Variables.tif"</span></span></code></pre></div>
-<p>Now, we can prepare the data for projections. In addition to storing
-the paths to the variables for each scenario, the function also verifies
-if all variables used to fit the final models are available across all
-scenarios. To perform this check, you need to provide either the
-<code>fitted_models</code> object you intend to use for projection or
-simply the variable names. We strongly suggest using the
-<code>fitted_models</code> object to minimize projection errors.</p>
+<p><br></p>
+<p>Now, we can prepare the data for projections (see the functions
+documentation with <code><a href="../reference/prepare_projection.html">help(prepare_projection)</a></code>). In addition
+to storing the paths to the variables for each scenario, the function
+also verifies if all variables used to fit the final models are
+available across all scenarios. To perform this check, you need to
+provide either the <code>fitted_models</code> object you intend to use
+for projection or simply the variable names. We strongly suggest using
+the <code>fitted_models</code> object to prevent any errors.</p>
 <p>We also need to define the root directory containing the scenarios
 for projection (present, past, and/or future), along with additional
 information regarding time periods, SSPs, and GCMs.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Prepare projections using fitted models to check variables</span></span>
 <span><span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepare_projection.html">prepare_projection</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
-<span>                         present_dir <span class="op">=</span> <span class="va">out_dir_current</span>, <span class="co">#Directory with present-day variables</span></span>
-<span>                         past_dir <span class="op">=</span> <span class="cn">NULL</span>, <span class="co">#NULL because we won't project to the past</span></span>
-<span>                         past_period <span class="op">=</span> <span class="cn">NULL</span>, <span class="co">#NULL because we won't project to the past</span></span>
-<span>                         past_gcm <span class="op">=</span> <span class="cn">NULL</span>, <span class="co">#NULL because we won't project to the past</span></span>
-<span>                         future_dir <span class="op">=</span> <span class="va">out_dir_future</span>, <span class="co">#Directory with future variables</span></span>
+<span>                         present_dir <span class="op">=</span> <span class="va">out_dir_current</span>,  <span class="co"># Directory with present-day variables</span></span>
+<span>                         past_dir <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># NULL because we won't project to the past</span></span>
+<span>                         past_period <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># NULL because we won't project to the past</span></span>
+<span>                         past_gcm <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># NULL because we won't project to the past</span></span>
+<span>                         future_dir <span class="op">=</span> <span class="va">out_dir_future</span>,  <span class="co"># Directory with future variables</span></span>
 <span>                         future_period <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2041-2060"</span>, <span class="st">"2081-2100"</span><span class="op">)</span>,</span>
 <span>                         future_pscen <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ssp126"</span>, <span class="st">"ssp585"</span><span class="op">)</span>,</span>
 <span>                         future_gcm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ACCESS-CM2"</span>, <span class="st">"MIROC6"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>When we print the <code>projection_data</code> object, it summarizes
-all the scenarios we will predict and also shows the root directory
-where the predictor rasters are stored:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p><br></p>
+<p>The <code>projection_data</code> object summarizes information about
+all the scenarios we will project to, and shows the root directory where
+the predictors are stored:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pr</span></span>
 <span><span class="co">#&gt; projection_data object summary</span></span>
 <span><span class="co">#&gt; =============================</span></span>
@@ -428,7 +486,8 @@ where the predictor rasters are stored:</p>
 <span><span class="co">#&gt;   - Scenarios: ssp126 | ssp585 </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All variables are located in the following root directory:</span></span>
-<span><span class="co">#&gt; /tmp/Rtmpv7tSrE</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/RtmpSMViXT</span></span></code></pre></div>
+<p><br></p>
 <p>If we check the structure of the <code>prepared_projection</code>
 object, we can see it’s a list containing:</p>
 <ul>
@@ -441,34 +500,35 @@ folders (by default, <code>*.tif</code>).</li>
 Analysis (PCA) was performed on the set of variables with
 <code><a href="../reference/prepare_data.html">prepare_data()</a></code>.</li>
 </ul>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Open prepared_projection in a new window</span></span>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Open prepared_projection in a new window</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/View.html" class="external-link">View</a></span><span class="op">(</span><span class="va">pr</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level2">
-<h2 id="project-selected-models-to-multiple-scenarios">Project selected models to multiple scenarios<a class="anchor" aria-label="anchor" href="#project-selected-models-to-multiple-scenarios"></a>
+<h2 id="projecting-to-multiple-scenarios">Projecting to multiple scenarios<a class="anchor" aria-label="anchor" href="#projecting-to-multiple-scenarios"></a>
 </h2>
 <p>After preparing the data, we can use the
-<code><a href="../reference/project_selected.html">project_selected()</a></code> function to predict the selected models
-across the multiple scenarios specified in
-<code>prepare_projections</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## Create a folder to save projection results</span></span>
-<span><span class="co">#Here, in a temporary directory</span></span>
+<code><a href="../reference/project_selected.html">project_selected()</a></code> function to predict selected models
+across the scenarios specified in <code>prepare_projection</code>:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Create a folder to save projection results</span></span>
+<span><span class="co"># Here, in a temporary directory</span></span>
 <span><span class="va">out_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Projection_results/maxnet"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="va">out_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co">## Project selected models to multiple scenarios</span></span>
+<span><span class="co"># Project selected models to multiple scenarios</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/project_selected.html">project_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, </span>
 <span>                      projection_data <span class="op">=</span> <span class="va">pr</span>,</span>
 <span>                      out_dir <span class="op">=</span> <span class="va">out_dir</span>, </span>
 <span>                      write_replicates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="co">#Do not print progress bar</span></span></code></pre></div>
+<span>                      progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># Do not print progress bar</span></span></code></pre></div>
+<p><br></p>
 <p>The function returns a <code>model_projections</code> object. This
 object is similar to the <code>prepared_data</code> object, storing
-information on the predicted scenarios and the folder where the
-resulting projection rasters were saved.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+information about the projections performed and the folder where results
+were saved.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/print.html">print</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
 <span><span class="co">#&gt; model_projections object summary</span></span>
 <span><span class="co">#&gt; ================================</span></span>
@@ -478,14 +538,14 @@ resulting projection rasters were saved.</p>
 <span><span class="co">#&gt;   - Scenarios:  </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All raster files containing the projection results are located in the following root directory:</span></span>
-<span><span class="co">#&gt;  /tmp/Rtmpv7tSrE/Projection_results/maxnet</span></span></code></pre></div>
-<p>Note that the results were saved hierarchically in nested subfolders,
-each representing a distinct scenario. In the root directory, the
+<span><span class="co">#&gt;  /tmp/RtmpSMViXT/Projection_results/maxnet</span></span></code></pre></div>
+<p><br></p>
+<p>Note that results were saved hierarchically in nested subfolders,
+each representing a distinct scenario. In the base directory, the
 function also saves a file named “Projection_paths.RDS”, which is the
 <code>model_projections</code> object. This object can be imported into
-R using
-<code>readRDS(file.path(out_dir, "Projection_paths.RDS"))</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+R using the <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code> function.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://fs.r-lib.org/reference/dir_tree.html" class="external-link">dir_tree</a></span><span class="op">(</span><span class="va">out_dir</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Temp\Projection_results/maxnet</span></span>
 <span><span class="co">#&gt; ├── Future</span></span>
@@ -551,61 +611,66 @@ R using
 <span><span class="co">#&gt; │       ├── Model_219_consensus.tif</span></span>
 <span><span class="co">#&gt; │       └── Model_219_replicates.tif</span></span>
 <span><span class="co">#&gt; └── Projection_paths.RDS</span></span></code></pre></div>
-<p>By default, for each scenario, the function computes consensus
-metrics (mean, median, range, and standard deviation) for each model
-across its replicates (if more than one model was selected), as well as
-a general consensus across all models.</p>
-<p>Note that each selected model can also have replicates. By default,
-the function does not output these individual replicates unless
-<code>write_replicates = TRUE</code> is set. It is important to write
-the replicates if you intend to compute the variability across them
-using <code><a href="../reference/projection_variability.html">projection_variability()</a></code>. For more details, check the
-vignette on <a href="variability_and_uncertainty.html">Explore
-Variability and Uncertainty in Projections</a>.</p>
-<p>The function accepts several other parameters that control the
-predictions in <code><a href="../reference/predict_selected.html">predict_selected()</a></code>, such as the consensus to
-compute, the extrapolation type (free extrapolation (<code>E</code>),
+<p><br></p>
+<p>By default, separated by each scenario, the function computes
+consensus metrics (mean, median, range, and standard deviation) for each
+model across its replicates (if replicates were performed), as well as a
+general consensus across all models (if more than one model was
+selected).</p>
+<p>By default, the function does not write these individual replicates
+unless <code>write_replicates = TRUE</code> is set. It is important to
+write the replicates if you intend to compute the variability deriving
+from them in later steps (check <a href="variability_and_uncertainty.html">Explore Variability and
+Uncertainty in Projections</a>).</p>
+<p>The function <code><a href="../reference/project_selected.html">project_selected()</a></code> accepts several other
+parameters that control how predictions are done, such as consensus to
+compute, extrapolation type (free extrapolation (<code>E</code>),
 extrapolation with clamping (<code>EC</code>), and no extrapolation
-(<code>NE</code>)), variables to clamp, and the format of prediction
+(<code>NE</code>)), variables to restrict, and the format of prediction
 values (<code>raw</code>, <code>cumulative</code>,
 <code>logistic</code>, or the default <code>cloglog</code>). For more
 details, consult the vignette for <a href="model_predictions.html">Predict models to single scenario</a>.</p>
+<p><br></p>
 </div>
 <div class="section level2">
-<h2 id="import-rasters-resulting-from-projections">Import rasters resulting from projections<a class="anchor" aria-label="anchor" href="#import-rasters-resulting-from-projections"></a>
+<h2 id="importing-results-from-projections">Importing results from projections<a class="anchor" aria-label="anchor" href="#importing-results-from-projections"></a>
 </h2>
 <p>The <code>model_projections</code> object stores only the paths to
-the resultant rasters. To import the results, we can use the
+the resulting raster layers. To import the results, we can use the
 <code><a href="../reference/import_projections.html">import_projections()</a></code> function. By default, it imports all
 consensus metrics (“median”, “range”, “mean”, and “stdev”) and all
 scenarios (time periods, SSPs, and GCMs) available in the
 <code>model_projections</code> object. Let’s import the mean for all
 scenarios:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#Import mean of each projected scenario</span></span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import mean of each projected scenario</span></span>
 <span><span class="va">p_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_projections.html">import_projections</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">p</span>, consensus <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span>
-<span><span class="co">#Plot all scenarios</span></span>
+<span></span>
+<span><span class="co"># Plot all scenarios</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_mean</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_projections_files/figure-html/import%20mean-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
 <p>Alternatively, we can import results from specific scenarios. For
 example, let’s import the results only for the “2041-2060” time period
 under the SSP 126:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p_2060_ssp126</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_projections.html">import_projections</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">p</span>, consensus <span class="op">=</span> <span class="st">"mean"</span>, </span>
-<span>                                    present <span class="op">=</span> <span class="cn">FALSE</span>, <span class="co">#Do not import present projections</span></span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Importing</span></span>
+<span><span class="va">p_2060_ssp126</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_projections.html">import_projections</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">p</span>, consensus <span class="op">=</span> <span class="st">"mean"</span>, </span>
+<span>                                    present <span class="op">=</span> <span class="cn">FALSE</span>,  <span class="co"># Do not import present projections</span></span>
 <span>                                    future_period <span class="op">=</span> <span class="st">"2041-2060"</span>,</span>
 <span>                                    future_pscen <span class="op">=</span> <span class="st">"ssp126"</span><span class="op">)</span></span>
-<span><span class="co">#Plot all scenarios</span></span>
+<span></span>
+<span><span class="co"># Plot all scenarios</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_2060_ssp126</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_projections_files/figure-html/specific%20scen-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
 <p>With the <code>model_projections</code> object, we can compute
-changes in suitable areas between scenarios (see the
-<code>projection_changes</code> function), explore variance stemming
-from replicates, model parameterizations, and GCMs (see
-<code>projection_variability</code>), and perform analysis of
-extrapolation risks (see <code>projection_mop</code>). For more details,
-check the vignette on <a href="variability_and_uncertainty.html">Explore
-Variability and Uncertainty in Projections</a>.</p>
+changes in suitable areas (<code><a href="../reference/projection_changes.html">projection_changes()</a></code>), explore
+variability patterns coming from replicates, parameterizations, and GCMs
+(<code><a href="../reference/projection_variability.html">projection_variability()</a></code>), and perform analysis of
+extrapolation risks (<code><a href="../reference/projection_mop.html">projection_mop()</a></code>). For more details,
+check <a href="variability_and_uncertainty.html">Explore Variability and
+Uncertainty in Projections</a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

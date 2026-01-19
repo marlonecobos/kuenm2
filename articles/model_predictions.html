@@ -156,7 +156,7 @@ load it.</p>
 <code class="sourceCode R"><span><span class="co"># Import fitted_model_maxnet</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"fitted_model_maxnet"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Print calibration result</span></span>
+<span><span class="co"># Print fitted models</span></span>
 <span><span class="va">fitted_model_maxnet</span></span>
 <span><span class="co">#&gt; fitted_models object summary</span></span>
 <span><span class="co">#&gt; ============================</span></span>
@@ -168,10 +168,10 @@ load it.</p>
 <p>To compare the results, let’s import a <code>fitted_models</code>
 object generated using the GLM algorithm:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Import calib_results_maxnet</span></span>
+<code class="sourceCode R"><span><span class="co"># Import fitted_model_glm</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"fitted_model_glm"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Print calibration result</span></span>
+<span><span class="co"># Print fitted models</span></span>
 <span><span class="va">fitted_model_glm</span></span>
 <span><span class="co">#&gt; fitted_models object summary</span></span>
 <span><span class="co">#&gt; ============================</span></span>
@@ -274,7 +274,7 @@ each model:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid to plot</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, main <span class="op">=</span> <span class="st">"Maxnet"</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_glm</span><span class="op">$</span><span class="va">General_consensus</span>, main <span class="op">=</span> <span class="st">"GLM"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="model_predictions_files/figure-html/compare-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 </div>
 <div class="section level3">
@@ -478,7 +478,7 @@ variables (<code>extrapolation_type = "EC"</code>):</p>
 <span>             zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_difference</span>, main <span class="op">=</span> <span class="st">"Difference"</span><span class="op">)</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">new_bio7</span>, main <span class="op">=</span> <span class="st">"Hypothetical bio_7"</span>, type <span class="op">=</span> <span class="st">"interval"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672"></p>
+<p><img src="model_predictions_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 <p>Note that when we clamp the variables, regions with extremely low
 values of (the hypothetical) <code>bio_7</code> exhibit lower predicted

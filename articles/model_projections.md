@@ -1,46 +1,76 @@
 # 6. Project Models to Multiple Scenarios
 
-- [Introduction](#introduction)
-- [Pre-processing raster predictors](#pre-processing-raster-predictors)
-  - [Organize and structure future climate variables from
-    WorldClim](#organize-and-structure-future-climate-variables-from-worldClim)
+## Summary
+
+- [Description](#description)
+- [Getting ready](#getting-ready)
+- [Fitted models](#fitted-models)
+- [Predictors for projections](#predictors-for-projections)
+  - [Preparing predictors from
+    WorldClim](#preparing-predictors-from-worldclim)
     - [Format for renaming](#format-for-renaming)
-    - [Fixed variables](#fixed-variables)
-    - [Organize and structure WorldClim
-      files](#organize-and-structure-worldClim-files)
-- [Preparation of data for model
-  projections](#preparation-of-data-for-model-projections)
-- [Project selected models to multiple
-  scenarios](#project-selected-models-to-multiple-scenarios)
-- [Import rasters resulting from
-  projections](#import-rasters-resulting-from-projections)
+    - [Static variables](#static-variables)
+    - [Organizing files](#organizing-files)
+- [Preparing data for projections](#preparing-data-for-projections)
+- [Projecting to multiple scenarios](#projecting-to-multiple-scenarios)
+- [Importing results from
+  projections](#importing-results-from-projections)
 
 ------------------------------------------------------------------------
 
-### Introduction
+## Description
 
-Once selected models have been fit using
-[`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md),
-projections to single or multiple scenarios can be performed. The
+Once selected models have been fit and explored, projections to single
+or multiple scenarios can be performed. The
 [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md)
-function is designed for projections to multiple scenarios.
+function is designed for projections to multiple scenarios (i.e.,
+multiple sets of data, each representing distinct environmental
+scenarios). This vignette contains examples of how to use many of the
+options available for model projections.
 
-To project using the selected models, a `fitted_models` object is
-required. For detailed information on model fitting, please consult the
-vignette [Fit and Explore Selected
+  
+
+## Getting ready
+
+At this point it is assumed that `kuenm2` is installed (if not, see the
+[Main guide](https://marlonecobos.github.io/kuenm2/index.md)). Load
+`kuenm2` and any other required packages, and define a working directory
+(if needed).
+
+Note: functions from other packages (i.e., not from base R or `kuenm2`)
+used in this guide will be displayed as `package::function()`.
+
+``` r
+# Load packages
+library(kuenm2)
+library(terra)
+
+# Current directory
+getwd()
+
+# Define new directory
+#setwd("YOUR/DIRECTORY")  # uncomment and modify if setting a new directory
+
+# Saving original plotting parameters
+original_par <- par(no.readonly = TRUE)
+```
+
+  
+
+## Fitted models
+
+To project selected models, a `fitted_models` object is required. For
+detailed information on model fitting, check the vignette [Fit and
+Explore Selected
 Models](https://marlonecobos.github.io/kuenm2/articles/model_exploration.md).
 The `fitted_models` object generated in that vignette is included as an
 example dataset within the package. Let’s load it.
 
 ``` r
-#Load packages
-library(kuenm2)
-library(terra)
-#> terra 1.8.93
-
-#Import calib_results_maxnet
+# Import fitted_model_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
-#Print calibration result
+
+# Print fitted models
 fitted_model_maxnet
 #> fitted_models object summary
 #> ============================
@@ -50,29 +80,36 @@ fitted_model_maxnet
 #> Models fitted with 4 replicates
 ```
 
-## Pre-processing raster predictors
+  
 
-While predicting models for a single scenario requires a single
-`SpatRaster` object containing the predictor variables (as detailed in
-[Predict models to single
-scenario](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md)),
-projecting models to multiple scenarios necessitates a folder that
-stores the predictor variables for each scenario.
+## Predictors for projections
 
-These folders must be organized in a specific hierarchical manner: a
-root directory should contain nested folders representing different
-scenarios, with the raster variables stored within. At the first level
-inside the root folder, subfolders should correspond to distinct time
-periods (e.g., future years like “2070” or “2100,” or past periods such
-as “Mid-holocene” or “LGM”). Within each period folder, if applicable,
-you should include subfolders for each emission scenario (e.g.,
+Ppredicting models for a single scenario requires a single `SpatRaster`
+object containing the predictor variables (as detailed in [Predict
+Models to a Single
+Scenario](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md)).
+In contrast, projecting models to multiple scenarios requires a folder
+that stores predictor variables for each scenario organized in a certain
+way.
+
+To ensure the following automated process can correctly track variables,
+the data must follow a strict hierarchical directory structure. At the
+top level, a *Base Directory* serves as the primary container for all
+project data. Inside this base folder, the first level of organization
+consists of subfolders for distinct *Time Periods*, such as future years
+(e.g., “2070”, “2100”) or paleoclimate eras (e.g., “Mid-holocene”,
+“LGM”). Within each period folder, *if applicable*, you should include
+subfolders at the second level for each *Emission Scenario* (e.g.,
 “ssp126”, “ssp585”). Finally, within each emission scenario or time
-period folder, include a separate folder for each General Circulation
-Model (GCM) (e.g., “BCC-CSM2-MR”, “MIROC6”). This structured
-organization enables the function to automatically access and process
-the data according to period, emission scenario, and GCM.
+period folder, the third level should include a separate folder for each
+*General Circulation Model* (GCM) (e.g., “BCC-CSM2-MR”, “MIROC6”) to
+house the actual raster variables. This structured organization enables
+the function to automatically access and process the data according to
+period, emission scenario, and GCM.
 
-### Organize and structure future climate variables from WorldClim
+  
+
+### Preparing predictors from WorldClim
 
 The package provides a function to import future climate variables
 downloaded from WorldClim (version 2.1). This function renames the files
@@ -119,38 +156,47 @@ list.files(in_dir)
 #> [20] "world.gpkg"
 ```
 
+  
+
 Note that all variables are in the same folder and retain the original
 names provided by WorldClim. You can download these variables directly
 from [WorldClim](https://worldclim.org/data/cmip6/cmip6climate.html) or
-by using the `geodata` R package:
+by using the `geodata` R package (see example code below):
 
 ``` r
-#Install geodata if necessary
-if(!require("geodata")){
+# Install geodata if necessary
+if (!require("geodata")) {
   install.packages("geodata")
 }
-#Load geodata
+
+# Load geodata
 library(geodata)
-#Create folder to save the raster files
-#Here, in a temporary directory
+
+# Create folder to save the raster files
+# Here, in a temporary directory
 geodata_dir <- file.path(tempdir(), "Future_worldclim")
 dir.create(geodata_dir)
-#Define GCMs, SSPs and time periods
+
+# Define GCMs, SSPs and time periods
 gcms <- c("ACCESS-CM2", "MIROC6")
 ssps <- c("126", "585")
 periods <- c("2041-2060", "2061-2080")
-#Create a grid of combination of periods, ssps and gcms
+
+# Create a grid of combination of periods, ssps and gcms
 g <- expand.grid("period" = periods, "ssps" = ssps, "gcms" = gcms)
-g #Each line is a specific scenario for future
-#Loop to download variables for each scenario
-lapply(1:nrow(g), function(i){
+g  # Each line is a specific scenario for future
+
+# Loop to download variables for each scenario (It can take a while)
+lapply(1:nrow(g), function(i) {
   cmip6_world(model = g$gcms[i], 
               ssp = g$ssps[i], 
               time = g$period[i], 
               var = "bioc", 
               res = 10, path = geodata_dir)
-}) #It will take a while...
+})  
 ```
+
+  
 
 Let’s check the variables inside the “geodata_dir” folder:
 
@@ -169,27 +215,28 @@ list.files(geodata_dir, recursive = TRUE)
 #> in_dir <- file.path(geodata_dir, "climate")
 ```
 
+  
+
 Now, we can organize and structure the files using the
-`organize_future_worldclim` function.
+[`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md)
+function.
+
+  
 
 #### Format for renaming
 
-An important argument is `name_format`, which defines the format for
-renaming variables. The names of the variables in the `SpatRaster` must
-precisely match those used for model calibration or when running PCA (if
-`do_pca = TRUE` was set in the
-[`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
-function; see [Prepare Data for Model
+The argument `name_format` defines the format for renaming variables.
+The names of the variables in the `SpatRaster` must precisely match
+those used when preparing data, even if a PCA was performed internally
+(if `do_pca = TRUE`; see [Prepare Data for Model
 Calibration](https://marlonecobos.github.io/kuenm2/articles/prepare_data.md)
-for more details).
-
-Therefore, if the variables used to calibrate the models are named
-“bio_1”, “bio_2”, etc., the variables in the future raster layers must
-also be named “bio_1”, “bio_2”, etc. However, if the variables have a
-different pattern, such as starting with uppercase letters and using
-zeros before single-digit numbers (e.g., “Bio_01”, “Bio_02”, etc.), they
-must be named “Bio_01”, “Bio_02”, etc. The function provides four
-options:
+for details). If the variables used to create the models were “bio_1”,
+“bio_2”, etc., the variables representing other scenarios must be
+“bio_1”, “bio_2”, etc. However, if the names don’t match exactly,
+projections can fail (always check uppercase letters or zeros before
+single-digit numbers (e.g., “Bio_01”, “Bio_02”, etc.). The function
+[`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md)
+provides four renaming options:
 
 1.  `"bio_"`: Variables will be renamed to `bio_1`, `bio_2`, `bio_3`,
     `bio_10`, etc.
@@ -207,43 +254,49 @@ fitted_model_maxnet$continuous_variables
 #> [1] "bio_1"  "bio_7"  "bio_12" "bio_15"
 ```
 
-The variables follows the standards of the first option (`"bio_"`).
+  
 
-#### Fixed variables
+The variables follow the standards of the first option (`"bio_"`).
 
-When predicting for other times, you can assume that some variables will
-be static (i.e., they remain unchanged in the projected scenarios). The
-`fixed_variables` argument allows you to append static variables
-alongside the bioclimatic variables.
+  
 
-Here, let’s assume `soilType` will remain static in the future
-scenarios:
+#### Static variables
+
+When predicting to other times, some variables could be static (i.e.,
+they remain unchanged in scenarios of projections). The
+`static_variables` argument allows users to append static variables
+alongside the Bioclimatic ones. First, let’s bring `soilType`, which
+will remain static in future scenarios (we will use it in a later step).
 
 ``` r
 # Import raster layers (same used to calibrate and fit final models)
 var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
-#Get soilType
+
+# Get soilType
 soiltype <- var$SoilType
 ```
 
-#### Organize and structure WorldClim files
+  
+
+#### Organizing files
 
 Now, let’s organize the WorldClim files with the
 [`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md)
 function:
 
 ``` r
-#Create folder to save structured files
-out_dir_future <- file.path(tempdir(), "Future_raw") #Here, in a temporary directory
-#Organize
-organize_future_worldclim(input_dir = in_dir, #Path to the raw variables from WorldClim
+# Create folder to save structured files
+out_dir_future <- file.path(tempdir(), "Future_raw")  # a temporary directory
+
+# Organize
+organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldClim
                           output_dir = out_dir_future, 
-                          name_format = "bio_", #Name format
-                          fixed_variables = var$SoilType) #Static variables
+                          name_format = "bio_",  # Name format
+                          static_variables = var$SoilType)  # Static variables
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmpv7tSrE/Future_raw
+#> /tmp/RtmpSMViXT/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -257,15 +310,18 @@ dir(out_dir_future, recursive = TRUE)
 #> [8] "2081-2100/ssp585/MIROC6/Variables.tif"
 ```
 
+  
+
 We can check the files structured hierarchically in nested folders using
 the [`dir_tree()`](https://fs.r-lib.org/reference/dir_tree.html)
 function from the `fs` package:
 
 ``` r
-#Install package if necessary
-if(!require("fs")){
+# Install package if necessary
+if (!require("fs")) {
   install.packages("fs")
 }
+
 dir_tree(out_dir_future)
 #> Temp\RtmpkhmGWN/Future_raw
 #> ├── 2041-2060
@@ -292,24 +348,30 @@ dir_tree(out_dir_future)
 #>             └── Variables.tif
 ```
 
-After organizing variables, the next step is to create the
-`prepared_projection` object.
+  
 
-## Preparation of data for model projections
+After organizing variables, the next step is to create an object that
+prepares things for projections.
 
-Now, let’s prepare data for model projections across multiple scenarios,
-storing the paths to the rasters representing each scenario.
+  
+
+## Preparing data for projections
+
+To prepare data for model projections across multiple scenarios, storing
+the paths to the raster layers representing each scenario, we use the
+function
+[`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md).
 
 In contrast to
 [`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md),
-which requires a `SpatRaster` object, we need the paths to the folders
-where the raster files are stored. This includes the variables for the
-present time, which were used to calibrate and fit the models.
-
-Currently, we only have the future climate files. The present-day
-predictor variables must reside in the same root directory as the
-processed future variables. Let’s copy the rasters used for model
-calibration and fitting to this folder:
+which requires a `SpatRaster` object, when projecting to multiple
+scenarios, we need the paths to the folders where the raster files are
+stored. This includes the variables for the present time, which were
+used to calibrate and fit the models. Currently, we only have the future
+climate files. The present-day predictor variables must reside in the
+same base directory as the processed future variables. Let’s copy the
+raster layers used for model fitting to a folder we can easily direct
+the function that runs the next step:
 
 ``` r
 # Create a "Current_raw" folder in a temporary directory
@@ -320,18 +382,22 @@ dir.create(out_dir_current, recursive = TRUE)
 # Save current variables in temporary directory
 terra::writeRaster(var, file.path(out_dir_current, "Variables.tif"))
 
-#Check folder
+# Check folder
 list.files(out_dir_current)
 #> [1] "Variables.tif"
 ```
 
-Now, we can prepare the data for projections. In addition to storing the
-paths to the variables for each scenario, the function also verifies if
-all variables used to fit the final models are available across all
-scenarios. To perform this check, you need to provide either the
-`fitted_models` object you intend to use for projection or simply the
-variable names. We strongly suggest using the `fitted_models` object to
-minimize projection errors.
+  
+
+Now, we can prepare the data for projections (see the functions
+documentation with
+[`help(prepare_projection)`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)).
+In addition to storing the paths to the variables for each scenario, the
+function also verifies if all variables used to fit the final models are
+available across all scenarios. To perform this check, you need to
+provide either the `fitted_models` object you intend to use for
+projection or simply the variable names. We strongly suggest using the
+`fitted_models` object to prevent any errors.
 
 We also need to define the root directory containing the scenarios for
 projection (present, past, and/or future), along with additional
@@ -340,19 +406,21 @@ information regarding time periods, SSPs, and GCMs.
 ``` r
 # Prepare projections using fitted models to check variables
 pr <- prepare_projection(models = fitted_model_maxnet,
-                         present_dir = out_dir_current, #Directory with present-day variables
-                         past_dir = NULL, #NULL because we won't project to the past
-                         past_period = NULL, #NULL because we won't project to the past
-                         past_gcm = NULL, #NULL because we won't project to the past
-                         future_dir = out_dir_future, #Directory with future variables
+                         present_dir = out_dir_current,  # Directory with present-day variables
+                         past_dir = NULL,  # NULL because we won't project to the past
+                         past_period = NULL,  # NULL because we won't project to the past
+                         past_gcm = NULL,  # NULL because we won't project to the past
+                         future_dir = out_dir_future,  # Directory with future variables
                          future_period = c("2041-2060", "2081-2100"),
                          future_pscen = c("ssp126", "ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"))
 ```
 
-When we print the `projection_data` object, it summarizes all the
-scenarios we will predict and also shows the root directory where the
-predictor rasters are stored:
+  
+
+The `projection_data` object summarizes information about all the
+scenarios we will project to, and shows the root directory where the
+predictors are stored:
 
 ``` r
 pr
@@ -364,8 +432,10 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/Rtmpv7tSrE
+#> /tmp/RtmpSMViXT
 ```
+
+  
 
 If we check the structure of the `prepared_projection` object, we can
 see it’s a list containing:
@@ -379,35 +449,38 @@ see it’s a list containing:
   [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md).
 
 ``` r
-#Open prepared_projection in a new window
+# Open prepared_projection in a new window
 View(pr)
 ```
 
-## Project selected models to multiple scenarios
+  
+
+## Projecting to multiple scenarios
 
 After preparing the data, we can use the
 [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md)
-function to predict the selected models across the multiple scenarios
-specified in `prepare_projections`:
+function to predict selected models across the scenarios specified in
+`prepare_projection`:
 
 ``` r
-## Create a folder to save projection results
-#Here, in a temporary directory
+# Create a folder to save projection results
+# Here, in a temporary directory
 out_dir <- file.path(tempdir(), "Projection_results/maxnet")
 dir.create(out_dir, recursive = TRUE)
 
-## Project selected models to multiple scenarios
+# Project selected models to multiple scenarios
 p <- project_selected(models = fitted_model_maxnet, 
                       projection_data = pr,
                       out_dir = out_dir, 
                       write_replicates = TRUE,
-                      progress_bar = FALSE) #Do not print progress bar
+                      progress_bar = FALSE)  # Do not print progress bar
 ```
 
+  
+
 The function returns a `model_projections` object. This object is
-similar to the `prepared_data` object, storing information on the
-predicted scenarios and the folder where the resulting projection
-rasters were saved.
+similar to the `prepared_data` object, storing information about the
+projections performed and the folder where results were saved.
 
 ``` r
 print(p)
@@ -419,14 +492,17 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/Rtmpv7tSrE/Projection_results/maxnet
+#>  /tmp/RtmpSMViXT/Projection_results/maxnet
 ```
 
-Note that the results were saved hierarchically in nested subfolders,
-each representing a distinct scenario. In the root directory, the
-function also saves a file named “Projection_paths.RDS”, which is the
-`model_projections` object. This object can be imported into R using
-`readRDS(file.path(out_dir, "Projection_paths.RDS"))`.
+  
+
+Note that results were saved hierarchically in nested subfolders, each
+representing a distinct scenario. In the base directory, the function
+also saves a file named “Projection_paths.RDS”, which is the
+`model_projections` object. This object can be imported into R using the
+[`readRDS()`](https://rspatial.github.io/terra/reference/serialize.html)
+function.
 
 ``` r
 dir_tree(out_dir)
@@ -496,34 +572,36 @@ dir_tree(out_dir)
 #> └── Projection_paths.RDS
 ```
 
-By default, for each scenario, the function computes consensus metrics
-(mean, median, range, and standard deviation) for each model across its
-replicates (if more than one model was selected), as well as a general
-consensus across all models.
+  
 
-Note that each selected model can also have replicates. By default, the
-function does not output these individual replicates unless
-`write_replicates = TRUE` is set. It is important to write the
-replicates if you intend to compute the variability across them using
-[`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md).
-For more details, check the vignette on [Explore Variability and
-Uncertainty in
-Projections](https://marlonecobos.github.io/kuenm2/articles/variability_and_uncertainty.md).
+By default, separated by each scenario, the function computes consensus
+metrics (mean, median, range, and standard deviation) for each model
+across its replicates (if replicates were performed), as well as a
+general consensus across all models (if more than one model was
+selected).
 
-The function accepts several other parameters that control the
-predictions in
-[`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md),
-such as the consensus to compute, the extrapolation type (free
-extrapolation (`E`), extrapolation with clamping (`EC`), and no
-extrapolation (`NE`)), variables to clamp, and the format of prediction
-values (`raw`, `cumulative`, `logistic`, or the default `cloglog`). For
-more details, consult the vignette for [Predict models to single
+By default, the function does not write these individual replicates
+unless `write_replicates = TRUE` is set. It is important to write the
+replicates if you intend to compute the variability deriving from them
+in later steps (check [Explore Variability and Uncertainty in
+Projections](https://marlonecobos.github.io/kuenm2/articles/variability_and_uncertainty.md)).
+
+The function
+[`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md)
+accepts several other parameters that control how predictions are done,
+such as consensus to compute, extrapolation type (free extrapolation
+(`E`), extrapolation with clamping (`EC`), and no extrapolation (`NE`)),
+variables to restrict, and the format of prediction values (`raw`,
+`cumulative`, `logistic`, or the default `cloglog`). For more details,
+consult the vignette for [Predict models to single
 scenario](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md).
 
-## Import rasters resulting from projections
+  
 
-The `model_projections` object stores only the paths to the resultant
-rasters. To import the results, we can use the
+## Importing results from projections
+
+The `model_projections` object stores only the paths to the resulting
+raster layers. To import the results, we can use the
 [`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
 function. By default, it imports all consensus metrics (“median”,
 “range”, “mean”, and “stdev”) and all scenarios (time periods, SSPs, and
@@ -531,33 +609,43 @@ GCMs) available in the `model_projections` object. Let’s import the mean
 for all scenarios:
 
 ``` r
-#Import mean of each projected scenario
+# Import mean of each projected scenario
 p_mean <- import_projections(projection = p, consensus = "mean")
-#Plot all scenarios
+
+# Plot all scenarios
 plot(p_mean, cex.main = 0.8)
 ```
 
 ![](model_projections_files/figure-html/import%20mean-1.png)
+
+  
 
 Alternatively, we can import results from specific scenarios. For
 example, let’s import the results only for the “2041-2060” time period
 under the SSP 126:
 
 ``` r
+# Importing
 p_2060_ssp126 <- import_projections(projection = p, consensus = "mean", 
-                                    present = FALSE, #Do not import present projections
+                                    present = FALSE,  # Do not import present projections
                                     future_period = "2041-2060",
                                     future_pscen = "ssp126")
-#Plot all scenarios
+
+# Plot all scenarios
 plot(p_2060_ssp126, cex.main = 0.8)
 ```
 
 ![](model_projections_files/figure-html/specific%20scen-1.png)
 
+  
+
 With the `model_projections` object, we can compute changes in suitable
-areas between scenarios (see the `projection_changes` function), explore
-variance stemming from replicates, model parameterizations, and GCMs
-(see `projection_variability`), and perform analysis of extrapolation
-risks (see `projection_mop`). For more details, check the vignette on
-[Explore Variability and Uncertainty in
+areas
+([`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)),
+explore variability patterns coming from replicates, parameterizations,
+and GCMs
+([`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)),
+and perform analysis of extrapolation risks
+([`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)).
+For more details, check [Explore Variability and Uncertainty in
 Projections](https://marlonecobos.github.io/kuenm2/articles/variability_and_uncertainty.md).

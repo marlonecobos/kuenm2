@@ -19,7 +19,7 @@ organize_for_projection(output_dir, models = NULL,
                                past_files = NULL, past_period = NULL,
                                past_gcm = NULL, future_files = NULL,
                                future_period = NULL, future_pscen = NULL,
-                               future_gcm = NULL, fixed_variables = NULL,
+                               future_gcm = NULL, static_variables = NULL,
                                check_extent = TRUE,
                                resample_to_present = TRUE, mask = NULL,
                                overwrite = FALSE)
@@ -95,7 +95,7 @@ organize_for_projection(output_dir, models = NULL,
   representing specific General Circulation Models (GCMs). Only
   applicable if 'future_files' is provided. Default is NULL.
 
-- fixed_variables:
+- static_variables:
 
   (SpatRaster) optional static variables (i.e., soil type) used in the
   model, which will remain unchanged in past or future scenarios. This
@@ -103,9 +103,9 @@ organize_for_projection(output_dir, models = NULL,
 
 - check_extent:
 
-  (logical) whether to ensure that the 'fixed_variables' have the same
+  (logical) whether to ensure that the 'static_variables' have the same
   spatial extent as the bioclimatic variables. Applicable only if
-  'fixed_variables' is provided. Default is TRUE.
+  'static_variables' is provided. Default is TRUE.
 
 - resample_to_present:
 
@@ -189,5 +189,5 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpXerevA/Projection_variables
+#> /tmp/Rtmpz16rr3/Projection_variables
 ```

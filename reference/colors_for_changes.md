@@ -98,10 +98,7 @@ out_dir_future <- file.path(tempdir(), "Future_raw_color_example")
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
                           name_format = "bio_",
                           fixed_variables = var$SoilType)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
-#> 
-#> Variables successfully organized in directory:
-#> /tmp/RtmpXerevA/Future_raw_color_example
+#> Error in organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,     name_format = "bio_", fixed_variables = var$SoilType): unused argument (fixed_variables = var$SoilType)
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
@@ -116,6 +113,7 @@ pr <- prepare_projection(models = fitted_model_maxnet,
                          future_pscen = c("ssp126", "ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
+#> Error in prepare_projection(models = fitted_model_maxnet, present_dir = out_dir_current,     future_dir = out_dir_future, future_period = c("2081-2100"),     future_pscen = c("ssp126", "ssp585"), future_gcm = c("ACCESS-CM2",         "MIROC6"), raster_pattern = ".tif*"): 'future_dir' /tmp/Rtmpz16rr3/Future_raw_color_example does not exist.
 
 # Step 4: Run multiple model projections
 ## A folder to save projection results
@@ -125,15 +123,18 @@ dir.create(out_dir, recursive = TRUE)
 ## Project selected models to multiple scenarios
 p <- project_selected(models = fitted_model_maxnet, projection_data = pr,
                       out_dir = out_dir)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%  |                                                                              |========================================================              |  80%  |                                                                              |======================================================================| 100%
+#> Error: object 'pr' not found
 
 # Step 5: Identify areas of change in projections
 ## Contraction, expansion and stability
 changes <- projection_changes(model_projections = p, by_gcm = TRUE,
                               by_change = TRUE, write_results = FALSE,
                               return_raster = TRUE)
+#> Error: object 'p' not found
 
 #Step 6: Set Colors for Change Maps
 changes_with_colors <- colors_for_changes(changes_projections = changes)
+#> Error: object 'changes' not found
 terra::plot(changes_with_colors$Summary_changes)
+#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'changes_with_colors' not found
 ```

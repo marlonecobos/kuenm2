@@ -81,7 +81,7 @@ See <strong>Details</strong> for more information.</p>
 <span>                               past_files <span class="op">=</span> <span class="cn">NULL</span>, past_period <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                               past_gcm <span class="op">=</span> <span class="cn">NULL</span>, future_files <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                               future_period <span class="op">=</span> <span class="cn">NULL</span>, future_pscen <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>                               future_gcm <span class="op">=</span> <span class="cn">NULL</span>, fixed_variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                               future_gcm <span class="op">=</span> <span class="cn">NULL</span>, static_variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                               check_extent <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                               resample_to_present <span class="op">=</span> <span class="cn">TRUE</span>, mask <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                               overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -157,16 +157,16 @@ representing specific General Circulation Models (GCMs). Only applicable if
 'future_files' is provided. Default is NULL.</p></dd>
 
 
-<dt id="arg-fixed-variables">fixed_variables<a class="anchor" aria-label="anchor" href="#arg-fixed-variables"></a></dt>
+<dt id="arg-static-variables">static_variables<a class="anchor" aria-label="anchor" href="#arg-static-variables"></a></dt>
 <dd><p>(SpatRaster) optional static variables (i.e., soil
 type) used in the model, which will remain unchanged in past or future
 scenarios. This variable will be included with each scenario. Default is NULL.</p></dd>
 
 
 <dt id="arg-check-extent">check_extent<a class="anchor" aria-label="anchor" href="#arg-check-extent"></a></dt>
-<dd><p>(logical) whether to ensure that the 'fixed_variables'
+<dd><p>(logical) whether to ensure that the 'static_variables'
 have the same spatial extent as the bioclimatic variables. Applicable only if
-'fixed_variables' is provided. Default is TRUE.</p></dd>
+'static_variables' is provided. Default is TRUE.</p></dd>
 
 
 <dt id="arg-resample-to-present">resample_to_present<a class="anchor" aria-label="anchor" href="#arg-resample-to-present"></a></dt>
@@ -245,8 +245,7 @@ obtain the full file paths required by the function.</p>
 <span class="r-in"><span>                        overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpXerevA/Projection_variables</span>
-<span class="r-in"><span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmpz16rr3/Projection_variables</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

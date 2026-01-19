@@ -13,7 +13,7 @@ for modeling projections.
 
 ``` r
 organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
-                          variables = NULL, fixed_variables = NULL,
+                          variables = NULL, static_variables = NULL,
                           check_extent = TRUE, mask = NULL,
                           progress_bar = TRUE, overwrite = FALSE)
 ```
@@ -40,7 +40,7 @@ organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
   (character) the names of the variables to retain. Default is NULL,
   meaning all variables will be kept.
 
-- fixed_variables:
+- static_variables:
 
   (SpatRaster) optional static variables (i.e., soil type) used in the
   model, which will remain unchanged in future scenarios. This variable
@@ -48,9 +48,9 @@ organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
 
 - check_extent:
 
-  (logical) whether to ensure that the `fixed_variables` have the same
+  (logical) whether to ensure that the `static_variables` have the same
   spatial extent as the bioclimatic variables. Applicable only if
-  `fixed_variables` is provided. Default is TRUE.
+  `static_variables` is provided. Default is TRUE.
 
 - mask:
 
@@ -116,11 +116,11 @@ out_dir <- file.path(tempdir(), "Future_raw")
 # The files will be renamed following the "bio_" format
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir,
                           name_format = "bio_",
-                          fixed_variables = var$SoilType)
+                          static_variables = var$SoilType)
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpXerevA/Future_raw
+#> /tmp/Rtmpz16rr3/Future_raw
 
 # Check files organized
 dir(out_dir, recursive = TRUE)

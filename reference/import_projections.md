@@ -149,10 +149,7 @@ out_dir_future <- file.path(tempdir(), "Future_raw2")
 ### 'SoilType' will be appended as a static variable in each scenario
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
                           name_format = "bio_", fixed_variables = var$SoilType)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
-#> 
-#> Variables successfully organized in directory:
-#> /tmp/RtmpXerevA/Future_raw2
+#> Error in organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,     name_format = "bio_", fixed_variables = var$SoilType): unused argument (fixed_variables = var$SoilType)
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
@@ -167,6 +164,7 @@ pr <- prepare_projection(models = fitted_model_maxnet,
                          future_pscen = c("ssp126", "ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
+#> Error in prepare_projection(models = fitted_model_maxnet, present_dir = out_dir_current,     future_dir = out_dir_future, future_period = "2041-2060",     future_pscen = c("ssp126", "ssp585"), future_gcm = c("ACCESS-CM2",         "MIROC6"), raster_pattern = ".tif*"): 'future_dir' /tmp/Rtmpz16rr3/Future_raw2 does not exist.
 
 # Step 4: Run multiple model projections
 ## A folder to save projection results
@@ -176,9 +174,11 @@ dir.create(out_dir, recursive = TRUE)
 ## Project selected models to multiple scenarios
 p <- project_selected(models = fitted_model_maxnet, projection_data = pr,
                       out_dir = out_dir)
-#>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%  |                                                                              |========================================================              |  80%  |                                                                              |======================================================================| 100%
+#> Error: object 'pr' not found
 
 # Use import_projections to import results:
 raster_p <- import_projections(projection = p, consensus = "mean")
+#> Error: object 'p' not found
 plot(raster_p)
+#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'plot': object 'raster_p' not found
 ```
