@@ -193,9 +193,12 @@ be returned. See <code>?stats::prcomp()</code> for details.</p></li>
 <span class="r-in"><span><span class="fu"><a href="organize_future_worldclim.html">organize_future_worldclim</a></span><span class="op">(</span>input_dir <span class="op">=</span> <span class="va">in_dir</span>,</span></span>
 <span class="r-in"><span>                          output_dir <span class="op">=</span> <span class="va">out_dir_future</span>,</span></span>
 <span class="r-in"><span>                          name_format <span class="op">=</span> <span class="st">"bio_"</span>, variables <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
-<span class="r-in"><span>                          fixed_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span>, mask <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>                          static_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span>, mask <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
 <span class="r-in"><span>                          overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,     name_format = "bio_", variables = NULL, fixed_variables = var$SoilType,     mask = NULL, overwrite = TRUE):</span> unused argument (fixed_variables = var$SoilType)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpI4bzTH/Future_raw</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Prepare projections using fitted models to check variables</span></span></span>
 <span class="r-in"><span><span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu">prepare_projection</span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span></span>
@@ -219,7 +222,7 @@ be returned. See <code>?stats::prcomp()</code> for details.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Scenarios: ssp126 | ssp585 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - GCMs: ACCESS-CM2 | MIROC6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All variables are located in the following root directory:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmpz16rr3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/RtmpI4bzTH</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Prepare projections using variables names</span></span></span>
 <span class="r-in"><span><span class="va">pr_b</span> <span class="op">&lt;-</span> <span class="fu">prepare_projection</span><span class="op">(</span>models <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
@@ -244,7 +247,7 @@ be returned. See <code>?stats::prcomp()</code> for details.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Scenarios: ssp126 | ssp585 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - GCMs: ACCESS-CM2 | MIROC6 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> All variables are located in the following root directory:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/Rtmpz16rr3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> /tmp/RtmpI4bzTH</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

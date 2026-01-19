@@ -169,7 +169,7 @@ pr <- prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",
                          future_pscen = c("ssp126", "ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
-#> Error in prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",     "bio_15", "SoilType"), future_dir = out_dir_future, future_period = c("2041-2060",     "2081-2100"), future_pscen = c("ssp126", "ssp585"), future_gcm = c("ACCESS-CM2",     "MIROC6"), raster_pattern = ".tif*"): 'future_dir' /tmp/Rtmpz16rr3/Future_raw1 does not exist.
+#> Error in prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",     "bio_15", "SoilType"), future_dir = out_dir_future, future_period = c("2041-2060",     "2081-2100"), future_pscen = c("ssp126", "ssp585"), future_gcm = c("ACCESS-CM2",     "MIROC6"), raster_pattern = ".tif*"): 'future_dir' /tmp/RtmpI4bzTH/Future_raw1 does not exist.
 
 # Create folder to save projection results
 out_dir <- file.path(tempdir(), "PCA_projections")

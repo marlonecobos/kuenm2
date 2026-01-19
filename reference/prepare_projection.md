@@ -150,9 +150,12 @@ out_dir_future <- file.path(tempdir(), "Future_raw")
 organize_future_worldclim(input_dir = in_dir,
                           output_dir = out_dir_future,
                           name_format = "bio_", variables = NULL,
-                          fixed_variables = var$SoilType, mask = NULL,
+                          static_variables = var$SoilType, mask = NULL,
                           overwrite = TRUE)
-#> Error in organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,     name_format = "bio_", variables = NULL, fixed_variables = var$SoilType,     mask = NULL, overwrite = TRUE): unused argument (fixed_variables = var$SoilType)
+#>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
+#> 
+#> Variables successfully organized in directory:
+#> /tmp/RtmpI4bzTH/Future_raw
 
 # Prepare projections using fitted models to check variables
 pr <- prepare_projection(models = fitted_model_maxnet,
@@ -176,7 +179,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/Rtmpz16rr3
+#> /tmp/RtmpI4bzTH
 
 # Prepare projections using variables names
 pr_b <- prepare_projection(models = NULL,
@@ -201,5 +204,5 @@ pr_b
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/Rtmpz16rr3
+#> /tmp/RtmpI4bzTH
 ```
