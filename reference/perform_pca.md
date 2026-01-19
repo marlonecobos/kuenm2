@@ -158,8 +158,11 @@ out_dir_future <- file.path(tempdir(), "Future_raw1")
 # The 'SoilType' variable will be appended as a static variable in each scenario.
 # The files will be renamed following the "bio_" format
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
-                          name_format = "bio_", fixed_variables = var$SoilType)
-#> Error in organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,     name_format = "bio_", fixed_variables = var$SoilType): unused argument (fixed_variables = var$SoilType)
+                          name_format = "bio_", static_variables = var$SoilType)
+#>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
+#> 
+#> Variables successfully organized in directory:
+#> /tmp/RtmpOM8IH9/Future_raw1
 
 # Prepare projections
 pr <- prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",
@@ -169,7 +172,6 @@ pr <- prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",
                          future_pscen = c("ssp126", "ssp585"),
                          future_gcm = c("ACCESS-CM2", "MIROC6"),
                          raster_pattern = ".tif*")
-#> Error in prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",     "bio_15", "SoilType"), future_dir = out_dir_future, future_period = c("2041-2060",     "2081-2100"), future_pscen = c("ssp126", "ssp585"), future_gcm = c("ACCESS-CM2",     "MIROC6"), raster_pattern = ".tif*"): 'future_dir' /tmp/RtmpI4bzTH/Future_raw1 does not exist.
 
 # Create folder to save projection results
 out_dir <- file.path(tempdir(), "PCA_projections")
@@ -179,8 +181,7 @@ dir.create(out_dir, recursive = TRUE)
 proj_pca <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                         project = TRUE, projection_data = pr,
                         out_dir = out_dir, center = TRUE, scale = TRUE)
-#> Error: object 'pr' not found
 
 proj_pca$projection_directory  # Directory with projected PCA-variables
-#> Error: object 'proj_pca' not found
+#> [1] "/tmp/RtmpOM8IH9/PCA_projections"
 ```
