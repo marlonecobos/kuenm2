@@ -95,7 +95,8 @@ file of each projection.</p></dd>
 
 <dt id="arg-subset-variables">subset_variables<a class="anchor" aria-label="anchor" href="#arg-subset-variables"></a></dt>
 <dd><p>(logical) whether to include in the analysis only the
-variables present in the selected models. Default is FALSE</p></dd>
+variables present in the selected models. Only applicable if <code>data</code> is a
+<code>fitted_models</code> object. Default is FALSE</p></dd>
 
 
 <dt id="arg-mask">mask<a class="anchor" aria-label="anchor" href="#arg-mask"></a></dt>
@@ -214,10 +215,8 @@ distance calculation.</p></li>
 rows) in <code>m</code>.</p></li>
 <li><p><em>N_g</em> - total number of elements (cells with values or valid
 rows) in <code>g</code>.</p></li>
-<li><p><em>m_min</em> - minimum values (lower limit) of the variables in reference
-conditions (<code>m</code>).</p></li>
-<li><p><em>m_max</em> - maximum values (upper limit) of the variables in reference
-conditions (<code>m</code>).</p></li>
+<li><p><em>m_ranges</em> - the range (minimum and maximum values) of the variable in
+reference conditions (<code>m</code>)</p></li>
 </ul></li>
 <li><p><strong>mop_distances</strong> - if <code>calculate_distance</code> = TRUE, a SpatRaster or
 vector with distance values for the set of interest (<code>g</code>). Higher values
@@ -300,7 +299,7 @@ distances are used.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpIukcQ6/Future_raw4</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpobbBfX/Future_raw4</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 3: Prepare data to run multiple projections</span></span></span>
 <span class="r-in"><span><span class="co">## An example with maxnet models</span></span></span>

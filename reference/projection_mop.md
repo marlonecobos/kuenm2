@@ -42,7 +42,8 @@ projection_mop(data, projection_data, out_dir,
 - subset_variables:
 
   (logical) whether to include in the analysis only the variables
-  present in the selected models. Default is FALSE
+  present in the selected models. Only applicable if `data` is a
+  `fitted_models` object. Default is FALSE
 
 - mask:
 
@@ -175,11 +176,8 @@ each scenario. The paths contain the following files:
   - *N_g* - total number of elements (cells with values or valid rows)
     in `g`.
 
-  - *m_min* - minimum values (lower limit) of the variables in reference
-    conditions (`m`).
-
-  - *m_max* - maximum values (upper limit) of the variables in reference
-    conditions (`m`).
+  - *m_ranges* - the range (minimum and maximum values) of the variable
+    in reference conditions (`m`)
 
 - **mop_distances** - if `calculate_distance` = TRUE, a SpatRaster or
   vector with distance values for the set of interest (`g`). Higher
@@ -285,7 +283,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpIukcQ6/Future_raw4
+#> /tmp/RtmpobbBfX/Future_raw4
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

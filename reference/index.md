@@ -198,6 +198,10 @@
 - [`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md)
   : Predict selected models for a single scenario
 
+- [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
+  : Compute changes of suitable areas between scenarios (single scenario
+  / GCM)
+
 - [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
   : Prepare data for model calibration
 
@@ -233,6 +237,10 @@
 
 - [`select_models()`](https://marlonecobos.github.io/kuenm2/reference/select_models.md)
   : Select models that perform the best among candidates
+
+- [`single_mop()`](https://marlonecobos.github.io/kuenm2/reference/single_mop.md)
+  : Analysis of extrapolation risks using the MOP metric (for single
+  scenario)
 
 - [`sp_swd`](https://marlonecobos.github.io/kuenm2/reference/sp_swd.md)
   : Prepared Data for maxnet models

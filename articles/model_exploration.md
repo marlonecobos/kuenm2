@@ -791,7 +791,7 @@ res_ind$predictions$continuous[81:85 , c("mop_distance", "inside_range",
 #>    mop_distance inside_range n_var_out  towards_low towards_high
 #> 81     7.753558         TRUE         0         <NA>         <NA>
 #> 82     6.622770         TRUE         0         <NA>         <NA>
-#> 83   157.782905        FALSE         3 bio_7, bio_1       bio_12
+#> 83   157.782905        FALSE         3 bio_1, bio_7       bio_12
 #> 84    21.045482         TRUE         0         <NA>         <NA>
 #> 85   183.905420        FALSE         2       bio_12        bio_1
 ```
