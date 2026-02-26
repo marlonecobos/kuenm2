@@ -624,6 +624,11 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
                         data = data_i, weights = weights_i))
       }
 
+      # If mod_i fail to fit, return NULL
+      if(inherits(mod_i, "try-error")){
+        return(NULL)
+      } else {
+
       # Predict model
       pred_i <- if (algorithm == "maxnet" & inherits(mod_i, "glmnet_mx")) {
         as.numeric(predict.glmnet_mx(object = mod_i,
@@ -638,8 +643,8 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
 
       # Calculate metrics (omission rate, pROC)
       if(inherits(mod_i, "try-error")){
-        om_rate <- rep(NA, length(omission_rate))
-        names(om_rate) <- paste0("Omission_rate_at_", omission_rate)
+        om_rate <- rep(NA, length(error_considered))
+        names(om_rate) <- paste0("Omission_rate_at_", error_considered)
       } else {
         suit_val_cal <- pred_i[unique(c(notrain, -bgind))]
         suit_val_eval <- pred_i[which(!-notrain %in% bgind)]
@@ -690,12 +695,12 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
                    Is_concave = is_c,
                    row.names = NULL)
       }
-      return(cbind(grid_x, df_eval))
+      return(cbind(grid_x, df_eval))}
     }), silent = TRUE)
   }
 
-  ##### Handle errors and summarize results #####
-  if (inherits(mods, "try-error")) {
+  if (inherits(mods, "try-error") || any(sapply(mods, is.null))) {
+    is_c <- NA
     eval_final <- cbind(grid_x,
                         empty_replicates(error_considered = error_considered,
                                          n_row = length(data$part_data),
@@ -708,7 +713,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
   }
 
   # Summarize results using eval_stats
-  eval_final_summary <- if (inherits(mods, "try-error")) {
+  eval_final_summary <- if (inherits(mods, "try-error") || any(sapply(mods, is.null))) {
     reorder_stats_columns(cbind(grid_x, empty_summary(error_considered, is_c,
                                                       algorithm)),
                           error_considered = error_considered)
