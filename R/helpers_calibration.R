@@ -389,6 +389,11 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
                         data = data_i, weights = weights_i)
       }
 
+      # If mod_i fail to fit, return NULL
+      if(inherits(mod_i, "try-error")){
+        return(NULL)
+      } else {
+
       pred_i <- if (algorithm == "maxnet") {
         as.numeric(predict.glmnet_mx(object = mod_i,
                                      newdata = data$calibration_data,
@@ -414,21 +419,13 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
                                paste0("pval_pROC_at_", omr))
           return(proc_omr)
         })
-        # proc_i <- lapply(error_considered, function(omr) {
-        #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-        #                               prediction = pred_i,
-        #                               threshold = omr)$pROC_summary
-        #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
-        #                        paste0("pval_pROC_at_", omr))
-        #   return(proc_omr)
-        # })
+
         proc_i <- unlist(proc_i)} else {
           #Or fill PROC with NA
           proc_i <- rep(NA, length(error_considered) * 2)
           names(proc_i) <- c(paste0("Mean_AUC_ratio_at_", error_considered),
                              paste0("pval_pROC_at_", error_considered))
         }
-
 
 
       df_eval_q <-  if (algorithm == "maxnet") {
@@ -448,10 +445,22 @@ fit_eval_concave <- function(x, q_grids, data, formula_grid, error_considered, o
                    Is_concave = is_c,
                    row.names = NULL)
       }
-      return(cbind(grid_x, df_eval_q))
+      return(cbind(grid_x, df_eval_q))} #End of if mod_i is not error
     })
-    names(mods) <- names(data$part_data)
-    eval_final_q <- do.call("rbind", mods)
+
+    if (inherits(mods, "try-error") || any(sapply(mods, is.null))) {
+      is_c <- NA
+      eval_final <- cbind(grid_x,
+                          empty_replicates(error_considered = error_considered,
+                                           n_row = length(data$part_data),
+                                           replicates = names(data$part_data),
+                                           is_c = is_c, algorithm = algorithm))
+    } else {
+      # Combine evaluation results
+      names(mods) <- names(data$part_data)
+      eval_final_q <- do.call("rbind", mods)
+    }
+
     eval_final_q_summary <- reorder_stats_columns(eval_stats(eval_final_q,
                                                              error_considered,
                                                              algorithm),
