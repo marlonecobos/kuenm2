@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 
 - [Description](#description)
 - [Getting ready](#getting-ready)
-- [Loading data](#loading-data)
+- [Loading and preparing data](#loading-and-preparing-data)
 - [Detecting changes in projections](#detecting-changes-in-projections)
     - [Seting colors for maps](#seting-colors-for-maps)
     - [Types of results](#types-of-results)
@@ -32,21 +32,25 @@ knitr::opts_chunk$set(
     - [Importing results](#importing-results-1)
     - [Saving results](#saving-results-1)
 - [Assessing extrapolation risks](#assessing-extrapolation-risks)
-    - [MOP types](#mop-types)
+    - [MOP result options](#mop-result-options)
         - [Distances](#distances)
         - [Basic](#basic)
         - [Simple](#simple)
-        - [Combined Towards High/Low](#combined-towards-highlow)
-        - [Towards High/Low End](#towards-highlow-end)
+        - [Towards high and low ends](#towards-high-and-low-ends)
+        - [Combined results](#combined-results)
     - [Handling values within range](#handling-values-within-range)
-    - [Comparing MOP Results with Response Curves](#comparing-mop-results-with-response-curves)
-    - [Saving and Importing MOP Results](#saving-and-importing-mop-results)
+    - [MOP results and response curves](#mop-results-and-response-curves)
+    - [Saving and importing results](#saving-and-importing-results)
 
 <hr>
 
 # Description
 
-Once selected models have been fit and explored, projections to single or multiple scenarios can be performed. The `predict_selected()` function is designed for projections to single scenarios (i.e., a single set of new data). This vignette contains examples of how to use many of the options available for model predictions. 
+`kuenm2` has a set of functions that help explore changes and variability of suitability results obtaining from projections to distinct scenarios. In short, the following analyses can be performed:
+
+* **Compute changes** between scenarios using the `prediction_changes()` and `projection_changes()` functions.
+* **Explore variability** from replicates, model parameterizations, and General Circulation Models (GCMs) with `projection_variability()`.
+* **Assess extrapolation risks** through analysis with `single_mop()` and `projection_mop()`.
 
 <br>
 
@@ -73,24 +77,14 @@ original_par <- par(no.readonly = TRUE)
 
 <br>
 
-# Introduction
+# Loading and preparing data
 
-After projecting models across multiple scenarios using the `project_selected()` function, several types of analyses can be performed:
+When used in projects in which multiple projections were performed, these analyses require a `model_projections` object, which is the output of `project_selected()`. Let's load data and produce the required objects to continue with comparisons and variability and uncertainty estimations.
 
-* **Compute changes** between scenarios using the `projection_changes()` function.
-* **Explore variability** arising from replicates, model parameterizations, and General Circulation Models (GCMs) with `projection_variability()`.
-* **Assess extrapolation risks** through analysis with `projection_mop()`.
-
-These analyses require a `model_projections` object, which is the output of `project_selected()`. This object contains the predicted scenario data as well as the directory paths where the projection rasters are saved.
-
-To create this object, follow the steps outlined below and described in the ["Project models to multiple scenarios"](model_projections.html) vignette.
+For more details about model projections, see ["Project Models to a Single Scenario"](model_predictions.html) and ["Project Models to Multiple Scenarios"](model_projections.html).
 
 ```{r create model_projections, warning=FALSE, results='hide'}
-#Load packages
-library(kuenm2)
-library(terra)
-
-#Import calib_results_maxnet
+# Import calib_results_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
 
 # Import path to raster files with future predictors provided as example
@@ -99,13 +93,15 @@ in_dir <- system.file("extdata", package = "kuenm2")
 
 # Import raster layers (same used to calibrate and fit final models)
 var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
-#Get soilType
+
+# Get soilType
 soiltype <- var$SoilType
 
 # Organize and structure WorldClim files
-#Create folder to save structured files
+# Create folder to save structured files
 out_dir_future <- file.path(tempdir(), "Future_raw")  # Here, in a temporary directory
-#Organize
+
+# Organize
 organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from WorldClim
                           output_dir = out_dir_future, 
                           name_format = "bio_",  # Name format
@@ -113,7 +109,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from 
                           progress_bar = FALSE, overwrite = TRUE)
 
 # Create a "Current_raw" folder in a temporary directory
-#and copy the rawvariables there.
+# and copy the rawvariables there.
 out_dir_current <- file.path(tempdir(), "Current_raw")
 dir.create(out_dir_current, recursive = TRUE)
 
@@ -131,7 +127,7 @@ pr <- prepare_projection(models = fitted_model_maxnet,
 
 # Project selected models to multiple scenarios
 ## Create a folder to save projection results
-#Here, in a temporary directory
+# Here, in a temporary directory
 out_dir <- file.path(tempdir(), "Projection_results/maxnet")
 dir.create(out_dir, recursive = TRUE)
 
@@ -146,45 +142,45 @@ p <- project_selected(models = fitted_model_maxnet,
 
 <br>
 
-# Compute Changes Between Scenarios
+# Detecting changes in projections
 
-When projecting a niche model to different temporal scenarios (past or future), species’ areas can be classified into three categories relative to the current baseline: **gain**, **loss** and **stability**. The interpretation of these categories depends on the temporal direction of the projection.
+When projecting a model to different scenarios (past or future), suitable areas can be classified into three categories relative to the current baseline: **gain**, **loss** and **stability**. The interpretation of these categories depends on the temporal direction of the projection.
 
 **When projecting to future scenarios**:
 
-- *Gain*: Areas that are currently unsuitable become suitable in the future.
-- *Loss*: Areas that are currently suitable become unsuitable in the future.
-- *Stability*: Areas that retain their current classification in the future, whether suitable or unsuitable.
+- *Gain*: Areas currently unsuitable become suitable in the future.
+- *Loss*: Areas currently suitable become unsuitable in the future.
+- *Stability*: Areas remain the same in the future, suitable or unsuitable.
 
 **When projecting to past scenarios**:
 
-- *Gain*: Areas that were unsuitable in the past are now suitable in the present.
-- *Loss*: Areas that were suitable in the past are now unsuitable in the present.
-- *Stability*: Areas that retain their past classification in the present, whether suitable or unsuitable.
+- *Gain*: Areas unsuitable in the past are suitable in the present.
+- *Loss*: Areas suitable in the past are unsuitable in the present.
+- *Stability*: Areas remain the same in the present, suitable or unsuitable.
 
 These outcomes may vary across different General Circulation Models (GCMs) within each time scenario (e.g., various Shared Socioeconomic Pathways (SSPs) for the same period).
 
 The `projection_changes()` function summarizes the number of GCMs predicting gain, loss, and stability for each time scenario.
 
-By default, this function writes the summary results to disk (unless `write_results` is set to `FALSE`), but it does not save the binarized results for individual GCMs. In the example below, we demonstrate how to configure the function to both return the resulting rasters and write the binarized results to disk. 
+By default, this function writes the summary results to disk (unless `write_results` is set to `FALSE`), but it does not save binary layers for individual GCMs. In the example below, we demonstrate how to configure the function to return the raster layers with changes and write the binary results to disk. 
 
 ```{r projection_changes}
 changes <- projection_changes(model_projections = p, 
                               output_dir = out_dir, 
-                              write_bin_models = TRUE,  # Write individual binarized results
+                              write_bin_models = TRUE,  # Write individual binary results
                               return_raster = TRUE)
 ```
 
 <br>
 
-## Set Colors for Change Maps
+## Seting colors for maps
 
 Before plotting the results, we can use the `colors_for_changes()` function to assign custom colors to areas of gain, loss, and stability. By default, the function uses 'teal green' for gains, 'orange-red' for losses, 'Oxford blue' for areas that remain suitable, and 'grey' for areas that remain unsuitable. However, you can customize these colors as needed.
 
-The opacity of each color is automatically adjusted based on the number of GCMs: it is highest (as defined by `max_alpha`) when all GCMs agree on a prediction, and decreases progressively (down to `min_alpha`) as fewer GCMs support that outcome.
+The intensity of each color is automatically adjusted based on the number of GCMs: highest (as defined by `max_alpha`) when all GCMs agree on a prediction, and decreases progressively (down to `min_alpha`) as fewer GCMs support that outcome.
 
 ```{r set colors for change}
-#Set colors for change maps
+# Set colors for change maps
 changes_col <- colors_for_changes(changes)
 ```
 
@@ -194,9 +190,9 @@ The function returns the same `changes_projections` object, but with color table
 
 ## Types os results
 
-The `projection_changes()` function returns four main types of results: binarized models, results by GCM, results by change, and a general summary considering all GCMs:
+The `projection_changes()` function returns four types of results: binary model prediction, results by GCM, results by change, and a general summary considering all GCMs:
 
-- **Binarized models for each GCM**: These are suitable/unsuitable maps binarized for each individual GCM. By default, the binarization applies the omission error threshold used when selecting the best models (e.g., 10%). You can specify a different threshold using the `user_threshold` argument.
+- **Binary prediction for each GCM**: These are suitable/unsuitable maps for each individual GCM. By default, the omission error threshold used when selecting the best models is used (e.g., 10%). You can specify a different threshold using the `user_threshold` argument.
 
 ```{r binarized}
 terra::plot(changes_col$Binarized, cex.main = 0.8)
@@ -204,7 +200,7 @@ terra::plot(changes_col$Binarized, cex.main = 0.8)
 
 <br>
 
-- **Results by gcm**: provides the computed changes (gain, loss, stability) for each GCM individually.
+- **Results by GCM**: provides the changes identified in comparisons (gain, loss, stability) for each GCM individually.
 
 ```{r results by gcm}
 terra::plot(changes_col$Results_by_gcm, cex.main = 0.8)
@@ -224,17 +220,14 @@ terra::plot(changes_col$Results_by_change$`Future_2041-2060_ssp126`)
 - **Summary changes**: provides a general summary indicating how many GCMs project gain, loss, and stability for each scenario.
 
 ```{r summary changes}
-terra::plot(changes_col$Summary_changes, 
-     plg=list(cex=0.75))  # Decrease size of legend text
+terra::plot(changes_col$Summary_changes, plg = list(cex = 0.75))  # Decrease size of legend text
 ```
 
 <br>
 
 ## Importing Results
 
-When `return_raster = TRUE` is set, the resulting `SpatRaster` objects are returned within the `changes` object. By default, however, `return_raster = FALSE` and the object only contains the directory path where the results were saved.
-
-In this case, the saved results can be imported using the `import_projections()` function. You can specify the type of computed changes to import, along with the target period and emission scenario.
+When `return_raster = TRUE` is set, the resulting `SpatRaster` objects are returned within the `changes_projections` object. By default, however, `return_raster = FALSE` and the object only contains the directory path where the results were saved. In that case, the results can be imported using the `import_projections()` function. You can specify the type of results to import, along with the target period and emission scenario.
 
 A `changes_projections` object imported using `import_projections()` can also be used as input to `colors_for_changes()` to customize the colors used for plotting.
 
@@ -245,21 +238,21 @@ general_changes <- import_projections(projection = changes,
                                       future_period = "2041-2060", 
                                       future_pscen = "ssp585",
                                       change_types = "summary")
-#Set colors
+# Set colors
 general_changes <- colors_for_changes(general_changes)
 
-#Plot
+# Plot
 terra::plot(general_changes$Summary, main = names(general_changes$Summary),
-     plg=list(cex=0.75))  # Decrease size of legend text
+            plg = list(cex = 0.75))  # Decrease size of legend text
 ```
 
 <br>
 
-## Save changes_projections
+## Saving results
 
-The `changes_projections` object is a list that contains the resulting `SpatRaster` objects (if `return_raster = TRUE`) and the directory path where the results were saved (if `write_results = TRUE`).
+The `changes_projections` object is a list that contains the resulting `SpatRaster` objects (if `return_raster = TRUE`) and the directory path where results were saved (if `write_results = TRUE`).
 
-If the results were not written to disk during the initial run, you can save the `SpatRaster` objects afterward using the `writeRaster()` function. For example, to save the general summary raster:
+If results were not written to disk during the initial run, you can save `SpatRaster` objects afterward using the `writeRaster()` function. For example, to save the general summary raster:
 
 ```{r save raster changes, eval = FALSE}
 writeRaster(changes$Summary_changes,
@@ -280,9 +273,9 @@ After loading, this object can be used to import specific results with the `impo
 
 <br>
 
-# Explore Variance
+# Exploring variance
 
-When projecting niche models, predictions can vary across different **replicates**, **selected models**, and **GCMs**. The `projection_variability()` function quantifies and spatializes these sources of variability, offering valuable insights into prediction uncertainty.
+When projecting models, predictions can vary according to different **replicates**, **model parameterizations**, and **GCMs**. The `projection_variability()` function quantifies these sources of variability, offering valuable insights into prediction uncertainty.
 
 This function requires a `model_projections` object, which is generated by the `project_selected()` function.
 
@@ -305,7 +298,7 @@ The output is a `variability_projections` object, a list containing `SpatRaster`
 
 For example, for the present time scenario, the variance mainly arises from differences among the replicates 
 
-```{r plot variability present, out.width="60%"}
+```{r plot variability present, fig.width = 7, fig.height = 4}
 # Variance for the present time
 terra::plot(v$Present, range = c(0, 0.15))
 ```
@@ -345,7 +338,7 @@ terra::plot(v_2041_2060_ssp126, range = c(0, 0.1))
 
 <br>
 
-## Saving the variability_projections Object
+## Saving results
 
 The `variability_projections` object is a list that contains the resulting `SpatRaster` layers (if `return_raster = TRUE`) and the directory path where the results were saved (if `write_files = TRUE`).
 
@@ -370,7 +363,7 @@ This object can then be used to import the results with the `import_projections(
 
 <br>
 
-# Analyze Extrapolation Risks Using the MOP Metric
+# Assessing extrapolation risks
 
 When projecting model predictions to new regions or time periods, it is common to encounter **non-analogous conditions**, environmental conditions not present in the calibration area. 
 
@@ -385,12 +378,12 @@ max(fitted_model_maxnet$calibration_data$bio_1)
 However, in future scenarios, conditions are projected to become warmer, and temperatures may reach higher values. To illustrate this, let's import environmental variables from one of the GCMs (ACCESS-CM2) under the future scenario SSP5-8.5 and examine the maximum temperature:
 
 ```{r Highlight non-analogous}
-#Import variables from the 2081-2100 period (SSP585, GCM MIROC6)
+# Import variables from the 2081-2100 period (SSP585, GCM MIROC6)
 future_ACCESS_CM2 <- rast(file.path(out_dir_future,
                                 "2081-2100/ssp585/ACCESS-CM2/Variables.tif"))
 minmax(future_ACCESS_CM2$bio_1)
 
-#Plot
+# Plot
 terra::plot(future_ACCESS_CM2$bio_1, 
      breaks = c(-Inf, 22.7, Inf))  # Highlight regions with temperature above 22.7ºC
 ```
@@ -434,25 +427,19 @@ The function returns a `mop_projections` object, which contains the paths to the
 
 <br>
 
-## MOP types
+## MOP result options
 
 The results of the MOP analysis provide multiple perspectives on extrapolation risks. Each component of the `mop_projections` object captures a different aspect of the dissimilarity between environmental conditions in the calibration and projection areas.
 
-When importing results, you can specify the scenarios (e.g., "2081-2100" and "ssp585") as well as the type of MOP results to load. By default, all available MOP types are imported, including:
+When importing results, you can specify the scenarios (e.g., "2081-2100" and "ssp585") as well as the type of MOP results to load. By default, all available MOP types are imported, these include: `distances`, `basic`, `simple`, `towards_high_end`, `towards_low_end`, `towards_high_combined`, and `towards_low_combined`. 
 
-- **basic**
-- **simple**
-- **towards_high_combined**
-- **towards_low_combined**
-- **towards_high_end**
-- **towards_low_end**
-
-Below, we examine all MOP results for the SSP5-8.5 scenario during the 2081–2100 period:
+Below, we explore all MOP results for the SSP5-8.5 scenario during the 2081–2100 period:
 
 ```{r import mop, warning=FALSE}
 mop_ssp585_2100 <- import_projections(projection = kmop,
                                       future_period = "2081-2100", 
                                       future_pscen = "ssp585")
+
 # See types of results
 names(mop_ssp585_2100)
 ```
@@ -489,21 +476,7 @@ terra::plot(mop_ssp585_2100$simple)
 
 <br>
 
-### Combined Towards High/Low
-
-The *towards_high_combined* and *towards_low_combined* results identify which variables exhibit non-analogous conditions. Specifically, *towards_high_combined* highlights variables with values exceeding those observed in the calibration data, while *towards_low_combined* highlights variables with values below the calibration range.
-
-```{r plot towars combined}
-# Non-analogous conditions towards high values
-terra::plot(mop_ssp585_2100$towards_high_combined)
-
-# Non-analogous conditions towards low values
-terra::plot(mop_ssp585_2100$towards_low_combined)
-```
-
-<br>
-
-### Towards High/Low End
+### Towards high and low ends
 
 The *towards_high_end* and *towards_low_end* results are similar to their "combined" counterparts but provide individual `SpatRaster` layers for each variable. 
 
@@ -518,7 +491,21 @@ terra::plot(mop_ssp585_2100$towards_low_end$`Future_2081-2100_ssp585_ACCESS-CM2`
 
 <br>
 
-## Handling In-Range Values: NA or Zero
+### Combined results
+
+The *towards_high_combined* and *towards_low_combined* results identify which variables exhibit non-analogous conditions. Specifically, *towards_high_combined* highlights variables with values exceeding those observed in the calibration data, while *towards_low_combined* highlights variables with values below the calibration range.
+
+```{r plot towars combined}
+# Non-analogous conditions towards high values
+terra::plot(mop_ssp585_2100$towards_high_combined)
+
+# Non-analogous conditions towards low values
+terra::plot(mop_ssp585_2100$towards_low_combined)
+```
+
+<br>
+
+## Handling values within range
 
 By default, the `projection_mop()` function assigns `NA` to cells whose values fall within the range of the calibration data, indicating they are considered analogous. Alternatively, you can assign a value of 0 to these cells by setting `na_in_range = FALSE` when running `projection_mop()`.
 
@@ -541,7 +528,7 @@ kmop_zero <- projection_mop(data = fitted_model_maxnet, projection_data = pr,
 
 Let's explore how this setting affects the *simple* and *detailed* MOP outputs:
 
-```{r check difference zero mop}
+```{r check difference zero mop, fig.width = 7, fig.height = 4}
 # Import MOP for the scenario ssp585 in 2081-2100
 mop_ssp585_2100_zero <- import_projections(projection = kmop_zero,
                                            future_period = "2081-2100", 
@@ -563,7 +550,7 @@ terra::plot(c(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACC
 
 <br>
 
-## Comparing MOP Results with Response Curves
+## MOP results and response curves
 
 While the `projection_mop()` function identifies areas with non-analogous environmental conditions, **the actual risk of extrapolation depends strongly on additional factors**, especially the response curves of the environmental variables.
 
@@ -587,9 +574,6 @@ response_curve(models = fitted_model_maxnet, variable = "bio_12",
                new_data = future_ACCESS_CM2)
 response_curve(models = fitted_model_maxnet, variable = "bio_15", 
                new_data = future_ACCESS_CM2)
-
-# Reinitiate grids
-on.exit()
 ```
 
 <br>
@@ -598,7 +582,7 @@ In the response curves for bio_1, bio_12, and bio_15, higher values correspond t
 
 Next, let's investigate the variables with values below the lower limit of the calibration data:
 
-```{r plot towards low values}
+```{r plot towards low values, fig.width = 7, fig.height = 4}
 # Non-analogous conditions towards low values in the MIROC6 scenario
 par(mfrow = c(1,2))  # Set grid
 terra::plot(mop_ssp585_2100$towards_low_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
@@ -606,9 +590,6 @@ terra::plot(mop_ssp585_2100$towards_low_combined$`Future_2081-2100_ssp585_ACCESS
 ## It's bio 7. Plot response curve:
 response_curve(models = fitted_model_maxnet, variable = "bio_7", 
                new_data = future_ACCESS_CM2)
-
-# Reinitiate grid
-on.exit()
 ```
 
 <br>
@@ -626,7 +607,7 @@ par(original_par)
 
 <br>
 
-## Saving and Importing MOP Results
+## Saving and importing results
 
 When `projection_mop()` is run, it automatically saves the `mop_projections` object as an RDS file in the specified `out_dir`. You can reload this object in R at any time using the `readRDS()` function:
 
