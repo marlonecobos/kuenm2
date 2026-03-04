@@ -28,7 +28,8 @@
 #' [organize_future_worldclim()], [prepare_projection()], [project_selected()]
 #'
 #' ## Post-modeling analysis
-#' - Variability: [projection_changes()], [projection_variability()]
-#' - Uncertainty: [projection_mop()]
+#' - Variability: [prediction_changes()], [projection_changes()],
+#' [projection_variability()]
+#' - Uncertainty: [projection_mop()], [single_mop()]
 #'
 "_PACKAGE"

@@ -40,8 +40,9 @@ also available.
 
 \subsection{Post-modeling analysis}{
 \itemize{
-\item Variability: \code{\link[=projection_changes]{projection_changes()}}, \code{\link[=projection_variability]{projection_variability()}}
-\item Uncertainty: \code{\link[=projection_mop]{projection_mop()}}
+\item Variability: \code{\link[=prediction_changes]{prediction_changes()}}, \code{\link[=projection_changes]{projection_changes()}},
+\code{\link[=projection_variability]{projection_variability()}}
+\item Uncertainty: \code{\link[=projection_mop]{projection_mop()}}, \code{\link[=single_mop]{single_mop()}}
 }
 }
 }
