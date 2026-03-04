@@ -52,11 +52,13 @@ variability in model transfers are also available.
 ### Post-modeling analysis
 
 - Variability:
+  [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md),
   [`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md),
   [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)
 
 - Uncertainty:
-  [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)
+  [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md),
+  [`single_mop()`](https://marlonecobos.github.io/kuenm2/reference/single_mop.md)
 
 ## See also
 

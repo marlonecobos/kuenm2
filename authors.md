@@ -23,12 +23,12 @@ Source:
 
 Trindade W, Arias-Giraldo L, Osorio-Olvera L, Peterson A, Cobos M
 (2026). *kuenm2: Detailed Development of Ecological Niche Models*. R
-package version 0.0.11, <https://marlonecobos.github.io/kuenm2/>.
+package version 0.0.12, <https://marlonecobos.github.io/kuenm2/>.
 
     @Manual{,
       title = {kuenm2: Detailed Development of Ecological Niche Models},
       author = {Weverton C. F. Trindade and Luis F. Arias-Giraldo and Luis Osorio-Olvera and A. Townsend Peterson and Marlon E. Cobos},
       year = {2026},
-      note = {R package version 0.0.11},
+      note = {R package version 0.0.12},
       url = {https://marlonecobos.github.io/kuenm2/},
     }
