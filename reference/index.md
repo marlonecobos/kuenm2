@@ -133,7 +133,7 @@
 - [`glmnet_mx()`](https://marlonecobos.github.io/kuenm2/reference/glmnet_mx.md)
   : Maxent-like glmnet models
 
-- [`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+- [`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
   : Import rasters resulting from projection functions
 
 - [`independent_evaluation()`](https://marlonecobos.github.io/kuenm2/reference/independent_evaluation.md)
@@ -199,8 +199,8 @@
   : Predict selected models for a single scenario
 
 - [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
-  : Compute changes of suitable areas between scenarios (single scenario
-  / GCM)
+  : Compute changes of suitable areas in other scenarios (single
+  scenario / GCM)
 
 - [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
   : Prepare data for model calibration

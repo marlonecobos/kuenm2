@@ -296,7 +296,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpI4lwXs/Future_raw
+#> /tmp/RtmpX48uZC/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -432,7 +432,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpI4lwXs
+#> /tmp/RtmpX48uZC
 ```
 
   
@@ -492,7 +492,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpI4lwXs/Projection_results/maxnet
+#>  /tmp/RtmpX48uZC/Projection_results/maxnet
 ```
 
   
@@ -602,7 +602,7 @@ scenario](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md).
 
 The `model_projections` object stores only the paths to the resulting
 raster layers. To import the results, we can use the
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 function. By default, it imports all consensus metrics (“median”,
 “range”, “mean”, and “stdev”) and all scenarios (time periods, SSPs, and
 GCMs) available in the `model_projections` object. Let’s import the mean
@@ -610,7 +610,7 @@ for all scenarios:
 
 ``` r
 # Import mean of each projected scenario
-p_mean <- import_projections(projection = p, consensus = "mean")
+p_mean <- import_results(projection = p, consensus = "mean")
 
 # Plot all scenarios
 terra::plot(p_mean, cex.main = 0.8)
@@ -626,10 +626,10 @@ under the SSP 126:
 
 ``` r
 # Importing
-p_2060_ssp126 <- import_projections(projection = p, consensus = "mean", 
-                                    present = FALSE,  # Do not import present projections
-                                    future_period = "2041-2060",
-                                    future_pscen = "ssp126")
+p_2060_ssp126 <- import_results(projection = p, consensus = "mean", 
+                                present = FALSE,  # Do not import present projections
+                                future_period = "2041-2060",
+                                future_pscen = "ssp126")
 
 # Plot all scenarios
 terra::plot(p_2060_ssp126, cex.main = 0.8)

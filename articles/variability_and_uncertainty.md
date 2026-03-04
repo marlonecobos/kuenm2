@@ -4,38 +4,46 @@
 
 - [Description](#description)
 - [Getting ready](#getting-ready)
-- [Loading data](#loading-data)
+- [Loading and preparing data](#loading-and-preparing-data)
 - [Detecting changes in projections](#detecting-changes-in-projections)
   - [Seting colors for maps](#seting-colors-for-maps)
   - [Types of results](#types-of-results)
   - [Importing results](#importing-results)
   - [Saving results](#saving-results)
-- [Exploring variance](#exploring-variance)
+- [Exploring variability](#exploring-variability)
   - [Importing results](#importing-results-1)
   - [Saving results](#saving-results-1)
 - [Assessing extrapolation risks](#assessing-extrapolation-risks)
-  - [MOP types](#mop-types)
+  - [MOP result options](#mop-result-options)
     - [Distances](#distances)
     - [Basic](#basic)
     - [Simple](#simple)
-    - [Combined Towards High/Low](#combined-towards-highlow)
-    - [Towards High/Low End](#towards-highlow-end)
+    - [Towards high and low ends](#towards-high-and-low-ends)
+    - [Combined results](#combined-results)
   - [Handling values within range](#handling-values-within-range)
-  - [Comparing MOP Results with Response
-    Curves](#comparing-mop-results-with-response-curves)
-  - [Saving and Importing MOP
-    Results](#saving-and-importing-mop-results)
+  - [MOP results and response curves](#mop-results-and-response-curves)
+  - [Saving and importing results](#saving-and-importing-results)
 
 ------------------------------------------------------------------------
 
 ## Description
 
-Once selected models have been fit and explored, projections to single
-or multiple scenarios can be performed. The
-[`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md)
-function is designed for projections to single scenarios (i.e., a single
-set of new data). This vignette contains examples of how to use many of
-the options available for model predictions.
+`kuenm2` has a set of functions that help explore changes and
+variability of suitability results obtaining from projections to
+distinct scenarios. In short, the following analyses can be performed:
+
+- **Compute changes** between scenarios using the
+  [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
+  and
+  [`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
+  functions.
+- **Explore variability** from replicates, model parameterizations, and
+  General Circulation Models (GCMs) with
+  [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md).
+- **Assess extrapolation risks** through analysis with
+  [`single_mop()`](https://marlonecobos.github.io/kuenm2/reference/single_mop.md)
+  and
+  [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md).
 
   
 
@@ -66,38 +74,23 @@ original_par <- par(no.readonly = TRUE)
 
   
 
-## Introduction
+## Loading and preparing data
 
-After projecting models across multiple scenarios using the
-[`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md)
-function, several types of analyses can be performed:
-
-- **Compute changes** between scenarios using the
-  [`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
-  function.
-- **Explore variability** arising from replicates, model
-  parameterizations, and General Circulation Models (GCMs) with
-  [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md).
-- **Assess extrapolation risks** through analysis with
-  [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md).
-
-These analyses require a `model_projections` object, which is the output
+When used in projects in which multiple projections were performed,
+these analyses require a `model_projections` object, which is the output
 of
 [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md).
-This object contains the predicted scenario data as well as the
-directory paths where the projection rasters are saved.
+Let’s load data and produce the required objects to continue with
+comparisons and variability and uncertainty estimations.
 
-To create this object, follow the steps outlined below and described in
-the [“Project models to multiple
-scenarios”](https://marlonecobos.github.io/kuenm2/articles/model_projections.md)
-vignette.
+For more details about model projections, see [“Project Models to a
+Single
+Scenario”](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md)
+and [“Project Models to Multiple
+Scenarios”](https://marlonecobos.github.io/kuenm2/articles/model_projections.md).
 
 ``` r
-#Load packages
-library(kuenm2)
-library(terra)
-
-#Import calib_results_maxnet
+# Import calib_results_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
 
 # Import path to raster files with future predictors provided as example
@@ -106,13 +99,15 @@ in_dir <- system.file("extdata", package = "kuenm2")
 
 # Import raster layers (same used to calibrate and fit final models)
 var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
-#Get soilType
+
+# Get soilType
 soiltype <- var$SoilType
 
 # Organize and structure WorldClim files
-#Create folder to save structured files
+# Create folder to save structured files
 out_dir_future <- file.path(tempdir(), "Future_raw")  # Here, in a temporary directory
-#Organize
+
+# Organize
 organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from WorldClim
                           output_dir = out_dir_future, 
                           name_format = "bio_",  # Name format
@@ -120,10 +115,10 @@ organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from 
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmplfPiQo/Future_raw
+#> /tmp/RtmphC37DK/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
-#and copy the rawvariables there.
+# and copy the rawvariables there.
 out_dir_current <- file.path(tempdir(), "Current_raw")
 dir.create(out_dir_current, recursive = TRUE)
 
@@ -141,7 +136,7 @@ pr <- prepare_projection(models = fitted_model_maxnet,
 
 # Project selected models to multiple scenarios
 ## Create a folder to save projection results
-#Here, in a temporary directory
+# Here, in a temporary directory
 out_dir <- file.path(tempdir(), "Projection_results/maxnet")
 dir.create(out_dir, recursive = TRUE)
 
@@ -156,31 +151,27 @@ p <- project_selected(models = fitted_model_maxnet,
 
   
 
-## Compute Changes Between Scenarios
+## Detecting changes in projections
 
-When projecting a niche model to different temporal scenarios (past or
-future), species’ areas can be classified into three categories relative
-to the current baseline: **gain**, **loss** and **stability**. The
+When projecting a model to different scenarios (past or future),
+suitable areas can be classified into three categories relative to the
+current baseline: **gain**, **loss** and **stability**. The
 interpretation of these categories depends on the temporal direction of
 the projection.
 
 **When projecting to future scenarios**:
 
-- *Gain*: Areas that are currently unsuitable become suitable in the
-  future.
-- *Loss*: Areas that are currently suitable become unsuitable in the
-  future.
-- *Stability*: Areas that retain their current classification in the
-  future, whether suitable or unsuitable.
+- *Gain*: Areas currently unsuitable become suitable in the future.
+- *Loss*: Areas currently suitable become unsuitable in the future.
+- *Stability*: Areas remain the same in the future, suitable or
+  unsuitable.
 
 **When projecting to past scenarios**:
 
-- *Gain*: Areas that were unsuitable in the past are now suitable in the
-  present.
-- *Loss*: Areas that were suitable in the past are now unsuitable in the
-  present.
-- *Stability*: Areas that retain their past classification in the
-  present, whether suitable or unsuitable.
+- *Gain*: Areas unsuitable in the past are suitable in the present.
+- *Loss*: Areas suitable in the past are unsuitable in the present.
+- *Stability*: Areas remain the same in the present, suitable or
+  unsuitable.
 
 These outcomes may vary across different General Circulation Models
 (GCMs) within each time scenario (e.g., various Shared Socioeconomic
@@ -192,21 +183,22 @@ function summarizes the number of GCMs predicting gain, loss, and
 stability for each time scenario.
 
 By default, this function writes the summary results to disk (unless
-`write_results` is set to `FALSE`), but it does not save the binarized
-results for individual GCMs. In the example below, we demonstrate how to
-configure the function to both return the resulting rasters and write
-the binarized results to disk.
+`write_results` is set to `FALSE`), but it does not save binary layers
+for individual GCMs. In the example below, we demonstrate how to
+configure the function to return the raster layers with changes and
+write the binary results to disk.
 
 ``` r
+# Run analysis to detect changes in suitable areas
 changes <- projection_changes(model_projections = p, 
                               output_dir = out_dir, 
-                              write_bin_models = TRUE,  # Write individual binarized results
+                              write_bin_models = TRUE,  # Write individual binary results
                               return_raster = TRUE)
 ```
 
   
 
-### Set Colors for Change Maps
+### Seting colors for maps
 
 Before plotting the results, we can use the
 [`colors_for_changes()`](https://marlonecobos.github.io/kuenm2/reference/colors_for_changes.md)
@@ -216,13 +208,13 @@ losses, ‘Oxford blue’ for areas that remain suitable, and ‘grey’ for
 areas that remain unsuitable. However, you can customize these colors as
 needed.
 
-The opacity of each color is automatically adjusted based on the number
-of GCMs: it is highest (as defined by `max_alpha`) when all GCMs agree
+The intensity of each color is automatically adjusted based on the
+number of GCMs: highest (as defined by `max_alpha`) when all GCMs agree
 on a prediction, and decreases progressively (down to `min_alpha`) as
 fewer GCMs support that outcome.
 
 ``` r
-#Set colors for change maps
+# Set colors for change maps
 changes_col <- colors_for_changes(changes)
 ```
 
@@ -237,14 +229,13 @@ automatically applied when visualizing the data using
 
 The
 [`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
-function returns four main types of results: binarized models, results
+function returns four types of results: binary model prediction, results
 by GCM, results by change, and a general summary considering all GCMs:
 
-- **Binarized models for each GCM**: These are suitable/unsuitable maps
-  binarized for each individual GCM. By default, the binarization
-  applies the omission error threshold used when selecting the best
-  models (e.g., 10%). You can specify a different threshold using the
-  `user_threshold` argument.
+- **Binary prediction for each GCM**: These are suitable/unsuitable maps
+  for each individual GCM. By default, the omission error threshold used
+  when selecting the best models is used (e.g., 10%). You can specify a
+  different threshold using the `user_threshold` argument.
 
 ``` r
 terra::plot(changes_col$Binarized, cex.main = 0.8)
@@ -254,8 +245,8 @@ terra::plot(changes_col$Binarized, cex.main = 0.8)
 
   
 
-- **Results by gcm**: provides the computed changes (gain, loss,
-  stability) for each GCM individually.
+- **Results by GCM**: provides the changes identified in comparisons
+  (gain, loss, stability) for each GCM individually.
 
 ``` r
 terra::plot(changes_col$Results_by_gcm, cex.main = 0.8)
@@ -282,8 +273,7 @@ terra::plot(changes_col$Results_by_change$`Future_2041-2060_ssp126`)
   GCMs project gain, loss, and stability for each scenario.
 
 ``` r
-terra::plot(changes_col$Summary_changes, 
-     plg=list(cex=0.75))  # Decrease size of legend text
+terra::plot(changes_col$Summary_changes, plg = list(cex = 0.75))  # Decrease size of legend text
 ```
 
 ![](variability_and_uncertainty_files/figure-html/summary%20changes-1.png)
@@ -293,17 +283,16 @@ terra::plot(changes_col$Summary_changes,
 ### Importing Results
 
 When `return_raster = TRUE` is set, the resulting `SpatRaster` objects
-are returned within the `changes` object. By default, however,
-`return_raster = FALSE` and the object only contains the directory path
-where the results were saved.
-
-In this case, the saved results can be imported using the
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
-function. You can specify the type of computed changes to import, along
-with the target period and emission scenario.
+are returned within the `changes_projections` object. By default,
+however, `return_raster = FALSE` and the object only contains the
+directory path where the results were saved. In that case, the results
+can be imported using the
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
+function. You can specify the type of results to import, along with the
+target period and emission scenario.
 
 A `changes_projections` object imported using
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 can also be used as input to
 [`colors_for_changes()`](https://marlonecobos.github.io/kuenm2/reference/colors_for_changes.md)
 to customize the colors used for plotting.
@@ -312,30 +301,32 @@ For example, below we import only the general summary for the 2041–2060
 period under the SSP5-8.5 scenario:
 
 ``` r
-general_changes <- import_projections(projection = changes, 
-                                      future_period = "2041-2060", 
-                                      future_pscen = "ssp585",
-                                      change_types = "summary")
-#Set colors
+# Import changes detected for 2041–2060 SSP5-8.5 
+general_changes <- import_results(projection = changes, 
+                                  future_period = "2041-2060", 
+                                  future_pscen = "ssp585",
+                                  change_types = "summary")
+
+# Set colors
 general_changes <- colors_for_changes(general_changes)
 
-#Plot
+# Plot
 terra::plot(general_changes$Summary, main = names(general_changes$Summary),
-     plg=list(cex=0.75))  # Decrease size of legend text
+            plg = list(cex = 0.75))  # Decrease size of legend text
 ```
 
 ![](variability_and_uncertainty_files/figure-html/import%20general%20summary-1.png)
 
   
 
-### Save changes_projections
+### Saving results
 
 The `changes_projections` object is a list that contains the resulting
 `SpatRaster` objects (if `return_raster = TRUE`) and the directory path
-where the results were saved (if `write_results = TRUE`).
+where results were saved (if `write_results = TRUE`).
 
-If the results were not written to disk during the initial run, you can
-save the `SpatRaster` objects afterward using the
+If results were not written to disk during the initial run, you can save
+`SpatRaster` objects afterward using the
 [`writeRaster()`](https://rspatial.github.io/terra/reference/writeRaster.html)
 function. For example, to save the general summary raster:
 
@@ -359,31 +350,28 @@ changes <- readRDS(file.path(out_dir, "Projection_changes/changes_projections.rd
 
 After loading, this object can be used to import specific results with
 the
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 function.
 
   
 
-## Explore Variance
+## Exploring variability
 
-When projecting niche models, predictions can vary across different
-**replicates**, **selected models**, and **GCMs**. The
+When projecting models, predictions can vary according to different
+**replicates**, **model parameterizations**, and **GCMs**. The
 [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)
-function quantifies and spatializes these sources of variability,
-offering valuable insights into prediction uncertainty.
+function quantifies variability from these sources, offering valuable
+insights into what makes predictions fluctuate the most and where.
 
-This function requires a `model_projections` object, which is generated
-by the
-[`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md)
-function.
-
-By default,
+The
 [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)
-uses the **median consensus** to summarize variance across selected
-models and GCMs. Alternatively, users can specify other summary
-statistics such as `mean`, `range`, or `sd` (standard deviation).
+function requires a `model_projections` object, which is generated using
+[`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md).
+By default, it uses the `median` consensus to summarize variance across
+selected models and GCMs. Alternatively, users can specify the `mean` to
+use it as a representative instead.
 
-To analyze variability originating from replicates, ensure that
+To be able to assess variability from replicates, make sure that
 `write_replicates = TRUE` is set when running
 [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md).
 
@@ -395,22 +383,22 @@ designated `out_dir` directory.
 # Create a directory to save results
 v <- projection_variability(model_projections = p, write_files = TRUE,
                             output_dir = out_dir,
-                            verbose = FALSE, overwrite = T)
+                            verbose = FALSE, overwrite = TRUE)
 ```
 
   
 
-The output is a `variability_projections` object, a list containing
-`SpatRaster` layers that represent the variance attributed to
-replicates, models, and GCMs for each scenario, including the present
-time. These results highlight areas where prediction uncertainty is
+The output is an object named `variability_projections`, a list
+containing `SpatRaster` layers that represent the variance deriving from
+replicates, models, and GCMs for each scenario (including the present).
+These results can help detect areas where prediction variability is
 higher.
 
-For example, for the present time scenario, the variance mainly arises
-from differences among the replicates
+For example, for the present time scenario, the variance mainly comes
+from differences among replicates.
 
 ``` r
-# Variance for the present time
+# Variability for the present
 terra::plot(v$Present, range = c(0, 0.15))
 ```
 
@@ -418,11 +406,11 @@ terra::plot(v$Present, range = c(0, 0.15))
 
   
 
-In the most pessimistic scenario (SSP5-8.5) for the 2081–2100 period, a
-slight variance is observed, primarily arising from the replicates and
-the different GCMs used.
+In the most pessimistic scenario (SSP5-8.5) for 2081–2100, variability
+is not too high and comes primarily from replicates and GCMs.
 
 ``` r
+# Variability for Future_2081-2100_ssp585 
 terra::plot(v$`Future_2081-2100_ssp585`, range = c(0, 0.1))
 ```
 
@@ -435,8 +423,8 @@ terra::plot(v$`Future_2081-2100_ssp585`, range = c(0, 0.1))
 Because `write_files = TRUE` was set, the `variability_projections`
 object includes the file path where the results were saved. You can use
 this path with the
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
-function to load the results whenever needed.
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
+function to load the results when needed.
 
 ``` r
 # See the folder where the results were saved
@@ -446,15 +434,17 @@ v$root_directory
 
   
 
-As an example, we will import the results for the 2041–2060 period under
+As an example, we will import the results for the 2041–2060 period and
 the SSP1-2.6 scenario. In this scenario, the variability mainly
-originates from differences among the selected models.
+originates from differences among the selected models (see below).
 
 ``` r
-v_2041_2060_ssp126 <- import_projections(projection = v, 
-                                         present = FALSE,  # Do not import results from the present time
-                                         future_period = "2041-2060", 
-                                         future_pscen = "ssp126")
+# Importing results
+v_2041_2060_ssp126 <- import_results(projection = v, 
+                                     present = FALSE,  # Do not import results from the present time
+                                     future_period = "2041-2060", 
+                                     future_pscen = "ssp126")
+
 # Plot
 terra::plot(v_2041_2060_ssp126, range = c(0, 0.1))
 ```
@@ -463,11 +453,11 @@ terra::plot(v_2041_2060_ssp126, range = c(0, 0.1))
 
   
 
-### Saving the variability_projections Object
+### Saving results
 
-The `variability_projections` object is a list that contains the
-resulting `SpatRaster` layers (if `return_raster = TRUE`) and the
-directory path where the results were saved (if `write_files = TRUE`).
+The `variability_projections` object is a list that contains resulting
+`SpatRaster` layers (if `return_raster = TRUE`) and the directory path
+where the results were saved (if `write_files = TRUE`).
 
 If the results were not saved to disk during the initial run, you can
 save the `SpatRaster` layers afterward using the
@@ -484,7 +474,8 @@ writeRaster(v$`Future_2081-2100_ssp585`,
 
 If the results were saved to disk, the `variability_projections` object
 is automatically stored in a folder named *variance* within the
-specified `output_dir`. You can reload it into R using the
+specified `output_dir`. You can read this object to the R environment in
+future sessions using the
 [`readRDS()`](https://rspatial.github.io/terra/reference/serialize.html)
 function:
 
@@ -495,19 +486,19 @@ v <- readRDS(file.path(out_dir, "variance/variability_projections.rds"))
   
 
 This object can then be used to import the results with the
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 function.
 
   
 
-## Analyze Extrapolation Risks Using the MOP Metric
+## Assessing extrapolation risks
 
-When projecting model predictions to new regions or time periods, it is
-common to encounter **non-analogous conditions**, environmental
-conditions not present in the calibration area.
+When projecting models to new regions or time periods, it is common to
+encounter conditions that are non-analogous to those used to train
+models.
 
-For example, the **maximum temperature** (bio_1) in our model’s
-calibration area was $22.7^{\circ}C$:
+For example, the maximum annual mean temperature (bio_1) in our model’s
+calibration data was $22.7^{\circ}C$:
 
 ``` r
 max(fitted_model_maxnet$calibration_data$bio_1)
@@ -516,63 +507,88 @@ max(fitted_model_maxnet$calibration_data$bio_1)
 
   
 
-However, in future scenarios, conditions are projected to become warmer,
-and temperatures may reach higher values. To illustrate this, let’s
-import environmental variables from one of the GCMs (ACCESS-CM2) under
-the future scenario SSP5-8.5 and examine the maximum temperature:
+In contrast, in future scenarios, conditions are projected to become
+warmer. To illustrate this, let’s import environmental variables from
+one of the GCMs (ACCESS-CM2) under the future scenario SSP5-8.5 and
+examine the maximum temperature:
 
 ``` r
-#Import variables from the 2081-2100 period (SSP585, GCM MIROC6)
+# Import variables from the 2081-2100 period (SSP585, GCM MIROC6)
 future_ACCESS_CM2 <- rast(file.path(out_dir_future,
                                 "2081-2100/ssp585/ACCESS-CM2/Variables.tif"))
-minmax(future_ACCESS_CM2$bio_1)
+
+# Range of values in bio_1
+terra::minmax(future_ACCESS_CM2$bio_1)
 #>     bio_1
 #> min  17.8
 #> max  29.6
 
-#Plot
+# Plot
 terra::plot(future_ACCESS_CM2$bio_1, 
-     breaks = c(-Inf, 22.7, Inf))  # Highlight regions with temperature above 22.7ºC
+            breaks = c(-Inf, 22.7, Inf))  # Highlight regions with values above 22.7ºC
 ```
 
 ![](variability_and_uncertainty_files/figure-html/Highlight%20non-analogous-1.png)
 
   
 
-Note that in most of the projected area, temperatures are expected to
-exceed the current maximum temperature.
+Note that temperatures are expected to exceed the current maximum
+temperature in most of the area under future conditions.
 
-The
+The functions
+[`single_mop()`](https://marlonecobos.github.io/kuenm2/reference/single_mop.md)
+and
 [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)
-function performs Mobility-Oriented Parity (MOP) analysis ([Owens et
-al. 2013](https://doi.org/10.1016/j.ecolmodel.2013.04.011)), which
-identifies areas with non-analogous environmental conditions that pose
-extrapolation risks. It also quantifies how dissimilar conditions in the
-projection area are relative to the calibration data.
+compute the Mobility-Oriented Parity (MOP) metric ([Owens et
+al. 2013](https://doi.org/10.1016/j.ecolmodel.2013.04.011)) with recent
+updates implemented in the [mop
+package](https://CRAN.R-project.org/package=mop) ([Cobos et
+al. 2024](https://doi.org/10.21425/fob.17.132916)). This metric
+calculates dissimilarity between training and projection conditions, and
+detect areas with conditions outside training ranges. Areas identified
+outside training ranges and those with large dissimilarity (distances)
+values are where model predictions are a product of extrapolation.
+Depending on how the model is predicting outside ranges (see response
+curves), interpreting those results can be risky because of
+uncertainties in prediction behavior (hence the term *extrapolation
+risks*).
 
 The MOP analysis requires the following inputs:
 
-- An object of class `fitted_models` returned by the
+- Reference data: An object of class `fitted_models` returned by the
   [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
   function, or an object of class `prepared_data` returned by
   [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md).
-  These objects contain the calibration data defining the environmental
-  conditions used during model training.
-  - If you wish to perform MOP only on the variables used in the
-    selected models, set `subset_variables = TRUE` and provide a
-    `fitted_models` object.
-- An object of class `projection_data` returned by the
-  [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)
-  function, which contains the paths to raster layers representing
-  environmental conditions in the projected scenarios.
+  These objects contain the environmental data used during model
+  training.
+- Data of interest for analysis:
+  - For
+    [`single_mop()`](https://marlonecobos.github.io/kuenm2/reference/single_mop.md),
+    a `SpatRaster` with the environmental variables representing a
+    single scenario for model projections.
+  - For
+    [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md),
+    an object of class `projection_data` returned by the
+    [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)
+    function, with the paths to raster layers representing environmental
+    conditions of multiple scenarios for model projections.
+
+Important note: Most likely, MOP needs to consider only the variables
+used in the selected models. For that reason, using a `fitted_models`
+object and setting `subset_variables = TRUE` is preferred.
 
 By default,
 [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)
-performs a *basic* MOP, which highlights regions with non-analogous
-conditions relative to the calibration data. Alternatively, you can
-set: - `type = "simple"` to compute the number of variables with
-non-analogous conditions per location. - `type = "detailed"` to identify
-exactly which variables exhibit non-analogous conditions.
+does not compute distances and performs a *basic* type of MOP, which
+highlights only regions with conditions outside training ranges.
+Alternatively, you can set:
+
+- `type = "simple"` to compute an additional layer with the number of
+  variables with values outside training conditions per location.
+- `type = "detailed"` to add multiple layers that identify exactly which
+  variables exhibit conditions outside training ranges, and how.
+- `calculate_distance = TRUE` to compute multivariate distances from
+  training to all conditions in the scenarios of projections.
 
 Below, we perform a detailed MOP to identify areas with extrapolation
 risk in the future scenarios for which predictions were made:
@@ -593,39 +609,35 @@ kmop <- projection_mop(data = fitted_model_maxnet, projection_data = pr,
 
   
 
-The function returns a `mop_projections` object, which contains the
+This application returns a `mop_projections` object, which contains the
 paths to the directories where the results were saved. This object can
 be used with the
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 function to load the results.
 
   
 
-### MOP types
+### MOP result options
 
 The results of the MOP analysis provide multiple perspectives on
-extrapolation risks. Each component of the `mop_projections` object
-captures a different aspect of the dissimilarity between environmental
-conditions in the calibration and projection areas.
+extrapolation risks. Each component a different aspect of the
+dissimilarity between training and projection environmental conditions.
 
-When importing results, you can specify the scenarios (e.g., “2081-2100”
-and “ssp585”) as well as the type of MOP results to load. By default,
-all available MOP types are imported, including:
+When importing results, you can specify the periods and scenarios (e.g.,
+“2081-2100” and “ssp585”), as well as the type of MOP results to load.
+By default, all available MOP types are imported, these include:
+`distances` (if calculated), `basic`, `simple`, `towards_high_end`,
+`towards_low_end`, `towards_high_combined`, and `towards_low_combined`.
 
-- **basic**
-- **simple**
-- **towards_high_combined**
-- **towards_low_combined**
-- **towards_high_end**
-- **towards_low_end**
-
-Below, we examine all MOP results for the SSP5-8.5 scenario during the
+Below, we explore all MOP results for the SSP5-8.5 scenario and the
 2081–2100 period:
 
 ``` r
-mop_ssp585_2100 <- import_projections(projection = kmop,
-                                      future_period = "2081-2100", 
-                                      future_pscen = "ssp585")
+# Import results from MOP runs
+mop_ssp585_2100 <- import_results(projection = kmop,
+                                  future_period = "2081-2100", 
+                                  future_pscen = "ssp585")
+
 # See types of results
 names(mop_ssp585_2100)
 #> [1] "distances"             "simple"                "basic"                
@@ -637,11 +649,10 @@ names(mop_ssp585_2100)
 
 #### Distances
 
-The *distances* result represents the Euclidean or Mahalanobis distance
-between the projected environmental conditions (G) and those in the
-calibration dataset (M). Higher distance values indicate greater
-dissimilarity from the calibration conditions, highlighting areas with
-increased extrapolation risk.
+The element `distances` represents Euclidean or Mahalanobis distances
+depending on what is defined in the argument `distance`. Large distance
+values indicate greater dissimilarity from training conditions,
+highlighting areas with high extrapolation risk.
 
 ``` r
 terra::plot(mop_ssp585_2100$distances)
@@ -653,10 +664,9 @@ terra::plot(mop_ssp585_2100$distances)
 
 #### Basic
 
-The *basic* result identifies areas where at least one environmental
-variable differs from the reference (calibration) conditions. A value of
-‘1’ indicates the presence of non-analogous conditions in that specific
-area and scenario.
+The element `basic` identifies areas where at least one environmental
+variable is outside training conditions. A value of ‘1’ indicates the
+presence of non-analogous conditions in that specific area and scenario.
 
 ``` r
 terra::plot(mop_ssp585_2100$basic)
@@ -668,9 +678,8 @@ terra::plot(mop_ssp585_2100$basic)
 
 #### Simple
 
-The *simple* result quantifies the number of environmental variables in
-the projected area that are non-analogous to those in the calibration
-data.
+The results in `simple` quantify the number of environmental variables
+in the projected area that outside training conditions.
 
 ``` r
 terra::plot(mop_ssp585_2100$simple)
@@ -680,36 +689,13 @@ terra::plot(mop_ssp585_2100$simple)
 
   
 
-#### Combined Towards High/Low
+#### Towards high and low ends
 
-The *towards_high_combined* and *towards_low_combined* results identify
-which variables exhibit non-analogous conditions. Specifically,
-*towards_high_combined* highlights variables with values exceeding those
-observed in the calibration data, while *towards_low_combined*
-highlights variables with values below the calibration range.
-
-``` r
-# Non-analogous conditions towards high values
-terra::plot(mop_ssp585_2100$towards_high_combined)
-```
-
-![](variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png)
-
-``` r
-
-# Non-analogous conditions towards low values
-terra::plot(mop_ssp585_2100$towards_low_combined)
-```
-
-![](variability_and_uncertainty_files/figure-html/plot%20towars%20combined-2.png)
-
-  
-
-#### Towards High/Low End
-
-The *towards_high_end* and *towards_low_end* results are similar to
-their “combined” counterparts but provide individual `SpatRaster` layers
-for each variable.
+The results in `towards_high_end` and `towards_low_end` identify which
+areas show non-analogous conditions for each of the variables
+independently. An important detailed considered here is that the results
+show conditions above the maximum (towards high) and below the minimum
+(towards low) values in training data.
 
 ``` r
 # Non-analogous conditions towards high values in the ACCESS-CM2 scenario
@@ -729,14 +715,37 @@ terra::plot(mop_ssp585_2100$towards_low_end$`Future_2081-2100_ssp585_ACCESS-CM2`
 
   
 
-### Handling In-Range Values: NA or Zero
+#### Combined results
 
-By default, the
-[`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)
-function assigns `NA` to cells whose values fall within the range of the
-calibration data, indicating they are considered analogous.
-Alternatively, you can assign a value of 0 to these cells by setting
-`na_in_range = FALSE` when running
+The `towards_high_combined` and `towards_low_combined` combine the
+previous results but keep the identity of the variables detected outside
+ranges. Specifically, `towards_high_combined` identifies variables with
+values exceeding those observed in training data, whereas
+`towards_low_combined` shows variables with values below the training
+range.
+
+``` r
+# Variables with conditions above training range
+terra::plot(mop_ssp585_2100$towards_high_combined)
+```
+
+![](variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png)
+
+``` r
+
+# Variables with conditions below training range
+terra::plot(mop_ssp585_2100$towards_low_combined)
+```
+
+![](variability_and_uncertainty_files/figure-html/plot%20towars%20combined-2.png)
+
+  
+
+### Handling values within range
+
+By default, the functions that run the MOP assign `NA` to cells with
+values within the training range. Alternatively, you can assign a value
+of 0 to these cells by setting `na_in_range = FALSE` when running
 [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md).
 
 ``` r
@@ -761,15 +770,15 @@ outputs:
 
 ``` r
 # Import MOP for the scenario ssp585 in 2081-2100
-mop_ssp585_2100_zero <- import_projections(projection = kmop_zero,
-                                           future_period = "2081-2100", 
-                                           future_pscen = "ssp585")
+mop_ssp585_2100_zero <- import_results(projection = kmop_zero,
+                                       future_period = "2081-2100", 
+                                       future_pscen = "ssp585")
 
 # Compare with the MOP that assigns NA to cells within the calibration range
 # Simple MOP
 terra::plot(c(mop_ssp585_2100$simple$`Future_2081-2100_ssp585_ACCESS-CM2`, 
-       mop_ssp585_2100_zero$simple$`Future_2081-2100_ssp585_ACCESS-CM2`),
-     main = c("Within range as NA", "Within range as 0"))
+              mop_ssp585_2100_zero$simple$`Future_2081-2100_ssp585_ACCESS-CM2`),
+            main = c("Within range as NA", "Within range as 0"))
 ```
 
 ![](variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-1.png)
@@ -778,32 +787,30 @@ terra::plot(c(mop_ssp585_2100$simple$`Future_2081-2100_ssp585_ACCESS-CM2`,
 
 # Detailed MOP
 terra::plot(c(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`, 
-       mop_ssp585_2100_zero$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`),
-     main = c("Within range as NA", "Within range as 0"),
-     plg=list(cex=0.6))
+              mop_ssp585_2100_zero$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`),
+            main = c("Within range as NA", "Within range as 0"),
+            plg=list(cex=0.6))
 ```
 
 ![](variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-2.png)
 
   
 
-### Comparing MOP Results with Response Curves
+### MOP results and response curves
 
-While the
-[`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)
-function identifies areas with non-analogous environmental conditions,
-**the actual risk of extrapolation depends strongly on additional
-factors**, especially the response curves of the environmental
-variables.
+While MOP helps us identify areas with non-analogous environmental
+conditions, whether risks of extrapolation exist depend on how model is
+behaving under non-analogous conditions. Model response curves are of
+great help to check model behavior under distinct conditions.
 
-For example, consider a future scenario predicted by a GCM (e.g.,
-ACCESS-CM2 under SSP5-8.5 for 2081–2100), where values of bio_1 (Annual
-Mean Temperature), bio_12 (Annual Precipitation) and bio_15
-(Precipitation Seasonality) exceed the upper limits observed in the
-calibration data.
+For example, consider a future scenario represented by the ACCESS-CM2
+GCM and the SSP5-8.5 for 2081–2100. Here, values of bio_1 (Annual Mean
+Temperature), bio_12 (Annual Precipitation), and bio_15 (Precipitation
+Seasonality) exceed the upper limits observed in training data (see
+below).
 
 ``` r
-# Non-analogous conditions towards high values in the MIROC6 scenario
+# Non-analogous conditions towards high values in the ACCESS-CM2 scenario
 terra::plot(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
 ```
 
@@ -811,12 +818,13 @@ terra::plot(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCES
 
   
 
-Now, let’s examine the response curves for these variables. To better
-visualize how the model responds to the range of values projected in
-this future scenario, we can set the plotting limits using the
-scenario’s variable values as `new_data`:
+Now, let’s check model response curves for these variables. To better
+visualize how the model responds to environmental conditions in this
+future scenario, we can set the plotting limits using this scenario’s
+layers as `new_data`:
 
 ``` r
+# Plotting response curves to check extrapolation towards the high end of variables
 par(mfrow = c(1,3))  # Set plot grid
 response_curve(models = fitted_model_maxnet, variable = "bio_1", 
                new_data = future_ACCESS_CM2)
@@ -828,28 +836,20 @@ response_curve(models = fitted_model_maxnet, variable = "bio_15",
 
 ![](variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png)
 
-``` r
-
-# Reinitiate grids
-on.exit()
-```
-
   
 
 In the response curves for bio_1, bio_12, and bio_15, higher values
 correspond to lower suitability, reaching zero near the upper limit of
-the calibration data (indicated by a dashed line). Beyond this upper
-limit, suitability remains close to zero. Given this pattern, it is
-unlikely that suitability would increase suddenly at even higher values,
-which provides greater confidence in the model’s extrapolation for these
-variables.
+training data (indicated by a dashed line). Beyond this upper limit,
+suitability remains close to zero, thus, we are not concerned about
+extrapolation risks towards higher values for these variables.
 
 Next, let’s investigate the variables with values below the lower limit
-of the calibration data:
+of training data:
 
 ``` r
-# Non-analogous conditions towards low values in the MIROC6 scenario
-par(mfrow = c(1,2))  # Set grid
+# Non-analogous conditions towards low values in the ACCESS-CM2 scenario
+par(mfrow = c(1, 2))  # Set grid
 terra::plot(mop_ssp585_2100$towards_low_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
 
 ## It's bio 7. Plot response curve:
@@ -859,22 +859,14 @@ response_curve(models = fitted_model_maxnet, variable = "bio_7",
 
 ![](variability_and_uncertainty_files/figure-html/plot%20towards%20low%20values-1.png)
 
-``` r
-
-# Reinitiate grid
-on.exit()
-```
-
   
 
-In some regions of the projected scenario, `bio_7` (Temperature Annual
-Range) exhibits values **below the lower limit of the calibration
-data**. The response curve indicates that, when extrapolating to these
-lower values, suitability continues to increase. This situation
-represents a **higher risk of extrapolation** and **substantial
-uncertainty**, as we don’t know whether suitability truly continues to
-rise at these low `bio_7` values or if (and where) it might eventually
-decline.
+In some regions of the projection scenario, `bio_7` (Temperature Annual
+Range) exhibits values *below the lower limit of the calibration data*.
+The response curve indicates that suitability continues to increase when
+extrapolating to these lower values. This is a situation of concern due
+to *extrapolation risks* because we are *uncertain* about when
+suitability should start to decrease.
 
 This example highlights why we strongly recommend interpreting MOP
 results alongside the response curves.
@@ -888,13 +880,12 @@ par(original_par)
 
   
 
-### Saving and Importing MOP Results
+### Saving and importing results
 
 When
 [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)
 is run, it automatically saves the `mop_projections` object as an RDS
-file in the specified `out_dir`. You can reload this object in R at any
-time using the
+file in `out_dir`. You can load this object in R at any time using the
 [`readRDS()`](https://rspatial.github.io/terra/reference/serialize.html)
 function:
 

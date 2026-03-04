@@ -12,17 +12,14 @@ projections. See **Details** for more information.
 ## Usage
 
 ``` r
-organize_for_projection(output_dir, models = NULL,
-                               variable_names = NULL,
-                               categorical_variables = NULL,
-                               present_file = NULL,
-                               past_files = NULL, past_period = NULL,
-                               past_gcm = NULL, future_files = NULL,
-                               future_period = NULL, future_pscen = NULL,
-                               future_gcm = NULL, static_variables = NULL,
-                               check_extent = TRUE,
-                               resample_to_present = TRUE, mask = NULL,
-                               overwrite = FALSE)
+organize_for_projection(output_dir, models = NULL, variable_names = NULL,
+                        categorical_variables = NULL, present_file = NULL,
+                        past_files = NULL, past_period = NULL,
+                        past_gcm = NULL, future_files = NULL,
+                        future_period = NULL, future_pscen = NULL,
+                        future_gcm = NULL, static_variables = NULL,
+                        check_extent = TRUE, resample_to_present = TRUE,
+                        mask = NULL, overwrite = FALSE)
 ```
 
 ## Arguments
@@ -189,5 +186,5 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpFlMg0R/Projection_variables
+#> /tmp/Rtmpbhn3Az/Projection_variables
 ```

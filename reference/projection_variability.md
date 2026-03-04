@@ -84,7 +84,7 @@ SpatRasters with the computed variances, categorized by replicate,
 model, and GCMs. If `write_files = TRUE`, it also returns the directory
 path where the computed rasters were saved to disk, and the object can
 then be used to import these files later with the
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 function. If both `return_rasters = FALSE` and `write_files = FALSE`,
 the function returns `NULL`
 
@@ -93,7 +93,7 @@ the function returns `NULL`
 [`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md),
 [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md),
 [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md),
-[`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 
 ## Examples
 
@@ -125,7 +125,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpFlMg0R/Future_raw5
+#> /tmp/Rtmpbhn3Az/Future_raw5
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

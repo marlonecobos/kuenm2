@@ -8,30 +8,14 @@ conditions (G).
 ## Usage
 
 ``` r
-single_mop(
-  data,
-  new_variables,
-  subset_variables = FALSE,
-  mask = NULL,
-  type = "basic",
-  na_in_range = TRUE,
-  calculate_distance = FALSE,
-  where_distance = "in_range",
-  distance = "euclidean",
-  scale = FALSE,
-  center = FALSE,
-  fix_NA = TRUE,
-  percentage = 1,
-  comp_each = 2000,
-  tol = NULL,
-  rescale_distance = FALSE,
-  parallel = FALSE,
-  ncores = NULL,
-  progress_bar = TRUE,
-  write_files = FALSE,
-  out_dir = NULL,
-  overwrite = FALSE
-)
+single_mop(data, new_variables, subset_variables = FALSE,
+           mask = NULL, type = "basic", na_in_range = TRUE,
+           calculate_distance = FALSE, where_distance = "in_range",
+           distance = "euclidean", scale = FALSE, center = FALSE,
+           fix_NA = TRUE, percentage = 1, comp_each = 2000, tol = NULL,
+           rescale_distance = FALSE, parallel = FALSE, ncores = NULL,
+           progress_bar = TRUE, write_files = FALSE, out_dir = NULL,
+           overwrite = FALSE)
 ```
 
 ## Arguments

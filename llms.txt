@@ -10,6 +10,7 @@ Townsend Peterson, and Marlon E. Cobos
   - [Model development](#model-development)
   - [Post-modeling analysis](#post-modeling-analysis)
 - [Checking the vignettes](#checking-the-vignettes)
+- [Note on AI usage](#note-on-ai-usage)
 
 ------------------------------------------------------------------------
 
@@ -280,6 +281,16 @@ vignette("variability_and_uncertainty")
 vignette("projections_chelsa")
 ```
 
+  
+
+## Note on AI usage
+
+To maintain high standards of code quality and documentation, we have
+used AI LLM tools in our package. We used these tools for grammatical
+polishing and exploring technical implementation strategies for
+specialized functions. We manually checked and tested all code and
+documentation refined with these tools.
+
 # Package index
 
 ## All functions
@@ -415,7 +426,7 @@ vignette("projections_chelsa")
 - [`glmnet_mx()`](https://marlonecobos.github.io/kuenm2/reference/glmnet_mx.md)
   : Maxent-like glmnet models
 
-- [`import_projections()`](https://marlonecobos.github.io/kuenm2/reference/import_projections.md)
+- [`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
   : Import rasters resulting from projection functions
 
 - [`independent_evaluation()`](https://marlonecobos.github.io/kuenm2/reference/independent_evaluation.md)
@@ -481,8 +492,8 @@ vignette("projections_chelsa")
   : Predict selected models for a single scenario
 
 - [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
-  : Compute changes of suitable areas between scenarios (single scenario
-  / GCM)
+  : Compute changes of suitable areas in other scenarios (single
+  scenario / GCM)
 
 - [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
   : Prepare data for model calibration

@@ -1,28 +1,19 @@
-# Compute changes of suitable areas between scenarios (single scenario / GCM)
+# Compute changes of suitable areas in other scenarios (single scenario / GCM)
 
-Compute changes of suitable areas between scenarios (single scenario /
+Compute changes of suitable areas in other scenarios (single scenario /
 GCM)
 
 ## Usage
 
 ``` r
-prediction_changes(
-  current_predictions,
-  new_predictions,
-  predicted_to = "future",
-  fitted_models = NULL,
-  consensus = "mean",
-  user_threshold = NULL,
-  force_resample = FALSE,
-  gain_color = "#009E73",
-  loss_color = "#D55E00",
-  stable_suitable = "#0072B2",
-  stable_unsuitable = "grey",
-  write_results = FALSE,
-  output_dir = NULL,
-  overwrite = FALSE,
-  write_bin_models = FALSE
-)
+prediction_changes(current_predictions, new_predictions,
+                   predicted_to = "future", fitted_models = NULL,
+                   consensus = "mean", user_threshold = NULL,
+                   force_resample = FALSE, gain_color = "#009E73",
+                   loss_color = "#D55E00", stable_suitable = "#0072B2",
+                   stable_unsuitable = "grey", write_results = FALSE,
+                   output_dir = NULL, overwrite = FALSE,
+                   write_bin_models = FALSE)
 ```
 
 ## Arguments
