@@ -10,6 +10,7 @@ Townsend Peterson, and Marlon E. Cobos
   - [Model development](#model-development)
   - [Post-modeling analysis](#post-modeling-analysis)
 - [Checking the vignettes](#checking-the-vignettes)
+- [Note on AI usage](#note-on-ai-usage)
 
 <!-- badges: start -->
 
@@ -265,3 +266,12 @@ vignette("variability_and_uncertainty")
 # Guide to make projections to multiple scenarios with layers from CHELSA Climate
 vignette("projections_chelsa")
 ```
+
+<br>
+
+## Note on AI usage
+
+To maintain high standards of code quality and documentation, we used AI
+LLM tools for algorithmic refinement, grammatical polishing, and
+exploring technical implementation strategies for specialized functions.
+All final code and documentation are manually vetted by the maintainers.
