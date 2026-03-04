@@ -271,7 +271,8 @@ vignette("projections_chelsa")
 
 ## Note on AI usage
 
-To maintain high standards of code quality and documentation, we used AI
-LLM tools for algorithmic refinement, grammatical polishing, and
-exploring technical implementation strategies for specialized functions.
-All final code and documentation are manually vetted by the maintainers.
+To maintain high standards of code quality and documentation, we have
+used AI LLM tools in our package. We used these tools for grammatical
+polishing and exploring technical implementation strategies for
+specialized functions. We manually checked and tested all code and
+documentation refined with these tools.
