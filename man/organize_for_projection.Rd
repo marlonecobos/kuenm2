@@ -4,17 +4,14 @@
 \alias{organize_for_projection}
 \title{Organize and structure variables for past and future projections}
 \usage{
-organize_for_projection(output_dir, models = NULL,
-                               variable_names = NULL,
-                               categorical_variables = NULL,
-                               present_file = NULL,
-                               past_files = NULL, past_period = NULL,
-                               past_gcm = NULL, future_files = NULL,
-                               future_period = NULL, future_pscen = NULL,
-                               future_gcm = NULL, static_variables = NULL,
-                               check_extent = TRUE,
-                               resample_to_present = TRUE, mask = NULL,
-                               overwrite = FALSE)
+organize_for_projection(output_dir, models = NULL, variable_names = NULL,
+                        categorical_variables = NULL, present_file = NULL,
+                        past_files = NULL, past_period = NULL,
+                        past_gcm = NULL, future_files = NULL,
+                        future_period = NULL, future_pscen = NULL,
+                        future_gcm = NULL, static_variables = NULL,
+                        check_extent = TRUE, resample_to_present = TRUE,
+                        mask = NULL, overwrite = FALSE)
 }
 \arguments{
 \item{output_dir}{(character) path to the folder where the organized data

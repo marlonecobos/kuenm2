@@ -4,30 +4,14 @@
 \alias{single_mop}
 \title{Analysis of extrapolation risks using the MOP metric (for single scenario)}
 \usage{
-single_mop(
-  data,
-  new_variables,
-  subset_variables = FALSE,
-  mask = NULL,
-  type = "basic",
-  na_in_range = TRUE,
-  calculate_distance = FALSE,
-  where_distance = "in_range",
-  distance = "euclidean",
-  scale = FALSE,
-  center = FALSE,
-  fix_NA = TRUE,
-  percentage = 1,
-  comp_each = 2000,
-  tol = NULL,
-  rescale_distance = FALSE,
-  parallel = FALSE,
-  ncores = NULL,
-  progress_bar = TRUE,
-  write_files = FALSE,
-  out_dir = NULL,
-  overwrite = FALSE
-)
+single_mop(data, new_variables, subset_variables = FALSE,
+           mask = NULL, type = "basic", na_in_range = TRUE,
+           calculate_distance = FALSE, where_distance = "in_range",
+           distance = "euclidean", scale = FALSE, center = FALSE,
+           fix_NA = TRUE, percentage = 1, comp_each = 2000, tol = NULL,
+           rescale_distance = FALSE, parallel = FALSE, ncores = NULL,
+           progress_bar = TRUE, write_files = FALSE, out_dir = NULL,
+           overwrite = FALSE)
 }
 \arguments{
 \item{data}{an object of class \code{fitted_models} returned by the
@@ -213,7 +197,6 @@ names(future_scenario) <- sub("bio", "bio_", names(future_scenario))
 # Run MOP
 sm <- single_mop(data = fitted_model_maxnet, new_variables = future_scenario,
                  type = "detailed")
-
 }
 \seealso{
 \code{\link[=projection_mop]{projection_mop()}}

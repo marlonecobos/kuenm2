@@ -5,6 +5,16 @@
 #' represent dissimilarities and non-analogous conditions when comparing a set
 #' of reference conditions (M) against another set of scenario conditions (G).
 #'
+#' @usage
+#' single_mop(data, new_variables, subset_variables = FALSE,
+#'            mask = NULL, type = "basic", na_in_range = TRUE,
+#'            calculate_distance = FALSE, where_distance = "in_range",
+#'            distance = "euclidean", scale = FALSE, center = FALSE,
+#'            fix_NA = TRUE, percentage = 1, comp_each = 2000, tol = NULL,
+#'            rescale_distance = FALSE, parallel = FALSE, ncores = NULL,
+#'            progress_bar = TRUE, write_files = FALSE, out_dir = NULL,
+#'            overwrite = FALSE)
+#'
 #' @param data an object of class `fitted_models` returned by the
 #' [fit_selected()] function, an object of class `prepared_data` returned by
 #' the [prepare_data()] function, or an object of class `calibration_results`
@@ -160,7 +170,7 @@
 #' # Run MOP
 #' sm <- single_mop(data = fitted_model_maxnet, new_variables = future_scenario,
 #'                  type = "detailed")
-#'
+
 single_mop <- function(data,
                        new_variables,
                        subset_variables = FALSE,
@@ -182,7 +192,7 @@ single_mop <- function(data,
                        progress_bar = TRUE,
                        write_files = FALSE,
                        out_dir = NULL,
-                       overwrite = FALSE){
+                       overwrite = FALSE) {
 
   #Check data
   if (missing(data)) {

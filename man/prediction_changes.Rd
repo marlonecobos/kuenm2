@@ -2,25 +2,16 @@
 % Please edit documentation in R/prediction_changes.R
 \name{prediction_changes}
 \alias{prediction_changes}
-\title{Compute changes of suitable areas between scenarios (single scenario / GCM)}
+\title{Compute changes of suitable areas in other scenarios (single scenario / GCM)}
 \usage{
-prediction_changes(
-  current_predictions,
-  new_predictions,
-  predicted_to = "future",
-  fitted_models = NULL,
-  consensus = "mean",
-  user_threshold = NULL,
-  force_resample = FALSE,
-  gain_color = "#009E73",
-  loss_color = "#D55E00",
-  stable_suitable = "#0072B2",
-  stable_unsuitable = "grey",
-  write_results = FALSE,
-  output_dir = NULL,
-  overwrite = FALSE,
-  write_bin_models = FALSE
-)
+prediction_changes(current_predictions, new_predictions,
+                   predicted_to = "future", fitted_models = NULL,
+                   consensus = "mean", user_threshold = NULL,
+                   force_resample = FALSE, gain_color = "#009E73",
+                   loss_color = "#D55E00", stable_suitable = "#0072B2",
+                   stable_unsuitable = "grey", write_results = FALSE,
+                   output_dir = NULL, overwrite = FALSE,
+                   write_bin_models = FALSE)
 }
 \arguments{
 \item{current_predictions}{(SpatRaster) A \code{SpatRaster} object returned by
@@ -78,7 +69,7 @@ is FALSE.}
 A \code{SpatRaster} showing the areas of \strong{gain}, \strong{loss} and \strong{stability}.
 }
 \description{
-Compute changes of suitable areas between scenarios (single scenario / GCM)
+Compute changes of suitable areas in other scenarios (single scenario / GCM)
 }
 \details{
 When projecting a niche model to different temporal scenarios (past or

@@ -9,17 +9,15 @@
 #' making the variables properly organized for modeling projections.
 #' See **Details** for more information.
 #'
-#' @usage organize_for_projection(output_dir, models = NULL,
-#'                                variable_names = NULL,
-#'                                categorical_variables = NULL,
-#'                                present_file = NULL,
-#'                                past_files = NULL, past_period = NULL,
-#'                                past_gcm = NULL, future_files = NULL,
-#'                                future_period = NULL, future_pscen = NULL,
-#'                                future_gcm = NULL, static_variables = NULL,
-#'                                check_extent = TRUE,
-#'                                resample_to_present = TRUE, mask = NULL,
-#'                                overwrite = FALSE)
+#' @usage
+#' organize_for_projection(output_dir, models = NULL, variable_names = NULL,
+#'                         categorical_variables = NULL, present_file = NULL,
+#'                         past_files = NULL, past_period = NULL,
+#'                         past_gcm = NULL, future_files = NULL,
+#'                         future_period = NULL, future_pscen = NULL,
+#'                         future_gcm = NULL, static_variables = NULL,
+#'                         check_extent = TRUE, resample_to_present = TRUE,
+#'                         mask = NULL, overwrite = FALSE)
 #'
 #' @param output_dir (character) path to the folder where the organized data
 #' will be saved.
