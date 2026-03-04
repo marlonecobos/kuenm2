@@ -56,7 +56,7 @@ the function returns a list containing the SpatRasters with the computed
 variances, categorized by replicate, model, and GCMs. If \code{write_files = TRUE},
 it also returns the directory path where the computed rasters were saved to
 disk, and the object can then be used to import these files later with the
-\code{import_projections()} function. If both \code{return_rasters = FALSE} and
+\code{import_results()} function. If both \code{return_rasters = FALSE} and
 \code{write_files = FALSE}, the function returns \code{NULL}
 }
 \description{
@@ -124,5 +124,5 @@ terra::plot(v$`Future_2041-2060_ssp126`$from_gcms)  # From GCMs
 }
 \seealso{
 \code{\link[=organize_future_worldclim]{organize_future_worldclim()}}, \code{\link[=prepare_projection]{prepare_projection()}}, \code{\link[=project_selected]{project_selected()}},
-\code{\link[=import_projections]{import_projections()}}
+\code{\link[=import_results]{import_results()}}
 }

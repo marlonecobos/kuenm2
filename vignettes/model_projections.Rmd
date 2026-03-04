@@ -427,11 +427,11 @@ The function `project_selected()` accepts several other parameters that control 
 
 # Importing results from projections
 
-The `model_projections` object stores only the paths to the resulting raster layers. To import the results, we can use the `import_projections()` function. By default, it imports all consensus metrics ("median", "range", "mean", and "stdev") and all scenarios (time periods, SSPs, and GCMs) available in the `model_projections` object. Let's import the mean for all scenarios:
+The `model_projections` object stores only the paths to the resulting raster layers. To import the results, we can use the `import_results()` function. By default, it imports all consensus metrics ("median", "range", "mean", and "stdev") and all scenarios (time periods, SSPs, and GCMs) available in the `model_projections` object. Let's import the mean for all scenarios:
 
 ```{r import mean}
 # Import mean of each projected scenario
-p_mean <- import_projections(projection = p, consensus = "mean")
+p_mean <- import_results(projection = p, consensus = "mean")
 
 # Plot all scenarios
 terra::plot(p_mean, cex.main = 0.8)
@@ -443,10 +443,10 @@ Alternatively, we can import results from specific scenarios. For example, let's
 
 ```{r specific scen, fig.width = 7, fig.height = 4}
 # Importing
-p_2060_ssp126 <- import_projections(projection = p, consensus = "mean", 
-                                    present = FALSE,  # Do not import present projections
-                                    future_period = "2041-2060",
-                                    future_pscen = "ssp126")
+p_2060_ssp126 <- import_results(projection = p, consensus = "mean", 
+                                present = FALSE,  # Do not import present projections
+                                future_period = "2041-2060",
+                                future_pscen = "ssp126")
 
 # Plot all scenarios
 terra::plot(p_2060_ssp126, cex.main = 0.8)

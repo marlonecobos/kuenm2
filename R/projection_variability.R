@@ -47,7 +47,7 @@
 #' variances, categorized by replicate, model, and GCMs. If `write_files = TRUE`,
 #' it also returns the directory path where the computed rasters were saved to
 #' disk, and the object can then be used to import these files later with the
-#' `import_projections()` function. If both `return_rasters = FALSE` and
+#' `import_results()` function. If both `return_rasters = FALSE` and
 #' `write_files = FALSE`, the function returns `NULL`
 #'
 #' @export
@@ -57,7 +57,7 @@
 #'
 #' @seealso
 #' [organize_future_worldclim()], [prepare_projection()], [project_selected()],
-#' [import_projections()]
+#' [import_results()]
 #'
 #' @examples
 #' # Step 1: Organize variables for current projection

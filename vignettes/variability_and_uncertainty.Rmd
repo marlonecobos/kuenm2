@@ -228,18 +228,18 @@ terra::plot(changes_col$Summary_changes, plg = list(cex = 0.75))  # Decrease siz
 
 ## Importing Results
 
-When `return_raster = TRUE` is set, the resulting `SpatRaster` objects are returned within the `changes_projections` object. By default, however, `return_raster = FALSE` and the object only contains the directory path where the results were saved. In that case, the results can be imported using the `import_projections()` function. You can specify the type of results to import, along with the target period and emission scenario.
+When `return_raster = TRUE` is set, the resulting `SpatRaster` objects are returned within the `changes_projections` object. By default, however, `return_raster = FALSE` and the object only contains the directory path where the results were saved. In that case, the results can be imported using the `import_results()` function. You can specify the type of results to import, along with the target period and emission scenario.
 
-A `changes_projections` object imported using `import_projections()` can also be used as input to `colors_for_changes()` to customize the colors used for plotting.
+A `changes_projections` object imported using `import_results()` can also be used as input to `colors_for_changes()` to customize the colors used for plotting.
 
 For example, below we import only the general summary for the 2041–2060 period under the SSP5-8.5 scenario:
 
 ```{r import general summary}
 # Import changes detected for 2041–2060 SSP5-8.5 
-general_changes <- import_projections(projection = changes, 
-                                      future_period = "2041-2060", 
-                                      future_pscen = "ssp585",
-                                      change_types = "summary")
+general_changes <- import_results(projection = changes, 
+                                  future_period = "2041-2060", 
+                                  future_pscen = "ssp585",
+                                  change_types = "summary")
 
 # Set colors
 general_changes <- colors_for_changes(general_changes)
@@ -272,7 +272,7 @@ changes <- readRDS(file.path(out_dir, "Projection_changes/changes_projections.rd
 
 <br>
 
-After loading, this object can be used to import specific results with the `import_projections()` function.
+After loading, this object can be used to import specific results with the `import_results()` function.
 
 <br>
 
@@ -317,7 +317,7 @@ terra::plot(v$`Future_2081-2100_ssp585`, range = c(0, 0.1))
 
 ## Importing Results
 
-Because `write_files = TRUE` was set, the `variability_projections` object includes the file path where the results were saved. You can use this path with the `import_projections()` function to load the results when needed.
+Because `write_files = TRUE` was set, the `variability_projections` object includes the file path where the results were saved. You can use this path with the `import_results()` function to load the results when needed.
 
 ```{r root_directory, eval = FALSE}
 # See the folder where the results were saved
@@ -331,10 +331,10 @@ As an example, we will import the results for the 2041–2060 period and the SSP
 
 ```{r import variability_projections}
 # Importing results
-v_2041_2060_ssp126 <- import_projections(projection = v, 
-                                         present = FALSE,  # Do not import results from the present time
-                                         future_period = "2041-2060", 
-                                         future_pscen = "ssp126")
+v_2041_2060_ssp126 <- import_results(projection = v, 
+                                     present = FALSE,  # Do not import results from the present time
+                                     future_period = "2041-2060", 
+                                     future_pscen = "ssp126")
 
 # Plot
 terra::plot(v_2041_2060_ssp126, range = c(0, 0.1))
@@ -363,7 +363,7 @@ v <- readRDS(file.path(out_dir, "variance/variability_projections.rds"))
 
 <br>
 
-This object can then be used to import the results with the `import_projections()` function.
+This object can then be used to import the results with the `import_results()` function.
 
 <br>
 
@@ -433,7 +433,7 @@ kmop <- projection_mop(data = fitted_model_maxnet, projection_data = pr,
 
 <br>
 
-This application returns a `mop_projections` object, which contains the paths to the directories where the results were saved. This object can be used with the `import_projections()` function to load the results.
+This application returns a `mop_projections` object, which contains the paths to the directories where the results were saved. This object can be used with the `import_results()` function to load the results.
 
 <br>
 
@@ -447,9 +447,9 @@ Below, we explore all MOP results for the SSP5-8.5 scenario and the 2081–2100 
 
 ```{r import mop, warning=FALSE}
 # Import results from MOP runs
-mop_ssp585_2100 <- import_projections(projection = kmop,
-                                      future_period = "2081-2100", 
-                                      future_pscen = "ssp585")
+mop_ssp585_2100 <- import_results(projection = kmop,
+                                  future_period = "2081-2100", 
+                                  future_pscen = "ssp585")
 
 # See types of results
 names(mop_ssp585_2100)
@@ -541,9 +541,9 @@ Let's explore how this setting affects the *simple* and *detailed* MOP outputs:
 
 ```{r check difference zero mop, fig.width = 7, fig.height = 4}
 # Import MOP for the scenario ssp585 in 2081-2100
-mop_ssp585_2100_zero <- import_projections(projection = kmop_zero,
-                                           future_period = "2081-2100", 
-                                           future_pscen = "ssp585")
+mop_ssp585_2100_zero <- import_results(projection = kmop_zero,
+                                       future_period = "2081-2100", 
+                                       future_pscen = "ssp585")
 
 # Compare with the MOP that assigns NA to cells within the calibration range
 # Simple MOP

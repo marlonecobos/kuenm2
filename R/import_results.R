@@ -1,11 +1,23 @@
 #' Import rasters resulting from projection functions
 #'
 #' @description
-#' This function facilitates the import of rasters that have been generated and
+#' This function facilitates the import of results that have been generated and
 #' written to disk by the `project_selected()`, `projection_changes()`,
 #' `variability_projections()`, and `projection_mop()` functions. Users can
 #' select specific periods (past/future), emission scenarios, General Circulation
 #' Models (GCMs), and result types for import.
+#'
+#' @usage
+#' import_results(projection,
+#'                consensus = c("median", "range", "mean", "stdev"),
+#'                present = TRUE, past_period = NULL, past_gcm = NULL,
+#'                future_period = NULL, future_pscen = NULL, future_gcm = NULL,
+#'                change_types = c("summary", "by_gcm", "by_change"),
+#'                mop_types = c("distances", "simple", "basic",
+#'                              "towards_high_combined",
+#'                              "towards_low_combined",
+#'                              "towards_high_end",
+#'                              "towards_low_end"))
 #'
 #' @param projection an object of class `model_projections`,
 #' `changes_projections`, `variability_projections`, or `mop_projections`. This
@@ -115,23 +127,24 @@
 #' p <- project_selected(models = fitted_model_maxnet, projection_data = pr,
 #'                       out_dir = out_dir)
 #'
-#' # Use import_projections to import results:
-#' raster_p <- import_projections(projection = p, consensus = "mean")
+#' # Use import_results to import results:
+#' raster_p <- import_results(projection = p, consensus = "mean")
 #' plot(raster_p)
-import_projections <- function(projection,
-                               consensus = c("median", "range", "mean", "stdev"),
-                               present = TRUE,
-                               past_period = NULL,
-                               past_gcm = NULL,
-                               future_period = NULL,
-                               future_pscen = NULL,
-                               future_gcm = NULL,
-                               change_types = c("summary", "by_gcm", "by_change"),
-                               mop_types = c("distances", "simple", "basic",
-                                             "towards_high_combined",
-                                             "towards_low_combined",
-                                             "towards_high_end",
-                                             "towards_low_end")){
+
+import_results <- function(projection,
+                           consensus = c("median", "range", "mean", "stdev"),
+                           present = TRUE,
+                           past_period = NULL,
+                           past_gcm = NULL,
+                           future_period = NULL,
+                           future_pscen = NULL,
+                           future_gcm = NULL,
+                           change_types = c("summary", "by_gcm", "by_change"),
+                           mop_types = c("distances", "simple", "basic",
+                                         "towards_high_combined",
+                                         "towards_low_combined",
+                                         "towards_high_end",
+                                         "towards_low_end")) {
 
   #Check general data
   if(!class(projection) %in% c("model_projections", "mop_projections",
