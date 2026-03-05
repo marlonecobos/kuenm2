@@ -52,7 +52,7 @@ Organizing information this way can be a little tedious, but here we will show h
 
 # Getting ready
 
-At this point it is assumed that `kuenm2` is installed (if not, see the [Main guide](../index.html)). Load `kuenm2` and any other required packages, and define a working directory (if needed). 
+At this point it is assumed that `kuenm2` is installed (if not, see the [Main guide](index.html)). Load `kuenm2` and any other required packages, and define a working directory (if needed). 
 
 Note: functions from other packages (i.e., not from base R or `kuenm2`) used in this guide will be displayed as `package::function()`. 
 
@@ -451,7 +451,7 @@ fs::dir_tree(out_dir)
 
 After organizing variables, the next step is to create the `prepared_projection` object.
 
-But before this, let's import a `fitted_model` object provided as example data in `kuenm2`. This object was created in a process that used current variables from CHELSA. For more information check the vignettes about [data preparation](prepare_data.html), [model calibration](model_calibration) and [model exploration](model_exploration.html). 
+But before this, let's import a `fitted_model` object provided as example data in `kuenm2`. This object was created in a process that used current variables from CHELSA. For more information check the vignettes about [data preparation](prepare_data.html), [model calibration](model_calibration.html) and [model exploration](model_exploration.html). 
 
 ```{r create fitted models with CHELSA, eval=FALSE, include=FALSE}
 d_chelsa <- prepare_data(algorithm = "maxnet", occ = occ_data, x = "x", y = "y",
