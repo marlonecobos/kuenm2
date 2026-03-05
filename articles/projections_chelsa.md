@@ -62,9 +62,9 @@ might change in the future, and the code will stop working.
 ## Getting ready
 
 At this point it is assumed that `kuenm2` is installed (if not, see the
-[Main guide](https://marlonecobos.github.io/kuenm2/index.md)). Load
-`kuenm2` and any other required packages, and define a working directory
-(if needed).
+[Main guide](https://marlonecobos.github.io/kuenm2/articles/index.md)).
+Load `kuenm2` and any other required packages, and define a working
+directory (if needed).
 
 Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
@@ -478,7 +478,7 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmp4OgP2s/Projection_variables
+#> /tmp/RtmpgRIHOz/Projection_variables
 ```
 
   
@@ -526,7 +526,7 @@ current variables from CHELSA. For more information check the vignettes
 about [data
 preparation](https://marlonecobos.github.io/kuenm2/articles/prepare_data.md),
 [model
-calibration](https://marlonecobos.github.io/kuenm2/articles/model_calibration)
+calibration](https://marlonecobos.github.io/kuenm2/articles/model_calibration.md)
 and [model
 exploration](https://marlonecobos.github.io/kuenm2/articles/model_exploration.md).
 
