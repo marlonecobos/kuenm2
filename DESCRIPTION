@@ -1,7 +1,7 @@
 Package: kuenm2
 Type: Package
 Title: Detailed Development of Ecological Niche Models
-Version: 0.0.12
+Version: 0.1.0
 Authors@R: c(
     person("Weverton C. F.", "Trindade", email = "wevertonf1993@gmail.com", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0003-2045-4555")),
