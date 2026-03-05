@@ -274,7 +274,7 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
   n_cols <- ceiling(sqrt(n_plots)) } else if (is.null(ncols) & n_plots <= 5){
     n_cols <- n_plots
   } else {
-    n_cols = ncols}
+    n_cols <- ncols}
   n_rows <- ceiling(n_plots / n_cols)
 
 

@@ -268,7 +268,7 @@ import_results <- function(projection,
 
     #Get paths
     p_paths <- projection$paths
-    root_directory = projection$root_directory}
+    root_directory <- projection$root_directory}
 
 
   #Subset scenarios from mop and model projections
