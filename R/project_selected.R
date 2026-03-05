@@ -208,7 +208,7 @@ project_selected <- function(models,
            "\nAvailable options for glm models are 'response' or 'cloglog'.")
     }
     if(type == "cloglog")
-      type = "link"
+      type <- "link"
   }
 
   #Save parameters in a list to send to foreach nodes#

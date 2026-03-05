@@ -21,8 +21,8 @@
 #' @param move_points_inside (logical) whether to move records outside of raster
 #' cells with valid values to the closest cell with values. Default = FALSE.
 #' @param move_limit_distance maximum distance to move records outside cells
-#' with valid values. Default = NULL. Must be defined if \code{move_points_inside}
-#' = TRUE.
+#' with valid values. Default = NULL. Must be defined if
+#' \code{move_points_inside} = TRUE.
 #' @param verbose (logical) whether to print messages of progress. Default =
 #' TRUE.
 #'

@@ -36,8 +36,8 @@ considering raster cells. Default = TRUE.}
 cells with valid values to the closest cell with values. Default = FALSE.}
 
 \item{move_limit_distance}{maximum distance to move records outside cells
-with valid values. Default = NULL. Must be defined if \code{move_points_inside}
-= TRUE.}
+with valid values. Default = NULL. Must be defined if
+\code{move_points_inside} = TRUE.}
 
 \item{verbose}{(logical) whether to print messages of progress. Default =
 TRUE.}

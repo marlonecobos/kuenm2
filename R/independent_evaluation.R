@@ -164,7 +164,7 @@ independent_evaluation <- function(fitted_models, new_data,
            "\nAvailable options for glm fitted_models are 'response' or 'cloglog'.")
     }
     if(type == "cloglog")
-      type = "link"
+      type <- "link"
   }
 
   if(length(extrapolation_type) > 1){
