@@ -15,6 +15,11 @@
 - [Projecting to multiple scenarios](#projecting-to-multiple-scenarios)
 - [Importing results from
   projections](#importing-results-from-projections)
+- [Detecting changes in projections](#detecting-changes-in-projections)
+  - [Setting colors for maps](#setting-colors-for-maps)
+  - [Types of results](#types-of-results)
+  - [Importing results](#importing-results)
+  - [Saving results](#saving-results)
 
 ------------------------------------------------------------------------
 
@@ -296,7 +301,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmp7ffGyK/Future_raw
+#> /tmp/Rtmp5FSKSs/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -432,7 +437,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/Rtmp7ffGyK
+#> /tmp/Rtmp5FSKSs
 ```
 
   
@@ -492,7 +497,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/Rtmp7ffGyK/Projection_results/maxnet
+#>  /tmp/Rtmp5FSKSs/Projection_results/maxnet
 ```
 
   
@@ -656,3 +661,205 @@ Projections](https://marlonecobos.github.io/kuenm2/articles/variability_and_unce
 # Reset plotting parameters
 par(original_par) 
 ```
+
+## Detecting changes in projections
+
+When projecting a model to different scenarios (past or future),
+suitable areas can be classified into three categories relative to the
+current baseline: **gain**, **loss** and **stability**. The
+interpretation of these categories depends on the temporal direction of
+the projection.
+
+**When projecting to future scenarios**:
+
+- *Gain*: Areas currently unsuitable become suitable in the future.
+- *Loss*: Areas currently suitable become unsuitable in the future.
+- *Stability*: Areas remain the same in the future, suitable or
+  unsuitable.
+
+**When projecting to past scenarios**:
+
+- *Gain*: Areas unsuitable in the past are suitable in the present.
+- *Loss*: Areas suitable in the past are unsuitable in the present.
+- *Stability*: Areas remain the same in the present, suitable or
+  unsuitable.
+
+These outcomes may vary across different General Circulation Models
+(GCMs) within each time scenario (e.g., various Shared Socioeconomic
+Pathways (SSPs) for the same period).
+
+The
+[`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
+function summarizes the number of GCMs predicting gain, loss, and
+stability for each time scenario.
+
+By default, this function writes the summary results to disk (unless
+`write_results` is set to `FALSE`), but it does not save binary layers
+for individual GCMs. In the example below, we demonstrate how to
+configure the function to return the raster layers with changes and
+write the binary results to disk.
+
+``` r
+# Run analysis to detect changes in suitable areas
+changes <- projection_changes(model_projections = p, 
+                              output_dir = out_dir, 
+                              write_bin_models = TRUE,  # Write individual binary results
+                              return_raster = TRUE)
+```
+
+  
+
+### Setting colors for maps
+
+Before plotting the results, we can use the
+[`colors_for_changes()`](https://marlonecobos.github.io/kuenm2/reference/colors_for_changes.md)
+function to assign custom colors to areas of gain, loss, and stability.
+By default, the function uses ‘teal green’ for gains, ‘orange-red’ for
+losses, ‘Oxford blue’ for areas that remain suitable, and ‘grey’ for
+areas that remain unsuitable. However, you can customize these colors as
+needed.
+
+The intensity of each color is automatically adjusted based on the
+number of GCMs: highest (as defined by `max_alpha`) when all GCMs agree
+on a prediction, and decreases progressively (down to `min_alpha`) as
+fewer GCMs support that outcome.
+
+``` r
+# Set colors for change maps
+changes_col <- colors_for_changes(changes)
+```
+
+The function returns the same `changes_projections` object, but with
+color tables embedded in its `SpatRasters`. These colors are
+automatically applied when visualizing the data using
+[`terra::plot()`](https://rspatial.github.io/terra/reference/plot.html).
+
+  
+
+### Types os results
+
+The
+[`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
+function returns four types of results: binary model prediction, results
+by GCM, results by change, and a general summary considering all GCMs:
+
+- **Binary prediction for each GCM**: These are suitable/unsuitable maps
+  for each individual GCM. By default, the omission error threshold used
+  when selecting the best models is used (e.g., 10%). You can specify a
+  different threshold using the `user_threshold` argument.
+
+``` r
+terra::plot(changes_col$Binarized, cex.main = 0.8)
+```
+
+![](model_projections_files/figure-html/binarized-1.png)
+
+  
+
+- **Results by GCM**: provides the changes identified in comparisons
+  (gain, loss, stability) for each GCM individually.
+
+``` r
+terra::plot(changes_col$Results_by_gcm, cex.main = 0.8)
+```
+
+![](model_projections_files/figure-html/results%20by%20gcm-1.png)
+
+  
+
+- **Results by change**: a list where each `SpatRaster` represents a
+  specific type of change (e.g., gain, loss, stability) across all GCMs
+  for a given scenario.
+
+``` r
+# Results by change for the scenario of 2041-2060 (ssp126)
+terra::plot(changes_col$Results_by_change$`Future_2041-2060_ssp126`)
+```
+
+![](model_projections_files/figure-html/Results_by_change-1.png)
+
+  
+
+- **Summary changes**: provides a general summary indicating how many
+  GCMs project gain, loss, and stability for each scenario.
+
+``` r
+terra::plot(changes_col$Summary_changes, plg = list(cex = 0.75))  # Decrease size of legend text
+```
+
+![](model_projections_files/figure-html/summary%20changes-1.png)
+
+  
+
+### Importing Results
+
+When `return_raster = TRUE` is set, the resulting `SpatRaster` objects
+are returned within the `changes_projections` object. By default,
+however, `return_raster = FALSE` and the object only contains the
+directory path where the results were saved. In that case, the results
+can be imported using the
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
+function. You can specify the type of results to import, along with the
+target period and emission scenario.
+
+A `changes_projections` object imported using
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
+can also be used as input to
+[`colors_for_changes()`](https://marlonecobos.github.io/kuenm2/reference/colors_for_changes.md)
+to customize the colors used for plotting.
+
+For example, below we import only the general summary for the 2041–2060
+period under the SSP5-8.5 scenario:
+
+``` r
+# Import changes detected for 2041–2060 SSP5-8.5 
+general_changes <- import_results(projection = changes, 
+                                  future_period = "2041-2060", 
+                                  future_pscen = "ssp585",
+                                  change_types = "summary")
+
+# Set colors
+general_changes <- colors_for_changes(general_changes)
+
+# Plot
+terra::plot(general_changes$Summary, main = names(general_changes$Summary),
+            plg = list(cex = 0.75))  # Decrease size of legend text
+```
+
+![](model_projections_files/figure-html/import%20general%20summary-1.png)
+
+  
+
+### Saving results
+
+The `changes_projections` object is a list that contains the resulting
+`SpatRaster` objects (if `return_raster = TRUE`) and the directory path
+where results were saved (if `write_results = TRUE`).
+
+If results were not written to disk during the initial run, you can save
+`SpatRaster` objects afterward using the
+[`writeRaster()`](https://rspatial.github.io/terra/reference/writeRaster.html)
+function. For example, to save the general summary raster:
+
+``` r
+writeRaster(changes$Summary_changes,
+            file.path(out_dir, "Summary_changes.tif"))
+```
+
+  
+
+If the results were saved to disk, the `changes_projections` object is
+automatically stored in a folder named *Projection_changes* inside the
+specified `output_dir`. You can load it back into R using
+[`readRDS()`](https://rspatial.github.io/terra/reference/serialize.html):
+
+``` r
+changes <- readRDS(file.path(out_dir, "Projection_changes/changes_projections.rds"))
+```
+
+  
+
+After saving, this object can be used to import specific results with
+the
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
+function.

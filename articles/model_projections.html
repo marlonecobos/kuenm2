@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,6 +107,16 @@ projections</a></li>
 scenarios</a></li>
 <li><a href="#importing-results-from-projections">Importing results from
 projections</a></li>
+<li>
+<a href="#detecting-changes-in-projections">Detecting changes in
+projections</a>
+<ul>
+<li><a href="#setting-colors-for-maps">Setting colors for maps</a></li>
+<li><a href="#types-of-results">Types of results</a></li>
+<li><a href="#importing-results">Importing results</a></li>
+<li><a href="#saving-results">Saving results</a></li>
+</ul>
+</li>
 </ul>
 <hr>
 </div>
@@ -369,7 +379,7 @@ will use it in a later step).</p>
 <span><span class="co">#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/Rtmp7ffGyK/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/Rtmp5FSKSs/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Check files organized</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="va">out_dir_future</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -486,7 +496,7 @@ the predictors are stored:</p>
 <span><span class="co">#&gt;   - Scenarios: ssp126 | ssp585 </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All variables are located in the following root directory:</span></span>
-<span><span class="co">#&gt; /tmp/Rtmp7ffGyK</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/Rtmp5FSKSs</span></span></code></pre></div>
 <p><br></p>
 <p>If we check the structure of the <code>prepared_projection</code>
 object, we can see it’s a list containing:</p>
@@ -538,7 +548,7 @@ were saved.</p>
 <span><span class="co">#&gt;   - Scenarios:  </span></span>
 <span><span class="co">#&gt;   - GCMs: ACCESS-CM2 | MIROC6 </span></span>
 <span><span class="co">#&gt; All raster files containing the projection results are located in the following root directory:</span></span>
-<span><span class="co">#&gt;  /tmp/Rtmp7ffGyK/Projection_results/maxnet</span></span></code></pre></div>
+<span><span class="co">#&gt;  /tmp/Rtmp5FSKSs/Projection_results/maxnet</span></span></code></pre></div>
 <p><br></p>
 <p>Note that results were saved hierarchically in nested subfolders,
 each representing a distinct scenario. In the base directory, the
@@ -675,6 +685,186 @@ Uncertainty in Projections</a>.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Reset plotting parameters</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">original_par</span><span class="op">)</span> </span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="detecting-changes-in-projections">Detecting changes in projections<a class="anchor" aria-label="anchor" href="#detecting-changes-in-projections"></a>
+</h2>
+<p>When projecting a model to different scenarios (past or future),
+suitable areas can be classified into three categories relative to the
+current baseline: <strong>gain</strong>, <strong>loss</strong> and
+<strong>stability</strong>. The interpretation of these categories
+depends on the temporal direction of the projection.</p>
+<p><strong>When projecting to future scenarios</strong>:</p>
+<ul>
+<li>
+<em>Gain</em>: Areas currently unsuitable become suitable in the
+future.</li>
+<li>
+<em>Loss</em>: Areas currently suitable become unsuitable in the
+future.</li>
+<li>
+<em>Stability</em>: Areas remain the same in the future, suitable or
+unsuitable.</li>
+</ul>
+<p><strong>When projecting to past scenarios</strong>:</p>
+<ul>
+<li>
+<em>Gain</em>: Areas unsuitable in the past are suitable in the
+present.</li>
+<li>
+<em>Loss</em>: Areas suitable in the past are unsuitable in the
+present.</li>
+<li>
+<em>Stability</em>: Areas remain the same in the present, suitable
+or unsuitable.</li>
+</ul>
+<p>These outcomes may vary across different General Circulation Models
+(GCMs) within each time scenario (e.g., various Shared Socioeconomic
+Pathways (SSPs) for the same period).</p>
+<p>The <code><a href="../reference/projection_changes.html">projection_changes()</a></code> function summarizes the number
+of GCMs predicting gain, loss, and stability for each time scenario.</p>
+<p>By default, this function writes the summary results to disk (unless
+<code>write_results</code> is set to <code>FALSE</code>), but it does
+not save binary layers for individual GCMs. In the example below, we
+demonstrate how to configure the function to return the raster layers
+with changes and write the binary results to disk.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Run analysis to detect changes in suitable areas</span></span>
+<span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/projection_changes.html">projection_changes</a></span><span class="op">(</span>model_projections <span class="op">=</span> <span class="va">p</span>, </span>
+<span>                              output_dir <span class="op">=</span> <span class="va">out_dir</span>, </span>
+<span>                              write_bin_models <span class="op">=</span> <span class="cn">TRUE</span>,  <span class="co"># Write individual binary results</span></span>
+<span>                              return_raster <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
+<div class="section level3">
+<h3 id="setting-colors-for-maps">Setting colors for maps<a class="anchor" aria-label="anchor" href="#setting-colors-for-maps"></a>
+</h3>
+<p>Before plotting the results, we can use the
+<code><a href="../reference/colors_for_changes.html">colors_for_changes()</a></code> function to assign custom colors to
+areas of gain, loss, and stability. By default, the function uses ‘teal
+green’ for gains, ‘orange-red’ for losses, ‘Oxford blue’ for areas that
+remain suitable, and ‘grey’ for areas that remain unsuitable. However,
+you can customize these colors as needed.</p>
+<p>The intensity of each color is automatically adjusted based on the
+number of GCMs: highest (as defined by <code>max_alpha</code>) when all
+GCMs agree on a prediction, and decreases progressively (down to
+<code>min_alpha</code>) as fewer GCMs support that outcome.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Set colors for change maps</span></span>
+<span><span class="va">changes_col</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/colors_for_changes.html">colors_for_changes</a></span><span class="op">(</span><span class="va">changes</span><span class="op">)</span></span></code></pre></div>
+<p>The function returns the same <code>changes_projections</code>
+object, but with color tables embedded in its <code>SpatRasters</code>.
+These colors are automatically applied when visualizing the data using
+<code><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">terra::plot()</a></code>.</p>
+<p><br></p>
+</div>
+<div class="section level3">
+<h3 id="types-os-results">Types os results<a class="anchor" aria-label="anchor" href="#types-os-results"></a>
+</h3>
+<p>The <code><a href="../reference/projection_changes.html">projection_changes()</a></code> function returns four types of
+results: binary model prediction, results by GCM, results by change, and
+a general summary considering all GCMs:</p>
+<ul>
+<li>
+<strong>Binary prediction for each GCM</strong>: These are
+suitable/unsuitable maps for each individual GCM. By default, the
+omission error threshold used when selecting the best models is used
+(e.g., 10%). You can specify a different threshold using the
+<code>user_threshold</code> argument.</li>
+</ul>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Binarized</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_projections_files/figure-html/binarized-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<ul>
+<li>
+<strong>Results by GCM</strong>: provides the changes identified in
+comparisons (gain, loss, stability) for each GCM individually.</li>
+</ul>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_gcm</span>, cex.main <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_projections_files/figure-html/results%20by%20gcm-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<ul>
+<li>
+<strong>Results by change</strong>: a list where each
+<code>SpatRaster</code> represents a specific type of change (e.g.,
+gain, loss, stability) across all GCMs for a given scenario.</li>
+</ul>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Results by change for the scenario of 2041-2060 (ssp126)</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Results_by_change</span><span class="op">$</span><span class="va">`Future_2041-2060_ssp126`</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_projections_files/figure-html/Results_by_change-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<ul>
+<li>
+<strong>Summary changes</strong>: provides a general summary
+indicating how many GCMs project gain, loss, and stability for each
+scenario.</li>
+</ul>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">changes_col</span><span class="op">$</span><span class="va">Summary_changes</span>, plg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex <span class="op">=</span> <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Decrease size of legend text</span></span></code></pre></div>
+<p><img src="model_projections_files/figure-html/summary%20changes-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+</div>
+<div class="section level3">
+<h3 id="importing-results">Importing Results<a class="anchor" aria-label="anchor" href="#importing-results"></a>
+</h3>
+<p>When <code>return_raster = TRUE</code> is set, the resulting
+<code>SpatRaster</code> objects are returned within the
+<code>changes_projections</code> object. By default, however,
+<code>return_raster = FALSE</code> and the object only contains the
+directory path where the results were saved. In that case, the results
+can be imported using the <code><a href="../reference/import_results.html">import_results()</a></code> function. You
+can specify the type of results to import, along with the target period
+and emission scenario.</p>
+<p>A <code>changes_projections</code> object imported using
+<code><a href="../reference/import_results.html">import_results()</a></code> can also be used as input to
+<code><a href="../reference/colors_for_changes.html">colors_for_changes()</a></code> to customize the colors used for
+plotting.</p>
+<p>For example, below we import only the general summary for the
+2041–2060 period under the SSP5-8.5 scenario:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Import changes detected for 2041–2060 SSP5-8.5 </span></span>
+<span><span class="va">general_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import_results.html">import_results</a></span><span class="op">(</span>projection <span class="op">=</span> <span class="va">changes</span>, </span>
+<span>                                  future_period <span class="op">=</span> <span class="st">"2041-2060"</span>, </span>
+<span>                                  future_pscen <span class="op">=</span> <span class="st">"ssp585"</span>,</span>
+<span>                                  change_types <span class="op">=</span> <span class="st">"summary"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Set colors</span></span>
+<span><span class="va">general_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/colors_for_changes.html">colors_for_changes</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Plot</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span>, main <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">general_changes</span><span class="op">$</span><span class="va">Summary</span><span class="op">)</span>,</span>
+<span>            plg <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cex <span class="op">=</span> <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Decrease size of legend text</span></span></code></pre></div>
+<p><img src="model_projections_files/figure-html/import%20general%20summary-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+</div>
+<div class="section level3">
+<h3 id="saving-results">Saving results<a class="anchor" aria-label="anchor" href="#saving-results"></a>
+</h3>
+<p>The <code>changes_projections</code> object is a list that contains
+the resulting <code>SpatRaster</code> objects (if
+<code>return_raster = TRUE</code>) and the directory path where results
+were saved (if <code>write_results = TRUE</code>).</p>
+<p>If results were not written to disk during the initial run, you can
+save <code>SpatRaster</code> objects afterward using the
+<code><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster()</a></code> function. For example, to save the general
+summary raster:</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">changes</span><span class="op">$</span><span class="va">Summary_changes</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"Summary_changes.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
+<p>If the results were saved to disk, the
+<code>changes_projections</code> object is automatically stored in a
+folder named <em>Projection_changes</em> inside the specified
+<code>output_dir</code>. You can load it back into R using
+<code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code>:</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out_dir</span>, <span class="st">"Projection_changes/changes_projections.rds"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
+<p>After saving, this object can be used to import specific results with
+the <code><a href="../reference/import_results.html">import_results()</a></code> function.</p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

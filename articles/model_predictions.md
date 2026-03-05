@@ -14,6 +14,8 @@
   - [No extrapolation](#no-extrapolation)
 - [Binarize predictions](#binarize-predictions)
 - [Saving Predictions](#saving-predictions)
+- [Detecting changes between single
+  scenarios](#detecting-changes-between-single-scenarios)
 
 ------------------------------------------------------------------------
 
@@ -617,3 +619,94 @@ the mean layer from the general consensus results:
 writeRaster(p_maxnet$General_consensus$mean, 
             filename = file.path(tempdir(), "Mean_consensus.tif"))
 ```
+
+## Detecting changes between single scenarios
+
+To compare predictions from two single scenarios representing different
+time periods (e.g., present vs. future or present vs. past), the
+function
+[`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
+can be used to identify areas of **loss (contraction)**, **gain
+(expansion)**, and **stability (no change)** in suitable conditions.
+
+As an example, we will project the fitted model to a **single GCM**
+representing future climatic conditions:
+
+``` r
+future_var <- terra::rast(system.file("extdata",
+                                      "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2081-2100.tif",
+                                      package = "kuenm2"))
+plot(future_var)
+```
+
+![](model_predictions_files/figure-html/import%20var%20future-1.png)
+
+Next, we need to rename the variables so that they match the variable
+names used when fitting the models:
+
+``` r
+names(future_var) <- sub("bio0", "bio", names(future_var))
+names(future_var) <- sub("bio", "bio_", names(future_var))
+names(var)
+#> [1] "bio_1"    "bio_7"    "bio_12"   "bio_15"   "SoilType"
+names(future_var)
+#> [1] "bio_1"  "bio_7"  "bio_12" "bio_15"
+```
+
+We also need to append the static soil variable to the set of future
+predictors:
+
+``` r
+future_var <- c(future_var, var$SoilType)
+```
+
+Now we can generate predictions under future environmental conditions:
+
+``` r
+# Predict
+p_future <- predict_selected(models = fitted_model_maxnet,
+                             new_variables = future_var, 
+                             progress_bar = FALSE)
+
+# Plot consensus (mean)
+plot(c(p_maxnet$General_consensus$mean,
+       p_future$General_consensus$mean),
+     main = c("Present", "Future (SSP 585, 2081-2100)"))
+```
+
+![](model_predictions_files/figure-html/unnamed-chunk-6-1.png)
+
+To identify how suitable areas change between scenarios, we can use
+[`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md).
+This function binarizes the predictions using the threshold stored in
+the fitted models and then classifies each cell as gain, loss, or stable
+suitability.
+
+``` r
+# Compute changes between scenarios
+p_changes <- prediction_changes(current_predictions = p_maxnet$General_consensus$mean,
+                                new_predictions = p_future$General_consensus$mean,
+                                fitted_models = fitted_model_maxnet,
+                                predicted_to = "future")
+# Plot result
+terra::plot(p_changes)
+```
+
+![](model_predictions_files/figure-html/unnamed-chunk-7-1.png)
+
+In this example, we are comparing current predictions with future
+predictions, so the argument `predicted_to = "future"` is used. If the
+comparison were with past predictions, this argument should be set
+accordingly to ensure that gains and losses are classified correctly.
+
+The
+[`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
+function is designed to compute changes between single scenarios,
+meaning that the new scenario is represented by one GCM. If projections
+include multiple GCMs, the function
+[`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
+should be used instead.
+
+For more details on projecting models to multiple scenarios, see the
+vignette [6. Project Models to Multiple
+Scenarios](https://marlonecobos.github.io/kuenm2/articles/model_projections.md).
