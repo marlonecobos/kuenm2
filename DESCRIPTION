@@ -56,6 +56,8 @@ RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    spelling
 VignetteBuilder: knitr
 URL: https://marlonecobos.github.io/kuenm2/
+Language: en-US
