@@ -552,7 +552,7 @@ uses a simplified map of the world, but another spatial object can be
 defined in `calibration_area` if needed.
 
 The type MOP result to plot can be specified as: “simple” to show
-records in a partition within or out of envrionmental range of the other
+records in a partition within or out of environmental range of the other
 partitions; or “distance” to display the distance of each record to the
 nearest set of conditions in the other partitions.
 
@@ -713,7 +713,7 @@ terra::plot(bias)
 This bias layer will be used to prepare two new datasets: one with a
 “direct” bias effect (with higher probability of selecting background
 points in regions with higher bias values) and another with an “inverse”
-effect (the oposite).
+effect (the opposite).
 
 ``` r
 # Using a direct bias effect in sampling
@@ -1213,7 +1213,7 @@ plot_explore_partition(explore_partition = mop_blocks, space = "E",
   
 
 Note that in partition 1, some occurrence records fall outside the
-envrionmental range of the other partitions (the same happens with many
+environmental range of the other partitions (the same happens with many
 background records).
 
   
