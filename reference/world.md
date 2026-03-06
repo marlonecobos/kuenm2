@@ -5,7 +5,7 @@ the `countries110` from rnaturalearth R package.
 
 ## Format
 
-A `Spatvector` object.
+A `SpatVector` object.
 
 ## Value
 

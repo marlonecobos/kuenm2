@@ -92,7 +92,7 @@ A list containing the following elements:
 
 - variance_explained_cum_sum: The cumulative percentage of total
   variance explained by each of the selected principal components. This
-  value indicates how much of the data’s original variability is
+  value indicates how much of the data's original variability is
   captured by the PCA transformation.
 
 - projection_directory: the root directory where projection files were
@@ -162,7 +162,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGbM5Au/Future_raw1
+#> /tmp/Rtmp91JRJW/Future_raw1
 
 # Prepare projections
 pr <- prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",
@@ -183,5 +183,5 @@ proj_pca <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                         out_dir = out_dir, center = TRUE, scale = TRUE)
 
 proj_pca$projection_directory  # Directory with projected PCA-variables
-#> [1] "/tmp/RtmpGbM5Au/PCA_projections"
+#> [1] "/tmp/Rtmp91JRJW/PCA_projections"
 ```

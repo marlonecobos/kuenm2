@@ -1,6 +1,6 @@
 # Organize and structure variables for past and future projections
 
-This function helpts to organize climate variable files from past and
+This function helps to organize climate variable files from past and
 future scenarios into folders categorized by time period ("Past" or
 "Future"), specific period (e.g., "LGM" or "2081–2100"), emission
 scenario (e.g., "ssp585"), and GCMs. This structure simplifies the
@@ -186,5 +186,5 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGbM5Au/Projection_variables
+#> /tmp/Rtmp91JRJW/Projection_variables
 ```

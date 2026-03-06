@@ -71,7 +71,7 @@ partition_response_curves(calibration_results, modelID, n = 100,
 A plot with response curves for all `variables` used in the selected
 model corresponding to `modelID`. Each row in the plot shows response
 curves produced with training data that leaves out the partition
-laveled. The points represent the records left out for testing.
+labeled. The points represent the records left out for testing.
 
 ## Details
 

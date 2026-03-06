@@ -2,7 +2,7 @@
 
 A maxnet `fitted_models` object resulting from
 [`fit_selected()`](https://marlonecobos.github.io/kuenm2/reference/fit_selected.md)
-using calibration data with based on WorldCLim variables.
+using calibration data with based on WorldClim variables.
 
 ## Usage
 

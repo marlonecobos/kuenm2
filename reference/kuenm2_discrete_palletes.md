@@ -1,7 +1,7 @@
 # Discrete palettes based on pals R package
 
 Color palettes designed for discrete, categorical data. Palettes
-retrived from pals R package
+retrieved from pals R package
 
 ## Usage
 

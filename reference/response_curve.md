@@ -109,8 +109,8 @@ all_response_curves(models, modelID = NULL, n = 100, show_variability = FALSE,
 - u_limit:
 
   (numeric) directly specifies the upper limit for the variable. Default
-  = NULL, meaning the aupper limit will be calculated from existing
-  data. (if `extrapolation = TRUE`).
+  = NULL, meaning the upper limit will be calculated from existing data.
+  (if `extrapolation = TRUE`).
 
 - xlab:
 

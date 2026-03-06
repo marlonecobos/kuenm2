@@ -33,12 +33,12 @@ colors_for_changes(
 
 - gain_color:
 
-  (character) color used to define the pallete for representing gains.
+  (character) color used to define the palette for representing gains.
   Default is "#009E73" (teal green).
 
 - loss_color:
 
-  (character) color used to define the pallete for representing losses.
+  (character) color used to define the palette for representing losses.
   Default is "#D55E00" (orange-red).
 
 - stable_suitable:
@@ -100,7 +100,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGbM5Au/Future_raw_color_example
+#> /tmp/Rtmp91JRJW/Future_raw_color_example
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

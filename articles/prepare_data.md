@@ -117,7 +117,7 @@ convex polygon around the records, with a 300 km buffer.
 
 Note: At later steps, `kuenm2` helps users automate model transfers to
 multiple future and/or past scenarios. If using bioclimatic variables
-from WroldClim, part of that process involves renaming variables, and
+from WorldClim, part of that process involves renaming variables, and
 renaming options are limited. Try to limit variable names to the
 following formats: `"bio_1", "bio_12"`; `"bio_01", "bio_12"`;
 `"Bio_1", "Bio_12"`; or `"Bio_01", "Bio_12"`. If variable names have
@@ -169,7 +169,7 @@ several key steps:
   Background points serve as a reference to contrast presence records.
   The default number of points is 1000; we encourage users to define
   appropriate numbers considering the calibration area extension, the
-  number of presence records, and the number of pixels available (thic
+  number of presence records, and the number of pixels available (this
   can change depending on layer resolution).
 - **Principal component analysis (PCA)**: An optional step that can be
   done with the variables provided.

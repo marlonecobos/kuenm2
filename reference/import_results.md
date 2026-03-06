@@ -43,7 +43,7 @@ import_results(projection,
 
 - present:
 
-  (logical) wheter to import present-day projections. Default is TRUE.
+  (logical) whether to import present-day projections. Default is TRUE.
   Not applicable if projection is a `changes_projections` object.
 
 - past_period:
@@ -149,7 +149,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGbM5Au/Future_raw2
+#> /tmp/Rtmp91JRJW/Future_raw2
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models

@@ -67,7 +67,7 @@ plot_explore_partition(
   (SpatRaster, SpatVector, or SpatExtent) A spatial object representing
   the calibration area. Preferably, one of the raster layers used as
   variables to `prepare_data`. Required only when `type_of_plot = "G"`.
-  The default, NULL, uses a basic Spatvector of the world.
+  The default, NULL, uses a basic SpatVector of the world.
 
 - show_limits:
 

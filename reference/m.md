@@ -7,7 +7,7 @@ records (`occ_data`), then applying a 300 km buffer.
 
 ## Format
 
-A `Spatvector` object.
+A `SpatVector` object.
 
 ## Value
 

@@ -45,11 +45,11 @@ A `calibration_results` with the following elements:
 - train_proportion:
 
   A `numeric` value indicating the proportion of occurrences used as
-  train points when the partition method is 'subsample' or 'boostrap'
+  train points when the partition method is 'subsample' or 'bootstrap'
 
 - data_xy:
 
-  A `data.frame` with the coordinates of the occurrence and bakground
+  A `data.frame` with the coordinates of the occurrence and background
   points
 
 - continuous_variables:
@@ -72,7 +72,7 @@ A `calibration_results` with the following elements:
 
 - algorithm:
 
-  A `character` indicanting the algorithm (maxnet)
+  A `character` indicating the algorithm (maxnet)
 
 - calibration_results:
 

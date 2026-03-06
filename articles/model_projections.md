@@ -89,7 +89,7 @@ fitted_model_maxnet
 
 ## Predictors for projections
 
-Ppredicting models for a single scenario requires a single `SpatRaster`
+Predicting models for a single scenario requires a single `SpatRaster`
 object containing the predictor variables (as detailed in [Predict
 Models to a Single
 Scenario](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md)).
@@ -301,7 +301,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpuqrPPe/Future_raw
+#> /tmp/RtmpQFtdC0/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -437,7 +437,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpuqrPPe
+#> /tmp/RtmpQFtdC0
 ```
 
   
@@ -497,7 +497,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpuqrPPe/Projection_results/maxnet
+#>  /tmp/RtmpQFtdC0/Projection_results/maxnet
 ```
 
   
