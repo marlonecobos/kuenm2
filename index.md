@@ -1,7 +1,7 @@
 # kuenm2: Detailed Development of Ecological Niche Models
 
 Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A.
-Townsend Peterson, and Marlon E. Cobos ![](reference/figures/logo.png)
+Townsend Peterson, and Marlon E. Cobos
 
 - [Package description](#package-description)
 - [Installing the package](#installing-the-package)
