@@ -3,8 +3,7 @@
 Raster layer containing bioclimatic variables representing Last Glacial
 Maximum (LGM) climatic conditions based on the CCSM4 General Circulation
 Model (GCM). The variables were resampled to 10arc-minutes and masked
-using the `m` provided in the package. Data sourced from CHELSA:
-<https://chelsa-climate.org/last-glacial-maximum-climate/>
+using the `m` provided in the package.
 
 ## Format
 
