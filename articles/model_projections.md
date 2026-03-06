@@ -301,7 +301,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpdPsuE5/Future_raw
+#> /tmp/RtmpGz6G6B/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -437,7 +437,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpdPsuE5
+#> /tmp/RtmpGz6G6B
 ```
 
   
@@ -497,7 +497,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpdPsuE5/Projection_results/maxnet
+#>  /tmp/RtmpGz6G6B/Projection_results/maxnet
 ```
 
   
