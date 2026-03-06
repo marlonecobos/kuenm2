@@ -1,7 +1,7 @@
 #' Organize and structure variables for past and future projections
 #'
 #' @description
-#' This function helpts to organize climate variable files from past and future
+#' This function helps to organize climate variable files from past and future
 #' scenarios into folders categorized by time period ("Past" or "Future"),
 #' specific period (e.g., "LGM" or "2081–2100"), emission scenario (e.g.,
 #' "ssp585"), and GCMs. This structure simplifies the preparation of climate

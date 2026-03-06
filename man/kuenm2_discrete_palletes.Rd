@@ -14,7 +14,7 @@ A \code{list} with the following color palettes: "alphabet",
 data("kuenm2_discrete_palletes")
 }
 \description{
-Color palettes designed for discrete, categorical data. Palettes retrived from pals R package
+Color palettes designed for discrete, categorical data. Palettes retrieved from pals R package
 }
 \references{
 Wright K (2023). pals: Color Palettes, Colormaps, and Tools to Evaluate

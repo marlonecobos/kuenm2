@@ -28,6 +28,6 @@ A \code{fitted_models} with the following elements:
 data("fitted_model_glm")
 }
 \description{
-A glm \code{fitted_models} object resulting from \code{fit_selected()} using calibration data with based on WorldCLim variables.
+A glm \code{fitted_models} object resulting from \code{fit_selected()} using calibration data with based on WorldClim variables.
 }
 \keyword{datasets}
