@@ -46,7 +46,7 @@
 #' Default = NULL, meaning the lower limit will be calculated from existing data.
 #' (if \code{extrapolation = TRUE}).
 #' @param u_limit (numeric) directly specifies the upper limit for the variable.
-#' Default = NULL, meaning the aupper limit will be calculated from existing data.
+#' Default = NULL, meaning the upper limit will be calculated from existing data.
 #' (if \code{extrapolation = TRUE}).
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
 #' name defined in `variable`.

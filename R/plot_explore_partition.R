@@ -20,7 +20,7 @@
 #' @param calibration_area (SpatRaster, SpatVector, or SpatExtent) A spatial
 #' object representing the calibration area. Preferably, one of the raster layers
 #' used as variables to `prepare_data`. Required only when `type_of_plot = "G"`.
-#' The default, NULL, uses a basic Spatvector of the world.
+#' The default, NULL, uses a basic SpatVector of the world.
 #' @param show_limits (logical) whether to draw a box representing the lower and
 #' upper limits of the variables, considering the other partitions (i.e., in
 #' Partition 1, the box represents the limits considering Partitions 2, 3, and

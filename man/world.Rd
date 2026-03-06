@@ -4,7 +4,7 @@
 \alias{world}
 \title{World country polygons from Natural Earth}
 \format{
-A \code{Spatvector} object.
+A \code{SpatVector} object.
 }
 \value{
 No return value. Used with function \code{\link[terra]{vect}} to

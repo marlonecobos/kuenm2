@@ -13,13 +13,13 @@ A \code{calibration_results} with the following elements:
 \item{part_data}{A \code{list} with the partition data, where each element corresponds to a replicate and contains the \strong{indices of the test points} for that replicate}
 \item{partition_method}{A \code{character} indicating the partition method}
 \item{n_replicates}{A \code{numeric} value indicating the number of replicates or k-folds}
-\item{train_proportion}{A \code{numeric} value indicating the proportion of occurrences used as train points when the partition method is 'subsample' or 'boostrap'}
-\item{data_xy}{A \code{data.frame} with the coordinates of the occurrence and bakground points}
+\item{train_proportion}{A \code{numeric} value indicating the proportion of occurrences used as train points when the partition method is 'subsample' or 'bootstrap'}
+\item{data_xy}{A \code{data.frame} with the coordinates of the occurrence and background points}
 \item{continuous_variables}{A \code{character} indicating the names of the continuous variables}
 \item{categorical_variables}{A \code{character} indicating the names of the categorical variables}
 \item{weights}{A \code{numeric} value specifying weights for the occurrence records. It's NULL, meaning it was not set weights.}
 \item{pca}{A \code{prcomp} object storing PCA information. Is NULL, meaning PCA was not performed}
-\item{algorithm}{A \code{character} indicanting the algorithm (maxnet)}
+\item{algorithm}{A \code{character} indicating the algorithm (maxnet)}
 \item{calibration_results}{A \code{list} containing the evaluation metrics for each candidate model}
 \item{omission_rate}{A \code{numeric} value indicating the omission rate used to evaluate the models (10\%)}
 \item{addsamplestobackground}{A \code{logical} value indicating whether to add to the background any presence sample that is not already there.}

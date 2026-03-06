@@ -27,7 +27,7 @@
 #' are: 'median', 'range', 'mean' and 'stdev' (standard deviation). Default is
 #' c("median", "range", "mean", "stdev"), which imports all options. Only
 #' applicable if `projection` is a `model_projections` object.
-#' @param present (logical) wheter to import present-day projections. Default is
+#' @param present (logical) whether to import present-day projections. Default is
 #' TRUE. Not applicable if projection is a  `changes_projections` object.
 #' @param past_period (character) names of specific past periods (e.g., 'LGM' or
 #' 'MID') to import. Default is NULL, meaning all available past periods will be

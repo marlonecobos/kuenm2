@@ -82,7 +82,7 @@ fitted_model_maxnet
 
 # Predictors for projections
 
-Ppredicting models for a single scenario requires a single `SpatRaster` object containing the predictor variables (as detailed in [Predict Models to a Single Scenario](model_predictions.html)). In contrast, projecting models to multiple scenarios requires a folder that stores predictor variables for each scenario organized in a certain way.
+Predicting models for a single scenario requires a single `SpatRaster` object containing the predictor variables (as detailed in [Predict Models to a Single Scenario](model_predictions.html)). In contrast, projecting models to multiple scenarios requires a folder that stores predictor variables for each scenario organized in a certain way.
 
 To ensure the following automated process can correctly track variables, the data must follow a strict hierarchical directory structure. At the top level, a *Base Directory* serves as the primary container for all project data. Inside this base folder, the first level of organization consists of subfolders for distinct *Time Periods*, such as future years (e.g., "2070", "2100") or paleoclimate eras (e.g., "Mid-holocene", "LGM"). Within each period folder, *if applicable*, you should include subfolders at the second level for each *Emission Scenario* (e.g., "ssp126", "ssp585"). Finally, within each emission scenario or time period folder, the third level should include a separate folder for each *General Circulation Model* (GCM) (e.g., "BCC-CSM2-MR", "MIROC6") to house the actual raster variables. This structured organization enables the function to automatically access and process the data according to period, emission scenario, and GCM.
 

@@ -22,8 +22,8 @@ applicable if \code{models} argument is not provided. Default is NULL.}
 \item{present_dir}{(character) path to the folder containing variables that
 represent the current scenario for projection. Default is NULL.}
 
-\item{past_dir}{(character) path to the folder containing subfolders with v
-ariables representing past scenarios for projection. Default is NULL.}
+\item{past_dir}{(character) path to the folder containing subfolders with
+variables representing past scenarios for projection. Default is NULL.}
 
 \item{past_period}{(character) names of the subfolders within \code{past_dir},
 representing specific time periods (e.g., 'LGM' or 'MID').}
@@ -68,7 +68,7 @@ within the folders.
 \item PCA: if a principal component analysis (PCA) was performed on the set of
 variables with \code{\link{prepare_data}}(), a list with class "prcomp" will
 be returned. See \code{?stats::prcomp()} for details.
-\item variables: names of the raw predictos variables used to project.
+\item variables: names of the raw predictor variables used to project.
 }
 }
 \description{

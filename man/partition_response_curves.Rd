@@ -43,7 +43,7 @@ Default is NULL and uses available cores - 1. This is only applicable if
 \value{
 A plot with response curves for all \code{variables} used in the selected model
 corresponding to \code{modelID}. Each row in the plot shows response curves
-produced with training data that leaves out the partition laveled. The points
+produced with training data that leaves out the partition labeled. The points
 represent the records left out for testing.
 }
 \description{

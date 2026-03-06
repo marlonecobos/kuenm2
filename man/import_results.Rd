@@ -26,7 +26,7 @@ are: 'median', 'range', 'mean' and 'stdev' (standard deviation). Default is
 c("median", "range", "mean", "stdev"), which imports all options. Only
 applicable if \code{projection} is a \code{model_projections} object.}
 
-\item{present}{(logical) wheter to import present-day projections. Default is
+\item{present}{(logical) whether to import present-day projections. Default is
 TRUE. Not applicable if projection is a  \code{changes_projections} object.}
 
 \item{past_period}{(character) names of specific past periods (e.g., 'LGM' or

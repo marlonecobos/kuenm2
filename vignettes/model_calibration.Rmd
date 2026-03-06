@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
   - [GLMs](#glms)
   - [Concave curves](#concave-curves)
 - [Re-selecting models](#re-selecting-models)
-- [Training partion effects](#training-partion-effects)
+- [Training partition effects](#training-partition-effects)
 - [Saving a calibration_results object](#saving-a-calibration_results-object)
 
 <hr>
@@ -352,7 +352,7 @@ new_summary$selected_models[, c("ID", "Formulas", "R_multiplier",
 
 <br>
 
-## Training partion effects 
+## Training partition effects 
 
 After model calibration, selected models can be explored to understand the effect of leaving testing data out in every cross-validation process. This can help understand if leaving a testing partition out changes dramatically response curves compared to using other sets of data. These explorations can also be used to understand if the ability of models to predict testing records derives from extrapolation or not, and whether extrapolations are safe. 
 

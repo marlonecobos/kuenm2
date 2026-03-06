@@ -4,7 +4,7 @@
 \alias{m}
 \title{SpatVector Representing Calibration Area for \emph{Myrcia hatschbachii}}
 \format{
-A \code{Spatvector} object.
+A \code{SpatVector} object.
 }
 \value{
 No return value. Used with function \code{\link[terra]{vect}} to

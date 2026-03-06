@@ -63,7 +63,7 @@ from the PCA. PCs correspond to the variables used to perform the analysis.
 See \code{\link[stats]{prcomp}}().
 \item variance_explained_cum_sum: The cumulative percentage of total variance
 explained by each of the selected principal components. This value indicates
-how much of the data’s original variability is captured by the PCA
+how much of the data's original variability is captured by the PCA
 transformation.
 \item projection_directory: the root directory where projection files were saved.
 Not NULL only if \code{project} was set to TRUE. This directory contains the

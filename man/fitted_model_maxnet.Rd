@@ -28,6 +28,6 @@ A \code{fitted_models} with the following elements:
 data("fitted_model_maxnet")
 }
 \description{
-A maxnet \code{fitted_models} object resulting from \code{fit_selected()} using calibration data with based on WorldCLim variables.
+A maxnet \code{fitted_models} object resulting from \code{fit_selected()} using calibration data with based on WorldClim variables.
 }
 \keyword{datasets}

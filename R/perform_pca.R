@@ -52,7 +52,7 @@
 #' See \code{\link[stats]{prcomp}}().
 #' - variance_explained_cum_sum: The cumulative percentage of total variance
 #' explained by each of the selected principal components. This value indicates
-#' how much of the data’s original variability is captured by the PCA
+#' how much of the data's original variability is captured by the PCA
 #' transformation.
 #' - projection_directory: the root directory where projection files were saved.
 #' Not NULL only if `project` was set to TRUE. This directory contains the

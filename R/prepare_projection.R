@@ -19,8 +19,8 @@
 #' applicable if `models` argument is not provided. Default is NULL.
 #' @param present_dir (character) path to the folder containing variables that
 #' represent the current scenario for projection. Default is NULL.
-#' @param past_dir (character) path to the folder containing subfolders with v
-#' ariables representing past scenarios for projection. Default is NULL.
+#' @param past_dir (character) path to the folder containing subfolders with
+#' variables representing past scenarios for projection. Default is NULL.
 #' @param past_period (character) names of the subfolders within `past_dir`,
 #' representing specific time periods (e.g., 'LGM' or 'MID').
 #' @param past_gcm (character) names of the subfolders within `past_period`
@@ -58,7 +58,7 @@
 #' - PCA: if a principal component analysis (PCA) was performed on the set of
 #' variables with \code{\link{prepare_data}}(), a list with class "prcomp" will
 #' be returned. See `?stats::prcomp()` for details.
-#' - variables: names of the raw predictos variables used to project.
+#' - variables: names of the raw predictor variables used to project.
 #'
 #' @seealso
 #' [organize_future_worldclim()]
