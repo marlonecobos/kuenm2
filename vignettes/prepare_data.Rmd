@@ -309,7 +309,7 @@ nrow(mop_partition$Mop_results[mop_partition$Mop_results$n_var_out > 1, ])
 
 Now we can use the function `plot_explore_partition()` to visualize the records from each partition in both geographic and environmental spaces. As comparisons were performed in environmental space, to visualize results in geographic space the plotting functions uses a simplified map of the world, but another spatial object can be defined in `calibration_area` if needed.
 
-The type MOP result to plot can be specified as: "simple" to show records in a partition within or out of envrionmental range of the other partitions; or "distance" to display the distance of each record to the nearest set of conditions in the other partitions.
+The type MOP result to plot can be specified as: "simple" to show records in a partition within or out of environmental range of the other partitions; or "distance" to display the distance of each record to the nearest set of conditions in the other partitions.
 
 ```{r, fig.width = 8, fig.height = 3.5, out.width = "75%"}
 # Simple plot in geographic space
@@ -402,7 +402,7 @@ terra::plot(bias)
 
 <br>
 
-This bias layer will be used to prepare two new datasets: one with a "direct" bias effect (with higher probability of selecting background points in regions with higher bias values) and another with an "inverse" effect (the oposite).
+This bias layer will be used to prepare two new datasets: one with a "direct" bias effect (with higher probability of selecting background points in regions with higher bias values) and another with an "inverse" effect (the opposite).
 
 ```{r bias data, results='hide'}
 # Using a direct bias effect in sampling
@@ -701,7 +701,7 @@ plot_explore_partition(explore_partition = mop_blocks, space = "E",
 
 <br>
 
-Note that in partition 1, some occurrence records fall outside the envrionmental range of the other partitions (the same happens with many background records). 
+Note that in partition 1, some occurrence records fall outside the environmental range of the other partitions (the same happens with many background records). 
 
 <br>
 
