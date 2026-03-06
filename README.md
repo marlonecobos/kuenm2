@@ -1,4 +1,4 @@
-kuenm2: Detailed Development of Ecological Niche Models
+kuenm2: Detailed Development of Ecological Niche Models <img src="man/figures/logo.png" align="right" height="25%" width = "25%"/>
 ================
 Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A.
 Townsend Peterson, and Marlon E. Cobos
