@@ -1,5 +1,5 @@
 ---
-title: "kuenm2: Detailed Development of Ecological Niche Models"
+title: "kuenm2: Detailed Development of Ecological Niche Models <img src='man/figures/logo.png' align='right' height='25%' width='25%'/>"
 author: "Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson, and Marlon E. Cobos"
 output: 
   github_document:
@@ -26,7 +26,7 @@ opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>")
 
 **kuenm2** is an new version of **kuenm** [Cobos et al. 2019](https://peerj.com/articles/6281/), an R package designed to make the process of ecological niche modeling (ENM) easier, faster, and more reproducible, and at the same time more robust. The aim of this package is to facilitate crucial steps in the ENM process: data preparation, model calibration, selected model exploration, model projections, and analyses of uncertainty and variability. 
 
-This new version of the package reduces the dependency on a strictly organized working directory (now required only if projections to multiple scenarios are needed). Instead, kuenm2 functions generate specific R objects that store all the necessary information for subsequent steps. kuenm2 fits maximum entropy (Maxnet) models or logistic generalized linear models (GLMs). Maxnet models are created as described in [Phillips et al. (2017)](http://doi.wiley.com/10.1111/ecog.03049), and GLMs are constructed as in [Cobos and Peterson (2023)](https://doi.org/10.1371/journal.pone.0276951). The ENM workflow requires at minimum a `data.frame` containing occurrence record coordinates (longitude and latitude) and a `SpatRaster` object with predictor variables. Users could also use a `data.frame` containing a column indicating presence and background records (0/1), and other columns with predictor variable values.
+This new version of the package reduces the dependency on a strictly organized working directory (now required only if projections to multiple scenarios are needed). Instead, kuenm2 functions generate specific R objects that store all the necessary information for subsequent steps. kuenm2 fits maximum entropy (Maxnet) models or generalized linear models (GLMs). Maxnet models are created as described in [Phillips et al. (2017)](http://doi.wiley.com/10.1111/ecog.03049), and GLMs are constructed as in [Cobos and Peterson (2023)](https://doi.org/10.1371/journal.pone.0276951). The ENM workflow requires at minimum a `data.frame` containing occurrence record coordinates (longitude and latitude) and a `SpatRaster` object with predictor variables. Users could also use a `data.frame` containing a column indicating presence and background records (0/1), and other columns with predictor variable values.
 
 <br>
 
@@ -47,7 +47,7 @@ The development version of kuenm2 can be installed using the code below.
 
 ```{r installation1, eval=FALSE}
 # Installing and loading packages
-if(!require(remotes)){
+if(!require(remotes)) {
   install.packages("remotes")
 }
 
@@ -82,6 +82,8 @@ The kuenm2 package facilitates the following steps in the ENM process: basic dat
 ```{r fig1, echo=FALSE, fig.align='center', fig.height=4, fig.width=9, fig.cap="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling."}
 knitr::include_graphics("man/figures/kuenm2_map_gs.png")
 ```
+
+<br>
 
 ### Pre-modeling steps
 
@@ -173,3 +175,18 @@ vignette("projections_chelsa")
 ## Note on AI usage
 
 To maintain high standards of code quality and documentation, we have used AI LLM tools in our package. We used these tools for grammatical polishing and exploring technical implementation strategies for specialized functions. We manually checked and tested all code and documentation refined with these tools.
+
+<br>
+
+## Contributing
+
+We welcome contributions to improve `kuenm2`! To maintain the integrity and performance of the package, we follow a few core principles:
+
+- **Quality over Quantity:** We prioritize well-thought-out, stable improvements over frequent, minor changes. Please ensure your code is well-documented and follows the existing style of the package.
+- **Minimal Dependencies:** One of the goals of `kuenm2` is to remain efficient. We prefer solutions that use base R or existing dependencies. Proposals that introduce new package dependencies will be strictly evaluated for their necessity.
+- **AI-Assisted Code:** If you use AI agents (like Copilot, ChatGPT, or Claude) to generate code alternatives or improvements, please:
+    - *Manually verify* the logic and accuracy of the output.
+    - *Demonstrate the benefit* via a benchmark for speed or a clear explanation of how it fixes a bug/improves readability. Describe this in your Pull Request.
+- **Testing:** New features should include examples, and tests should be performed to ensure they work as intended and do not break existing workflows.
+
+If you have an idea for a major change, please open an Issue first to discuss it with the maintainers.

@@ -1,4 +1,5 @@
-kuenm2: Detailed Development of Ecological Niche Models <img src="man/figures/logo.png" align="right" height="25%" width = "25%"/>
+kuenm2: Detailed Development of Ecological Niche Models
+<img src='man/figures/logo.png' align='right' height='25%' width='25%'/>
 ================
 Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A.
 Townsend Peterson, and Marlon E. Cobos
@@ -11,6 +12,7 @@ Townsend Peterson, and Marlon E. Cobos
   - [Post-modeling analysis](#post-modeling-analysis)
 - [Checking the vignettes](#checking-the-vignettes)
 - [Note on AI usage](#note-on-ai-usage)
+- [Contributing](#contributing)
 
 <!-- badges: start -->
 
@@ -37,10 +39,9 @@ organized working directory (now required only if projections to
 multiple scenarios are needed). Instead, kuenm2 functions generate
 specific R objects that store all the necessary information for
 subsequent steps. kuenm2 fits maximum entropy (Maxnet) models or
-logistic generalized linear models (GLMs). Maxnet models are created as
-described in [Phillips et
-al. (2017)](http://doi.wiley.com/10.1111/ecog.03049), and GLMs are
-constructed as in [Cobos and Peterson
+generalized linear models (GLMs). Maxnet models are created as described
+in [Phillips et al. (2017)](http://doi.wiley.com/10.1111/ecog.03049),
+and GLMs are constructed as in [Cobos and Peterson
 (2023)](https://doi.org/10.1371/journal.pone.0276951). The ENM workflow
 requires at minimum a `data.frame` containing occurrence record
 coordinates (longitude and latitude) and a `SpatRaster` object with
@@ -67,7 +68,7 @@ The development version of kuenm2 can be installed using the code below.
 
 ``` r
 # Installing and loading packages
-if(!require(remotes)){
+if(!require(remotes)) {
   install.packages("remotes")
 }
 
@@ -114,13 +115,15 @@ listed in the section [Checking the vignettes](#checking-the-vignettes).
 
 <div class="figure" style="text-align: center">
 
-<img src="man/figures/kuenm2_map_gs.png" alt="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling."  />
+<img src="man/figures/kuenm2_map_gs.png" alt="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling." width="461" />
 <p class="caption">
 
 Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 </p>
 
 </div>
+
+<br>
 
 ### Pre-modeling steps
 
@@ -277,3 +280,30 @@ used AI LLM tools in our package. We used these tools for grammatical
 polishing and exploring technical implementation strategies for
 specialized functions. We manually checked and tested all code and
 documentation refined with these tools.
+
+<br>
+
+## Contributing
+
+We welcome contributions to improve `kuenm2`! To maintain the integrity
+and performance of the package, we follow a few core principles:
+
+- **Quality over Quantity:** We prioritize well-thought-out, stable
+  improvements over frequent, minor changes. Please ensure your code is
+  well-documented and follows the existing style of the package.
+- **Minimal Dependencies:** One of the goals of `kuenm2` is to remain
+  efficient. We prefer solutions that use base R or existing
+  dependencies. Proposals that introduce new package dependencies will
+  be strictly evaluated for their necessity.
+- **AI-Assisted Code:** If you use AI agents (like Copilot, ChatGPT, or
+  Claude) to generate code alternatives or improvements, please:
+  - *Manually verify* the logic and accuracy of the output.
+  - *Demonstrate the benefit* via a benchmark for speed or a clear
+    explanation of how it fixes a bug/improves readability. Describe
+    this in your Pull Request.
+- **Testing:** New features should include examples, and tests should be
+  performed to ensure they work as intended and do not break existing
+  workflows.
+
+If you have an idea for a major change, please open an Issue first to
+discuss it with the maintainers.
