@@ -103,8 +103,8 @@
 </li>
 <li><a href="#binarize-predictions">Binarize predictions</a></li>
 <li><a href="#saving-predictions">Saving Predictions</a></li>
-<li><a href="#detecting-changes-between-single-scenarios">Detecting
-changes between single scenarios</a></li>
+<li><a href="#detecting-changes-in-predictions">Detecting changes in
+predictions</a></li>
 </ul>
 <hr>
 </div>
@@ -186,14 +186,14 @@ object generated using the GLM algorithm:</p>
 <h2 id="model-predictions">Model predictions<a class="anchor" aria-label="anchor" href="#model-predictions"></a>
 </h2>
 <p>To predict selected models for a single scenario, you need a
-<code>fitted_models</code> object and the corresponding predictor
-variables. These predictor variables can be provided as either a
-<code>SpatRaster</code> or a <code>data.frame</code>. The names of the
-variables (or columns in the <code>data.frame</code>) must precisely
-match those used for model calibration or those used when running PCA
-(if <code>do_pca = TRUE</code> was set in the
-<code><a href="../reference/prepare_data.html">prepare_data()</a></code> function; see <a href="prepare_data.html">Prepare Data for Model Calibration</a> for more
-details).</p>
+<code>fitted_models</code> object and the corresponding variables. These
+variables can be provided as either a <code>SpatRaster</code> or a
+<code>data.frame</code>. The names of the variables (or columns in the
+<code>data.frame</code>) must precisely match those used for model
+calibration or those used when running PCA (if
+<code>do_pca = TRUE</code> was set in the <code><a href="../reference/prepare_data.html">prepare_data()</a></code>
+function; see <a href="prepare_data.html">Prepare Data for Model
+Calibration</a> for more details).</p>
 <p><br></p>
 <div class="section level3">
 <h3 id="predict-to-spatraster">Predict to SpatRaster<a class="anchor" aria-label="anchor" href="#predict-to-spatraster"></a>
@@ -407,7 +407,7 @@ Maxnet models:</p>
 </h3>
 <p>By default, predictions are performed with free extrapolation
 (<code>extrapolation_type = "E"</code>). This can be problematic when
-the peak of suitability occurs at the extremes of a predictor’s range.
+the peak of suitability occurs at the extremes of a variable’s range.
 For example, let’s examine the response curve of the Maxnet model for
 <code>bio_7</code> (Temperature Annual Range):</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -485,8 +485,8 @@ variables (<code>extrapolation_type = "EC"</code>):</p>
 values of (the hypothetical) <code>bio_7</code> exhibit lower predicted
 suitability values compared to when free extrapolation is allowed.</p>
 <p>By default, when <code>extrapolation_type = "EC"</code> is set, all
-predictor variables are clamped. You can specify which variables to
-clamp using the <code>var_to_restrict</code> argument.</p>
+variables are clamped. You can specify which variables to clamp using
+the <code>var_to_restrict</code> argument.</p>
 <p><br></p>
 </div>
 <div class="section level3">
@@ -521,8 +521,8 @@ data, which has a minimum of 15ºC. Suitability values greater than zero
 are only in areas where <code>bio_7</code> falls within the training
 range.</p>
 <p>By default, when <code>extrapolation_type = "NE"</code> is set, all
-predictor variables are considered for this process. You can specify a
-subset of variables to be considered for extrapolation using the
+variables are considered for this process. You can specify a subset of
+variables to be considered for extrapolation using the
 <code>var_to_restrict</code> argument.</p>
 <p><br></p>
 </div>
@@ -614,76 +614,86 @@ will save the output files as Comma Separated Value (.csv) files.</p>
 output predictions manually. For example, to save only the mean layer
 from the general consensus results:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, </span>
-<span>            filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Mean_consensus.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/writeRaster.html" class="external-link">writeRaster</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>, </span>
+<span>                   filename <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"Mean_consensus.tif"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level2">
-<h2 id="detecting-changes-between-single-scenarios">Detecting changes between single scenarios<a class="anchor" aria-label="anchor" href="#detecting-changes-between-single-scenarios"></a>
+<h2 id="detecting-changes-in-predictions">Detecting changes in predictions<a class="anchor" aria-label="anchor" href="#detecting-changes-in-predictions"></a>
 </h2>
-<p>To compare predictions from two single scenarios representing
+<p>To compare predictions between two single scenarios representing
 different time periods (e.g., present vs. future or present vs. past),
-the function <code><a href="../reference/prediction_changes.html">prediction_changes()</a></code> can be used to identify
-areas of <strong>loss (contraction)</strong>, <strong>gain
-(expansion)</strong>, and <strong>stability (no change)</strong> in
-suitable conditions.</p>
+the function <code><a href="../reference/prediction_changes.html">prediction_changes()</a></code> can be used. This
+function helps to identify <strong>loss (contraction)</strong>,
+<strong>gain (expansion)</strong>, and <strong>stability (no
+change)</strong> of suitable areas.</p>
 <p>As an example, we will project the fitted model to a <strong>single
 GCM</strong> representing future climatic conditions:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">future_var</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>,</span>
+<code class="sourceCode R"><span><span class="co"># Read layers representing future conditions</span></span>
+<span><span class="va">future_var</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>,</span>
 <span>                                      <span class="st">"wc2.1_10m_bioc_ACCESS-CM2_ssp585_2081-2100.tif"</span>,</span>
 <span>                                      package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="co"># Plot future layers</span></span>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_predictions_files/figure-html/import%20var%20future-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
 <p>Next, we need to rename the variables so that they match the variable
-names used when fitting the models:</p>
+names used when fitting the models. After that, we will also apappend
+the static soil variable to the set of future variables.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"bio0"</span>, <span class="st">"bio"</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># renaming layers to match names of variables used to fit the model</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"bio0"</span>, <span class="st">"bio"</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"bio"</span>, <span class="st">"bio_"</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">var</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "bio_1"    "bio_7"    "bio_12"   "bio_15"   "SoilType"</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "bio_1"  "bio_7"  "bio_12" "bio_15"</span></span></code></pre></div>
-<p>We also need to append the static soil variable to the set of future
-predictors:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">future_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">future_var</span>, <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "bio_1"  "bio_7"  "bio_12" "bio_15"</span></span>
+<span></span>
+<span><span class="co"># Adding soil layer to future variable set</span></span>
+<span><span class="va">future_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">future_var</span>, <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span><span class="op">)</span></span></code></pre></div>
+<p><br></p>
 <p>Now we can generate predictions under future environmental
 conditions:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Predict</span></span>
 <span><span class="va">p_future</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_selected.html">predict_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
 <span>                             new_variables <span class="op">=</span> <span class="va">future_var</span>, </span>
 <span>                             progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Plot consensus (mean)</span></span>
-<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>,</span>
-<span>       <span class="va">p_future</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span><span class="op">)</span>,</span>
-<span>     main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Present"</span>, <span class="st">"Future (SSP 585, 2081-2100)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
+<span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>,</span>
+<span>              <span class="va">p_future</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span><span class="op">)</span>,</span>
+<span>            main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Present"</span>, <span class="st">"Future (SSP 585, 2081-2100)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="model_predictions_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
 <p>To identify how suitable areas change between scenarios, we can use
-<code><a href="../reference/prediction_changes.html">prediction_changes()</a></code>. This function binarizes the
-predictions using the threshold stored in the fitted models and then
-classifies each cell as gain, loss, or stable suitability.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code><a href="../reference/prediction_changes.html">prediction_changes()</a></code>. This function computes binary layers
+from the predictions using the threshold stored in the fitted models,
+compares current and future predictions, and then classifies each cell
+as gain, loss, or stable.</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Compute changes between scenarios</span></span>
 <span><span class="va">p_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prediction_changes.html">prediction_changes</a></span><span class="op">(</span>current_predictions <span class="op">=</span> <span class="va">p_maxnet</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>,</span>
 <span>                                new_predictions <span class="op">=</span> <span class="va">p_future</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">$</span><span class="va">mean</span>,</span>
 <span>                                fitted_models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>,</span>
 <span>                                predicted_to <span class="op">=</span> <span class="st">"future"</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Plot result</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p_changes</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_predictions_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="672"></p>
-<p>In this example, we are comparing current predictions with future
-predictions, so the argument <code>predicted_to = "future"</code> is
-used. If the comparison were with past predictions, this argument should
-be set accordingly to ensure that gains and losses are classified
-correctly.</p>
+<p><img src="model_predictions_files/figure-html/detect%20changes-1.png" class="r-plt" alt="" width="672"></p>
+<p><br></p>
+<p>In this example, we are comparing current and future predictions, so
+we set <code>predicted_to = "future"</code>. If a comparison with past
+predictions is needed, this argument should be set accordingly to ensure
+that categories of change or stability are assigned correctly.</p>
 <p>The <code><a href="../reference/prediction_changes.html">prediction_changes()</a></code> function is designed to compute
 changes between single scenarios, meaning that the new scenario is
-represented by one GCM. If projections include multiple GCMs, the
-function <code><a href="../reference/projection_changes.html">projection_changes()</a></code> should be used instead.</p>
-<p>For more details on projecting models to multiple scenarios, see the
-vignette <a href="model_projections.html">6. Project Models to Multiple
+represented by one set of layers. If projections include multiple GCMs,
+the function <code><a href="../reference/projection_changes.html">projection_changes()</a></code> should be used instead.
+For more details on projecting models and detecting changes with
+summaries across multiple scenarios, see the vignette <a href="model_projections.html">6. Project Models to Multiple
 Scenarios</a>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

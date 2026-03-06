@@ -68,12 +68,7 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="kuenm2-detailed-development-of-ecological-niche-models-">kuenm2: Detailed Development of Ecological Niche Models <a class="anchor" aria-label="anchor" href="#kuenm2-detailed-development-of-ecological-niche-models-"></a>
-</h1>
-</div>
-<p>Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson, and Marlon E. Cobos</p>
+  <main id="main" class="col-md-9"><p>kuenm2: Detailed Development of Ecological Niche Models <img src="reference/figures/logo.png" align="right" height="25%" width="25%"> ================ Weverton C. F. Trindade, Luis F. Arias-Giraldo, Luis Osorio-Olvera, A. Townsend Peterson, and Marlon E. Cobos</p>
 <ul>
 <li><a href="#package-description">Package description</a></li>
 <li><a href="#installing-the-package">Installing the package</a></li>
@@ -87,6 +82,7 @@
 </li>
 <li><a href="#checking-the-vignettes">Checking the vignettes</a></li>
 <li><a href="#note-on-ai-usage">Note on AI usage</a></li>
+<li><a href="#contributing">Contributing</a></li>
 </ul>
 <!-- badges: start -->
 <hr>
@@ -95,7 +91,7 @@
 <h2 id="package-description">Package description<a class="anchor" aria-label="anchor" href="#package-description"></a>
 </h2>
 <p><strong>kuenm2</strong> is an new version of <strong>kuenm</strong> <a href="https://peerj.com/articles/6281/" class="external-link">Cobos et al. 2019</a>, an R package designed to make the process of ecological niche modeling (ENM) easier, faster, and more reproducible, and at the same time more robust. The aim of this package is to facilitate crucial steps in the ENM process: data preparation, model calibration, selected model exploration, model projections, and analyses of uncertainty and variability.</p>
-<p>This new version of the package reduces the dependency on a strictly organized working directory (now required only if projections to multiple scenarios are needed). Instead, kuenm2 functions generate specific R objects that store all the necessary information for subsequent steps. kuenm2 fits maximum entropy (Maxnet) models or logistic generalized linear models (GLMs). Maxnet models are created as described in <a href="http://doi.wiley.com/10.1111/ecog.03049" class="external-link">Phillips et al. (2017)</a>, and GLMs are constructed as in <a href="https://doi.org/10.1371/journal.pone.0276951" class="external-link">Cobos and Peterson (2023)</a>. The ENM workflow requires at minimum a <code>data.frame</code> containing occurrence record coordinates (longitude and latitude) and a <code>SpatRaster</code> object with predictor variables. Users could also use a <code>data.frame</code> containing a column indicating presence and background records (0/1), and other columns with predictor variable values.</p>
+<p>This new version of the package reduces the dependency on a strictly organized working directory (now required only if projections to multiple scenarios are needed). Instead, kuenm2 functions generate specific R objects that store all the necessary information for subsequent steps. kuenm2 fits maximum entropy (Maxnet) models or generalized linear models (GLMs). Maxnet models are created as described in <a href="http://doi.wiley.com/10.1111/ecog.03049" class="external-link">Phillips et al. (2017)</a>, and GLMs are constructed as in <a href="https://doi.org/10.1371/journal.pone.0276951" class="external-link">Cobos and Peterson (2023)</a>. The ENM workflow requires at minimum a <code>data.frame</code> containing occurrence record coordinates (longitude and latitude) and a <code>SpatRaster</code> object with predictor variables. Users could also use a <code>data.frame</code> containing a column indicating presence and background records (0/1), and other columns with predictor variable values.</p>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -110,7 +106,7 @@
 <p>The development version of kuenm2 can be installed using the code below.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Installing and loading packages</span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span><span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
@@ -134,10 +130,11 @@
 </h2>
 <p>The kuenm2 package facilitates the following steps in the ENM process: basic data cleaning, data preparation, model calibration, model exploration, model projections, projection comparisons, and exploration of variability and uncertainty. The figure below shows a schematic view of how the package works. A brief description of the steps that can be performed with the package is presented below. For a complete description and demonstration of the steps, see the package vignettes listed in the section <a href="#checking-the-vignettes">Checking the vignettes</a>.</p>
 <div class="figure" style="text-align: center">
-<img src="reference/figures/kuenm2_map_gs.png" alt="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling."><p class="caption">
+<img src="reference/figures/kuenm2_map_gs.png" alt="Figure 1. Overview of the kuenm2 workflow for ecological niche modeling." width="461"><p class="caption">
 Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 </p>
 </div>
+<p><br></p>
 <div class="section level3">
 <h3 id="pre-modeling-steps">Pre-modeling steps<a class="anchor" aria-label="anchor" href="#pre-modeling-steps"></a>
 </h3>
@@ -231,8 +228,32 @@ Figure 1. Overview of the kuenm2 workflow for ecological niche modeling.
 <h2 id="note-on-ai-usage">Note on AI usage<a class="anchor" aria-label="anchor" href="#note-on-ai-usage"></a>
 </h2>
 <p>To maintain high standards of code quality and documentation, we have used AI LLM tools in our package. We used these tools for grammatical polishing and exploring technical implementation strategies for specialized functions. We manually checked and tested all code and documentation refined with these tools.</p>
+<p><br></p>
 </div>
+<div class="section level2">
+<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h2>
+<p>We welcome contributions to improve <code>kuenm2</code>! To maintain the integrity and performance of the package, we follow a few core principles:</p>
+<ul>
+<li>
+<strong>Quality over Quantity:</strong> We prioritize well-thought-out, stable improvements over frequent, minor changes. Please ensure your code is well-documented and follows the existing style of the package.</li>
+<li>
+<strong>Minimal Dependencies:</strong> One of the goals of <code>kuenm2</code> is to remain efficient. We prefer solutions that use base R or existing dependencies. Proposals that introduce new package dependencies will be strictly evaluated for their necessity.</li>
+<li>
+<strong>AI-Assisted Code:</strong> If you use AI agents (like Copilot, ChatGPT, or Claude) to generate code alternatives or improvements, please:
+<ul>
+<li>
+<em>Manually verify</em> the logic and accuracy of the output.</li>
+<li>
+<em>Demonstrate the benefit</em> via a benchmark for speed or a clear explanation of how it fixes a bug/improves readability. Describe this in your Pull Request.</li>
+</ul>
+</li>
+<li>
+<strong>Testing:</strong> New features should include examples, and tests should be performed to ensure they work as intended and do not break existing workflows.</li>
+</ul>
+<p>If you have an idea for a major change, please open an Issue first to discuss it with the maintainers.</p>
 </div>
+
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">

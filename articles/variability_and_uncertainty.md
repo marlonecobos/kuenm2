@@ -83,7 +83,7 @@ Scenarios”](https://marlonecobos.github.io/kuenm2/articles/model_projections.m
 # Import calib_results_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
 
-# Import path to raster files with future predictors provided as example
+# Import path to raster files with future variables provided as example
 # The data is located in the "inst/extdata" folder.
 in_dir <- system.file("extdata", package = "kuenm2")
 
@@ -105,7 +105,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from 
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpVMRrGk/Future_raw
+#> /tmp/RtmpXOIp7r/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 # and copy the rawvariables there.

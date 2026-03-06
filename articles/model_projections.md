@@ -5,12 +5,11 @@
 - [Description](#description)
 - [Getting ready](#getting-ready)
 - [Fitted models](#fitted-models)
-- [Predictors for projections](#predictors-for-projections)
-  - [Preparing predictors from
-    WorldClim](#preparing-predictors-from-worldclim)
-    - [Format for renaming](#format-for-renaming)
-    - [Static variables](#static-variables)
-    - [Organizing files](#organizing-files)
+- [Variables for projections](#variables-for-projections)
+  - [Variables from WorldClim](#variables-from-worldclim)
+  - [Format for renaming](#format-for-renaming)
+  - [Static variables](#static-variables)
+  - [Organizing files](#organizing-files)
 - [Preparing data for projections](#preparing-data-for-projections)
 - [Projecting to multiple scenarios](#projecting-to-multiple-scenarios)
 - [Importing results from
@@ -87,15 +86,14 @@ fitted_model_maxnet
 
   
 
-## Predictors for projections
+## Variables for projections
 
 Predicting models for a single scenario requires a single `SpatRaster`
-object containing the predictor variables (as detailed in [Predict
-Models to a Single
+object containing the variables (as detailed in [Predict Models to a
+Single
 Scenario](https://marlonecobos.github.io/kuenm2/articles/model_predictions.md)).
 In contrast, projecting models to multiple scenarios requires a folder
-that stores predictor variables for each scenario organized in a certain
-way.
+that stores variables for each scenario organized in a certain way.
 
 To ensure the following automated process can correctly track variables,
 the data must follow a strict hierarchical directory structure. At the
@@ -114,7 +112,7 @@ period, emission scenario, and GCM.
 
   
 
-### Preparing predictors from WorldClim
+### Variables from WorldClim
 
 The package provides a function to import future climate variables
 downloaded from WorldClim (version 2.1). This function renames the files
@@ -135,7 +133,7 @@ periods “2041-2060” and “2081-2100”, for two SSPs (125 and 585) and two
 GCMs (ACCESS-CM2 and MIROC6), at 10 arc-minutes resolution.
 
 ``` r
-# See raster files with future predictors provided as example
+# See raster files with future variables provided as example
 # The data is located in the "inst/extdata" folder.
 in_dir <- system.file("extdata", package = "kuenm2")
 list.files(in_dir)
@@ -228,7 +226,7 @@ function.
 
   
 
-#### Format for renaming
+### Format for renaming
 
 The argument `name_format` defines the format for renaming variables.
 The names of the variables in the `SpatRaster` must precisely match
@@ -265,7 +263,7 @@ The variables follow the standards of the first option (`"bio_"`).
 
   
 
-#### Static variables
+### Static variables
 
 When predicting to other times, some variables could be static (i.e.,
 they remain unchanged in scenarios of projections). The
@@ -283,7 +281,7 @@ soiltype <- var$SoilType
 
   
 
-#### Organizing files
+### Organizing files
 
 Now, let’s organize the WorldClim files with the
 [`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md)
@@ -301,7 +299,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGz6G6B/Future_raw
+#> /tmp/Rtmpzx6LDI/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -373,10 +371,10 @@ which requires a `SpatRaster` object, when projecting to multiple
 scenarios, we need the paths to the folders where the raster files are
 stored. This includes the variables for the present time, which were
 used to calibrate and fit the models. Currently, we only have the future
-climate files. The present-day predictor variables must reside in the
-same base directory as the processed future variables. Let’s copy the
-raster layers used for model fitting to a folder we can easily direct
-the function that runs the next step:
+climate files. The present-day variables must reside in the same base
+directory as the processed future variables. Let’s copy the raster
+layers used for model fitting to a folder we can easily direct the
+function that runs the next step:
 
 ``` r
 # Create a "Current_raw" folder in a temporary directory
@@ -425,7 +423,7 @@ pr <- prepare_projection(models = fitted_model_maxnet,
 
 The `projection_data` object summarizes information about all the
 scenarios we will project to, and shows the root directory where the
-predictors are stored:
+variables are stored:
 
 ``` r
 pr
@@ -437,7 +435,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpGz6G6B
+#> /tmp/Rtmpzx6LDI
 ```
 
   
@@ -448,7 +446,7 @@ see it’s a list containing:
 - Paths to all variables representing distinct scenarios in subfolders.
 - The pattern used to identify the format of raster files within the
   folders (by default, `*.tif`).
-- The names of the predictors.
+- The names of the variables.
 - A list of class `prcomp` if a Principal Component Analysis (PCA) was
   performed on the set of variables with
   [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md).
@@ -497,7 +495,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpGz6G6B/Projection_results/maxnet
+#>  /tmp/Rtmpzx6LDI/Projection_results/maxnet
 ```
 
   
@@ -656,11 +654,6 @@ For more details, check [Explore Variability and Uncertainty in
 Projections](https://marlonecobos.github.io/kuenm2/articles/variability_and_uncertainty.md).
 
   
-
-``` r
-# Reset plotting parameters
-par(original_par) 
-```
 
 ## Detecting changes in projections
 
@@ -863,3 +856,10 @@ After saving, this object can be used to import specific results with
 the
 [`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
 function.
+
+  
+
+``` r
+# Reset plotting parameters
+par(original_par) 
+```

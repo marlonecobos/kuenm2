@@ -14,8 +14,7 @@
   - [No extrapolation](#no-extrapolation)
 - [Binarize predictions](#binarize-predictions)
 - [Saving Predictions](#saving-predictions)
-- [Detecting changes between single
-  scenarios](#detecting-changes-between-single-scenarios)
+- [Detecting changes in predictions](#detecting-changes-in-predictions)
 
 ------------------------------------------------------------------------
 
@@ -104,11 +103,11 @@ fitted_model_glm
 ## Model predictions
 
 To predict selected models for a single scenario, you need a
-`fitted_models` object and the corresponding predictor variables. These
-predictor variables can be provided as either a `SpatRaster` or a
-`data.frame`. The names of the variables (or columns in the
-`data.frame`) must precisely match those used for model calibration or
-those used when running PCA (if `do_pca = TRUE` was set in the
+`fitted_models` object and the corresponding variables. These variables
+can be provided as either a `SpatRaster` or a `data.frame`. The names of
+the variables (or columns in the `data.frame`) must precisely match
+those used for model calibration or those used when running PCA (if
+`do_pca = TRUE` was set in the
 [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
 function; see [Prepare Data for Model
 Calibration](https://marlonecobos.github.io/kuenm2/articles/prepare_data.md)
@@ -363,7 +362,7 @@ terra::plot(p_raw$General_consensus$mean, main = "Raw", zlim = c(0, 1))
 
 By default, predictions are performed with free extrapolation
 (`extrapolation_type = "E"`). This can be problematic when the peak of
-suitability occurs at the extremes of a predictor’s range. For example,
+suitability occurs at the extremes of a variable’s range. For example,
 let’s examine the response curve of the Maxnet model for `bio_7`
 (Temperature Annual Range):
 
@@ -461,9 +460,9 @@ Note that when we clamp the variables, regions with extremely low values
 of (the hypothetical) `bio_7` exhibit lower predicted suitability values
 compared to when free extrapolation is allowed.
 
-By default, when `extrapolation_type = "EC"` is set, all predictor
-variables are clamped. You can specify which variables to clamp using
-the `var_to_restrict` argument.
+By default, when `extrapolation_type = "EC"` is set, all variables are
+clamped. You can specify which variables to clamp using the
+`var_to_restrict` argument.
 
   
 
@@ -501,10 +500,9 @@ region has `bio_7` values lower than those in the training data, which
 has a minimum of 15ºC. Suitability values greater than zero are only in
 areas where `bio_7` falls within the training range.
 
-By default, when `extrapolation_type = "NE"` is set, all predictor
-variables are considered for this process. You can specify a subset of
-variables to be considered for extrapolation using the `var_to_restrict`
-argument.
+By default, when `extrapolation_type = "NE"` is set, all variables are
+considered for this process. You can specify a subset of variables to be
+considered for extrapolation using the `var_to_restrict` argument.
 
   
 
@@ -616,49 +614,56 @@ to save specific output predictions manually. For example, to save only
 the mean layer from the general consensus results:
 
 ``` r
-writeRaster(p_maxnet$General_consensus$mean, 
-            filename = file.path(tempdir(), "Mean_consensus.tif"))
+terra::writeRaster(p_maxnet$General_consensus$mean, 
+                   filename = file.path(tempdir(), "Mean_consensus.tif"))
 ```
 
-## Detecting changes between single scenarios
+  
 
-To compare predictions from two single scenarios representing different
-time periods (e.g., present vs. future or present vs. past), the
-function
+## Detecting changes in predictions
+
+To compare predictions between two single scenarios representing
+different time periods (e.g., present vs. future or present vs. past),
+the function
 [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
-can be used to identify areas of **loss (contraction)**, **gain
-(expansion)**, and **stability (no change)** in suitable conditions.
+can be used. This function helps to identify **loss (contraction)**,
+**gain (expansion)**, and **stability (no change)** of suitable areas.
 
 As an example, we will project the fitted model to a **single GCM**
 representing future climatic conditions:
 
 ``` r
+# Read layers representing future conditions
 future_var <- terra::rast(system.file("extdata",
                                       "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2081-2100.tif",
                                       package = "kuenm2"))
-plot(future_var)
+
+# Plot future layers
+terra::plot(future_var)
 ```
 
 ![](model_predictions_files/figure-html/import%20var%20future-1.png)
 
+  
+
 Next, we need to rename the variables so that they match the variable
-names used when fitting the models:
+names used when fitting the models. After that, we will also apappend
+the static soil variable to the set of future variables.
 
 ``` r
+# renaming layers to match names of variables used to fit the model
 names(future_var) <- sub("bio0", "bio", names(future_var))
 names(future_var) <- sub("bio", "bio_", names(future_var))
 names(var)
 #> [1] "bio_1"    "bio_7"    "bio_12"   "bio_15"   "SoilType"
 names(future_var)
 #> [1] "bio_1"  "bio_7"  "bio_12" "bio_15"
-```
 
-We also need to append the static soil variable to the set of future
-predictors:
-
-``` r
+# Adding soil layer to future variable set
 future_var <- c(future_var, var$SoilType)
 ```
+
+  
 
 Now we can generate predictions under future environmental conditions:
 
@@ -669,18 +674,20 @@ p_future <- predict_selected(models = fitted_model_maxnet,
                              progress_bar = FALSE)
 
 # Plot consensus (mean)
-plot(c(p_maxnet$General_consensus$mean,
-       p_future$General_consensus$mean),
-     main = c("Present", "Future (SSP 585, 2081-2100)"))
+terra::plot(c(p_maxnet$General_consensus$mean,
+              p_future$General_consensus$mean),
+            main = c("Present", "Future (SSP 585, 2081-2100)"))
 ```
 
-![](model_predictions_files/figure-html/unnamed-chunk-6-1.png)
+![](model_predictions_files/figure-html/unnamed-chunk-5-1.png)
+
+  
 
 To identify how suitable areas change between scenarios, we can use
 [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md).
-This function binarizes the predictions using the threshold stored in
-the fitted models and then classifies each cell as gain, loss, or stable
-suitability.
+This function computes binary layers from the predictions using the
+threshold stored in the fitted models, compares current and future
+predictions, and then classifies each cell as gain, loss, or stable.
 
 ``` r
 # Compute changes between scenarios
@@ -688,25 +695,27 @@ p_changes <- prediction_changes(current_predictions = p_maxnet$General_consensus
                                 new_predictions = p_future$General_consensus$mean,
                                 fitted_models = fitted_model_maxnet,
                                 predicted_to = "future")
+
 # Plot result
 terra::plot(p_changes)
 ```
 
-![](model_predictions_files/figure-html/unnamed-chunk-7-1.png)
+![](model_predictions_files/figure-html/detect%20changes-1.png)
 
-In this example, we are comparing current predictions with future
-predictions, so the argument `predicted_to = "future"` is used. If the
-comparison were with past predictions, this argument should be set
-accordingly to ensure that gains and losses are classified correctly.
+  
+
+In this example, we are comparing current and future predictions, so we
+set `predicted_to = "future"`. If a comparison with past predictions is
+needed, this argument should be set accordingly to ensure that
+categories of change or stability are assigned correctly.
 
 The
 [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
 function is designed to compute changes between single scenarios,
-meaning that the new scenario is represented by one GCM. If projections
-include multiple GCMs, the function
+meaning that the new scenario is represented by one set of layers. If
+projections include multiple GCMs, the function
 [`projection_changes()`](https://marlonecobos.github.io/kuenm2/reference/projection_changes.md)
-should be used instead.
-
-For more details on projecting models to multiple scenarios, see the
+should be used instead. For more details on projecting models and
+detecting changes with summaries across multiple scenarios, see the
 vignette [6. Project Models to Multiple
 Scenarios](https://marlonecobos.github.io/kuenm2/articles/model_projections.md).
