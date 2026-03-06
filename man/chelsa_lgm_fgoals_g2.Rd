@@ -14,8 +14,7 @@ bring raster variables to analysis.
 Raster layer containing bioclimatic variables representing Last Glacial
 Maximum (LGM) climatic conditions based on the FGOALS-g2 General Circulation
 Model. The variables were resampled to 10arc-minutes and masked using the \code{m}
-provided in the package. Data sourced from CHELSA:
-\url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+provided in the package.
 }
 \examples{
 chelsa_lgm_fgoals_g2 <- terra::rast(system.file("extdata",
