@@ -81,7 +81,7 @@ For more details about model projections, see ["Project Models to a Single Scena
 # Import calib_results_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
 
-# Import path to raster files with future predictors provided as example
+# Import path to raster files with future variables provided as example
 # The data is located in the "inst/extdata" folder.
 in_dir <- system.file("extdata", package = "kuenm2")
 

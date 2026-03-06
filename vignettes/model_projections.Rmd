@@ -21,11 +21,11 @@ knitr::opts_chunk$set(
 - [Description](#description)
 - [Getting ready](#getting-ready)
 - [Fitted models](#fitted-models)
-- [Predictors for projections](#predictors-for-projections)
-  - [Preparing predictors from WorldClim](#preparing-predictors-from-worldclim)
-    - [Format for renaming](#format-for-renaming)
-    - [Static variables](#static-variables)
-    - [Organizing files](#organizing-files)
+- [Variables for projections](#variables-for-projections)
+  - [Variables from WorldClim](#variables-from-worldclim)
+  - [Format for renaming](#format-for-renaming)
+  - [Static variables](#static-variables)
+  - [Organizing files](#organizing-files)
 - [Preparing data for projections](#preparing-data-for-projections)
 - [Projecting to multiple scenarios](#projecting-to-multiple-scenarios)
 - [Importing results from projections](#importing-results-from-projections)
@@ -80,15 +80,15 @@ fitted_model_maxnet
 
 <br> 
 
-# Predictors for projections
+# Variables for projections
 
-Predicting models for a single scenario requires a single `SpatRaster` object containing the predictor variables (as detailed in [Predict Models to a Single Scenario](model_predictions.html)). In contrast, projecting models to multiple scenarios requires a folder that stores predictor variables for each scenario organized in a certain way.
+Predicting models for a single scenario requires a single `SpatRaster` object containing the variables (as detailed in [Predict Models to a Single Scenario](model_predictions.html)). In contrast, projecting models to multiple scenarios requires a folder that stores variables for each scenario organized in a certain way.
 
 To ensure the following automated process can correctly track variables, the data must follow a strict hierarchical directory structure. At the top level, a *Base Directory* serves as the primary container for all project data. Inside this base folder, the first level of organization consists of subfolders for distinct *Time Periods*, such as future years (e.g., "2070", "2100") or paleoclimate eras (e.g., "Mid-holocene", "LGM"). Within each period folder, *if applicable*, you should include subfolders at the second level for each *Emission Scenario* (e.g., "ssp126", "ssp585"). Finally, within each emission scenario or time period folder, the third level should include a separate folder for each *General Circulation Model* (GCM) (e.g., "BCC-CSM2-MR", "MIROC6") to house the actual raster variables. This structured organization enables the function to automatically access and process the data according to period, emission scenario, and GCM.
 
 <br> 
 
-## Preparing predictors from WorldClim
+## Variables from WorldClim
 
 The package provides a function to import future climate variables downloaded from WorldClim (version 2.1). This function renames the files and organizes them into folders categorized by period/year, emission scenario (Shared Socioeconomic Pathways; SSPs), and General Circulation Model (GCM). This simplifies the preparation of climate data, ensuring all required variables are properly structured for modeling projections.
 
@@ -97,7 +97,7 @@ To use this function, download the [future raster variables from WorldClim 2.1](
 The package also provides an example of raw variables downloaded from WorldClim 2.1. This example includes bioclimatic predictions for the periods "2041-2060" and "2081-2100", for two SSPs (125 and 585) and two GCMs (ACCESS-CM2 and MIROC6), at 10 arc-minutes resolution.
 
 ```{r}
-# See raster files with future predictors provided as example
+# See raster files with future variables provided as example
 # The data is located in the "inst/extdata" folder.
 in_dir <- system.file("extdata", package = "kuenm2")
 list.files(in_dir)
@@ -165,7 +165,7 @@ Now, we can organize and structure the files using the `organize_future_worldcli
 
 <br> 
 
-### Format for renaming
+## Format for renaming
 
 The argument `name_format` defines the format for renaming variables. The names of the variables in the `SpatRaster` must precisely match those used when preparing data, even if a PCA was performed internally (if `do_pca = TRUE`; see [Prepare Data for Model Calibration](prepare_data.html) for details). If the variables used to create the models were "bio_1", "bio_2", etc., the variables representing other scenarios must be "bio_1", "bio_2", etc. However, if the names don't match exactly, projections can fail (always check uppercase letters or zeros before single-digit numbers (e.g., "Bio_01", "Bio_02", etc.). The function `organize_future_worldclim()` provides four renaming options:
 
@@ -186,7 +186,7 @@ The variables follow the standards of the first option (`"bio_"`).
 
 <br> 
 
-### Static variables
+## Static variables
 
 When predicting to other times, some variables could be static (i.e., they remain unchanged in scenarios of projections). The `static_variables` argument allows users to append static variables alongside the Bioclimatic ones. First, let's bring `soilType`, which will remain static in future scenarios (we will use it in a later step). 
 
@@ -200,7 +200,7 @@ soiltype <- var$SoilType
 
 <br> 
 
-### Organizing files
+## Organizing files
 
 Now, let's organize the WorldClim files with the `organize_future_worldclim()` function:
 
@@ -264,7 +264,7 @@ After organizing variables, the next step is to create an object that prepares t
 
 To prepare data for model projections across multiple scenarios, storing the paths to the raster layers representing each scenario, we use the function `prepare_projection()`.
 
-In contrast to `predict_selected()`, which requires a `SpatRaster` object, when projecting to multiple scenarios, we need the paths to the folders where the raster files are stored. This includes the variables for the present time, which were used to calibrate and fit the models. Currently, we only have the future climate files. The present-day predictor variables must reside in the same base directory as the processed future variables. Let's copy the raster layers used for model fitting to a folder we can easily direct the function that runs the next step:
+In contrast to `predict_selected()`, which requires a `SpatRaster` object, when projecting to multiple scenarios, we need the paths to the folders where the raster files are stored. This includes the variables for the present time, which were used to calibrate and fit the models. Currently, we only have the future climate files. The present-day variables must reside in the same base directory as the processed future variables. Let's copy the raster layers used for model fitting to a folder we can easily direct the function that runs the next step:
 
 ```{r copy present}
 # Create a "Current_raw" folder in a temporary directory
@@ -300,7 +300,7 @@ pr <- prepare_projection(models = fitted_model_maxnet,
 
 <br> 
 
-The `projection_data` object summarizes information about all the scenarios we will project to, and shows the root directory where the predictors are stored:
+The `projection_data` object summarizes information about all the scenarios we will project to, and shows the root directory where the variables are stored:
 
 ```{r print pr}
 pr
@@ -312,7 +312,7 @@ If we check the structure of the `prepared_projection` object, we can see it's a
 
 * Paths to all variables representing distinct scenarios in subfolders.
 * The pattern used to identify the format of raster files within the folders (by default, `*.tif`).
-* The names of the predictors.
+* The names of the variables.
 * A list of class `prcomp` if a Principal Component Analysis (PCA) was performed on the set of variables with `prepare_data()`.
 
 ```{r str pr, eval = FALSE}
@@ -461,12 +461,7 @@ terra::plot(p_2060_ssp126, cex.main = 0.8)
 
 With the `model_projections` object, we can compute changes in suitable areas (`projection_changes()`), explore variability patterns coming from replicates, parameterizations, and GCMs (`projection_variability()`), and perform analysis of extrapolation risks (`projection_mop()`). For more details, check [Explore Variability and Uncertainty in Projections](variability_and_uncertainty.html).
 
-<br> 
-
-```{r par_reset}
-# Reset plotting parameters
-par(original_par) 
-```
+<br>
 
 # Detecting changes in projections
 
@@ -599,3 +594,10 @@ changes <- readRDS(file.path(out_dir, "Projection_changes/changes_projections.rd
 <br>
 
 After saving, this object can be used to import specific results with the `import_results()` function.
+
+<br> 
+
+```{r par_reset}
+# Reset plotting parameters
+par(original_par) 
+```
