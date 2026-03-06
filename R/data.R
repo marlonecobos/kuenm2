@@ -377,8 +377,7 @@ NULL
 #' Raster layer containing bioclimatic variables representing Last Glacial
 #' Maximum (LGM) climatic conditions based on the CCSM4 General Circulation
 #' Model (GCM). The variables were resampled to 10arc-minutes and masked using
-#' the `m` provided in the package. Data sourced from CHELSA:
-#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#' the `m` provided in the package.
 #'
 #' @format A `SpatRaster` object.
 #'
@@ -400,8 +399,7 @@ NULL
 #' Raster layer containing bioclimatic variables representing Last Glacial
 #' Maximum (LGM) climatic conditions based on the CNRM-CM5 General Circulation
 #' Model. The variables were resampled to 10arc-minutes and masked using the `m`
-#' provided in the package. Data sourced from CHELSA:
-#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#' provided in the package.
 #'
 #' @format A `SpatRaster` object.
 #'
@@ -422,8 +420,7 @@ NULL
 #' Raster layer containing bioclimatic variables representing Last Glacial
 #' Maximum (LGM) climatic conditions based on the FGOALS-g2 General Circulation
 #' Model. The variables were resampled to 10arc-minutes and masked using the `m`
-#' provided in the package. Data sourced from CHELSA:
-#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#' provided in the package.
 #'
 #' @format A `SpatRaster` object.
 #'
@@ -444,8 +441,7 @@ NULL
 #' Raster layer containing bioclimatic variables representing Last Glacial
 #' Maximum (LGM) climatic conditions based on the IPSL-CM5A-LR General
 #' Circulation Model. The variables were resampled to 10arc-minutes and masked
-#' using the `m` provided in the package. Data sourced from CHELSA:
-#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#' using the `m` provided in the package.
 #'
 #' @format A `SpatRaster` object.
 #'
@@ -466,8 +462,7 @@ NULL
 #' Raster layer containing bioclimatic variables representing Last Glacial
 #' Maximum (LGM) climatic conditions based on the MIROC-ESM General Circulation
 #' Model. The variables were resampled to 10arc-minutes and masked using the `m`
-#' provided in the package. Data sourced from CHELSA:
-#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#' provided in the package.
 #'
 #' @format A `SpatRaster` object.
 #'
@@ -488,8 +483,7 @@ NULL
 #' Raster layer containing bioclimatic variables representing Last Glacial
 #' Maximum (LGM) climatic conditions based on the MPI-ESM-P General Circulation
 #' Model. The variables were resampled to 10arc-minutes and masked using the `m`
-#' provided in the package. Data sourced from CHELSA:
-#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#' provided in the package.
 #'
 #' @format A `SpatRaster` object.
 #'
@@ -510,8 +504,7 @@ NULL
 #' Raster layer containing bioclimatic variables representing Last Glacial
 #' Maximum (LGM) climatic conditions based on the MRI-CGCM3 General Circulation
 #' Model. The variables were resampled to 10arc-minutes and masked using the `m`
-#' provided in the package. Data sourced from CHELSA:
-#' \url{https://chelsa-climate.org/last-glacial-maximum-climate/}
+#' provided in the package.
 #'
 #' @format A `SpatRaster` object.
 #'
