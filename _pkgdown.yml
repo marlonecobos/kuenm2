@@ -12,7 +12,6 @@ template:
     input-color: "#212529"  # color text search bar
     navbar-light-bg: "#007bff" #color for navbar when light
     navbar-dark-bg: "#00008B" #color for navbar when dark
-    pkgdown-logo-size: 0  # no aautomatic logo in website
 
 # navigation bar configuration
 navbar:
