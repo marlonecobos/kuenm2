@@ -647,8 +647,8 @@ terra::plot(future_var)
   
 
 Next, we need to rename the variables so that they match the variable
-names used when fitting the models. After that, we will also apappend
-the static soil variable to the set of future variables.
+names used when fitting the models. After that, we will also append the
+static soil variable to the set of future variables.
 
 ``` r
 # renaming layers to match names of variables used to fit the model

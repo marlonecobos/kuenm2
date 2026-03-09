@@ -641,8 +641,8 @@ GCM</strong> representing future climatic conditions:</p>
 <p><img src="model_predictions_files/figure-html/import%20var%20future-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 <p>Next, we need to rename the variables so that they match the variable
-names used when fitting the models. After that, we will also apappend
-the static soil variable to the set of future variables.</p>
+names used when fitting the models. After that, we will also append the
+static soil variable to the set of future variables.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># renaming layers to match names of variables used to fit the model</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"bio0"</span>, <span class="st">"bio"</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">future_var</span><span class="op">)</span><span class="op">)</span></span>
