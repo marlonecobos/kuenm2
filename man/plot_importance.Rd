@@ -18,13 +18,11 @@ plot_importance(x, xlab = NULL, ylab = "Relative contribution",
 
 \item{extra_info}{(logical) when results are from more than one model, it adds information about the number of models using each predictor and the mean contribution found.}
 
-\item{...}{additional arguments passed to barplot or boxplot.
-
-Value
-A barplot or boxplot depending on the number of models considered.}
+\item{...}{additional arguments passed to barplot or boxplot.}
 }
 \value{
-A plot
+No return value, called for side effects (a barplot or boxplot depending on
+the number of models considered..
 }
 \description{
 See details in \code{\link[enmpa]{plot_importance}}

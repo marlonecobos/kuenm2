@@ -55,7 +55,7 @@
 #' @importFrom stats na.omit setNames
 #'
 #' @return
-#' A plot
+#' No return value, called for side effects (plots histograms).
 #'
 #' @export
 #'
