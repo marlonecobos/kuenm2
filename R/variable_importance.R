@@ -339,6 +339,9 @@ get_red_devmx <- function(reduce_var, p, data, f, rm, algorithm) {
 #' plot_importance(x, xlab = NULL, ylab = "Relative contribution",
 #'                 main = "Variable importance", extra_info = TRUE, ...)
 #'
+#' @return
+#' A plot
+#'
 #' @export
 
 plot_importance <- enmpa::plot_importance

@@ -75,6 +75,10 @@
 #' @importFrom stats setNames quantile
 #' @importFrom terra vect crop plot points
 #' @importFrom graphics layout par plot.new plot rect
+#'
+#' @return
+#' A plot
+#'
 #' @export
 #'
 #' @examples

@@ -65,6 +65,9 @@ the y-axis will be labeled as "Frequency".}
 the plot layout, e.g., c(rows, columns). Default is NULL, meaning
 the grid will be arranged automatically based on the number of plots.}
 }
+\value{
+A plot
+}
 \description{
 Plots histograms to visualize data from an \code{explore_calibration} object
 generated with the \code{explore_calibration_hist} function.

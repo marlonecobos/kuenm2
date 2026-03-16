@@ -53,6 +53,10 @@
 #' @importFrom grDevices adjustcolor
 #' @importFrom graphics par abline box barplot
 #' @importFrom stats na.omit setNames
+#'
+#' @return
+#' A plot
+#'
 #' @export
 #'
 #' @examples

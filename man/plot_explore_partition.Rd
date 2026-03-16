@@ -118,6 +118,9 @@ based on the number of partitions.}
 
 \item{...}{additional arguments passed to \code{plot()}.}
 }
+\value{
+A plot
+}
 \description{
 Visualize data from an \code{explore_partition} object generated with the
 \code{explore_partition_extrapolation} function.
