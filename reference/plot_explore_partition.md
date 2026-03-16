@@ -170,6 +170,10 @@ plot_explore_partition(
   additional arguments passed to
   [`plot()`](https://rspatial.github.io/terra/reference/plot.html).
 
+## Value
+
+A plot
+
 ## Examples
 
 ``` r

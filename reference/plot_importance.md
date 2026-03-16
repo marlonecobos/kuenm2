@@ -41,3 +41,7 @@ plot_importance(x, xlab = NULL, ylab = "Relative contribution",
 
   Value A barplot or boxplot depending on the number of models
   considered.
+
+## Value
+
+A plot

@@ -99,6 +99,10 @@ plot_calibration_hist(explore_calibration, color_m = "grey",
   plot layout, e.g., c(rows, columns). Default is NULL, meaning the grid
   will be arranged automatically based on the number of plots.
 
+## Value
+
+A plot
+
 ## Examples
 
 ``` r
