@@ -119,7 +119,8 @@ based on the number of partitions.}
 \item{...}{additional arguments passed to \code{plot()}.}
 }
 \value{
-A plot
+No return value, called for side effects (plots the partitions in G or E
+space).
 }
 \description{
 Visualize data from an \code{explore_partition} object generated with the

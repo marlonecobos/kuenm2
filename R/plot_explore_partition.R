@@ -77,7 +77,8 @@
 #' @importFrom graphics layout par plot.new plot rect
 #'
 #' @return
-#' A plot
+#' No return value, called for side effects (plots the partitions in G or E
+#' space).
 #'
 #' @export
 #'
@@ -142,7 +143,8 @@ plot_explore_partition <- function(explore_partition,
     if (length(variables_out) > 0) {
       stop("Invalid 'variables' provided.",
            "\nAvailable options are: ",
-           paste(colnames(explore_partition$calibration_data[, -1]), collapse = ", "))
+           paste(colnames(explore_partition$calibration_data[, -1]),
+                 collapse = ", "))
     }
     if(any(variables %in% explore_partition$categorical_variables)){
       stop("Categorical variable not supported.",
@@ -156,7 +158,8 @@ plot_explore_partition <- function(explore_partition,
 
   if(!is.null(calibration_area)){
     if(!inherits(calibration_area, c("SpatVector", "SpatRaster", "SpatExtent"))){
-      stop("Argument 'calibration_area' must be a 'SpatVector', 'SpatRaster', 'SpatExtent' or 'NULL'.")
+      stop("Argument 'calibration_area' must be a 'SpatVector', 'SpatRaster',
+           'SpatExtent' or 'NULL'.")
     }
   }
 
@@ -180,7 +183,8 @@ plot_explore_partition <- function(explore_partition,
     stop("Invalid 'out_range_color' provided.",
          "Provide a valid color")
   }
-  if(!valid_color(calibration_area_col) | !inherits(calibration_area_col, "character")){
+  if(!valid_color(calibration_area_col) | !inherits(calibration_area_col,
+                                                    "character")){
     stop("Invalid 'calibration_area_col' provided.",
          "Provide a valid color")
   }
@@ -301,14 +305,16 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
 
   # Reshape this sequence into the main plot grid matrix
   # Use byrow = TRUE to fill row by row, matching the original intention
-  plot_layout_matrix <- matrix(cell_ids, nrow = n_rows, ncol = n_cols, byrow = TRUE)
+  plot_layout_matrix <- matrix(cell_ids, nrow = n_rows, ncol = n_cols,
+                               byrow = TRUE)
   plot_layout_matrix[plot_layout_matrix > n_plots] <- 0
 
   # Add an extra row specifically for the legend (occupying all columns)
   # This guarantees the legend gets its own dedicated line below the plots.
   layout_matrix_final <- rbind(plot_layout_matrix, rep(legend_cell_id, n_cols))
 
-  # Adjust heights: the last row will be smaller (i.e, 20% the height of the plots)
+  # Adjust heights: the last row will be smaller
+  # (i.e, 20% the height of the plots)
   heights <- c(rep(1, n_rows), legend.margin)
 
   #Define colors for mop distance
@@ -359,7 +365,8 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
     if("distance" %in% type_of_plot){
       # Apply the layout
       graphics::layout(mat = layout_matrix_final, heights = heights)
-      graphics::par(mar = c(4, 4, 2, 1)) # Standard plot margins for the individual plots
+      # Standard plot margins for the individual plots
+      graphics::par(mar = c(4, 4, 2, 1))
 
       for(i in partitions){
         partition_i <- d[d$Partition == i,]
@@ -383,8 +390,8 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
         }
 
         #Start plotting partitions
-        terra::plot(calibration_area, col = calibration_area_col, legend = FALSE,
-                    main = i, ...)
+        terra::plot(calibration_area, col = calibration_area_col,
+                    legend = FALSE, main = i, ...)
         terra::points(partition_i[, c("x", "y")],
                       col = cores_i, bg = bg_plot, pch = pch_i, cex = cex_plot)
     }
@@ -405,7 +412,8 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
     if("simple" %in% type_of_plot){
       # Apply the layout
       graphics::layout(mat = layout_matrix_final, heights = heights)
-      graphics::par(mar = c(4, 4, 2, 1)) # Standard plot margins for the individual plots
+      # Standard plot margins for the individual plots
+      graphics::par(mar = c(4, 4, 2, 1))
       for(i in partitions){
         partition_i <- d[d$Partition == i,]
         partition_i <- partition_i[order(partition_i$n_var_out),]
@@ -432,8 +440,8 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
         }
 
         #Start plotting
-        terra::plot(calibration_area, col = calibration_area_col, legend = FALSE,
-                    main = i, ...)
+        terra::plot(calibration_area, col = calibration_area_col,
+                    legend = FALSE, main = i, ...)
         terra::points(partition_i[, c("x", "y")],
                       col = cores_i, bg = bg_plot, pch = pch_i, cex = cex_plot)
 
@@ -458,7 +466,8 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
     if("distance" %in% type_of_plot){
       # Apply the layout
       graphics::layout(mat = layout_matrix_final, heights = heights)
-      graphics::par(mar = c(4, 4, 2, 1)) # Standard plot margins for the individual plots
+      # Standard plot margins for the individual plots
+      graphics::par(mar = c(4, 4, 2, 1))
       #Start plot partitions
       for(i in partitions){
         #Subset calibration data
@@ -506,8 +515,8 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
       graphics::plot.new()
       SpectrumLegend("top",  # Legend position
                               horiz = T,
-                              palette = pal_cores, # Display our chosen palette
-                              legend = legend_labels,  # Annotate positions on legend
+                              palette = pal_cores,
+                              legend = legend_labels,
                               title = "MOP Distance", lwd = lwd_legend,
                               bty = "n", cex = size_text_legend, adj = c(0.5, 1))
     }
@@ -515,7 +524,8 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
     if("simple" %in% type_of_plot){
       # Apply the layout
       graphics::layout(mat = layout_matrix_final, heights = heights)
-      graphics::par(mar = c(4, 4, 2, 1)) # Standard plot margins for the individual plots
+      # Standard plot margins for the individual plots
+      graphics::par(mar = c(4, 4, 2, 1))
       # Order dataframe
       for(i in partitions){
         partition_i <- d[d$Partition == i,]

@@ -332,15 +332,13 @@ get_red_devmx <- function(reduce_var, p, data, f, rm, algorithm) {
 #' @param extra_info (logical) when results are from more than one model, it adds information about the number of models using each predictor and the mean contribution found.
 #' @param ... additional arguments passed to barplot or boxplot.
 #'
-#' Value
-#' A barplot or boxplot depending on the number of models considered.
-#'
 #' @usage
 #' plot_importance(x, xlab = NULL, ylab = "Relative contribution",
 #'                 main = "Variable importance", extra_info = TRUE, ...)
 #'
 #' @return
-#' A plot
+#' No return value, called for side effects (a barplot or boxplot depending on
+#' the number of models considered..
 #'
 #' @export
 
