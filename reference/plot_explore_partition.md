@@ -172,7 +172,8 @@ plot_explore_partition(
 
 ## Value
 
-A plot
+No return value, called for side effects (plots the partitions in G or E
+space).
 
 ## Examples
 

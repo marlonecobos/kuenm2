@@ -39,9 +39,7 @@ plot_importance(x, xlab = NULL, ylab = "Relative contribution",
 
   additional arguments passed to barplot or boxplot.
 
-  Value A barplot or boxplot depending on the number of models
-  considered.
-
 ## Value
 
-A plot
+No return value, called for side effects (a barplot or boxplot depending
+on the number of models considered..

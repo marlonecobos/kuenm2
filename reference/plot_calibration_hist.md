@@ -101,7 +101,7 @@ plot_calibration_hist(explore_calibration, color_m = "grey",
 
 ## Value
 
-A plot
+No return value, called for side effects (plots histograms).
 
 ## Examples
 
