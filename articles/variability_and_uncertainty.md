@@ -105,7 +105,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from 
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmp2ghTky/Future_raw
+#> /tmp/RtmpW6nHVd/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 # and copy the rawvariables there.
@@ -614,13 +614,23 @@ layers as `new_data`:
 par(mfrow = c(1,3))  # Set plot grid
 response_curve(models = fitted_model_maxnet, variable = "bio_1", 
                new_data = future_ACCESS_CM2)
+```
+
+![](variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png)
+
+``` r
 response_curve(models = fitted_model_maxnet, variable = "bio_12", 
                new_data = future_ACCESS_CM2)
+```
+
+![](variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-2.png)
+
+``` r
 response_curve(models = fitted_model_maxnet, variable = "bio_15", 
                new_data = future_ACCESS_CM2)
 ```
 
-![](variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png)
+![](variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-3.png)
 
   
 

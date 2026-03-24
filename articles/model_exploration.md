@@ -263,7 +263,7 @@ An easy way to explore response curves for all variables is as follows:
 all_response_curves(fm)
 ```
 
-![](model_exploration_files/figure-html/all%20var%20resps-1.png)
+![](model_exploration_files/figure-html/all%20var%20resps-1.png)![](model_exploration_files/figure-html/all%20var%20resps-2.png)![](model_exploration_files/figure-html/all%20var%20resps-3.png)![](model_exploration_files/figure-html/all%20var%20resps-4.png)
 
   
 
@@ -279,7 +279,7 @@ the response curve for each of the models fitted look like, the argument
 all_response_curves(fm, show_lines = TRUE)
 ```
 
-![](model_exploration_files/figure-html/all%20var%20resps1-1.png)
+![](model_exploration_files/figure-html/all%20var%20resps1-1.png)![](model_exploration_files/figure-html/all%20var%20resps1-2.png)![](model_exploration_files/figure-html/all%20var%20resps1-3.png)![](model_exploration_files/figure-html/all%20var%20resps1-4.png)
 
   
 
@@ -292,7 +292,7 @@ variable response curves for the full model.
 all_response_curves(fm, modelID = "Model_219")
 ```
 
-![](model_exploration_files/figure-html/all%20var%20resps2-1.png)
+![](model_exploration_files/figure-html/all%20var%20resps2-1.png)![](model_exploration_files/figure-html/all%20var%20resps2-2.png)![](model_exploration_files/figure-html/all%20var%20resps2-3.png)![](model_exploration_files/figure-html/all%20var%20resps2-4.png)
 
   
 
@@ -305,7 +305,7 @@ multiple-line approaches can be used to show variability.
 all_response_curves(fm, modelID = "Model_219", show_variability = TRUE)
 ```
 
-![](model_exploration_files/figure-html/all%20var%20resps3-1.png)
+![](model_exploration_files/figure-html/all%20var%20resps3-1.png)![](model_exploration_files/figure-html/all%20var%20resps3-2.png)![](model_exploration_files/figure-html/all%20var%20resps3-3.png)![](model_exploration_files/figure-html/all%20var%20resps3-4.png)
 
 ``` r
 
@@ -314,7 +314,7 @@ all_response_curves(fm, modelID = "Model_219", show_variability = TRUE,
                     show_lines = TRUE)
 ```
 
-![](model_exploration_files/figure-html/all%20var%20resps3-2.png)
+![](model_exploration_files/figure-html/all%20var%20resps3-5.png)![](model_exploration_files/figure-html/all%20var%20resps3-6.png)![](model_exploration_files/figure-html/all%20var%20resps3-7.png)![](model_exploration_files/figure-html/all%20var%20resps3-8.png)
 
   
 
@@ -350,12 +350,27 @@ This time let’s change the margins and labels for each plot
 ``` r
 par(mfrow = c(2, 2), mar = c(4, 4, 1, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", las = 1)
-response_curve(models = fm, variable = "bio_7", ylab = "", las = 1)
-response_curve(models = fm, variable = "bio_12", las = 1)
-response_curve(models = fm, variable = "bio_15", ylab = "", las = 1)
 ```
 
 ![](model_exploration_files/figure-html/response%20curve-1.png)
+
+``` r
+response_curve(models = fm, variable = "bio_7", ylab = "", las = 1)
+```
+
+![](model_exploration_files/figure-html/response%20curve-2.png)
+
+``` r
+response_curve(models = fm, variable = "bio_12", las = 1)
+```
+
+![](model_exploration_files/figure-html/response%20curve-3.png)
+
+``` r
+response_curve(models = fm, variable = "bio_15", ylab = "", las = 1)
+```
+
+![](model_exploration_files/figure-html/response%20curve-4.png)
 
   
 
@@ -366,15 +381,30 @@ generate the response curves:
 par(mfrow = c(2, 2), mar = c(4, 4, 2.5, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", modelID = "Model_192", 
                main = "Model_192", las = 1)
+```
+
+![](model_exploration_files/figure-html/response%20ID-1.png)
+
+``` r
 response_curve(models = fm, variable = "bio_1", modelID = "Model_219", 
                main = "Model_219", ylab = "", las = 1)
+```
+
+![](model_exploration_files/figure-html/response%20ID-2.png)
+
+``` r
 response_curve(models = fm, variable = "bio_7", modelID = "Model_192", 
                main = "Model_192", las = 1)
+```
+
+![](model_exploration_files/figure-html/response%20ID-3.png)
+
+``` r
 response_curve(models = fm, variable = "bio_7", modelID = "Model_219", 
                main = "Model_219", ylab = "", las = 1)
 ```
 
-![](model_exploration_files/figure-html/response%20ID-1.png)
+![](model_exploration_files/figure-html/response%20ID-4.png)
 
   
 
@@ -394,15 +424,30 @@ extrapolation factor of 2:
 par(mfrow = c(2, 2), mar = c(4, 4, 1, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", extrapolation_factor = 2, 
                las = 1)
+```
+
+![](model_exploration_files/figure-html/extrapolation%20factor-1.png)
+
+``` r
 response_curve(models = fm, variable = "bio_7", extrapolation_factor = 2,
                ylab = "", las = 1)
+```
+
+![](model_exploration_files/figure-html/extrapolation%20factor-2.png)
+
+``` r
 response_curve(models = fm, variable = "bio_12", extrapolation_factor = 2,
                las = 1)
+```
+
+![](model_exploration_files/figure-html/extrapolation%20factor-3.png)
+
+``` r
 response_curve(models = fm, variable = "bio_15", extrapolation_factor = 2,
                ylab = "", las = 1)
 ```
 
-![](model_exploration_files/figure-html/extrapolation%20factor-1.png)
+![](model_exploration_files/figure-html/extrapolation%20factor-4.png)
 
   
 
@@ -436,11 +481,16 @@ the differences after setting `show_lines = TRUE`.
 par(mfrow = c(1, 2), mar = c(4, 4, 1, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", extrapolation_factor = 0.5, 
                las = 1)
+```
+
+![](model_exploration_files/figure-html/GAM%20vs%20lines-1.png)
+
+``` r
 response_curve(models = fm, variable = "bio_1", extrapolation_factor = 0.5, 
                show_lines = TRUE, ylab = "", las = 1)
 ```
 
-![](model_exploration_files/figure-html/GAM%20vs%20lines-1.png)
+![](model_exploration_files/figure-html/GAM%20vs%20lines-2.png)
 
   
 
@@ -498,6 +548,11 @@ par(mfrow = c(1, 2), mar = c(4, 4, 2.5, 0.5))
 # Bivariate response model 192 
 bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15", 
                    modelID = "Model_192", add_bar = FALSE, main = "Model 192")
+```
+
+![](model_exploration_files/figure-html/bivariate1-1.png)
+
+``` r
 
 # Bivariate response model 219 
 bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15", 
@@ -505,7 +560,7 @@ bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15",
                    ylab = "")
 ```
 
-![](model_exploration_files/figure-html/bivariate1-1.png)
+![](model_exploration_files/figure-html/bivariate1-2.png)
 
   
 
