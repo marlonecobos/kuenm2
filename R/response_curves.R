@@ -84,7 +84,7 @@
 #'
 #' @importFrom stats predict coef approx binomial complete.cases formula
 #' @importFrom stats model.matrix predict.glm sd
-#' @importFrom graphics abline polygon arrows image layout lines points
+#' @importFrom graphics abline polygon arrows image layout lines points par
 #' @importFrom grDevices adjustcolor
 #' @importFrom terra minmax
 #' @importFrom mgcv gam
@@ -170,6 +170,10 @@ response_curve <- function(models,
   if (!is.null(ylab) & !inherits(ylab, "character")) {
     stop("Argument 'ylab' must be NULL or a 'character'.")
   }
+
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
 
   # if data is not defined it is extracted from the models kuenm2 object
   if (is.null(data)) {
@@ -277,6 +281,10 @@ all_response_curves <- function(models,
   if (!inherits(models, "fitted_models")) {
     stop("Argument 'models' must be a fitted_models object.")
   }
+
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
 
   # patterns to remove from predictors
   pattern <- "I\\(|\\^2\\)|categorical\\(|\\)|thresholds\\(|hinge\\("
@@ -386,6 +394,10 @@ response_curve_consmx <- function(model_list, variable, data,
   if (!variable %in% colnames(data)) {
     stop("The name of the 'variable' was not defined correctly.")
   }
+
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
 
 
   if (length(model_list) == 1) {

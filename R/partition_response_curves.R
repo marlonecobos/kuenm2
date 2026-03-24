@@ -31,6 +31,11 @@
 #' `parallel = TRUE`.
 #' @param ... additional arguments passed to \code{\link[graphics]{plot}}.
 #'
+#' @importFrom graphics par points plot.new title
+#' @importFrom parallel detectCores makeCluster stopCluster
+#' @importFrom doSNOW registerDoSNOW
+#' @importFrom foreach foreach
+#'
 #' @details
 #' Response curves are generated using training portions of the data and points
 #' showed are the ones left out for testing. The partition labeled in plot
@@ -161,9 +166,9 @@ partition_response_curves <- function(calibration_results,
   })
 
   # plot response curves
-  ## par settings
-  opar <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(opar))
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
 
   ## arrangement
   allvarun <- sort(unique(unlist(coefss)))
@@ -217,11 +222,11 @@ partition_response_curves <- function(calibration_results,
                               las = las, ...)
 
         ## add testing points
-        points(datat[datat$pr_bg == 1, c(acoefss[[h]][i], "pr_bg")],
+        graphics::points(datat[datat$pr_bg == 1, c(acoefss[[h]][i], "pr_bg")],
                bg = p_col, pch = 21, cex = 0.6)
       } else {
-        plot.new()
-        title(main = main[i], ylab = ylab, cex.main = 1, font.main = 1)
+        graphics::plot.new()
+        graphics::title(main = main[i], ylab = ylab, cex.main = 1, font.main = 1)
       }
     }
   }

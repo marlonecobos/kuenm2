@@ -66,7 +66,7 @@
 #'    excluding the extrapolation factor.
 #'
 #' @importFrom stats predict coef
-#' @importFrom graphics abline points text mtext
+#' @importFrom graphics abline points text mtext par
 #'
 #' @export
 #'
@@ -210,6 +210,10 @@ detect_concave <- function(model,
   #If plot...
   if (plot) {
 
+    # Store the original par settings and reset them later
+    oldpar <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(oldpar))
+
     #Set grid of the plot
     if (!is.null(mfrow)) {
       par(mfrow = mfrow) # Create a plotting matrix
@@ -241,11 +245,6 @@ detect_concave <- function(model,
       plot_curve_direction(model, x_values, y_values, variable, x_min, x_max,
                            beta2, vertex_v, real_xmin, real_xmax, means, legend,
                            model_type)
-    }
-
-    #Set mfrow to default again
-    if (!is.null(mfrow)) {
-      par(mfrow = c(1, 1))
     }
 
   } #End of plot

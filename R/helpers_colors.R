@@ -123,8 +123,12 @@ SpectrumLegend <- function(
     horiz = FALSE,
     lend = "butt",
     cex = 1,
-    seg.len = 1
-) {
+    seg.len = 1) {
+
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
+
   if (is.function(palette)) {
     palette <- palette(256)
   }
@@ -195,10 +199,10 @@ SpectrumLegend <- function(
   epsY <- abs(segY[[nPlus1]] - segY[[1]]) * epsilon
   x <- cbind(segX[-nPlus1], segX[-1] + epsX)
   y <- cbind(segY[-nPlus1], segY[-1] + epsY)
-  if (par("xlog")) {
+  if (graphics::par("xlog")) {
     x <- 10^x
   }
-  if (par("ylog")) {
+  if (graphics::par("ylog")) {
     y <- 10^y
   }
   graphics::segments(x[, 1], y[, 1], x[, 2], y[, 2], col = palette, lwd = lwd,
