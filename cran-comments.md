@@ -1,3 +1,31 @@
+## Resubmission kuenm2 0.1.2
+
+This is a resubmission. All issues raised by the reviewer have been addressed.
+
+> Please make sure that you do not change the user's options, par or
+working directory. If you really have to do so within functions, please
+ensure with an *immediate* call of on.exit() that the settings are reset
+when the function is exited.
+e.g.:
+...
+oldpar <- par(no.readonly = TRUE) # code line i
+on.exit(par(oldpar)) # code line i + 1
+...
+par(mfrow=c(2,2)) # somewhere after
+...
+-> R/bivariate_response.R; R/detect_concave.R;
+R/explore_partition_env.R; R/helpers_colors.R;
+R/partition_response_curves.R; R/plot_explore_calibration.R;
+R/plot_explore_partition.R; R/response_curves.R
+...
+-> please make sure to use on.exit() to reset par() in all of the files
+above.
+
+* We have ensured that all functions modifying the user's graphical options or parameters (par(), layout()) now use an immediate call to on.exit() to reset these settings to their original state upon function exit. 
+* We used the recommended pattern: oldpar <- par(no.readonly = TRUE); on.exit(par(oldpar)).
+* Affected files updated: R/bivariate_response.R; R/detect_concave.R; R/explore_partition_env.R; R/helpers_colors.R; R/partition_response_curves.R; R/plot_explore_calibration.R; R/plot_explore_partition.R; R/response_curves.R.
+
+
 ## Resubmission kuenm2 0.1.1
 
 This is a resubmission. All issues raised by the reviewer have been addressed.
@@ -14,7 +42,7 @@ Missing Rd-tags:
       plot_explore_partition.Rd: \value
       plot_importance.Rd: \value
 
-* Addes \value to .Rd files: plot_calibration_hist.Rd, plot_explore_partition.Rd 
+* Added \value to .Rd files: plot_calibration_hist.Rd, plot_explore_partition.Rd 
 and plot_importance.Rd
 
 
