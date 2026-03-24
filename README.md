@@ -15,9 +15,7 @@ Townsend Peterson, and Marlon E. Cobos
 - [Contributing](#contributing)
 
 <!-- badges: start -->
-
 [![R-CMD-check](https://github.com/marlonecobos/kuenm2/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/marlonecobos/kuenm2/actions/workflows/R-CMD-check.yaml)
-[![License](https://img.shields.io/badge/license-GPL%20(%3E=%203)-lightgrey.svg?style=flat)](http://www.gnu.org/licenses/gpl-3.0.html)
 <!-- badges: end -->
 
 <hr>
