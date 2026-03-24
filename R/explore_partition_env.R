@@ -99,7 +99,8 @@
 #' @importFrom stats setNames
 #' @importFrom grDevices rgb
 #' @importFrom stats predict prcomp
-#' @importFrom graphics points par plot.new legend
+#' @importFrom graphics points par plot.new legend plot
+#'
 #' @return
 #' Plots showing the training and testing data in a two-dimensional
 #' environmental space.
@@ -239,7 +240,7 @@ Provide at least ", length(data$part_data), " colors.")
   #Remove categorical
   if(!is.null(data$categorical_variables)){
     cd <- data$calibration_data[, setdiff(colnames(data$calibration_data),
-                                        c(data$categorical_variables, "pr_bg"))]
+                                          c(data$categorical_variables, "pr_bg"))]
   } else {
     cd <- data$calibration_data[, setdiff(colnames(data$calibration_data),
                                           "pr_bg")]
@@ -270,30 +271,34 @@ Provide at least ", length(data$part_data), " colors.")
 
 
   #Run PCA
-   if(use_pca && is.null(data$pca)){
+  if(use_pca && is.null(data$pca)){
     cd <- stats::predict(stats::prcomp(cd, center = TRUE, scale = TRUE), cd)
     #Get variables to plot
     v1 <- pcs[1]
     v2 <- pcs[2]
     #If show unused data
     if(show_unused_data){
-    df_r <- stats::predict(stats::prcomp(data$calibration_data[, variables],
-                                         center = TRUE, scale = TRUE), df_r)}
-    } else if (!is.null(data$pca)) {
-     v1 <- pcs[1]
-     v2 <- pcs[2]
-     if(show_unused_data){
-       df_r <- stats::predict(data$pca, df_r)}
-     } else if (is.null(data$pca) && !use_pca){
-      v1 <- variables[1]
-      v2 <- variables[2]
-   }
+      df_r <- stats::predict(stats::prcomp(data$calibration_data[, variables],
+                                           center = TRUE, scale = TRUE), df_r)}
+  } else if (!is.null(data$pca)) {
+    v1 <- pcs[1]
+    v2 <- pcs[2]
+    if(show_unused_data){
+      df_r <- stats::predict(data$pca, df_r)}
+  } else if (is.null(data$pca) && !use_pca){
+    v1 <- variables[1]
+    v2 <- variables[2]
+  }
 
 
   # Get partitions
   np <- names(data$part_data)
   n_plots <- length(np)
 
+
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
 
   #If combined plot#
 
@@ -345,46 +350,41 @@ Provide at least ", length(data$part_data), " colors.")
     }
 
     #Plot
-    plot(pr_data[[v1]], pr_data[[v2]], cex = cex_plot,
+    graphics::plot(pr_data[[v1]], pr_data[[v2]], cex = cex_plot,
          col = col_plot, bg = bg_plot,
          pch = pch, main = "Presences", xlab = v1, ylab = v2,
          xlim = xlimits, ylim = ylimits, ...)
     if(show_unused_data){
-      plot(df_r[[v1]], df_r[[v2]], cex = cex_plot,
+      graphics::plot(df_r[[v1]], df_r[[v2]], cex = cex_plot,
            col = alpha_color("gray50", bg_transparency),
            pch = 19, main = "Background", xlab = v1, ylab = v2, ...)
       graphics::points(bg_data[[v1]], bg_data[[v2]], cex = cex_plot,
-             col = col_plot, bg = bg_plot,
-             pch = pch, main = "Background", xlab = v1, ylab = v2)
+                       col = col_plot, bg = bg_plot,
+                       pch = pch, main = "Background", xlab = v1, ylab = v2)
       # Plot legend
       graphics::par(mar = c(0, 0, 0, 0))  # remove margins
       graphics::plot.new()
       graphics::legend("center",
-             legend = unique(c("Unused data", unique(bg_data$Partition))),
-             col = c("gray50", col_plot),
-             #pt.bg = unique(bg_legend),
-             pch = 19,
-             bty = "n",
-             cex = size_text_legend, ncol = ifelse(n_plots + 1 < 5, n_plots, 5))
+                       legend = unique(c("Unused data", unique(bg_data$Partition))),
+                       col = c("gray50", col_plot),
+                       #pt.bg = unique(bg_legend),
+                       pch = 19,
+                       bty = "n",
+                       cex = size_text_legend, ncol = ifelse(n_plots + 1 < 5, n_plots, 5))
     } else {
       #If do not show unused data
-    plot(bg_data[[v1]], bg_data[[v2]], cex = cex_plot,
-         col = col_plot, bg = bg_plot,
-         pch = pch, main = "Background", xlab = v1, ylab = v2, ...)
-    # Plot legend
-    graphics::par(mar = c(0, 0, 0, 0))  # remove margins
-    graphics::plot.new()
-    graphics::legend("center", legend = unique(factor(bg_data$Partition)),
-           col = col_plot, pt.bg = bg_legend,
-           pch = pch,
-           bty = "n",
-           cex = size_text_legend, ncol = ifelse(n_plots < 5, n_plots, 5))
+      graphics::plot(bg_data[[v1]], bg_data[[v2]], cex = cex_plot,
+           col = col_plot, bg = bg_plot,
+           pch = pch, main = "Background", xlab = v1, ylab = v2, ...)
+      # Plot legend
+      graphics::par(mar = c(0, 0, 0, 0))  # remove margins
+      graphics::plot.new()
+      graphics::legend("center", legend = unique(factor(bg_data$Partition)),
+                       col = col_plot, pt.bg = bg_legend,
+                       pch = pch,
+                       bty = "n",
+                       cex = size_text_legend, ncol = ifelse(n_plots < 5, n_plots, 5))
     }
-    #Reset grid
-    graphics::par(mfrow = c(1, 1),
-        oma = c(0, 0, 0, 0),
-        mar = c(5.1, 4.1, 4.1, 2.1)
-    )
   }
 
   if(any(type_of_plot == "individual")){
@@ -482,7 +482,7 @@ Provide at least ", length(data$part_data), " colors.")
       }
 
 
-      plot(test_train_i[[v1]], test_train_i[[v2]],
+      graphics::plot(test_train_i[[v1]], test_train_i[[v2]],
            col = col_plot, bg = bg_plot,
            pch = pch,
            cex = cex_plot,
@@ -495,17 +495,12 @@ Provide at least ", length(data$part_data), " colors.")
     graphics::par(mar = c(0, 0, 0, 0))  # remove margins
     graphics::plot.new()
     graphics::legend("center",
-           legend = levels(test_train_i$category),
-           col = unique(col_plot), pt.bg = bg_legend,
-           pch = pch,
-           horiz = TRUE,
-           bty = "n",
-           cex = size_text_legend, pt.cex = cex_plot)
-    #Reset grid
-    graphics::par(mfrow = c(1, 1),
-        oma = c(0, 0, 0, 0),
-        mar = c(5.1, 4.1, 4.1, 2.1)
-    )
+                     legend = levels(test_train_i$category),
+                     col = unique(col_plot), pt.bg = bg_legend,
+                     pch = pch,
+                     horiz = TRUE,
+                     bty = "n",
+                     cex = size_text_legend, pt.cex = cex_plot)
   }
 
   return(invisible(NULL))

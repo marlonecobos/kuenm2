@@ -51,7 +51,7 @@
 #'        the grid will be arranged automatically based on the number of plots.
 #'
 #' @importFrom grDevices adjustcolor
-#' @importFrom graphics par abline box barplot
+#' @importFrom graphics par abline box barplot plot
 #' @importFrom stats na.omit setNames
 #'
 #' @return
@@ -181,16 +181,18 @@ plot_calibration_hist <- function(explore_calibration,
     #Continuous variables
     if (i %in% explore_calibration$continuous_variables) {
       if (all(!is.na(var_res$hist_m))) {
-        plot(var_res$hist_m, col = color_m_b, main = "", xlab = xlab_i,
-             border = color_m, freq = TRUE, ylab = ylab)
+        graphics::plot(var_res$hist_m, col = color_m_b, main = "",
+                       xlab = xlab_i, border = color_m, freq = TRUE,
+                       ylab = ylab)
         add_next <- TRUE
       } else {
         add_next <- FALSE
       }
-      plot(var_res$hist_bg, col = color_background_b, main = "", xlab = xlab_i,
-           add = add_next, border = color_background, ylab = ylab)
-      plot(var_res$hist_pr, col = color_presence_b, add = TRUE,
-           border = color_presence)
+      graphics::plot(var_res$hist_bg, col = color_background_b, main = "",
+                     xlab = xlab_i, add = add_next, border = color_background,
+                     ylab = ylab)
+      graphics::plot(var_res$hist_pr, col = color_presence_b, add = TRUE,
+                     border = color_presence)
     } #End of is continuous
 
     if (i %in% explore_calibration$categorical_variables) {

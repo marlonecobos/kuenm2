@@ -39,7 +39,7 @@
 #'
 #' @importFrom stats predict coef
 #' @importFrom graphics filled.contour par title rect axis mtext abline plot.new
-#' @importFrom graphics plot.window
+#' @importFrom graphics plot.window par
 #' @importFrom terra minmax
 #' @importFrom grDevices hcl.colors
 #'
@@ -237,8 +237,9 @@ bivariate_response <- function(models,
 
   colors <- color_palette(10) # colors
 
-  # Save the original par settings
-  original_par <- par(no.readonly = TRUE)
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
 
   if (add_bar == FALSE) {
     # Plot the main image
@@ -285,8 +286,5 @@ bivariate_response <- function(models,
     axis(4, at = legend_y, labels = round(color_levels, 2), las = 1,
          tick = FALSE, pos = 0.5  )
     mtext("Suitability", side = 3, line = 0, cex = 1.2)
-
-    # Restore the original par settings
-    par(original_par)
   }
 }

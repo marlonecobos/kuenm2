@@ -74,7 +74,7 @@
 #' @importFrom grDevices colorRampPalette
 #' @importFrom stats setNames quantile
 #' @importFrom terra vect crop plot points
-#' @importFrom graphics layout par plot.new plot rect
+#' @importFrom graphics layout par plot.new plot rect legend
 #'
 #' @return
 #' No return value, called for side effects (plots the partitions in G or E
@@ -234,7 +234,12 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
   if(!is.null(ncols)){
     if(ncols <= 0 | !inherits(ncols, "numeric") | ncols != trunc(ncols)){
       stop("'ncols' must be a positive integer number")
-  }}
+    }}
+
+  # Store the original par settings and reset them later
+  oldpar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(oldpar))
+
 
   #Get spatial data
   d <- explore_partition$Mop_results #Mop results
@@ -499,7 +504,7 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
         }
 
         #Plot
-        plot(d_i[[v1]], d_i[[v2]], cex = cex_plot,
+        graphics::plot(d_i[[v1]], d_i[[v2]], cex = cex_plot,
              col = cores_i, bg = bg_plot,
              pch = pch_i, main = i, xlab = v1, ylab = v2,
              xlim = r_v1, ylim = r_v2, ...)
@@ -575,7 +580,7 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
       # Plot legend
       graphics::par(mar = c(0, 0, 0, 0))  # remove margins
       graphics::plot.new()
-      legend("top",
+      graphics::legend("top",
              horiz = TRUE,
              col = col_legend,
              pt.bg = bg_legend,
@@ -587,11 +592,5 @@ Please also provide a filled symbol for 'pch_in_range' (choose from 21, 22, 23, 
     }
 
     } #End of space == E
-
-  #Reset grid
-  graphics::par(mfrow = c(1, 1),
-                oma = c(0, 0, 0, 0),
-                mar = c(5.1, 4.1, 4.1, 2.1)
-  )
 
 }
