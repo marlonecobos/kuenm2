@@ -15,6 +15,9 @@ Townsend Peterson, and Marlon E. Cobos
 - [Contributing](#contributing)
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/kuenm2)](https://CRAN.R-project.org/package=kuenm2)
+[![downloads](https://cranlogs.r-pkg.org/badges/grand-total/kuenm2)](https://cranlogs.r-pkg.org:443/badges/grand-total/kuenm2)
+[![License](https://img.shields.io/badge/license-GPL%20(%3E=%203)-lightgrey.svg?style=flat)](http://www.gnu.org/licenses/gpl-3.0.html)
 [![R-CMD-check](https://github.com/marlonecobos/kuenm2/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/marlonecobos/kuenm2/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -57,7 +60,7 @@ To install the latest release of kuenm2 use the following line of code:
 
 ``` r
 # Installing from CRAN 
-#install.packages("kuenm2")  # in progress
+install.packages("kuenm2")
 ```
 
 <br>
