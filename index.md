@@ -53,7 +53,7 @@ To install the latest release of kuenm2 use the following line of code:
 
 ``` r
 # Installing from CRAN 
-#install.packages("kuenm2")  # in progress
+install.packages("kuenm2")
 ```
 
   
