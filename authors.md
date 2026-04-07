@@ -19,7 +19,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/marlonecobos/kuenm2/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/marlonecobos/kuenm2/blob/v0.1.2/DESCRIPTION)
 
 Trindade W, Arias-Giraldo L, Osorio-Olvera L, Peterson A, Cobos M
 (2026). *kuenm2: Detailed Development of Ecological Niche Models*. R
