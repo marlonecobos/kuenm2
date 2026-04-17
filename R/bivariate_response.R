@@ -237,10 +237,6 @@ bivariate_response <- function(models,
 
   colors <- color_palette(10) # colors
 
-  # Store the original par settings and reset them later
-  oldpar <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(oldpar))
-
   if (add_bar == FALSE) {
     # Plot the main image
     image(x, y, z, zlim = c(0, 1), col = colors,
@@ -252,6 +248,10 @@ bivariate_response <- function(models,
              lty = 2)
     }
   } else {
+
+    # Store the original par settings and reset them later
+    oldpar <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(oldpar))
 
     layout(matrix(1:2, ncol = 2), widths = c(4, 1))  # Adjust widths to allocate space for the legend
     par(mar = c(5, 4, 4, 2) + 0.1)  # Set margins for the main plot
