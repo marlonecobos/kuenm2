@@ -172,8 +172,8 @@ response_curve <- function(models,
   }
 
   # Store the original par settings and reset them later
-  oldpar <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(oldpar))
+  # oldpar <- graphics::par(no.readonly = TRUE)
+  # on.exit(graphics::par(oldpar))
 
   # if data is not defined it is extracted from the models kuenm2 object
   if (is.null(data)) {
@@ -293,10 +293,6 @@ all_response_curves <- function(models,
   full <- models$n_replicates + 1
 
   # plot arrangement
-  ## par settings
-  opar <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(opar))
-
   ## true variables for plot
   if (is.null(modelID)) {
     coefss <- lapply(models$Models, function(x) {
@@ -396,8 +392,8 @@ response_curve_consmx <- function(model_list, variable, data,
   }
 
   # Store the original par settings and reset them later
-  oldpar <- graphics::par(no.readonly = TRUE)
-  on.exit(graphics::par(oldpar))
+  # oldpar <- graphics::par(no.readonly = TRUE)
+  # on.exit(graphics::par(oldpar))
 
 
   if (length(model_list) == 1) {
