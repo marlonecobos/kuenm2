@@ -498,11 +498,6 @@ par(mfrow = c(1, 2), mar = c(4, 4, 2.5, 0.5))
 # Bivariate response model 192 
 bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15", 
                    modelID = "Model_192", add_bar = FALSE, main = "Model 192")
-```
-
-![](model_exploration_files/figure-html/bivariate1-1.png)
-
-``` r
 
 # Bivariate response model 219 
 bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15", 
@@ -510,7 +505,7 @@ bivariate_response(models = fm, variable1 = "bio_1", variable2 = "bio_15",
                    ylab = "")
 ```
 
-![](model_exploration_files/figure-html/bivariate1-2.png)
+![](model_exploration_files/figure-html/bivariate1-1.png)
 
   
 

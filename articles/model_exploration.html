@@ -498,15 +498,13 @@ single plot if the suitability bar legend is not used.</p>
 <span></span>
 <span><span class="co"># Bivariate response model 192 </span></span>
 <span><span class="fu"><a href="../reference/bivariate_response.html">bivariate_response</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable1 <span class="op">=</span> <span class="st">"bio_1"</span>, variable2 <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
-<span>                   modelID <span class="op">=</span> <span class="st">"Model_192"</span>, add_bar <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"Model 192"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/bivariate1-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
+<span>                   modelID <span class="op">=</span> <span class="st">"Model_192"</span>, add_bar <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"Model 192"</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Bivariate response model 219 </span></span>
 <span><span class="fu"><a href="../reference/bivariate_response.html">bivariate_response</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, variable1 <span class="op">=</span> <span class="st">"bio_1"</span>, variable2 <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
 <span>                   modelID <span class="op">=</span> <span class="st">"Model_219"</span>, add_bar <span class="op">=</span> <span class="cn">FALSE</span>, main <span class="op">=</span> <span class="st">"Model 219"</span>, </span>
 <span>                   ylab <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_exploration_files/figure-html/bivariate1-2.png" class="r-plt" alt="" width="672"></p>
+<p><img src="model_exploration_files/figure-html/bivariate1-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 <p>These two models look very similar, the only noticeable difference is
 that suitability values above the threshold extend farther on variable
@@ -539,7 +537,7 @@ variables (e.g., &gt;17) and the calibration dataset is large (e.g.,
 over 15,000 total points).</p>
 <p>Variable importance is computed for all selected models by
 default:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate variable importance</span></span>
 <span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span><span class="op">)</span></span>
 <span></span>
@@ -552,7 +550,7 @@ default:</p>
 contribution of each variable. If multiple models are included in the
 <code>fitted</code> object, an additional column identifies each
 model.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imp</span></span>
 <span><span class="co">#&gt;   predictor contribution    Models</span></span>
 <span><span class="co">#&gt; 1     bio_1  0.567815429 Model_192</span></span>
@@ -569,13 +567,13 @@ model.</p>
 contributions are displayed as a boxplot, along with the mean
 contribution, and the number (N) of fitted models with that
 predictor.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model_exploration_files/figure-html/plot%20importance-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 <p>If variable importance is computed for a single model, the plot
 displays a bars instead of boxes:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate variable importance for a specific selected Model</span></span>
 <span><span class="va">imp_192</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, modelID <span class="op">=</span> <span class="st">"Model_192"</span>, </span>
 <span>                               progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -589,7 +587,7 @@ the change in models if we remove a variable completely from the
 equation. To compute contribution of all variable terms (i.e., how
 important is to keep distinct terms of the same variable) set
 <code>by_terms = TRUE</code>:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate variable importance for a specific selected Model</span></span>
 <span><span class="va">imp_terms</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/variable_importance.html">variable_importance</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fm</span>, by_terms <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>                                 progress_bar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -641,7 +639,7 @@ et al. 2024</a>).</p>
 (provided in the package). This dataset contains coordinates of
 <em>Myrcia hatschbachii</em> sourced from NeotropicTree (<a href="http://www.neotroptree.info/" class="external-link">Oliveira-Filho, 2017</a>), and they
 were not part of the data used to fit the models.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import independent records</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"new_occ"</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span>
 <span></span>
@@ -657,7 +655,7 @@ were not part of the data used to fit the models.</p>
 conditions in independent data are to fitting conditions, environmental
 values need to be extracted to these new records. Let’s import the
 raster variables and extract values for <code>new_occ</code>:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import raster layers</span></span>
 <span><span class="va">var</span> <span class="op">&lt;-</span> <span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Current_variables.tif"</span>,</span>
 <span>                               package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span><span class="op">)</span></span>
@@ -684,7 +682,7 @@ better illustrate this case, let’s add three fake records, in which some
 variables have non-analogous values, either higher than the upper limit
 or lower than the lower limit observed in the data used to fit
 models.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add some fake data beyond the limits of calibration ranges</span></span>
 <span><span class="va">fake_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="st">"pr_bg"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>                        <span class="st">"x"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
@@ -700,7 +698,7 @@ models.</p>
 <p><br></p>
 <p>Now, let’s evaluate models with this independent dataset (keep in
 mind that the last three records are fake):</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Evaluate models with independent data</span></span>
 <span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_evaluation.html">independent_evaluation</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fm</span>, new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span></code></pre></div>
 <p><br></p>
@@ -720,7 +718,7 @@ for each of the independent records (the default;
 <code>return_predictions = TRUE</code>). In addition, MOP results are
 included for all the records.</li>
 </ol>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_ind</span><span class="op">$</span><span class="va">evaluation</span></span>
 <span><span class="co">#&gt;               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC</span></span>
 <span><span class="co">#&gt; 1         Model_192      mean           0.3647059       1.167024         0</span></span>
@@ -754,7 +752,7 @@ lower than the minimum observed in the model fitting data.</li>
 <strong>towards_high</strong>: the names of variables with values
 higher than the maximum observed in the model fitting data.</li>
 </ul>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show the mop results for the last 5 independent records</span></span>
 <span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span> , <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mop_distance"</span>, <span class="st">"inside_range"</span>, </span>
 <span>                                         <span class="st">"n_var_out"</span>, <span class="st">"towards_low"</span>, </span>
@@ -777,7 +775,7 @@ range, and <em>bio_1</em> exceeds the upper limit.</p>
 <p>When we set <code>return_predictions = TRUE</code> (the default), the
 function also returns the predictions for each selected model and for
 the general consensus:</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Show the continuous predictions for the last 5 independent records</span></span>
 <span><span class="co"># Round to two decimal places</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/math-generics.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -816,7 +814,7 @@ non-significant, or most of the records show non-analogous environmental
 conditions, it might be a good idea to re-run the models including
 independent records.</p>
 <p><br></p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Reset plotting parameters</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">original_par</span><span class="op">)</span> </span></code></pre></div>
 <p><br></p>
@@ -830,7 +828,7 @@ single or multiple scenarios. As this object is essentially a list,
 users can save it to a local directory using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">saveRDS()</a></code>.
 Saving the object facilitates loading it back into your R session later
 using <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code>. See an example below:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set directory to save (here, in a temporary directory)</span></span>
 <span><span class="va">dir_to_save</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
