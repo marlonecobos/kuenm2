@@ -195,29 +195,16 @@ data(fitted_model_maxnet, package = "kuenm2")
 # Response curves for all variables at once
 all_response_curves(fitted_model_maxnet)
 
-
-
-
 all_response_curves(fitted_model_maxnet, show_lines = TRUE)
-
-
-
 
 all_response_curves(fitted_model_maxnet, show_lines = TRUE,
                     add_points = TRUE)
 
 
-
-
-
 all_response_curves(fitted_model_maxnet, modelID = "Model_192",
                     show_variability = TRUE, show_lines = TRUE)
-
-
 
 all_response_curves(fitted_model_maxnet, modelID = "Model_192",
                     show_variability = TRUE, show_lines = TRUE,
                     add_points = TRUE)
-
-
 ```

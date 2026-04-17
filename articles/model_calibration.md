@@ -518,8 +518,8 @@ new_m_maxnet$selected_models[,c("ID", "Formulas", "R_multiplier",
 #> 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1
 #> 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1
 #>     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc
-#> 159          0.1                  0.0192                 1.483082 622.7677
-#> 189          0.1                  0.0192                 1.515027 621.9095
+#> 159          0.1                  0.0192                 1.480537 622.7677
+#> 189          0.1                  0.0192                 1.512005 621.9095
 #>     Is_concave
 #> 159      FALSE
 #> 189      FALSE
@@ -566,8 +566,8 @@ new_summary$selected_models[, c("ID", "Formulas", "R_multiplier",
 #> 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1
 #> 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1
 #>     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc
-#> 159          0.1                  0.0192                 1.480714 622.7677
-#> 189          0.1                  0.0192                 1.513515 621.9095
+#> 159          0.1                  0.0192                 1.481707 622.7677
+#> 189          0.1                  0.0192                 1.512844 621.9095
 #>     Is_concave
 #> 159      FALSE
 #> 189      FALSE
@@ -599,7 +599,7 @@ m_maxnet$selected_models$ID
 partition_response_curves(calibration_results = m_maxnet, modelID = 192)
 ```
 
-![](model_calibration_files/figure-html/extrap_partitions-1.png)![](model_calibration_files/figure-html/extrap_partitions-2.png)![](model_calibration_files/figure-html/extrap_partitions-3.png)![](model_calibration_files/figure-html/extrap_partitions-4.png)![](model_calibration_files/figure-html/extrap_partitions-5.png)![](model_calibration_files/figure-html/extrap_partitions-6.png)![](model_calibration_files/figure-html/extrap_partitions-7.png)![](model_calibration_files/figure-html/extrap_partitions-8.png)![](model_calibration_files/figure-html/extrap_partitions-9.png)![](model_calibration_files/figure-html/extrap_partitions-10.png)![](model_calibration_files/figure-html/extrap_partitions-11.png)![](model_calibration_files/figure-html/extrap_partitions-12.png)
+![](model_calibration_files/figure-html/extrap_partitions-1.png)
 
   
 
@@ -621,7 +621,7 @@ for the second model selected in this example.
 partition_response_curves(calibration_results = m_maxnet, modelID = 219)
 ```
 
-![](model_calibration_files/figure-html/extrap_partitions1-1.png)![](model_calibration_files/figure-html/extrap_partitions1-2.png)![](model_calibration_files/figure-html/extrap_partitions1-3.png)![](model_calibration_files/figure-html/extrap_partitions1-4.png)![](model_calibration_files/figure-html/extrap_partitions1-5.png)![](model_calibration_files/figure-html/extrap_partitions1-6.png)![](model_calibration_files/figure-html/extrap_partitions1-7.png)![](model_calibration_files/figure-html/extrap_partitions1-8.png)![](model_calibration_files/figure-html/extrap_partitions1-9.png)![](model_calibration_files/figure-html/extrap_partitions1-10.png)![](model_calibration_files/figure-html/extrap_partitions1-11.png)![](model_calibration_files/figure-html/extrap_partitions1-12.png)![](model_calibration_files/figure-html/extrap_partitions1-13.png)![](model_calibration_files/figure-html/extrap_partitions1-14.png)![](model_calibration_files/figure-html/extrap_partitions1-15.png)![](model_calibration_files/figure-html/extrap_partitions1-16.png)
+![](model_calibration_files/figure-html/extrap_partitions1-1.png)
 
   
 

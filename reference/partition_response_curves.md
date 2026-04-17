@@ -105,15 +105,4 @@ calib_results_maxnet$selected_models$ID
 # Response curves
 partition_response_curves(calibration_results = calib_results_maxnet,
                           modelID = 192)
-
-
-
-
-
-
-
-
-
-
-
 ```

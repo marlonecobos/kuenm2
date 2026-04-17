@@ -74,7 +74,7 @@
       <h1>3. Model Calibration</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/v0.1.2/vignettes/model_calibration.Rmd" class="external-link"><code>vignettes/model_calibration.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/vignettes/model_calibration.Rmd" class="external-link"><code>vignettes/model_calibration.Rmd</code></a></small>
       <div class="d-none name"><code>model_calibration.Rmd</code></div>
     </div>
 
@@ -555,8 +555,8 @@ the maxnet algorithm:</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.483082 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.515027 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.480537 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.512005 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
@@ -598,8 +598,8 @@ summaries of the model selection process.</p>
 <span><span class="co">#&gt; 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1</span></span>
 <span><span class="co">#&gt; 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1</span></span>
 <span><span class="co">#&gt;     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc</span></span>
-<span><span class="co">#&gt; 159          0.1                  0.0192                 1.480714 622.7677</span></span>
-<span><span class="co">#&gt; 189          0.1                  0.0192                 1.513515 621.9095</span></span>
+<span><span class="co">#&gt; 159          0.1                  0.0192                 1.481707 622.7677</span></span>
+<span><span class="co">#&gt; 189          0.1                  0.0192                 1.512844 621.9095</span></span>
 <span><span class="co">#&gt;     Is_concave</span></span>
 <span><span class="co">#&gt; 159      FALSE</span></span>
 <span><span class="co">#&gt; 189      FALSE</span></span></code></pre></div>
@@ -625,7 +625,7 @@ in the <code>calibration_results</code> object.</p>
 <span></span>
 <span><span class="co"># Response curves for model 192</span></span>
 <span><span class="fu"><a href="../reference/partition_response_curves.html">partition_response_curves</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">m_maxnet</span>, modelID <span class="op">=</span> <span class="fl">192</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_calibration_files/figure-html/extrap_partitions-1.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-2.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-3.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-4.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-5.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-6.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-7.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-8.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-9.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-10.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-11.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions-12.png" class="r-plt" alt="" width="672"></p>
+<p><img src="model_calibration_files/figure-html/extrap_partitions-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 <p>In the multi-panel plot produced above, we can see the response
 curves for each of the variables used in the model. Each panel
@@ -643,7 +643,7 @@ for the second model selected in this example.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Response curves for model 219</span></span>
 <span><span class="fu"><a href="../reference/partition_response_curves.html">partition_response_curves</a></span><span class="op">(</span>calibration_results <span class="op">=</span> <span class="va">m_maxnet</span>, modelID <span class="op">=</span> <span class="fl">219</span><span class="op">)</span></span></code></pre></div>
-<p><img src="model_calibration_files/figure-html/extrap_partitions1-1.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-2.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-3.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-4.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-5.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-6.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-7.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-8.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-9.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-10.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-11.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-12.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-13.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-14.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-15.png" class="r-plt" alt="" width="672"><img src="model_calibration_files/figure-html/extrap_partitions1-16.png" class="r-plt" alt="" width="672"></p>
+<p><img src="model_calibration_files/figure-html/extrap_partitions1-1.png" class="r-plt" alt="" width="672"></p>
 <p><br></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Reset plotting parameters</span></span>

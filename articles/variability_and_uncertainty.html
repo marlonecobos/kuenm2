@@ -74,7 +74,7 @@
       <h1>7. Exploring Model Uncertainty and Variability</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/v0.1.2/vignettes/variability_and_uncertainty.Rmd" class="external-link"><code>vignettes/variability_and_uncertainty.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/vignettes/variability_and_uncertainty.Rmd" class="external-link"><code>vignettes/variability_and_uncertainty.Rmd</code></a></small>
       <div class="d-none name"><code>variability_and_uncertainty.Rmd</code></div>
     </div>
 
@@ -201,7 +201,7 @@ Scenarios”</a>.</p>
 <span>                          progress_bar <span class="op">=</span> <span class="cn">FALSE</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variables successfully organized in directory:</span></span>
-<span><span class="co">#&gt; /tmp/RtmpWdndkj/Future_raw</span></span>
+<span><span class="co">#&gt; /tmp/RtmpuJETKn/Future_raw</span></span>
 <span></span>
 <span><span class="co"># Create a "Current_raw" folder in a temporary directory</span></span>
 <span><span class="co"># and copy the rawvariables there.</span></span>
@@ -623,16 +623,12 @@ layers as <code>new_data</code>:</p>
 <code class="sourceCode R"><span><span class="co"># Plotting response curves to check extrapolation towards the high end of variables</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set plot grid</span></span>
 <span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_1"</span>, </span>
+<span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, </span>
+<span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
 <span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span></code></pre></div>
 <p><img src="variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-1.png" class="r-plt" alt="" width="95%"></p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_12"</span>, </span>
-<span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-2.png" class="r-plt" alt="" width="95%"></p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/response_curve.html">response_curve</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, variable <span class="op">=</span> <span class="st">"bio_15"</span>, </span>
-<span>               new_data <span class="op">=</span> <span class="va">future_ACCESS_CM2</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variability_and_uncertainty_files/figure-html/response%20curves%20towards%20high-3.png" class="r-plt" alt="" width="95%"></p>
 <p><br></p>
 <p>In the response curves for bio_1, bio_12, and bio_15, higher values
 correspond to lower suitability, reaching zero near the upper limit of
@@ -641,7 +637,7 @@ suitability remains close to zero, thus, we are not concerned about
 extrapolation risks towards higher values for these variables.</p>
 <p>Next, let’s investigate the variables with values below the lower
 limit of training data:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Non-analogous conditions towards low values in the ACCESS-CM2 scenario</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>  <span class="co"># Set grid</span></span>
 <span><span class="fu">terra</span><span class="fu">::</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mop_ssp585_2100</span><span class="op">$</span><span class="va">towards_low_combined</span><span class="op">$</span><span class="va">`Future_2081-2100_ssp585_ACCESS-CM2`</span><span class="op">)</span></span>
@@ -661,7 +657,7 @@ decrease.</p>
 <p>This example highlights why we strongly recommend interpreting MOP
 results alongside the response curves.</p>
 <p><br></p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Reset plotting parameters</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">original_par</span><span class="op">)</span> </span></code></pre></div>
 <p><br></p>
@@ -673,7 +669,7 @@ results alongside the response curves.</p>
 <code>mop_projections</code> object as an RDS file in
 <code>out_dir</code>. You can load this object in R at any time using
 the <code><a href="https://rspatial.github.io/terra/reference/serialize.html" class="external-link">readRDS()</a></code> function:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check for RDS files in the directory where we saved the MOP results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>path <span class="op">=</span> <span class="va">out_dir_mop</span>, pattern <span class="op">=</span> <span class="st">"rds"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "mop_projections.rds"</span></span>
