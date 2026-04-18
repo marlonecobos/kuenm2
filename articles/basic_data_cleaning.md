@@ -34,8 +34,8 @@ modeling.
 ## Getting ready
 
 If `kuenm` has not been installed yet, please do so. See the [Main
-guide](https://marlonecobos.github.io/kuenm2/articles/index.md) for
-installation instructions.
+guide](https://marlonecobos.github.io/kuenm2/index.md) for installation
+instructions.
 
 Load `kuenm` and any other required packages, and define a working
 directory (if needed). In general, setting a working directory in R is

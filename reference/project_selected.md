@@ -154,7 +154,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpwqVhnp/Future_raw_wc
+#> /tmp/Rtmp4nK7aa/Future_raw_wc
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
