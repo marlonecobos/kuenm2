@@ -1,3 +1,20 @@
+## Submission kuenm2 0.1.3
+This is the first submission of version 0.1.3.
+
+## Test environments
+* Windows 11, R 4.5.1 (local)
+* MacOS 15.6.1, R release (GitHub Actions)
+* Windows 10.0.26100, R release (GitHub Actions)
+* Ubuntu 24.04.3 LTS, R release (GitHub Actions)
+* Ubuntu 24.04.3 LTS, R devel (GitHub Actions)
+* Ubuntu 24.04.3 LTS, R oldrel-1 (GitHub Actions)
+
+## R CMD check results
+There were no ERRORs.
+There were no WARNINGs.
+There were no NOTEs.
+
+
 ## Resubmission kuenm2 0.1.2
 
 This is a resubmission. All issues raised by the reviewer have been addressed.

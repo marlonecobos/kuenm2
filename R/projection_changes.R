@@ -338,6 +338,15 @@
   #Get single scenarios by Time and period
   sc <- unique(pp[, c("Time", "Period", "Scenario")])
 
+  #Table to set levels in raster
+  cls_future <- data.frame(id = c(1, 2, 3, 0),
+                           Result = c("Gain", "Loss", "Stable suitable",
+                                      "Stable unsuitable"))
+  cls_past <- data.frame(id = c(1, 2, 3, 0),
+                         Result = c("Loss", "Gain", "Stable suitable",
+                                    "Stable unsuitable"))
+
+
   ####Identify changes by scenario####
   if (by_gcm | by_change) {
     # #Change values of r to compute gain and loss
@@ -345,15 +354,7 @@
     # r2[r2 == 0] <- 1
     # #plot(r2)
 
-    #Table to set levels in raster
-    cls_future <- data.frame(id = c(1, 2, 3, 0),
-                      Result = c("Gain", "Loss", "Stable suitable",
-                                 "Stable unsuitable"))
-    cls_past <- data.frame(id = c(1, 2, 3, 0),
-                             Result = c("Loss", "Gain", "Stable suitable",
-                                        "Stable unsuitable"))
-
-    res_by_gcm <- lapply(proj_bin, function(i) {
+  res_by_gcm <- lapply(proj_bin, function(i) {
       #Get levels (past or future)
       if(grepl("Future", names(i))){
         cls <- cls_future
@@ -390,6 +391,9 @@
       sc_i <- sc[i, ]
       scenario_i <- paste(sc_i$Time, sc_i$Period, sc_i$Scenario, sep = "_")
       scenario_i <- gsub("_NA", "_", scenario_i)
+
+
+
       #Get levels (past or future)
       if(grepl("Future", sc_i$Time)){
         cls <- cls_future
