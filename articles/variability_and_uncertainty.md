@@ -40,9 +40,8 @@ distinct scenarios. In short, the following analyses can be performed:
 ## Getting ready
 
 At this point it is assumed that `kuenm2` is installed (if not, see the
-[Main guide](https://marlonecobos.github.io/kuenm2/articles/index.md)).
-Load `kuenm2` and any other required packages, and define a working
-directory (if needed).
+[Main guide](https://marlonecobos.github.io/kuenm2/)). Load `kuenm2` and
+any other required packages, and define a working directory (if needed).
 
 Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
@@ -105,7 +104,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from 
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmphTN3aM/Future_raw
+#> /tmp/RtmpLAEfUD/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 # and copy the rawvariables there.

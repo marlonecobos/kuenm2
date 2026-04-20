@@ -47,8 +47,8 @@ prepared data, and saving the data object for later use.
 ## Getting ready
 
 If `kuenm2` has not been installed yet, please do so. See the [Main
-guide](https://marlonecobos.github.io/kuenm2/articles/index.md) for
-installation instructions. See also the [basic data cleaning
+guide](https://marlonecobos.github.io/kuenm2/) for installation
+instructions. See also the [basic data cleaning
 guide](https://marlonecobos.github.io/kuenm2/articles/basic_data_cleaning.md)
 for some data cleaning steps.
 

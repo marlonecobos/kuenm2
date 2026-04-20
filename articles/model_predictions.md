@@ -32,9 +32,8 @@ the options available for model predictions.
 ## Getting ready
 
 At this point it is assumed that `kuenm2` is installed (if not, see the
-[Main guide](https://marlonecobos.github.io/kuenm2/articles/index.md)).
-Load `kuenm2` and any other required packages, and define a working
-directory (if needed).
+[Main guide](https://marlonecobos.github.io/kuenm2/)). Load `kuenm2` and
+any other required packages, and define a working directory (if needed).
 
 Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
