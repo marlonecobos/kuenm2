@@ -62,9 +62,9 @@ might change in the future, and the code will stop working.
 ## Getting ready
 
 At this point it is assumed that `kuenm2` is installed (if not, see the
-[Main guide](https://marlonecobos.github.io/kuenm2/index.md)). Load
-`kuenm2` and any other required packages, and define a working directory
-(if needed).
+[Main guide](https://marlonecobos.github.io/kuenm2/articles/index.md)).
+Load `kuenm2` and any other required packages, and define a working
+directory (if needed).
 
 Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
@@ -478,7 +478,7 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmp0A7EB4/Projection_variables
+#> /tmp/RtmpytfceK/Projection_variables
 ```
 
   
