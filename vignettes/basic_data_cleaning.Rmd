@@ -39,7 +39,7 @@ We want to highlight that additional data cleaning and filtering steps (e.g., sp
 
 ## Getting ready
 
-If `kuenm` has not been installed yet, please do so. See the [Main guide](index.html) for installation instructions.
+If `kuenm` has not been installed yet, please do so. See the [Main guide](https://marlonecobos.github.io/kuenm2/) for installation instructions.
 
 Load `kuenm` and any other required packages, and define a working directory (if needed). In general, setting a working directory in R is considered good practice, as it provides better control over where files are read from or saved to. If users are not working within an R project, we recommend setting a working directory, since at least one file will be saved at later stages of this guide.
 
