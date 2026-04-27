@@ -2,6 +2,8 @@
 
 ## kuenm2 0.1.3
 
+CRAN release: 2026-04-20
+
 - In
   [`bivariate_response()`](https://marlonecobos.github.io/kuenm2/reference/bivariate_response.md),
   store and restore graphical parameters only when plotting area is
