@@ -52,6 +52,7 @@ Note: Internet connection is required to install the package.
 To install the latest release of kuenm2 use the following line of code:
 
 ``` r
+
 # Installing from CRAN 
 install.packages("kuenm2")
 ```
@@ -61,6 +62,7 @@ install.packages("kuenm2")
 The development version of kuenm2 can be installed using the code below.
 
 ``` r
+
 # Installing and loading packages
 if(!require(remotes)) {
   install.packages("remotes")
@@ -91,6 +93,7 @@ then try installing kuenm2 again.
 To load the package use:
 
 ``` r
+
 # Load kuenm2
 library(kuenm2)
 ```
@@ -259,6 +262,7 @@ GitHub, make sure to use the argument `build_vignettes = TRUE`.
 Check each of the vignettes with the code below:
 
 ``` r
+
 # Guide to basic data cleaning before the ENM process
 vignette("basic_data_cleaning")
 

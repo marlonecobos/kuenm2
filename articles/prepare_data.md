@@ -64,6 +64,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm2` )
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -93,6 +94,7 @@ Southern Brazil. Although this example data set has three columns
 latitude coordinates are required.
 
 ``` r
+
 # Import occurrences
 data(occ_data, package = "kuenm2")
 
@@ -125,6 +127,7 @@ other formats, using automated steps are still possible but require a
 few extra steps.
 
 ``` r
+
 # Import raster layers
 var <- terra::rast(system.file("extdata", "Current_variables.tif", 
                                package = "kuenm2"))
@@ -140,6 +143,7 @@ terra::plot(var)
 Visualize occurrences records in geography:
 
 ``` r
+
 # Visualize occurrences on one variable
 terra::plot(var[["bio_1"]], main = "Bio 1")
 
@@ -193,6 +197,7 @@ for more detailed explanations. Now, let’s prepare the data for model
 calibration, using 4 k-folds to partition training and testing datasets:
 
 ``` r
+
 # Prepare data for maxnet model
 d <- prepare_data(algorithm = "maxnet",
                   occ = occ_data,
@@ -218,6 +223,7 @@ essential components for model calibration. Below is an example of the
 object’s printed output, which provides a summary of its contents.
 
 ``` r
+
 print(d)
 #> prepared_data object summary
 #> ============================
@@ -246,6 +252,7 @@ The parts of the `prepared_data` object can be explored in further
 detail by indexing them as in the following example.
 
 ``` r
+
 # Check the algorithm selected
 d$algorithm
 #> [1] "maxnet"
@@ -281,6 +288,7 @@ partitioning method, with a total of 10 partitions, and 70% of the
 dataset used for training in every iteration.
 
 ``` r
+
 # Prepare data selecting GLM as the algorithm
 d_glm <- prepare_data(algorithm = "glm",
                       occ = occ_data,
@@ -336,6 +344,7 @@ column with zeros and ones, indicating **presence (1)** and **background
 for reference (see below).
 
 ``` r
+
 data("user_data", package = "kuenm2")
 
 head(user_data)
@@ -360,6 +369,7 @@ takes the already prepared `data.frame`. See full documentation with
 [`help(prepare_user_data)`](https://marlonecobos.github.io/kuenm2/reference/prepare_user_data.md).
 
 ``` r
+
 # Prepare data for maxnet model
 data_user <- prepare_user_data(algorithm = "maxnet",
                                user_data = user_data,  # user-prepared data.frame
@@ -421,6 +431,7 @@ histograms. An example is presented below. See full documentation with
 and `help(plot_explore_calibration)`.
 
 ``` r
+
 # Prepare histogram data
 calib_hist <- explore_calibration_hist(data = d, raster_variables = var,
                                        include_m = TRUE)
@@ -454,6 +465,7 @@ full documentation with
 [`help(explore_partition_geo)`](https://marlonecobos.github.io/kuenm2/reference/explore_partition_geo.md).
 
 ``` r
+
 # Explore spatial distribution
 pbg <- explore_partition_geo(data = d, raster_variables = var[[1]])
 
@@ -497,6 +509,7 @@ If computing MOP for test background points is needed, set
 `include_test_background = TRUE`.
 
 ``` r
+
 # Run extrapolation risk analysis
 mop_partition <- explore_partition_extrapolation(data = d, 
                                                  include_test_background = TRUE)
@@ -519,6 +532,7 @@ record; the columns are:
   categories in testing data were not present in training data.
 
 ``` r
+
 # Check some of the results
 head(mop_partition$Mop_results)
 #>      Partition pr_bg         x         y mop_distance inside_range n_var_out
@@ -557,6 +571,7 @@ partitions; or “distance” to display the distance of each record to the
 nearest set of conditions in the other partitions.
 
 ``` r
+
 # Simple plot in geographic space
 plot_explore_partition(explore_partition = mop_partition, space = "G", 
                        type_of_plot = "simple")
@@ -565,6 +580,7 @@ plot_explore_partition(explore_partition = mop_partition, space = "G",
 ![](prepare_data_files/figure-html/unnamed-chunk-5-1.png)
 
 ``` r
+
 
 # Distance plot in geographic space
 plot_explore_partition(explore_partition = mop_partition, space = "G", 
@@ -576,6 +592,7 @@ plot_explore_partition(explore_partition = mop_partition, space = "G",
 
 ``` r
 
+
 # Simple plot in environmental space
 plot_explore_partition(explore_partition = mop_partition, space = "E", 
                        type_of_plot = "simple", 
@@ -585,6 +602,7 @@ plot_explore_partition(explore_partition = mop_partition, space = "E",
 ![](prepare_data_files/figure-html/unnamed-chunk-5-3.png)
 
 ``` r
+
 
 # Distance plot in environmental space
 plot_explore_partition(explore_partition = mop_partition, space = "E", 
@@ -627,6 +645,7 @@ formula will include linear and quadratic terms for each variable. In
 this example, the resulting formula would be:
 
 ``` r
+
 "~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
 #> [1] "~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
 ```
@@ -639,6 +658,7 @@ control over which terms are included is needed (for example, including
 the quadratic version of specific variables):
 
 ``` r
+
 # Set custom formulas
 my_formulas <- c("~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)",
                  "~ bio_1 + bio_12 + I(bio_1^2)",
@@ -699,6 +719,7 @@ package. This `SpatRaster` has lower values in the center and higher
 values towards the borders of the area:
 
 ``` r
+
 # Import a bias file
 bias <- terra::rast(system.file("extdata", "bias_file.tif", package = "kuenm2"))
 
@@ -716,6 +737,7 @@ points in regions with higher bias values) and another with an “inverse”
 effect (the opposite).
 
 ``` r
+
 # Using a direct bias effect in sampling
 d_bias_direct <- prepare_data(algorithm = "maxnet",
                               occ = occ_data,
@@ -753,6 +775,7 @@ Let’s use the `explore_partition_geo` function to see the effect of
 using a bias file.
 
 ``` r
+
 # Explore spatial distribution of points
 ## No bias
 geo_dist <- explore_partition_geo(data = d, raster_variables = var)
@@ -807,6 +830,7 @@ will handle the PCA transformation internally.
 Let’s explore how to implement this:
 
 ``` r
+
 # Prepare data for maxnet models using PCA parameters
 d_pca <- prepare_data(algorithm = "maxnet",
                       occ = occ_data,
@@ -860,6 +884,7 @@ function
 [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md).
 
 ``` r
+
 # Check calibration data
 head(d_pca$calibration_data)
 #>   pr_bg         PC1        PC2        PC3         PC4 SoilType
@@ -900,6 +925,7 @@ function, or one of their preference. Se an example with
 below:
 
 ``` r
+
 # PCA with raw raster variables
 pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                        center = TRUE, scale = TRUE)
@@ -917,6 +943,7 @@ Now, let’s use the PCs generated by
 to prepare the data:
 
 ``` r
+
 # Prepare data for maxnet model using PCA variables
 d_pca_extern <- prepare_data(algorithm = "maxnet",
                              occ = occ_data,
@@ -1035,6 +1062,7 @@ Let’s use the **spatial block** method as an example. We will use the
 object `d`, `prepared_data` created in previous steps.
 
 ``` r
+
 # Install ENMeval if not already installed
 if(!require("ENMeval")){
   install.packages("ENMeval")
@@ -1067,6 +1095,7 @@ vector is a partition, containing the **indices of points left out for
 testing**. The indices include both presence and background points.
 
 ``` r
+
 str(d$part_data)
 #> List of 4
 #>  $ Partition_1: num [1:253] 1 3 12 13 14 20 24 25 34 43 ...
@@ -1081,6 +1110,7 @@ We can convert the spatial group information stored in `enmeval_block`
 into a list compatible with `kuenm2`:
 
 ``` r
+
 # Identify unique spatial blocks
 id_blocks <- sort(unique(unlist(enmeval_block)))
 
@@ -1121,6 +1151,7 @@ package. The final step is to replace the original `part_data` in the
 partitioning method to reflect this change.
 
 ``` r
+
 # Replace the original partition data with the new spatial blocks
 d_spatial_block <- d
 d_spatial_block$part_data <- new_part_data
@@ -1155,6 +1186,7 @@ print(d_spatial_block)
 Let’s check the spatial distribution of the partitioned data:
 
 ``` r
+
 # Explore data partitioning in geography
 geo_block <- explore_partition_geo(d_spatial_block, raster_variables = var[[1]])
 
@@ -1172,6 +1204,7 @@ environmental ranges. Let’s explore this effect using the
 `prepared_data` object, partitioned with `ENMeval` spatial blocks.
 
 ``` r
+
 # Run extrapolation risk analysis
 mop_blocks <- explore_partition_extrapolation(data = d_spatial_block, 
                                               include_test_background = TRUE)
@@ -1202,6 +1235,7 @@ plot_explore_partition(explore_partition = mop_blocks, space = "G",
 
 ``` r
 
+
 # Now in environmental space
 plot_explore_partition(explore_partition = mop_blocks, space = "E", 
                        type_of_plot = "simple", 
@@ -1231,6 +1265,7 @@ at the package
 website](https://sjevelazco.github.io/flexsdm/articles/v01_pre_modeling.html#data-partitioning).
 
 ``` r
+
 # Install flexsdm if not already installed
 if (!require("flexsdm")) {
   if (!require("remotes")) {
@@ -1280,6 +1315,7 @@ information stored in `flexsdm_block` into a format compatible with
 `kuenm2`:
 
 ``` r
+
 # Identify unique spatial blocks from flexsdm output
 id_blocks <- sort(unique(flexsdm_block$part$.part))
 
@@ -1334,6 +1370,7 @@ print(d_block_flexsdm)
 Let’s check the spatial distribution of the partitioned data:
 
 ``` r
+
 # Explore data partitioning in geography
 geo_block_flexsdm <- explore_partition_geo(d_block_flexsdm, 
                                            raster_variables = var[[1]])
@@ -1347,6 +1384,7 @@ terra::plot(geo_block_flexsdm[[c("Presence", "Background")]])
   
 
 ``` r
+
 # Reset plotting parameters
 par(original_par) 
 ```
@@ -1365,6 +1403,7 @@ using
 See an example below:
 
 ``` r
+
 # Set directory to save (here, in a temporary directory)
 dir_to_save <- file.path(tempdir())
 

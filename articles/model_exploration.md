@@ -39,6 +39,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -64,6 +65,7 @@ The `calibration_results` object generated in this vignette is available
 as a data example in the package. Let’s load it.
 
 ``` r
+
 # Import an example of calibration results 
 data("calib_results_maxnet", package = "kuenm2")
 
@@ -103,6 +105,7 @@ models created using the `glm` algorithm. See below how to load the
 `calib_results_glm` object in case you want to explore it.
 
 ``` r
+
 # Import calib_results_glm
 data("calib_results_glm", package = "kuenm2")
 
@@ -145,6 +148,7 @@ Calibration](https://marlonecobos.github.io/kuenm2/articles/model_calibration.md
 vignette.
 
 ``` r
+
 # Fit selected models using calibration results
 fm <- fit_selected(calibration_results = calib_results_maxnet, 
                    replicate_method = "kfolds", n_replicates = 4)
@@ -170,6 +174,7 @@ includes both the replicates (if fitted with replicates) and the full
 model.
 
 ``` r
+
 # See names of selected models
 names(fm$Models)
 #> [1] "Model_192" "Model_219"
@@ -190,6 +195,7 @@ You can access the omission error used to calculate the thresholds
 directly from the object:
 
 ``` r
+
 # Get omission error used to select models and calculate the theshold values
 fm$omission_rate
 #> [1] 10
@@ -207,6 +213,7 @@ replicates for each model, and the consensus mean and median across all
 selected models (when more than one model is selected):
 
 ``` r
+
 fm$thresholds
 #> $Model_192
 #> $Model_192$mean
@@ -258,6 +265,7 @@ only the presence localities by setting `averages_from = "pr"`.
 An easy way to explore response curves for all variables is as follows:
 
 ``` r
+
 # Produce response curves for all variables in all fitted models
 all_response_curves(fm)
 ```
@@ -274,6 +282,7 @@ the response curve for each of the models fitted look like, the argument
 `show_lines` can be set to `TRUE`.
 
 ``` r
+
 # All response curves showing each model as a different line
 all_response_curves(fm, show_lines = TRUE)
 ```
@@ -287,6 +296,7 @@ independently, the argument `model_ID` can be used. The plot will show
 variable response curves for the full model.
 
 ``` r
+
 # All response curves for model 219
 all_response_curves(fm, modelID = "Model_219")
 ```
@@ -300,6 +310,7 @@ with replicates, use `show_variability = TRUE`. Both, the GAM or the
 multiple-line approaches can be used to show variability.
 
 ``` r
+
 # All response curves for model 219 (GAM for variability)
 all_response_curves(fm, modelID = "Model_219", show_variability = TRUE)
 ```
@@ -307,6 +318,7 @@ all_response_curves(fm, modelID = "Model_219", show_variability = TRUE)
 ![](model_exploration_files/figure-html/all%20var%20resps3-1.png)
 
 ``` r
+
 
 # All response curves for model 219 (each curve is a replicate)
 all_response_curves(fm, modelID = "Model_219", show_variability = TRUE, 
@@ -326,6 +338,7 @@ be produced. Let’s check which variables are available to plot by
 examining the coefficients of the full models:
 
 ``` r
+
 # Get variables with non-zero coefficients in the models
 fm$Models[[1]]$Full_model$betas  # From the first model selected
 #>        bio_1        bio_7       bio_15   I(bio_1^2)   I(bio_7^2)  I(bio_15^2) 
@@ -347,6 +360,7 @@ Remember that response curves are computed using all selected models.
 This time let’s change the margins and labels for each plot
 
 ``` r
+
 par(mfrow = c(2, 2), mar = c(4, 4, 1, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", las = 1)
 response_curve(models = fm, variable = "bio_7", ylab = "", las = 1)
@@ -362,6 +376,7 @@ We can also specify which of the selected models should be used to
 generate the response curves:
 
 ``` r
+
 par(mfrow = c(2, 2), mar = c(4, 4, 2.5, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", modelID = "Model_192", 
                main = "Model_192", las = 1)
@@ -390,6 +405,7 @@ the observed data. Below is the response curve plotted with an
 extrapolation factor of 2:
 
 ``` r
+
 par(mfrow = c(2, 2), mar = c(4, 4, 1, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", extrapolation_factor = 2, 
                las = 1)
@@ -412,6 +428,7 @@ precipitation and negative values are not realistic, we can set its
 lower limit to 0:
 
 ``` r
+
 response_curve(models = fm, variable = "bio_12", extrapolation_factor = 0.1, 
                l_limit = 0)
 ```
@@ -432,6 +449,7 @@ model as independent curves will show the real shape of the curve, see
 the differences after setting `show_lines = TRUE`.
 
 ``` r
+
 par(mfrow = c(1, 2), mar = c(4, 4, 1, 0.5))  # Set grid of plot
 response_curve(models = fm, variable = "bio_1", extrapolation_factor = 0.5, 
                las = 1)
@@ -447,6 +465,7 @@ Optionally, we can add the presence and background points used to fit
 the models to the response curve plot by setting `add_points = TRUE`:
 
 ``` r
+
 response_curve(models = fm, variable = "bio_1", show_lines = TRUE,
                add_points = TRUE)
 ```
@@ -463,6 +482,7 @@ small differences between models fitted with distinct terms. Let’s see
 an example below:
 
 ``` r
+
 # First, let's check the terms in the models fitted
 ## Model 192
 fm$Models$Model_192$Full_model$betas
@@ -492,6 +512,7 @@ Multiple bivariate response plots can be put together in a single plot
 if the suitability bar legend is not used.
 
 ``` r
+
 par(mfrow = c(1, 2), mar = c(4, 4, 2.5, 0.5))
 
 # Bivariate response model 192 
@@ -538,6 +559,7 @@ calibration dataset is large (e.g., over 15,000 total points).
 Variable importance is computed for all selected models by default:
 
 ``` r
+
 # Calculate variable importance
 imp <- variable_importance(models = fm)
 
@@ -554,6 +576,7 @@ each variable. If multiple models are included in the `fitted` object,
 an additional column identifies each model.
 
 ``` r
+
 imp
 #>   predictor contribution    Models
 #> 1     bio_1  0.567815429 Model_192
@@ -575,6 +598,7 @@ mean contribution, and the number (N) of fitted models with that
 predictor.
 
 ``` r
+
 plot_importance(imp)
 ```
 
@@ -586,6 +610,7 @@ If variable importance is computed for a single model, the plot displays
 a bars instead of boxes:
 
 ``` r
+
 # Calculate variable importance for a specific selected Model
 imp_192 <- variable_importance(models = fm, modelID = "Model_192", 
                                progress_bar = FALSE)
@@ -604,6 +629,7 @@ To compute contribution of all variable terms (i.e., how important is to
 keep distinct terms of the same variable) set `by_terms = TRUE`:
 
 ``` r
+
 # Calculate variable importance for a specific selected Model
 imp_terms <- variable_importance(models = fm, by_terms = TRUE, 
                                  progress_bar = FALSE)
@@ -662,6 +688,7 @@ sourced from NeotropicTree ([Oliveira-Filho,
 used to fit the models.
 
 ``` r
+
 # Import independent records
 data("new_occ", package = "kuenm2")
 
@@ -682,6 +709,7 @@ values need to be extracted to these new records. Let’s import the
 raster variables and extract values for `new_occ`:
 
 ``` r
+
 # Import raster layers
 var <- terra::rast(system.file("extdata", "Current_variables.tif",
                                package = "kuenm2"))
@@ -712,6 +740,7 @@ variables have non-analogous values, either higher than the upper limit
 or lower than the lower limit observed in the data used to fit models.
 
 ``` r
+
 # Add some fake data beyond the limits of calibration ranges
 fake_data <- data.frame("pr_bg" = c(1, 1, 1),
                         "x" = c(NA, NA, NA),
@@ -732,6 +761,7 @@ Now, let’s evaluate models with this independent dataset (keep in mind
 that the last three records are fake):
 
 ``` r
+
 # Evaluate models with independent data
 res_ind <- independent_evaluation(fitted_models = fm, new_data = new_data)
 ```
@@ -751,6 +781,7 @@ The output is a list with three elements:
     addition, MOP results are included for all the records.
 
 ``` r
+
 res_ind$evaluation
 #>               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC
 #> 1         Model_192      mean           0.3647059       1.167024         0
@@ -783,6 +814,7 @@ For each records, the following MOP results are provided:
   maximum observed in the model fitting data.
 
 ``` r
+
 # Show the mop results for the last 5 independent records
 res_ind$predictions$continuous[81:85 , c("mop_distance", "inside_range", 
                                          "n_var_out", "towards_low", 
@@ -811,6 +843,7 @@ returns the predictions for each selected model and for the general
 consensus:
 
 ``` r
+
 # Show the continuous predictions for the last 5 independent records
 # Round to two decimal places
 round(res_ind$predictions$continuous[81:85, 1:6], 2)
@@ -855,6 +888,7 @@ independent records.
   
 
 ``` r
+
 # Reset plotting parameters
 par(original_par) 
 ```
@@ -875,6 +909,7 @@ using
 See an example below:
 
 ``` r
+
 # Set directory to save (here, in a temporary directory)
 dir_to_save <- file.path(tempdir())
 

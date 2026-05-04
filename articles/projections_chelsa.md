@@ -69,6 +69,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -112,6 +113,7 @@ You can download the files directly using the links we create below, or
 following the script.
 
 ``` r
+
 # Define variables to download
 var_to_use <- c("BIO_01", "BIO_07", "BIO_12", "BIO_15")
 
@@ -179,6 +181,7 @@ link](https://www.chelsa-climate.org/datasets), or follow the script
 below:
 
 ``` r
+
 # Create directory to save the variables
 present_dir <- file.path(tempdir(), "Present_raw")
 dir.create(present_dir)
@@ -222,6 +225,7 @@ also rename the variables as follows “bio1”, “bio12”, “bio15”, and
 “bio7”.
 
 ``` r
+
 # Import are for model calibration (M)
 m <- vect(system.file("extdata", "m.gpkg", 
                         package = "kuenm2"))
@@ -263,6 +267,7 @@ writeRaster(present_chelsa,
 Now, let’s do the same with variables representing LGM conditions:
 
 ``` r
+
 # Import LGM variables
 lgm_files <- list.files(raw_past_chelsa, full.names = TRUE)  # List files
 lgm_var <- rast(lgm_files)
@@ -297,6 +302,7 @@ Note that file names contain the information on the GCM. The trick here
 is using these patterns for grouping the variables:
 
 ``` r
+
 # In each iteration, 'i' is a GCM
 lgm_by_gcm <- lapply(gcms, function(i){
   # Subset variables that belong to GCM i
@@ -320,6 +326,7 @@ precipitation variables are in millimeters (mm) or percentage of
 variation (bio_15), while in the LGM they are in mm \* 10 or % \* 10.
 
 ``` r
+
 # Check values of variables in present
 #> minmax(present_chelsa[[c("bio1", "bio7", "bio12", "bio15")]])
 #>         bio1     bio7    bio12    bio15
@@ -339,6 +346,7 @@ We need to convert these variables so they have the same units as the
 current variables:
 
 ``` r
+
 # Fixing units in loop
 lgm_fixed_units <- lapply(lgm_by_gcm, function(x) {
   x$bio1 <- (x$bio1 / 10) - 273  # Divide by 10 and subtracts -273
@@ -363,6 +371,7 @@ file names must include the time period (LGM) and the GCM of each
 scenario:
 
 ``` r
+
 # Create directory to save processed lgm variables
 dir_lgm <- file.path(tempdir(), "LGM_CHELSA")
 dir.create(dir_lgm)
@@ -426,6 +435,7 @@ save the processed current variables in the `present_dir` directory and
 the LGM variables in `dir_lgm`:
 
 ``` r
+
 # Listing files in directories
 present_list <- list.files(path = dir_current, pattern = "Current_CHELSA",
                            full.names = TRUE)
@@ -439,6 +449,7 @@ Let’s check the listed files to ensure they are storing the full path to
 the variables of each scenario:
 
 ``` r
+
 # Check list of files with full paths
 ## Present
 present_list  # Paths can be different in distinct computers
@@ -460,6 +471,7 @@ lgm_list  # Paths can be different in distinct computers
 After checking files, we are ready to organize them:
 
 ``` r
+
 # Create a directory to save the variables
 # Here, in a temporary directory. Change to your work directory in your computer
 out_dir <- file.path(tempdir(), "Projection_variables")
@@ -477,7 +489,7 @@ organize_for_projection(output_dir = out_dir,
                         overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpZulLiu/Projection_variables
+#> /tmp/RtmprO3tD9/Projection_variables
 ```
 
   
@@ -487,6 +499,7 @@ the [`dir_tree()`](https://fs.r-lib.org/reference/dir_tree.html)
 function from the `fs` package:
 
 ``` r
+
 # Install package if necessary
 if(!require("fs")) {
   install.packages("fs")
@@ -530,6 +543,7 @@ and [model
 exploration](https://marlonecobos.github.io/kuenm2/articles/model_exploration.md).
 
 ``` r
+
 # Load the object with fitted models
 data(fitted_model_chelsa, package = "kuenm2")
 ```
@@ -552,6 +566,7 @@ We also need to provide information so the function can identify time
 periods, SSPs, and GCMs (no SSPs in this example).
 
 ``` r
+
 # Define present_dir and past_dir
 in_dir_present <- file.path(out_dir, "Present")
 in_dir_past <- file.path(out_dir, "Past")
@@ -577,6 +592,7 @@ we will predict to, and shows the root directory where the files are
 stored:
 
 ``` r
+
 pr
 #> projection_data object summary
 #> ==============================
@@ -601,6 +617,7 @@ scenarios](https://marlonecobos.github.io/kuenm2/articles/model_projections.md)
 vignette.
 
 ``` r
+
 # Create a folder to save projection results
 # Here, in a temporary directory
 out_dir_projections <- file.path(tempdir(), "Projection_results/chelsa")
@@ -666,6 +683,7 @@ Here, we present an example of detected changes from LGM to current
 conditions.
 
 ``` r
+
 # Run function to detect changes
 changes <- projection_changes(model_projections = p, consensus = "mean",
                               output_dir = out_dir_projections, 

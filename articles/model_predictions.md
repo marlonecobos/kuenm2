@@ -39,6 +39,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -65,6 +66,7 @@ The `fitted_models` object generated in that vignette is included as an
 example dataset within the package. Let’s load it.
 
 ``` r
+
 # Import fitted_model_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
 
@@ -84,6 +86,7 @@ To compare the results, let’s import a `fitted_models` object generated
 using the GLM algorithm:
 
 ``` r
+
 # Import fitted_model_glm
 data("fitted_model_glm", package = "kuenm2")
 
@@ -121,6 +124,7 @@ and calibrate the models. These are included as example data within the
 package:
 
 ``` r
+
 # Import raster layers
 var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
 
@@ -136,6 +140,7 @@ Let’s check which variables were used to calibrate our models. They are
 available in the `calibration_data` element of the object:
 
 ``` r
+
 # Variables used to calibrate maxnet models
 colnames(fitted_model_maxnet$calibration_data)
 #> [1] "pr_bg"    "bio_1"    "bio_7"    "bio_12"   "bio_15"   "SoilType"
@@ -155,6 +160,7 @@ and `SoilType`. All these variables are present in the `SpatRaster`
 begin by predicting the maxnet model:
 
 ``` r
+
 p_maxnet <- predict_selected(models = fitted_model_maxnet, new_variables = var,
                              progress_bar = FALSE)
 ```
@@ -169,6 +175,7 @@ containing `SpatRasters` for predictions, the consensus for each model,
 and the general consensus:
 
 ``` r
+
 # See objects in the output of predict_selected
 names(p_maxnet)
 #> [1] "Model_192"         "Model_219"         "General_consensus"
@@ -179,6 +186,7 @@ names(p_maxnet)
 Let’s plot the general consensus:
 
 ``` r
+
 terra::plot(p_maxnet$General_consensus)
 ```
 
@@ -190,6 +198,7 @@ We can also plot the results for each replicate and the consensus for
 each model:
 
 ``` r
+
 # Predictions for each replicate from model 192
 terra::plot(p_maxnet$Model_192$Replicates)
 ```
@@ -197,6 +206,7 @@ terra::plot(p_maxnet$Model_192$Replicates)
 ![](model_predictions_files/figure-html/plot%20models%20maxnet-1.png)
 
 ``` r
+
 
 # Consensus across each replicate from model 192
 terra::plot(p_maxnet$Model_192$Model_consensus)
@@ -209,6 +219,7 @@ terra::plot(p_maxnet$Model_192$Model_consensus)
 For comparison, let’s predict the GLM:
 
 ``` r
+
 # Predict glm 
 p_glm <- predict_selected(models = fitted_model_glm, 
                           new_variables = var,
@@ -234,6 +245,7 @@ Instead of a `SpatRaster`, we can also predict the models to a
 raster variables `var` to a `data.frame`:
 
 ``` r
+
 var_df <- as.data.frame(var)
 head(var_df)
 #>       bio_1    bio_7 bio_12   bio_15 SoilType
@@ -251,6 +263,7 @@ Note that each column stores the values for each variable. Let’s predict
 our Maxnet models to this `data.frame`:
 
 ``` r
+
 p_df <- predict_selected(models = fitted_model_maxnet, 
                          new_variables = var_df,  # Now, a data.frame
                          progress_bar = FALSE) 
@@ -262,6 +275,7 @@ Now, instead of `SpatRaster` objects, the function returns `data.frame`
 objects with the predictions:
 
 ``` r
+
 # Results by replicate of the model 192
 head(p_df$Model_192$Replicates)
 #>   Replicate_1  Replicate_2  Replicate_3  Replicate_4
@@ -322,17 +336,18 @@ to distinct interpretations and visually different prediction maps.
   approximately *c*% of presences.
 - **Cloglog output (Default)** transforms the raw values into a scale of
   relative suitability ranging between 0 and 1, using a logistic
-  transformation based on a user-specified parameter ‘$\tau$’, which
+  transformation based on a user-specified parameter ‘$`\tau`$’, which
   represents the probability of presence at ‘average’ presence
   locations. In this context, the tau value defaults to
-  $\tau \approx 0.632$.
+  $`\tau \approx 0.632`$.
 - **Logistic output** is similar to Cloglog, but it assumes that
-  $\tau = 0.5$.
+  $`\tau = 0.5`$.
 
 Let’s examine the differences between these four output types for Maxnet
 models:
 
 ``` r
+
 p_cloglog <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
                               type = "cloglog", progress_bar = FALSE)
 p_logistic <- predict_selected(models = fitted_model_maxnet, new_variables = var, 
@@ -366,6 +381,7 @@ let’s examine the response curve of the Maxnet model for `bio_7`
 (Temperature Annual Range):
 
 ``` r
+
 response_curve(models = fitted_model_maxnet, variable = "bio_7", 
                extrapolation_factor = 1)
 ```
@@ -390,6 +406,7 @@ Maxnet models, the lower and upper limits for `bio_7` are 15.7ºC and
 23.3ºC, respectively:
 
 ``` r
+
 range(fitted_model_maxnet$calibration_data$bio_7)
 #> [1] 15.71120 23.30475
 ```
@@ -400,6 +417,7 @@ To observe the effect of clamping this variable, let’s create a
 hypothetical scenario where `bio_7` has very low values:
 
 ``` r
+
 # From bio_7, reduce values
 new_bio7 <- var$bio_7 - 3
 
@@ -424,6 +442,7 @@ extrapolation (`extrapolation_type = "E"`) and with clamped variables
 (`extrapolation_type = "EC"`):
 
 ``` r
+
 # Predict to hypothetical scenario with free extrapolation
 p_free_extrapolation <- predict_selected(models = fitted_model_maxnet, 
                                          new_variables = new_var,  # New scenario
@@ -472,6 +491,7 @@ regions outside the limits of the training data are assigned a
 suitability value of 0. Let’s proceed to observe the differences:
 
 ``` r
+
 # Predict to hypothetical scenario with no extrapolation
 p_no_extrapolation <- predict_selected(models = fitted_model_maxnet, 
                                        new_variables = new_var,  # New scenario
@@ -516,6 +536,7 @@ You can access the omission error rate used to calculate the thresholds
 directly from the object:
 
 ``` r
+
 # Get omission error used to select models and calculate the thesholds
 ## For maxnet model
 fitted_model_maxnet$omission_rate
@@ -539,6 +560,7 @@ selected models (when more than one model is selected). Let’s check the
 thresholds for the general consensus:
 
 ``` r
+
 # For maxnet
 fitted_model_maxnet$thresholds$consensus
 #> $mean
@@ -561,6 +583,7 @@ fitted_model_glm$thresholds$consensus
 Let’s use these threshold values to binarize models predictions:
 
 ``` r
+
 # Get the threshold values for models (general consensus)
 thr_mean_maxnet <- fitted_model_maxnet$thresholds$consensus$mean  # Maxnet
 thr_mean_glm <- fitted_model_glm$thresholds$consensus$mean  # glm
@@ -580,6 +603,7 @@ terra::plot(mean_glm_bin, main = "GLM")
   
 
 ``` r
+
 # Reset plotting parameters
 par(original_par) 
 ```
@@ -597,6 +621,7 @@ GeoTIFF (.tif) files. If `new_variables` is a `data.frame`, the function
 will save the output files as Comma Separated Value (.csv) files.
 
 ``` r
+
 p_save <- predict_selected(models = fitted_model_maxnet, 
                            new_variables = var, 
                            write_files = TRUE,  # To save to the disk
@@ -613,6 +638,7 @@ to save specific output predictions manually. For example, to save only
 the mean layer from the general consensus results:
 
 ``` r
+
 terra::writeRaster(p_maxnet$General_consensus$mean, 
                    filename = file.path(tempdir(), "Mean_consensus.tif"))
 ```
@@ -632,6 +658,7 @@ As an example, we will project the fitted model to a **single GCM**
 representing future climatic conditions:
 
 ``` r
+
 # Read layers representing future conditions
 future_var <- terra::rast(system.file("extdata",
                                       "wc2.1_10m_bioc_ACCESS-CM2_ssp585_2081-2100.tif",
@@ -650,6 +677,7 @@ names used when fitting the models. After that, we will also append the
 static soil variable to the set of future variables.
 
 ``` r
+
 # renaming layers to match names of variables used to fit the model
 names(future_var) <- sub("bio0", "bio", names(future_var))
 names(future_var) <- sub("bio", "bio_", names(future_var))
@@ -667,6 +695,7 @@ future_var <- c(future_var, var$SoilType)
 Now we can generate predictions under future environmental conditions:
 
 ``` r
+
 # Predict
 p_future <- predict_selected(models = fitted_model_maxnet,
                              new_variables = future_var, 
@@ -689,6 +718,7 @@ threshold stored in the fitted models, compares current and future
 predictions, and then classifies each cell as gain, loss, or stable.
 
 ``` r
+
 # Compute changes between scenarios
 p_changes <- prediction_changes(current_predictions = p_maxnet$General_consensus$mean,
                                 new_predictions = p_future$General_consensus$mean,

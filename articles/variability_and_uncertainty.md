@@ -47,6 +47,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -79,6 +80,7 @@ and [“Project Models to Multiple
 Scenarios”](https://marlonecobos.github.io/kuenm2/articles/model_projections.md).
 
 ``` r
+
 # Import calib_results_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
 
@@ -104,7 +106,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from 
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmpl5FHSN/Future_raw
+#> /tmp/RtmpQYvDEd/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 # and copy the rawvariables there.
@@ -165,6 +167,7 @@ sources (replicates, models, and GCMs) and save the results to the
 designated `out_dir` directory.
 
 ``` r
+
 # Create a directory to save results
 v <- projection_variability(model_projections = p, write_files = TRUE,
                             output_dir = out_dir,
@@ -183,6 +186,7 @@ For example, for the present time scenario, the variance mainly comes
 from differences among replicates.
 
 ``` r
+
 # Variability for the present
 terra::plot(v$Present, range = c(0, 0.15))
 ```
@@ -195,6 +199,7 @@ In the most pessimistic scenario (SSP5-8.5) for 2081–2100, variability
 is not too high and comes primarily from replicates and GCMs.
 
 ``` r
+
 # Variability for Future_2081-2100_ssp585 
 terra::plot(v$`Future_2081-2100_ssp585`, range = c(0, 0.1))
 ```
@@ -212,6 +217,7 @@ this path with the
 function to load the results when needed.
 
 ``` r
+
 # See the folder where the results were saved
 v$root_directory
 #> [1] "Temp/Projection_results/maxnet/variance"
@@ -224,6 +230,7 @@ the SSP1-2.6 scenario. In this scenario, the variability mainly
 originates from differences among the selected models (see below).
 
 ``` r
+
 # Importing results
 v_2041_2060_ssp126 <- import_results(projection = v, 
                                      present = FALSE,  # Do not import results from the present time
@@ -251,6 +258,7 @@ function. For example, to save the variability map for one of the future
 scenarios:
 
 ``` r
+
 writeRaster(v$`Future_2081-2100_ssp585`, 
             file.path(out_dir, "Future_2081-2100_ssp585.tif"))
 ```
@@ -265,6 +273,7 @@ future sessions using the
 function:
 
 ``` r
+
 v <- readRDS(file.path(out_dir, "variance/variability_projections.rds"))
 ```
 
@@ -283,9 +292,10 @@ encounter conditions that are non-analogous to those used to train
 models.
 
 For example, the maximum annual mean temperature (bio_1) in our model’s
-calibration data was $22.7^{\circ}C$:
+calibration data was $`22.7^\circ C`$:
 
 ``` r
+
 max(fitted_model_maxnet$calibration_data$bio_1)
 #> [1] 22.6858
 ```
@@ -298,6 +308,7 @@ one of the GCMs (ACCESS-CM2) under the future scenario SSP5-8.5 and
 examine the maximum temperature:
 
 ``` r
+
 # Import variables from the 2081-2100 period (SSP585, GCM MIROC6)
 future_ACCESS_CM2 <- rast(file.path(out_dir_future,
                                 "2081-2100/ssp585/ACCESS-CM2/Variables.tif"))
@@ -379,6 +390,7 @@ Below, we perform a detailed MOP to identify areas with extrapolation
 risk in the future scenarios for which predictions were made:
 
 ``` r
+
 # Create a folder to save MOP results
 out_dir_mop <- file.path(tempdir(), "MOPresults")
 dir.create(out_dir_mop, recursive = TRUE)
@@ -418,6 +430,7 @@ Below, we explore all MOP results for the SSP5-8.5 scenario and the
 2081–2100 period:
 
 ``` r
+
 # Import results from MOP runs
 mop_ssp585_2100 <- import_results(projection = kmop,
                                   future_period = "2081-2100", 
@@ -440,6 +453,7 @@ values indicate greater dissimilarity from training conditions,
 highlighting areas with high extrapolation risk.
 
 ``` r
+
 terra::plot(mop_ssp585_2100$distances)
 ```
 
@@ -454,6 +468,7 @@ variable is outside training conditions. A value of ‘1’ indicates the
 presence of non-analogous conditions in that specific area and scenario.
 
 ``` r
+
 terra::plot(mop_ssp585_2100$basic)
 ```
 
@@ -467,6 +482,7 @@ The results in `simple` quantify the number of environmental variables
 in the projected area that outside training conditions.
 
 ``` r
+
 terra::plot(mop_ssp585_2100$simple)
 ```
 
@@ -483,6 +499,7 @@ show conditions above the maximum (towards high) and below the minimum
 (towards low) values in training data.
 
 ``` r
+
 # Non-analogous conditions towards high values in the ACCESS-CM2 scenario
 terra::plot(mop_ssp585_2100$towards_high_end$`Future_2081-2100_ssp585_ACCESS-CM2`)
 ```
@@ -490,6 +507,7 @@ terra::plot(mop_ssp585_2100$towards_high_end$`Future_2081-2100_ssp585_ACCESS-CM2
 ![](variability_and_uncertainty_files/figure-html/plot%20towards%20end-1.png)
 
 ``` r
+
 
 # Non-analogous conditions towards low values in the MIROC6 scenario
 terra::plot(mop_ssp585_2100$towards_low_end$`Future_2081-2100_ssp585_ACCESS-CM2`,
@@ -510,6 +528,7 @@ values exceeding those observed in training data, whereas
 range.
 
 ``` r
+
 # Variables with conditions above training range
 terra::plot(mop_ssp585_2100$towards_high_combined)
 ```
@@ -517,6 +536,7 @@ terra::plot(mop_ssp585_2100$towards_high_combined)
 ![](variability_and_uncertainty_files/figure-html/plot%20towars%20combined-1.png)
 
 ``` r
+
 
 # Variables with conditions below training range
 terra::plot(mop_ssp585_2100$towards_low_combined)
@@ -534,6 +554,7 @@ of 0 to these cells by setting `na_in_range = FALSE` when running
 [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md).
 
 ``` r
+
 # Create a folder to save MOP results, now assigning 0 to cells within the range
 out_dir_mop_zero <- file.path(tempdir(), "MOPresults_zero")
 dir.create(out_dir_mop_zero, recursive = TRUE)
@@ -554,6 +575,7 @@ Let’s explore how this setting affects the *simple* and *detailed* MOP
 outputs:
 
 ``` r
+
 # Import MOP for the scenario ssp585 in 2081-2100
 mop_ssp585_2100_zero <- import_results(projection = kmop_zero,
                                        future_period = "2081-2100", 
@@ -569,6 +591,7 @@ terra::plot(c(mop_ssp585_2100$simple$`Future_2081-2100_ssp585_ACCESS-CM2`,
 ![](variability_and_uncertainty_files/figure-html/check%20difference%20zero%20mop-1.png)
 
 ``` r
+
 
 # Detailed MOP
 terra::plot(c(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`, 
@@ -595,6 +618,7 @@ Seasonality) exceed the upper limits observed in training data (see
 below).
 
 ``` r
+
 # Non-analogous conditions towards high values in the ACCESS-CM2 scenario
 terra::plot(mop_ssp585_2100$towards_high_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
 ```
@@ -609,6 +633,7 @@ future scenario, we can set the plotting limits using this scenario’s
 layers as `new_data`:
 
 ``` r
+
 # Plotting response curves to check extrapolation towards the high end of variables
 par(mfrow = c(1,3))  # Set plot grid
 response_curve(models = fitted_model_maxnet, variable = "bio_1", 
@@ -633,6 +658,7 @@ Next, let’s investigate the variables with values below the lower limit
 of training data:
 
 ``` r
+
 # Non-analogous conditions towards low values in the ACCESS-CM2 scenario
 par(mfrow = c(1, 2))  # Set grid
 terra::plot(mop_ssp585_2100$towards_low_combined$`Future_2081-2100_ssp585_ACCESS-CM2`)
@@ -659,6 +685,7 @@ results alongside the response curves.
   
 
 ``` r
+
 # Reset plotting parameters
 par(original_par) 
 ```
@@ -675,6 +702,7 @@ file in `out_dir`. You can load this object in R at any time using the
 function:
 
 ``` r
+
 # Check for RDS files in the directory where we saved the MOP results
 list.files(path = out_dir_mop, pattern = "rds")
 #> [1] "mop_projections.rds"

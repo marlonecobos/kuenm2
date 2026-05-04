@@ -48,6 +48,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -76,6 +77,7 @@ endemic to Southern Brazil) and a group of erroneous records to
 demonstrate cleaning steps.
 
 ``` r
+
 # Import occurrences
 data(occ_data_noclean, package = "kuenm2")
 
@@ -97,6 +99,7 @@ drawing a minimum convex polygon around the records with a 300 km
 buffer.
 
 ``` r
+
 # Import raster layers
 var <- terra::rast(system.file("extdata", "Current_variables.tif", 
                                package = "kuenm2"))
@@ -115,6 +118,7 @@ terra::plot(var)
 Visualize occurrences records in geography:
 
 ``` r
+
 # Visualize occurrences on one variable
 ## Create an extent based on the layer and the records to see all errors
 vext <- terra::ext(var)  # extent of layer
@@ -151,6 +155,7 @@ documentation for more detailed explanations (e.g.,
 [`help(remove_missing)`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md)).
 
 ``` r
+
 # remove missing data
 mis <- remove_missing(data = occ_data_noclean, columns = NULL, remove_na = TRUE,
                       remove_empty = TRUE)
@@ -170,6 +175,7 @@ as explained before. See full documentation with
 [`help(remove_duplicates)`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md).
 
 ``` r
+
 # remove exact duplicates
 mis_dup <- remove_duplicates(data = mis, columns = NULL, keep_all_columns = TRUE)
 
@@ -188,6 +194,7 @@ working with some marine species). See full documentation with
 [`help(remove_corrdinates_00)`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md).
 
 ``` r
+
 # remove records with 0 for x and y coordinates
 mis_dup_00 <- remove_corrdinates_00(data = mis_dup, x = "x", y = "y")
 
@@ -210,6 +217,7 @@ with
 [`help(filter_decimal_precision)`](https://marlonecobos.github.io/kuenm2/reference/initial_cleaning.md).
 
 ``` r
+
 # remove coordinates with low decimal precision.
 mis_dup_00_dec <- filter_decimal_precision(data = mis_dup_00, x = "x", y = "y", 
                                            decimal_precision = 2)
@@ -228,6 +236,7 @@ Users can perform all this steps with a single function
 as follows:
 
 ``` r
+
 # all basic cleaning steps
 clean_init <- initial_cleaning(data = occ_data_noclean, species = "species", 
                                x = "x", y = "y", remove_na = TRUE, 
@@ -272,6 +281,7 @@ documentation with
 [`help(remove_cell_duplicates)`](https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.md).
 
 ``` r
+
 # exclude duplicates based on raster cell (pixel)
 celldup <- remove_cell_duplicates(data = clean_init, x = "x", y = "y",
                                   raster_layer = var)
@@ -296,6 +306,7 @@ area. See below for an example of how to use this functionality of
 [`help(move_2closest_cell)`](https://marlonecobos.github.io/kuenm2/reference/advanced_cleaning.md).
 
 ``` r
+
 # move records to valid pixels
 moved <- move_2closest_cell(data = celldup, x = "x", y = "y", 
                             raster_layer = var, move_limit_distance = 10)
@@ -315,6 +326,7 @@ The function
 facilitates the two processes from above in a single step:
 
 ``` r
+
 # move records to valid pixels
 clean_data <- advanced_cleaning(data = clean_init, x = "x", y = "y", 
                                 raster_layer = var, cell_duplicates = TRUE,
@@ -371,6 +383,7 @@ Notes:
   previous chunk of code, if that is what is needed.
 
 ``` r
+
 # Reset plotting parameters
 par(original_par) 
 ```
@@ -387,6 +400,7 @@ this type of data, another useful alternative is to save it as an RDS
 file in your directory. See the examples below:
 
 ``` r
+
 # Save as CSV
 write.csv(clean_data, file = "Clean_data.csv", row.names = FALSE)
 

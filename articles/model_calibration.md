@@ -39,6 +39,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -66,6 +67,7 @@ To start, let’s create two `prepared_data` objects: one using the maxnet
 as the algorithm, and another with GLMs:
 
 ``` r
+
 # Import occurrences
 data(occ_data, package = "kuenm2")
 
@@ -159,6 +161,7 @@ available cores on your machine, run
 Let’s calibrate the maxnet models:
 
 ``` r
+
 #Calibrate maxnet models
 m_maxnet <- calibration(data = d_maxnet, 
                         error_considered = c(5, 10),
@@ -192,6 +195,7 @@ indexing them. All evaluation metrics are stored within the
 `calibration_results` element, see how to explore them below:
 
 ``` r
+
 # See first rows of the summary of calibration results
 head(m_maxnet$calibration_results$Summary[, c("ID", "Omission_rate_at_10.mean", 
                                               "AICc", "Is_concave")])
@@ -209,6 +213,7 @@ head(m_maxnet$calibration_results$Summary[, c("ID", "Omission_rate_at_10.mean",
 We can also examine the details of the selected models:
 
 ``` r
+
 # See first rows of the summary of calibration results
 m_maxnet$selected_models[, c("ID", "Formulas", "R_multiplier",
                              "Omission_rate_at_10.mean", "AICc", "Is_concave")]
@@ -235,6 +240,7 @@ omission error rates, or elevated AIC values. Finally, a summary of the
 metrics for up to five selected models is presented.
 
 ``` r
+
 print(m_maxnet)
 #> calibration_results object summary (maxnet)
 #> =============================================================
@@ -276,6 +282,7 @@ Now, let’s calibrate the GLM Models to see if different models factors
 are selected with this algorithm:
 
 ``` r
+
 #Calibrate maxnet models
 m_glm <- calibration(data = d_glm, 
                      error_considered = c(5, 10),
@@ -302,6 +309,7 @@ m_glm <- calibration(data = d_glm,
 Now, instead of two selected models, we have only one:
 
 ``` r
+
 m_glm
 #> calibration_results object summary (glm)
 #> =============================================================
@@ -347,6 +355,7 @@ In our example, none of the maxnet selected models have concave
 responses, but the GLM selected had at least one concave response:
 
 ``` r
+
 #Selected maxnet models
 m_maxnet$selected_models[, c("ID", "Formulas", "Is_concave")]
 #>      ID
@@ -377,6 +386,7 @@ selected models have concave curves**, you can set
 function. Let’s test it with the maxnet algorithm:
 
 ``` r
+
 m_unimodal <- calibration(data = d_maxnet, 
                           remove_concave = TRUE,  # Ensures concave models are not selected
                           error_considered = c(5, 10),
@@ -434,6 +444,7 @@ and complexity considerations (default). Consequently, pROC values for
 models that were not pre-selected are filled with `NA`.
 
 ``` r
+
 # See first rows of the summary of calibration results (pROC values)
 head(m_maxnet$calibration_results$Summary[, c("ID", "Mean_AUC_ratio_at_10.mean",
                                               "pval_pROC_at_10.mean")])
@@ -461,6 +472,7 @@ results for selections with new criteria. Let’s re-select maxnet models
 applying an omission rate of 5% instead 10%:
 
 ``` r
+
 # Re-select maxnet models
 new_m_maxnet <- select_models(calibration_results = m_maxnet, 
                               compute_proc = TRUE, 
@@ -509,6 +521,7 @@ summary updated. Note that we now have different selected models with
 the maxnet algorithm:
 
 ``` r
+
 new_m_maxnet$selected_models[,c("ID", "Formulas", "R_multiplier", 
                                 "Omission_rate_at_5.mean", 
                                 "Mean_AUC_ratio_at_5.mean",
@@ -517,8 +530,8 @@ new_m_maxnet$selected_models[,c("ID", "Formulas", "R_multiplier",
 #> 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1
 #> 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1
 #>     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc
-#> 159          0.1                  0.0192                 1.480009 622.7677
-#> 189          0.1                  0.0192                 1.511657 621.9095
+#> 159          0.1                  0.0192                 1.478967 622.7677
+#> 189          0.1                  0.0192                 1.512625 621.9095
 #>     Is_concave
 #> 159      FALSE
 #> 189      FALSE
@@ -536,6 +549,7 @@ function will return a list containing the selected models along with
 summaries of the model selection process.
 
 ``` r
+
 #Re-select models using data.frame
 new_summary <- select_models(candidate_models = m_maxnet$calibration_results$Summary,
                              data = d_maxnet,  # Needed to compute pROC
@@ -565,8 +579,8 @@ new_summary$selected_models[, c("ID", "Formulas", "R_multiplier",
 #> 159 159                        ~bio_1 + bio_7 + I(bio_1^2) + I(bio_7^2) -1
 #> 189 189 ~bio_1 + bio_7 + bio_12 + I(bio_1^2) + I(bio_7^2) + I(bio_12^2) -1
 #>     R_multiplier Omission_rate_at_5.mean Mean_AUC_ratio_at_5.mean     AICc
-#> 159          0.1                  0.0192                 1.481555 622.7677
-#> 189          0.1                  0.0192                 1.515082 621.9095
+#> 159          0.1                  0.0192                 1.478684 622.7677
+#> 189          0.1                  0.0192                 1.512916 621.9095
 #>     Is_concave
 #> 159      FALSE
 #> 189      FALSE
@@ -590,6 +604,7 @@ can be used to perform the explorations mentioned above for each of the
 selected models in the `calibration_results` object.
 
 ``` r
+
 # ID of models that were selected
 m_maxnet$selected_models$ID
 #> [1] 192 219
@@ -616,6 +631,7 @@ The same can be done for each of the models selected. Below is a plot
 for the second model selected in this example.
 
 ``` r
+
 # Response curves for model 219
 partition_response_curves(calibration_results = m_maxnet, modelID = 219)
 ```
@@ -625,6 +641,7 @@ partition_response_curves(calibration_results = m_maxnet, modelID = 219)
   
 
 ``` r
+
 # Reset plotting parameters
 par(original_par) 
 ```
@@ -644,6 +661,7 @@ using
 See an example below:
 
 ``` r
+
 # Set directory to save (here, in a temporary directory)
 dir_to_save <- file.path(tempdir())
 

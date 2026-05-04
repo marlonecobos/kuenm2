@@ -44,6 +44,7 @@ Note: functions from other packages (i.e., not from base R or `kuenm2`)
 used in this guide will be displayed as `package::function()`.
 
 ``` r
+
 # Load packages
 library(kuenm2)
 library(terra)
@@ -70,6 +71,7 @@ The `fitted_models` object generated in that vignette is included as an
 example dataset within the package. Let’s load it.
 
 ``` r
+
 # Import fitted_model_maxnet
 data("fitted_model_maxnet", package = "kuenm2")
 
@@ -132,6 +134,7 @@ periods “2041-2060” and “2081-2100”, for two SSPs (125 and 585) and two
 GCMs (ACCESS-CM2 and MIROC6), at 10 arc-minutes resolution.
 
 ``` r
+
 # See raster files with future variables provided as example
 # The data is located in the "inst/extdata" folder.
 in_dir <- system.file("extdata", package = "kuenm2")
@@ -166,6 +169,7 @@ from [WorldClim](https://worldclim.org/data/cmip6/cmip6climate.html) or
 by using the `geodata` R package (see example code below):
 
 ``` r
+
 # Install geodata if necessary
 if (!require("geodata")) {
   install.packages("geodata")
@@ -203,6 +207,7 @@ lapply(1:nrow(g), function(i) {
 Let’s check the variables inside the “geodata_dir” folder:
 
 ``` r
+
 list.files(geodata_dir, recursive = TRUE)
 #> [1] "climate/wc2.1_10m/wc2.1_10m_bioc_ACCESS-CM2_ssp126_2041-2060.tif"
 #> [2] "climate/wc2.1_10m/wc2.1_10m_bioc_ACCESS-CM2_ssp126_2061-2080.tif"
@@ -252,6 +257,7 @@ provides four renaming options:
 Let’s check how the variables were named in our `fitted_model`:
 
 ``` r
+
 fitted_model_maxnet$continuous_variables
 #> [1] "bio_1"  "bio_7"  "bio_12" "bio_15"
 ```
@@ -271,6 +277,7 @@ alongside the Bioclimatic ones. First, let’s bring `soilType`, which
 will remain static in future scenarios (we will use it in a later step).
 
 ``` r
+
 # Import raster layers (same used to calibrate and fit final models)
 var <- rast(system.file("extdata", "Current_variables.tif", package = "kuenm2"))
 
@@ -287,6 +294,7 @@ Now, let’s organize the WorldClim files with the
 function:
 
 ``` r
+
 # Create folder to save structured files
 out_dir_future <- file.path(tempdir(), "Future_raw")  # a temporary directory
 
@@ -298,7 +306,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpHcvMEB/Future_raw
+#> /tmp/RtmpI3TMpV/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -319,6 +327,7 @@ the [`dir_tree()`](https://fs.r-lib.org/reference/dir_tree.html)
 function from the `fs` package:
 
 ``` r
+
 # Install package if necessary
 if (!require("fs")) {
   install.packages("fs")
@@ -376,6 +385,7 @@ layers used for model fitting to a folder we can easily direct the
 function that runs the next step:
 
 ``` r
+
 # Create a "Current_raw" folder in a temporary directory
 # and copy the rawvariables there.
 out_dir_current <- file.path(tempdir(), "Current_raw")
@@ -406,6 +416,7 @@ projection (present, past, and/or future), along with additional
 information regarding time periods, SSPs, and GCMs.
 
 ``` r
+
 # Prepare projections using fitted models to check variables
 pr <- prepare_projection(models = fitted_model_maxnet,
                          present_dir = out_dir_current,  # Directory with present-day variables
@@ -425,6 +436,7 @@ scenarios we will project to, and shows the root directory where the
 variables are stored:
 
 ``` r
+
 pr
 #> projection_data object summary
 #> =============================
@@ -434,7 +446,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpHcvMEB
+#> /tmp/RtmpI3TMpV
 ```
 
   
@@ -451,6 +463,7 @@ see it’s a list containing:
   [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md).
 
 ``` r
+
 # Open prepared_projection in a new window
 View(pr)
 ```
@@ -465,6 +478,7 @@ function to predict selected models across the scenarios specified in
 `prepare_projection`:
 
 ``` r
+
 # Create a folder to save projection results
 # Here, in a temporary directory
 out_dir <- file.path(tempdir(), "Projection_results/maxnet")
@@ -485,6 +499,7 @@ similar to the `prepared_data` object, storing information about the
 projections performed and the folder where results were saved.
 
 ``` r
+
 print(p)
 #> model_projections object summary
 #> ================================
@@ -494,7 +509,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpHcvMEB/Projection_results/maxnet
+#>  /tmp/RtmpI3TMpV/Projection_results/maxnet
 ```
 
   
@@ -507,6 +522,7 @@ also saves a file named “Projection_paths.RDS”, which is the
 function.
 
 ``` r
+
 dir_tree(out_dir)
 #> Temp\Projection_results/maxnet
 #> ├── Future
@@ -611,6 +627,7 @@ GCMs) available in the `model_projections` object. Let’s import the mean
 for all scenarios:
 
 ``` r
+
 # Import mean of each projected scenario
 p_mean <- import_results(projection = p, consensus = "mean")
 
@@ -627,6 +644,7 @@ example, let’s import the results only for the “2041-2060” time period
 under the SSP 126:
 
 ``` r
+
 # Importing
 p_2060_ssp126 <- import_results(projection = p, consensus = "mean", 
                                 present = FALSE,  # Do not import present projections
@@ -692,6 +710,7 @@ configure the function to return the raster layers with changes and
 write the binary results to disk.
 
 ``` r
+
 # Run analysis to detect changes in suitable areas
 changes <- projection_changes(model_projections = p, 
                               output_dir = out_dir, 
@@ -717,6 +736,7 @@ on a prediction, and decreases progressively (down to `min_alpha`) as
 fewer GCMs support that outcome.
 
 ``` r
+
 # Set colors for change maps
 changes_col <- colors_for_changes(changes)
 ```
@@ -741,6 +761,7 @@ by GCM, results by change, and a general summary considering all GCMs:
   different threshold using the `user_threshold` argument.
 
 ``` r
+
 terra::plot(changes_col$Binarized, cex.main = 0.8)
 ```
 
@@ -752,6 +773,7 @@ terra::plot(changes_col$Binarized, cex.main = 0.8)
   (gain, loss, stability) for each GCM individually.
 
 ``` r
+
 terra::plot(changes_col$Results_by_gcm, cex.main = 0.8)
 ```
 
@@ -764,6 +786,7 @@ terra::plot(changes_col$Results_by_gcm, cex.main = 0.8)
   for a given scenario.
 
 ``` r
+
 # Results by change for the scenario of 2041-2060 (ssp126)
 terra::plot(changes_col$Results_by_change$`Future_2041-2060_ssp126`)
 ```
@@ -776,6 +799,7 @@ terra::plot(changes_col$Results_by_change$`Future_2041-2060_ssp126`)
   GCMs project gain, loss, and stability for each scenario.
 
 ``` r
+
 terra::plot(changes_col$Summary_changes, plg = list(cex = 0.75))  # Decrease size of legend text
 ```
 
@@ -804,6 +828,7 @@ For example, below we import only the general summary for the 2041–2060
 period under the SSP5-8.5 scenario:
 
 ``` r
+
 # Import changes detected for 2041–2060 SSP5-8.5 
 general_changes <- import_results(projection = changes, 
                                   future_period = "2041-2060", 
@@ -834,6 +859,7 @@ If results were not written to disk during the initial run, you can save
 function. For example, to save the general summary raster:
 
 ``` r
+
 writeRaster(changes$Summary_changes,
             file.path(out_dir, "Summary_changes.tif"))
 ```
@@ -846,6 +872,7 @@ specified `output_dir`. You can load it back into R using
 [`readRDS()`](https://rspatial.github.io/terra/reference/serialize.html):
 
 ``` r
+
 changes <- readRDS(file.path(out_dir, "Projection_changes/changes_projections.rds"))
 ```
 
@@ -859,6 +886,7 @@ function.
   
 
 ``` r
+
 # Reset plotting parameters
 par(original_par) 
 ```
