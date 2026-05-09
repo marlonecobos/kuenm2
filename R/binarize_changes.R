@@ -162,33 +162,33 @@ binarize_changes <- function(changes_projections,
 
     # Extract outcomes
     if(outcome == "suitable" && d == "Future"){
-      v <- l[l$event %in% c("gain", "stable, suitable") &
+      v <- l[l$event %in% c("Gain", "Stable suitable") &
                l$n_gcms >= n_gcms,] }
     if(outcome == "suitable" && d == "Past"){
-      v <- l[l$event %in% c("loss", "stable, suitable") &
+      v <- l[l$event %in% c("Loss", "Stable suitable") &
                l$n_gcms >= n_gcms,] }
 
     if(outcome == "unsuitable" && d == "Future"){
-      v <- l[l$event %in% c("loss", "stable, unsuitable") &
+      v <- l[l$event %in% c("Loss", "Stable unsuitable") &
                l$n_gcms >= n_gcms,] }
     if(outcome == "unsuitable" && d == "Past"){
-      v <- l[l$event %in% c("gain", "stable, unsuitable") &
+      v <- l[l$event %in% c("Gain", "Stable unsuitable") &
                l$n_gcms >= n_gcms,] }
 
     if(outcome == "gain"){
-      v <- l[l$event == "gain" &
+      v <- l[l$event == "Gain" &
                l$n_gcms >= n_gcms,]
     }
     if(outcome == "loss"){
-      v <- l[l$event == "loss" &
+      v <- l[l$event == "Loss" &
                l$n_gcms >= n_gcms,]
     }
     if(outcome == "stable-suitable"){
-      v <- l[l$event == "stable, suitable" &
+      v <- l[l$event == "Stable suitable" &
                l$n_gcms >= n_gcms,]
     }
     if(outcome == "stable-unsuitable"){
-      v <- l[l$event == "stable, unsuitable" &
+      v <- l[l$event == "Stable unsuitable" &
                l$n_gcms >= n_gcms,]
     }
 
