@@ -199,7 +199,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmprd7xZr/Future_raw3
+#> /tmp/RtmpcW3iGd/Future_raw3
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
@@ -236,15 +236,15 @@ terra::plot(changes$Results_by_gcm)  # SpatRaster with changes by GCM
 
 changes$Results_by_change  # List of SpatRaster(s) by changes with GCM agreement
 #> $`Future_2081-2100_ssp585`
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 52, 40, 3  (nrow, ncol, nlyr)
 #> resolution  : 0.1666667, 0.1666667  (x, y)
 #> extent      : -53.5, -46.83333, -30.83333, -22.16667  (xmin, xmax, ymin, ymax)
-#> coord. ref. : lon/lat WGS 84 (EPSG:4326) 
+#> coord. ref. : lon/lat WGS 84 (EPSG:4326)
 #> source(s)   : memory
-#> names       :           Stable unsuitable,           Loss,           Stable suitable 
-#> min values  : Stable unsuitable in 0 GCMs, Loss in 0 GCMs, Stable suitable in 0 GCMs 
-#> max values  : Stable unsuitable in 2 GCMs, Loss in 2 GCMs, Stable suitable in 2 GCMs 
+#> names       :           Stable unsuitable,           Loss,           Stable suitable
+#> min values  : Stable unsuitable in 0 GCMs, Loss in 0 GCMs, Stable suitable in 0 GCMs
+#> max values  : Stable unsuitable in 2 GCMs, Loss in 2 GCMs, Stable suitable in 2 GCMs
 #> 
 terra::plot(changes$Results_by_change$`Future_2081-2100_ssp585`)  # an example of the previous
 

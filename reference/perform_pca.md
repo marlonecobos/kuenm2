@@ -113,18 +113,18 @@ pca_var <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
 
 pca_var
 #> $env
-#> class       : SpatRaster 
+#> class       : SpatRaster
 #> size        : 52, 40, 5  (nrow, ncol, nlyr)
 #> resolution  : 0.1666667, 0.1666667  (x, y)
 #> extent      : -53.5, -46.83333, -30.83333, -22.16667  (xmin, xmax, ymin, ymax)
-#> coord. ref. : lon/lat WGS 84 (EPSG:4326) 
-#> sources     : memory  (4 layers) 
-#>               Current_variables.tif  
-#> varnames    : Current_variables 
-#>               Current_variables 
-#> names       :       PC1,       PC2,       PC3,       PC4, SoilType 
-#> min values  : -3.621362, -2.041276, -3.923471, -1.730859,        1 
-#> max values  :  2.929786,  3.029667,  1.752452,  1.601162,       23 
+#> coord. ref. : lon/lat WGS 84 (EPSG:4326)
+#> sources     : memory (4 layers)
+#>               Current_variables.tif
+#> varnames    : Current_variables
+#>               Current_variables
+#> names       :       PC1,       PC2,       PC3,       PC4, SoilType
+#> min values  : -3.621362, -2.041276, -3.923471, -1.730859,        1
+#> max values  :  2.929786,  3.029667,  1.752452,  1.601162,       23
 #> 
 #> $pca
 #> Standard deviations (1, .., p=4):
@@ -162,7 +162,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
 #>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmprd7xZr/Future_raw1
+#> /tmp/RtmpcW3iGd/Future_raw1
 
 # Prepare projections
 pr <- prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",
@@ -183,5 +183,5 @@ proj_pca <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                         out_dir = out_dir, center = TRUE, scale = TRUE)
 
 proj_pca$projection_directory  # Directory with projected PCA-variables
-#> [1] "/tmp/Rtmprd7xZr/PCA_projections"
+#> [1] "/tmp/RtmpcW3iGd/PCA_projections"
 ```

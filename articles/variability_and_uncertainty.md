@@ -106,7 +106,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to the raw variables from 
                           progress_bar = FALSE, overwrite = TRUE)
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpQYvDEd/Future_raw
+#> /tmp/RtmpCAkj67/Future_raw
 
 # Create a "Current_raw" folder in a temporary directory
 # and copy the rawvariables there.
