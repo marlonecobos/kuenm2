@@ -1,5 +1,11 @@
 # Changelog
 
+## kuenm2 0.1.4
+
+- Fix bug in
+  [`independent_evaluation()`](https://marlonecobos.github.io/kuenm2/reference/independent_evaluation.md),
+  so evaluation works when there are no replicates in the fitted model.
+
 ## kuenm2 0.1.3
 
 CRAN release: 2026-04-20
