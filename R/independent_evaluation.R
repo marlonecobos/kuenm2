@@ -290,22 +290,36 @@ independent_evaluation <- function(fitted_models, new_data,
     }
 
     #Calculate omission rate
+    if(fitted_models$n_replicates == 1  && i != "General_consensus") {
+      omr_i <- sum(p_i$Full_model$Full_model < thr[[i]]$Full_model)/length(p_i$Full_model$Full_model)
+    } else {
     omr_i <- sapply(names(p_i), function(x){
       sum(p_i[[x]] < thr[[i]][[x]])/length(p_i[[x]])
     })
+    }
+
 
     #Calculate proc
-    proc_i <- lapply(names(p_i), function(x){
-      res_x <- fpROC::auc_metrics(test_prediction = p_i[[x]],
-                         prediction = bg_i[[x]],
-                         threshold = fitted_models$omission_rate)$summary[, 4:5]
-      if(is.null(res_x)){
-        res_x <- c(Mean_AUC_ratio = NA, pval_pROC = NA)
+    if(fitted_models$n_replicates == 1 && i != "General_consensus") {
+      proc_i <- fpROC::auc_metrics(test_prediction = p_i$Full_model$Full_model,
+                                   prediction = bg_i$Full_model$Full_model,
+                                   threshold = fitted_models$omission_rate)$summary[, 4:5]
+      if(is.null(proc_i)){
+        proc_i <- c(Mean_AUC_ratio = NA, pval_pROC = NA)}
+      proc_i <- t(data.frame(proc_i))
+      } else {
+      proc_i <- lapply(names(p_i), function(x){
+        res_x <- fpROC::auc_metrics(test_prediction = p_i[[x]],
+                                    prediction = bg_i[[x]],
+                                    threshold = fitted_models$omission_rate)$summary[, 4:5]
+        if(is.null(res_x)){
+          res_x <- c(Mean_AUC_ratio = NA, pval_pROC = NA)
+        }
+        return(res_x)
+      })
+      names(proc_i) <- names(p_i)
+      proc_i <- as.data.frame(do.call(rbind, proc_i))
       }
-      return(res_x)
-    })
-    names(proc_i) <- names(p_i)
-    proc_i <- as.data.frame(do.call(rbind, proc_i))
 
     #Save results
     df_i <- data.frame(Model = i,
@@ -332,7 +346,24 @@ independent_evaluation <- function(fitted_models, new_data,
 
   if(return_predictions){
     predictions <- list()
-    predictions[["continuous"]] <- do.call(cbind, pred_test)
+
+    if(fitted_models$n_replicates == 1){
+      pred_test2 <- lapply(names(pred_test), function(nome) {
+        elemento <- pred_test[[nome]]
+        if (nome != "General_consensus") {
+          vetor <- elemento$Full_model$Full_model
+          df <- data.frame(Full_model = vetor)
+        } else {
+          df <- elemento
+        }
+        colnames(df) <- paste(nome, colnames(df), sep = ".")
+        return(df)
+      })
+      predictions[["continuous"]] <- do.call(cbind, pred_test2)
+    } else {
+      predictions[["continuous"]] <- do.call(cbind, pred_test)
+    }
+
 
     if(return_binary){
       # Initializing a new list to store the binarized data
@@ -342,19 +373,42 @@ independent_evaluation <- function(fitted_models, new_data,
       for (model_name in names(pred_test)) {
         # Initialize a sublist for the current model within pred_test_binarized
         pred_test_binarized[[model_name]] <- list()
+
         # Get the pred_test dataframe for the current model
-        current_pred_data <- pred_test[[model_name]]
-        # Get the threshold values for the current model
-        current_thr_data <- thr[[model_name]]
-        # Iterate over the 'mean' and 'median' metrics
-        for (metric in consensus) {
-          binarized_values <- as.numeric(current_pred_data[[metric]] >= current_thr_data[[metric]])
+        if(fitted_models$n_replicates == 1 && model_name != "General_consensus"){
+          current_pred_data <- pred_test[[model_name]]$Full_model$Full_model
+          # Get the threshold values for the current model
+          current_thr_data <- thr[[model_name]]$Full_model
+          # Get binary results
+          binarized_values <- as.numeric(current_pred_data >= current_thr_data)
           # Add the binarized values to the model's sublist
-          pred_test_binarized[[model_name]][[metric]] <- binarized_values
-        }
+          pred_test_binarized[[model_name]]$Full_model <- binarized_values
+          } else {
+          current_pred_data <- pred_test[[model_name]]
+          # Get the threshold values for the current model
+          current_thr_data <- thr[[model_name]]
+          # Iterate over the 'mean' and 'median' metrics
+          for (metric in consensus) {
+            binarized_values <- as.numeric(current_pred_data[[metric]] >= current_thr_data[[metric]])
+            # Add the binarized values to the model's sublist
+            pred_test_binarized[[model_name]][[metric]] <- binarized_values
+          }
+
+          }
+
         # Convert the model's sublist to a dataframe to maintain the original structure
         pred_test_binarized[[model_name]] <- as.data.frame(pred_test_binarized[[model_name]])
       }
+
+      # Fix names if there is no replicates
+      if(fitted_models$n_replicates == 1){
+        pred_test_binarized <- lapply(names(pred_test_binarized), function(nome) {
+          df <- pred_test_binarized[[nome]]
+          colnames(df) <- paste(nome, colnames(df), sep = ".")
+          return(df)
+        })
+      }
+
 
       predictions$binary <- do.call(cbind, pred_test_binarized)
 

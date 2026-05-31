@@ -1,3 +1,7 @@
+# kuenm2 0.1.4
+
+* Fix bug in `independent_evaluation()`, so evaluation works when there are no replicates in the fitted model.
+
 # kuenm2 0.1.3
 
 * In `bivariate_response()`, store and restore graphical parameters only when plotting area is modified.
