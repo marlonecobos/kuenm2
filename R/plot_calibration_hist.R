@@ -5,16 +5,22 @@
 #' generated with the `explore_calibration_hist` function.
 #'
 #' @usage
-#' plot_calibration_hist(explore_calibration, color_m = "grey",
+#' plot_calibration_hist(explore_calibration, variables = NULL,
+#'                       color_m = "grey",
 #'                       color_background = "#56B4E9",
 #'                       color_presence = "#009E73", alpha = 0.4,
 #'                       lines = FALSE, which_lines = c("cl", "mean"),
 #'                       lty_range = 1, lty_cl = 2, lty_mean = 3,
 #'                       lwd_range = 3, lwd_cl = 2, lwd_mean = 2,
-#'                       xlab = NULL, ylab = NULL, mfrow = NULL)
+#'                       xlab = NULL, ylab = NULL, mfrow = NULL,
+#'                       show_legend = FALSE, legend_position = c("bottom"),
+#'                       legend_offset = 0.08)
 #'
 #' @param explore_calibration an object of class `explore_calibration` generated
 #'        by the `explore_calibration_hist` function.
+#' @param variables (character) vector specifying the variables for which to
+#'        plot histograms. Defaults to NULL, which plots histograms for all
+#'        variables.
 #' @param color_m (character) color used to fill the histogram bars for the
 #'        entire area (M). Default is "grey".
 #' @param color_background (character) color used to fill the histogram bars for
@@ -49,10 +55,19 @@
 #' @param mfrow (numeric) a vector specifying the number of rows and columns in
 #'        the plot layout, e.g., c(rows, columns). Default is NULL, meaning
 #'        the grid will be arranged automatically based on the number of plots.
+#' @param show_legend (logical) whether to display a shared legend for the
+#'        histogram bar colors. Default is FALSE.
+#' @param legend_position (character) position of the shared legend when
+#'        `show_legend = TRUE`. Available options are "bottom", "right", and
+#'        "top". Default is "bottom".
+#' @param legend_offset (numeric) distance between the legend and the outer edge
+#'        of the plotting area. Larger values move the legend closer to the
+#'        plotting area. Default is 0.08.
 #'
 #' @importFrom grDevices adjustcolor
 #' @importFrom graphics par abline box barplot plot
 #' @importFrom stats na.omit setNames
+#' @importFrom grid grid.rect gpar grid.text
 #'
 #' @return
 #' No return value, called for side effects (plots histograms).
@@ -76,6 +91,7 @@
 #' plot_calibration_hist(explore_calibration = calib_hist)
 
 plot_calibration_hist <- function(explore_calibration,
+                                  variables = NULL,
                                   color_m = "grey",
                                   color_background = "#56B4E9",
                                   color_presence = "#009E73",
@@ -90,7 +106,10 @@ plot_calibration_hist <- function(explore_calibration,
                                   lwd_mean = 2,
                                   xlab = NULL,
                                   ylab = NULL,
-                                  mfrow = NULL) {
+                                  mfrow = NULL,
+                                  show_legend = FALSE,
+                                  legend_position = c("bottom"),
+                                  legend_offset = 0.08) {
   #Check errors####
   if (missing(explore_calibration)) {
     stop("Argument 'explore_calibration' must be defined.")
@@ -134,6 +153,17 @@ plot_calibration_hist <- function(explore_calibration,
   if (!inherits(lwd_mean, "numeric")) {
     stop("'lwd_mean' must be 'numeric'.")
   }
+  if (!is.logical(show_legend) || length(show_legend) != 1L ||
+      is.na(show_legend)) {
+    stop("'show_legend' must be TRUE or FALSE.")
+  }
+  if(show_legend){
+    legend_unmatch <- setdiff(legend_position, c("bottom", "right", "top"))
+    if(length(legend_unmatch) > 0 | length(legend_position) > 1){
+      stop("If show_legend is TRUE, legend_position must be 'bottom', 'right', or 'top'")
+    }
+  }
+
   #### End of checking errors ####
 
   #Adjust bar colors
@@ -143,6 +173,16 @@ plot_calibration_hist <- function(explore_calibration,
 
   #Get variables
   v <- names(explore_calibration$exploration_stats)
+
+  if(!is.null(variables)){
+    # Check variables
+    v_out <- setdiff(variables, v)
+    if(length(v_out) > 0){
+      stop("The following variables are absent from 'explore_partition':\n",
+           paste(v_out, collapse = ", "))
+    }
+    v <- intersect(v, variables)
+  }
 
   #y Labels
   ylab <- ifelse(is.null(ylab), "Frequency", ylab)
@@ -156,6 +196,17 @@ plot_calibration_hist <- function(explore_calibration,
   #Par settings
   opar <- graphics::par(no.readonly = TRUE)
   on.exit(graphics::par(opar))
+
+  # If show legend...
+  if (show_legend) {
+    oma <- graphics::par("oma")
+
+    if (legend_position == "bottom") oma[1] <- oma[1] + 2.5
+    if (legend_position == "top")    oma[3] <- oma[3] + 2.5
+    if (legend_position == "right")  oma[4] <- oma[4] + 9
+
+    graphics::par(oma = oma)
+  }
 
   #Set mfrow
   if(is.null(mfrow)){ #If NULL, arrange automatically
@@ -198,8 +249,8 @@ plot_calibration_hist <- function(explore_calibration,
     if (i %in% explore_calibration$categorical_variables) {
       #Create comum x-axis for all
       all_categories <- stats::na.omit(sort(unique(c(names(var_res$hist_m),
-                                       names(var_res$hist_bg),
-                                       names(var_res$hist_pr)))))
+                                                     names(var_res$hist_bg),
+                                                     names(var_res$hist_pr)))))
       #Reorder
       all_categories <- sort(as.numeric(all_categories))
 
@@ -256,13 +307,61 @@ plot_calibration_hist <- function(explore_calibration,
           graphics::abline(v = var_res$mean_pr, col = color_presence,
                            lwd = lwd_mean, lty = lty_mean)
         }
-        } #End of continuous
+      } #End of continuous
 
-      } #End of lines
+    } #End of lines
 
     #Add box
     graphics::box(bty = "l")
   } #End of for in
+
+  if (show_legend) {
+    cores <- c(color_m, color_background, color_presence)
+    preenchimentos <- grDevices::adjustcolor(cores, alpha.f = alpha)
+    rotulos <- c("Calibration area", "Background", "Presences")
+
+    # Dimensões e margens externas, em polegadas
+    omi <- graphics::par("omi")
+    din <- graphics::par("din")
+
+    if (legend_position == "right") {
+      centro_x <- 1 - omi[4] / (2 * din[1])
+      x_caixas <- rep(centro_x - 0.04, 3)
+      x_textos <- rep(centro_x - 0.025, 3)
+      y <- c(0.60, 0.50, 0.40)
+    } else {
+      y_centro <- if (legend_position == "top") {
+        1 - omi[3] / (2 * din[2])
+      } else {
+        omi[1] / (2 * din[2])
+      }
+
+      x_caixas <- c(0.10, 0.42, 0.74)
+      x_textos <- c(0.12, 0.44, 0.76)
+      y <- rep(y_centro, 3)
+    }
+
+    # Control legend position
+    if (legend_position == "top") {
+      y <- y - legend_offset / din[2]
+    } else if (legend_position == "bottom") {
+      y <- y + legend_offset / din[2]
+    } else {
+      x_caixas <- x_caixas - legend_offset / din[1]
+      x_textos <- x_textos - legend_offset / din[1]
+    }
+
+    # Add legend
+    grid::grid.rect(
+      x = x_caixas, y = y,
+      width = 0.025, height = 0.025,
+      gp = grid::gpar(fill = preenchimentos, col = cores)
+    )
+    grid::grid.text(
+      rotulos, x = x_textos, y = y,
+      just = "left", gp = grid::gpar(fontsize = 9)
+    )
+  }
 
   return(invisible(NULL))
 }
