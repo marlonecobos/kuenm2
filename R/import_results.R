@@ -366,8 +366,8 @@ import_results <- function(projection,
         file_partial_path <- paste0("Present/Present", mop_suffix)
         # GCM might be NA for "Present", so the raster name will just be "Present"
         raster_name_id <- "Present"
-      } else {
-        # For other cases, use Time/Period/ssp/GCM_mop_type.tif
+      } else if (row_info$Time == "Future") {
+        # For future, use Time/Period/ssp/GCM_mop_type.tif
         file_partial_path <- paste0(
           row_info$Time, "/",
           row_info$Period, "/",
@@ -376,6 +376,16 @@ import_results <- function(projection,
         )
         # Construct the name for the raster (e.g., "Future_2081-2100_ssp126_ACCESS-CM2")
         raster_name_id <- paste(row_info$Time, row_info$Period, row_info$Scenario,
+                                row_info$GCM, sep = "_")
+      } else if (row_info$Time == "Past"){
+        # For past, use Time/Period/GCM_mop_type.tif
+        file_partial_path <- paste0(
+          row_info$Time, "/",
+          row_info$Period, "/",
+          row_info$GCM, mop_suffix
+        )
+        # Construct the name for the raster (e.g., "Future_2081-2100_ssp126_ACCESS-CM2")
+        raster_name_id <- paste(row_info$Time, row_info$Period,
                                 row_info$GCM, sep = "_")
       }
 

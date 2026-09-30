@@ -444,3 +444,51 @@ prepare_formulas_glm <- function(independent, type = "l",
 
   return(formula)
 }
+
+# Check coordinates - used with replace_partitions
+check_coordinates <- function(reference, supplied, label, tolerance) {
+  # Compare coordinates in their original row order.
+  valid_table <- function(x) {
+    (is.data.frame(x) || is.matrix(x)) &&
+      all(c("x", "y") %in% colnames(x))
+  }
+
+  if (!valid_table(reference) || !valid_table(supplied)) {
+    stop(sprintf(
+      "'data$data_xy' and '%s' must have numeric 'x' and 'y' columns.",
+      label
+    ))
+  }
+
+  reference <- as.matrix(reference[, c("x", "y"), drop = FALSE])
+  supplied <- as.matrix(supplied[, c("x", "y"), drop = FALSE])
+
+  if (!is.numeric(reference) || !is.numeric(supplied) ||
+      any(!is.finite(reference)) || any(!is.finite(supplied)) ||
+      !identical(dim(reference), dim(supplied)) ||
+      !isTRUE(all.equal(
+        unname(reference), unname(supplied),
+        tolerance = tolerance, check.attributes = FALSE
+      ))) {
+    stop(sprintf(
+      "Coordinates in '%s' do not match 'data$data_xy' in the same order.",
+      label
+    ))
+  }
+}
+# Validate groups - used with replace_partitions
+validate_groups <- function(groups, expected_length, label) {
+  # Require one valid group ID for every corresponding record.
+  if (!(is.numeric(groups) || is.character(groups) || is.factor(groups)) ||
+      length(groups) != expected_length ||
+      anyNA(groups) ||
+      (is.numeric(groups) && any(!is.finite(groups))) ||
+      any(!nzchar(trimws(as.character(groups))))) {
+    stop(sprintf(
+      "'%s' must contain one valid group ID for each of %d records.",
+      label, expected_length
+    ))
+  }
+
+  as.character(groups)
+}

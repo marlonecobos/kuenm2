@@ -123,7 +123,15 @@ SpectrumLegend <- function(
     horiz = FALSE,
     lend = "butt",
     cex = 1,
-    seg.len = 1) {
+    seg.len = 1,
+    bar_text_spacing = 1) {
+
+  if (!is.numeric(bar_text_spacing) ||
+      length(bar_text_spacing) != 1L ||
+      !is.finite(bar_text_spacing) ||
+      bar_text_spacing < 0) {
+    stop("'bar_text_spacing' must be a non-negative number.")
+  }
 
   # Store the original par settings and reset them later
   oldpar <- graphics::par(no.readonly = TRUE)
@@ -154,12 +162,15 @@ SpectrumLegend <- function(
   if (horiz) {
     xEnds <- range(textXY[["x"]])
     yc <- Cex * xyc[[2]]
-    barSpace <- yc
+
+    # Control the distance between the labels and the color bar
+    barSpace <- yc * bar_text_spacing
     yEnds <- textXY[["y"]][c(1, 1)] - barSpace
 
-    # as not plotting lines:
-    lgd[[c("rect", "left")]] <-  lgd[[c("rect", "left")]] + (barSpace / 2)
-    lgd[[c("rect", "h")]] <-  lgd[[c("rect", "h")]] + barSpace
+    # As not plotting lines:
+    lgd[[c("rect", "left")]] <- lgd[[c("rect", "left")]] +
+      (barSpace / 2)
+    lgd[[c("rect", "h")]] <- lgd[[c("rect", "h")]] + barSpace
 
     if (bty == "o") {
       .DrawBox(lgd[["rect"]], ...)
@@ -172,7 +183,7 @@ SpectrumLegend <- function(
 
   .DrawLegend(xEnds, yEnds, nCol, palette, lwd, lty, lend)
 
-  # Return:
+  # Return
   invisible(lgd)
 }
 
