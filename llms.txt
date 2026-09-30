@@ -558,6 +558,9 @@ discuss it with the maintainers.
 - [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md)
   : Explores variance coming from distinct sources in model predictions
 
+- [`replace_partition()`](https://marlonecobos.github.io/kuenm2/reference/replace_partition.md)
+  : Replace partitions in prepared data
+
 - [`response_curve()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)
   [`all_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/response_curve.md)
   : Variable response curves for fitted models

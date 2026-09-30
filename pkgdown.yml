@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   basic_data_cleaning: basic_data_cleaning.html
@@ -10,7 +10,7 @@ articles:
   prepare_data: prepare_data.html
   projections_chelsa: projections_chelsa.html
   variability_and_uncertainty: variability_and_uncertainty.html
-last_built: 2026-05-31T20:54Z
+last_built: 2026-09-30T23:04Z
 urls:
   reference: https://marlonecobos.github.io/kuenm2/reference
   article: https://marlonecobos.github.io/kuenm2/articles

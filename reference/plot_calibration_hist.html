@@ -9,7 +9,7 @@ generated with the explore_calibration_hist function."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">kuenm2</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@ generated with the explore_calibration_hist function."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Histograms to visualize data from explore_calibration objects</h1>
-      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/R/plot_explore_calibration.R" class="external-link"><code>R/plot_explore_calibration.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/R/plot_calibration_hist.R" class="external-link"><code>R/plot_calibration_hist.R</code></a></small>
       <div class="d-none name"><code>plot_calibration_hist.Rd</code></div>
     </div>
 
@@ -59,13 +59,16 @@ generated with the <code>explore_calibration_hist</code> function.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_calibration_hist</span><span class="op">(</span><span class="va">explore_calibration</span>, color_m <span class="op">=</span> <span class="st">"grey"</span>,</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_calibration_hist</span><span class="op">(</span><span class="va">explore_calibration</span>, variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                      color_m <span class="op">=</span> <span class="st">"grey"</span>,</span>
 <span>                      color_background <span class="op">=</span> <span class="st">"#56B4E9"</span>,</span>
 <span>                      color_presence <span class="op">=</span> <span class="st">"#009E73"</span>, alpha <span class="op">=</span> <span class="fl">0.4</span>,</span>
 <span>                      lines <span class="op">=</span> <span class="cn">FALSE</span>, which_lines <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cl"</span>, <span class="st">"mean"</span><span class="op">)</span>,</span>
 <span>                      lty_range <span class="op">=</span> <span class="fl">1</span>, lty_cl <span class="op">=</span> <span class="fl">2</span>, lty_mean <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>                      lwd_range <span class="op">=</span> <span class="fl">3</span>, lwd_cl <span class="op">=</span> <span class="fl">2</span>, lwd_mean <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>                      xlab <span class="op">=</span> <span class="cn">NULL</span>, ylab <span class="op">=</span> <span class="cn">NULL</span>, mfrow <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span>                      xlab <span class="op">=</span> <span class="cn">NULL</span>, ylab <span class="op">=</span> <span class="cn">NULL</span>, mfrow <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                      show_legend <span class="op">=</span> <span class="cn">FALSE</span>, legend_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bottom"</span><span class="op">)</span>,</span>
+<span>                      legend_offset <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -75,6 +78,12 @@ generated with the <code>explore_calibration_hist</code> function.</p>
 <dl><dt id="arg-explore-calibration">explore_calibration<a class="anchor" aria-label="anchor" href="#arg-explore-calibration"></a></dt>
 <dd><p>an object of class <code>explore_calibration</code> generated
 by the <code>explore_calibration_hist</code> function.</p></dd>
+
+
+<dt id="arg-variables">variables<a class="anchor" aria-label="anchor" href="#arg-variables"></a></dt>
+<dd><p>(character) vector specifying the variables for which to
+plot histograms. Defaults to NULL, which plots histograms for all
+variables.</p></dd>
 
 
 <dt id="arg-color-m">color_m<a class="anchor" aria-label="anchor" href="#arg-color-m"></a></dt>
@@ -155,6 +164,23 @@ the y-axis will be labeled as "Frequency".</p></dd>
 the plot layout, e.g., c(rows, columns). Default is NULL, meaning
 the grid will be arranged automatically based on the number of plots.</p></dd>
 
+
+<dt id="arg-show-legend">show_legend<a class="anchor" aria-label="anchor" href="#arg-show-legend"></a></dt>
+<dd><p>(logical) whether to display a shared legend for the
+histogram bar colors. Default is FALSE.</p></dd>
+
+
+<dt id="arg-legend-position">legend_position<a class="anchor" aria-label="anchor" href="#arg-legend-position"></a></dt>
+<dd><p>(character) position of the shared legend when
+<code>show_legend = TRUE</code>. Available options are "bottom", "right", and
+"top". Default is "bottom".</p></dd>
+
+
+<dt id="arg-legend-offset">legend_offset<a class="anchor" aria-label="anchor" href="#arg-legend-offset"></a></dt>
+<dd><p>(numeric) distance between the legend and the outer edge
+of the plotting area. Larger values move the legend closer to the
+plotting area. Default is 0.08.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -189,7 +215,7 @@ the grid will be arranged automatically based on the number of plots.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

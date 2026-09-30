@@ -27,6 +27,7 @@ plot_explore_partition(
   size_text_legend = 1,
   legend.margin = 0.4,
   lwd_legend = 12,
+  legend_bar_spacing = 1,
   ncols = NULL,
   ...
 )
@@ -158,6 +159,13 @@ plot_explore_partition(
   (numeric) specifies the width of the legend bar representing distance.
   Default is 12. Applicable only if "distance" is included in
   `type_of_plot`.
+
+- legend_bar_spacing:
+
+  (numeric) multiplier controlling the distance between the color bar
+  and its numeric labels when `type_of_plot = "distance"`. The default
+  is 1. Values greater than 1 increase the spacing, and values between 0
+  and 1 reduce it.
 
 - ncols:
 
