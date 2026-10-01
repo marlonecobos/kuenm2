@@ -559,7 +559,7 @@ Note that since PCA was performed  externally, `do_pca = FALSE`  is set in `prep
 
 ## Using external data partitions
 
-The functions `prepare_data()` and `prepare_user_data()` in the `kuenm2` package include four built-in methods for data partitioning:
+The functions `prepare_data()` and `prepare_user_data()` in the `kuenm2` package include three built-in methods for data partitioning:
 
 - **"kfolds"**: Splits the dataset into *K* subsets (folds) of approximately equal size. In each partition, one fold is used as the test set, while the remaining folds are combined to form the training set.
 
