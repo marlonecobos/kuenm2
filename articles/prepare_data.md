@@ -1010,7 +1010,7 @@ The functions
 [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)
 and
 [`prepare_user_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_user_data.md)
-in the `kuenm2` package include four built-in methods for data
+in the `kuenm2` package include three built-in methods for data
 partitioning:
 
 - **“kfolds”**: Splits the dataset into *K* subsets (folds) of
