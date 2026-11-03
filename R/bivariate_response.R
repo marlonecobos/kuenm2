@@ -1,12 +1,14 @@
 #' Bivariate response plot for fitted models
 #'
 #' @description
-#' A plot of suitability prediction in a two-dimensional environmental space.
+#' A plot of suitability in a two-dimensional environmental space to show the
+#' prediction response based on two variables.
 #'
 #' @usage
-#' bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
-#'                    new_data = NULL, extrapolate = TRUE, add_bar = TRUE ,
-#'                    add_limits = TRUE, color_palette	= NULL,
+#' bivariate_response(models, variable1 , variable2, modelID = NULL,
+#'                    n = 500, new_data = NULL, extrapolate = TRUE,
+#'                    extrapolation_factor = 0.1, add_bar = TRUE ,
+#'                    add_limits = TRUE, colors = NULL, breaks = 10,
 #'                    xlab = NULL, ylab = NULL, ...)
 #
 #' @param models an object of class `fitted_models` returned by the
@@ -15,17 +17,22 @@
 #' @param variable2 (character) name of the variable to be plotted in y axis.
 #' @param modelID (character) name of the ModelID presents in the fitted
 #' object. Default = NULL.
-#' @param n (numeric) the number of breaks for plotting grid. Default = 500
+#' @param n (numeric) the number of breaks for plotting grid. Default = 500.
 #' @param new_data a `SpatRaster`, data.frame, or  matrix of variables
-#' representing an area of interest. Default = NULL.
+#' representing conditions of interest to check responses. Default = NULL.
 #' @param extrapolate (logical) whether to allow extrapolation to study the
 #' behavior of the response outside the calibration limits. Ignored if
 #' `new_data` is defined. Default = TRUE.
+#' @param extrapolation_factor (numeric) a value used to calculate how much to
+#' expand the training region for extrapolation. Larger values produce
+#' extrapolation farther from training limits. Default = 0.1.
 #' @param add_bar (logical) whether to add bar legend. Default = TRUE.
 #' @param add_limits (logical) whether to add calibration limits if
-#' `extrapolate = TRUE`. Default = TRUE.
-#' @param color_palette (function) a color palette function to be used to assign
-#' colors in the plot. The default, NULL uses `rev(hcl.colors(n, "terrain"))`.
+#' `extrapolate = TRUE` or `new_data` is defined. Default = TRUE.
+#' @param colors a set of colors for values of suitability above the threshold
+#' from omission error. The default, NULL uses `hcl.colors(breaks, "Blue-Yellow")`.
+#' @param breaks (numeric) integer number to define number of color breaks to
+#' use, if `colors` is not defined. Default = 10.
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
 #' name defined in `variable1`.
 #' @param ylab (character) a label for the y axis. The default, NULL, uses the
@@ -70,9 +77,11 @@ bivariate_response <- function(models,
                                n = 500,
                                new_data = NULL,
                                extrapolate = TRUE,
+                               extrapolation_factor = 0.1,
                                add_bar = TRUE,
                                add_limits = TRUE,
-                               color_palette = NULL,
+                               colors = NULL,
+                               breaks = 10,
                                xlab = NULL,
                                ylab = NULL,
                                ...) {
@@ -119,12 +128,6 @@ bivariate_response <- function(models,
   }
   if (is.null(ylab)) {
     ylab <- variable2
-  }
-
-  if (is.null(color_palette)) {
-    color_palette <- function(n) {
-      rev(hcl.colors(n, "terrain"))
-    }
   }
 
   model <- models[["Models"]][[modelID]][["Full_model"]]
@@ -188,11 +191,11 @@ bivariate_response <- function(models,
       rr1 <- range(cal_data[, variables[1]]) # range of the calibration data
       rr2 <- range(cal_data[, variables[2]]) # range of the calibration data
 
-      l_limit1 <- rr1[1] - 0.11 * diff(rr1)
-      u_limit1 <- rr1[2] + 0.11 * diff(rr1)
+      l_limit1 <- rr1[1] - extrapolation_factor * diff(rr1)
+      u_limit1 <- rr1[2] + extrapolation_factor * diff(rr1)
 
-      l_limit2 <- rr2[1] - 0.11 * diff(rr2)
-      u_limit2 <- rr2[2] + 0.11 * diff(rr2)
+      l_limit2 <- rr2[1] - extrapolation_factor * diff(rr2)
+      u_limit2 <- rr2[2] + extrapolation_factor * diff(rr2)
 
       rangev1 <- c(l_limit1, u_limit1)
       rangev2 <- c(l_limit2, u_limit2)
@@ -228,6 +231,17 @@ bivariate_response <- function(models,
     predict(model, newdata = m, type = "response")
   }
 
+  # Threshold calculation
+  pres <- models$calibration_data$pr_bg == 1
+
+  p_occ <- if (inherits(model, "glmnet")) {
+    predict.glmnet_mx(model, models$calibration_data[pres, -1], type = "cloglog")
+  } else {
+    predict(model, newdata = models$calibration_data[pres, -1], type = "response")
+  }
+
+  thres <- calc_thr(occ_suitability = p_occ, thr = models$omission_rate / 100)
+
   # Arguments for filled.contour
   # "x,y" locations of grid lines at which the values in z are measured
   # "z" a numeric matrix containing the values to be plotted
@@ -235,14 +249,18 @@ bivariate_response <- function(models,
   y <- unique(m[, variables[2]])
   z <- matrix(data = predicted, nrow = n, ncol = n)
 
-  colors <- color_palette(10) # colors
+  z[z < thres] <- NA
+
+  if (is.null(colors)) {
+    colors <- hcl.colors(breaks, "Blue-Yellow")
+  }
 
   if (add_bar == FALSE) {
     # Plot the main image
-    image(x, y, z, zlim = c(0, 1), col = colors,
+    image(x, y, z, zlim = c(thres, 1), col = colors,
           xlab = xlab, ylab = ylab, useRaster = FALSE, ...)
 
-    if (extrapolate & add_limits ) {
+    if ((extrapolate | !is.null(new_data)) & add_limits) {
       abline(v = c(cal_mins[variables[1]], cal_maxs[variables[1]]),
              h = c(cal_mins[variables[2]], cal_maxs[variables[2]]),
              lty = 2)
@@ -257,10 +275,10 @@ bivariate_response <- function(models,
     par(mar = c(5, 4, 4, 2) + 0.1)  # Set margins for the main plot
 
     # Plot the main image
-    image(x, y, z, zlim = c(0,1), col = colors,
+    image(x, y, z, zlim = c(thres, 1), col = colors,
           xlab = xlab, ylab = ylab, useRaster = TRUE, ...)
 
-    if (extrapolate & add_limits ) {
+    if ((extrapolate | !is.null(new_data)) & add_limits) {
       abline(v = c(cal_mins[variables[1]], cal_maxs[variables[1]]),
              h = c(cal_mins[variables[2]], cal_maxs[variables[2]]),
              lty = 2)
@@ -268,7 +286,7 @@ bivariate_response <- function(models,
 
     # Add the color bar legend
     par(mar = c(5, 0, 4, 2) + 0.1)  # Set margins for the legend
-    color_levels <- seq(0, 1, length.out = length(colors) + 1)
+    color_levels <- seq(thres, 1, length.out = length(colors) + 1)
     legend_y <- seq(min(y), max(y), length.out = length(colors) + 1)
 
     # Plot the legend
@@ -288,3 +306,27 @@ bivariate_response <- function(models,
     mtext("Suitability", side = 3, line = 0, cex = 1.2)
   }
 }
+
+
+# par(mar = c(5, 0, 4, 2) + 0.1)  # Set margins for the legend
+# color_levels <- seq(thres, 1, length.out = length(colors) + 1)
+#
+# # Plot the legend
+# plot.new()
+# plot.window(xlim = c(0, 1), ylim = c(0, 1))
+#
+# # Draw rectangles for the legend
+# for (i in seq_along(colors)) {
+#   rect(0.25, color_levels[i], 0.5, color_levels[i + 1], col = colors[i],
+#        border = "transparent")
+# }
+# rect(0.25, 0, 0.5, 1, col = NA, border = "black")
+# segments(0.25, thres, 0.5, thres, col = "black")
+#
+# # Add text labels to the legend
+# axis_y <- c(0, color_levels)
+# axis(4, at = axis_y, labels = round(axis_y, 2), las = 1, tick = FALSE,
+#      pos = 0.5)
+# mtext("Suitability", side = 3, line = 0, cex = 1.2)
+#
+#

@@ -4,9 +4,10 @@
 \alias{bivariate_response}
 \title{Bivariate response plot for fitted models}
 \usage{
-bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
-                   new_data = NULL, extrapolate = TRUE, add_bar = TRUE ,
-                   add_limits = TRUE, color_palette	= NULL,
+bivariate_response(models, variable1 , variable2, modelID = NULL,
+                   n = 500, new_data = NULL, extrapolate = TRUE,
+                   extrapolation_factor = 0.1, add_bar = TRUE ,
+                   add_limits = TRUE, colors = NULL, breaks = 10,
                    xlab = NULL, ylab = NULL, ...)
 }
 \arguments{
@@ -20,22 +21,29 @@ bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
 \item{modelID}{(character) name of the ModelID presents in the fitted
 object. Default = NULL.}
 
-\item{n}{(numeric) the number of breaks for plotting grid. Default = 500}
+\item{n}{(numeric) the number of breaks for plotting grid. Default = 500.}
 
 \item{new_data}{a \code{SpatRaster}, data.frame, or  matrix of variables
-representing an area of interest. Default = NULL.}
+representing conditions of interest to check responses. Default = NULL.}
 
 \item{extrapolate}{(logical) whether to allow extrapolation to study the
 behavior of the response outside the calibration limits. Ignored if
 \code{new_data} is defined. Default = TRUE.}
 
+\item{extrapolation_factor}{(numeric) a value used to calculate how much to
+expand the training region for extrapolation. Larger values produce
+extrapolation farther from training limits. Default = 0.1.}
+
 \item{add_bar}{(logical) whether to add bar legend. Default = TRUE.}
 
 \item{add_limits}{(logical) whether to add calibration limits if
-\code{extrapolate = TRUE}. Default = TRUE.}
+\code{extrapolate = TRUE} or \code{new_data} is defined. Default = TRUE.}
 
-\item{color_palette}{(function) a color palette function to be used to assign
-colors in the plot. The default, NULL uses \code{rev(hcl.colors(n, "terrain"))}.}
+\item{colors}{a set of colors for values of suitability above the threshold
+from omission error. The default, NULL uses \code{hcl.colors(breaks, "Blue-Yellow")}.}
+
+\item{breaks}{(numeric) integer number to define number of color breaks to
+use, if \code{colors} is not defined. Default = 10.}
 
 \item{xlab}{(character) a label for the x axis. The default, NULL, uses the
 name defined in \code{variable1}.}
@@ -49,7 +57,8 @@ name defined in \code{variable2}.}
 A bivariate plot considering \code{variable1} and \code{variable2}.
 }
 \description{
-A plot of suitability prediction in a two-dimensional environmental space.
+A plot of suitability in a two-dimensional environmental space to show the
+prediction response based on two variables.
 }
 \examples{
 # Example with glmnet
