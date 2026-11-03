@@ -71,7 +71,7 @@
 #'
 #' @export
 #'
-#' @importFrom terra ext res resample coltab writeRaster
+#' @importFrom terra resample coltab writeRaster compareGeom
 #'
 #' @examples
 #' # Import an example of fitted models (output of fit_selected())
@@ -227,18 +227,18 @@ prediction_changes <- function(current_predictions,
   }
 
   # Check resolution
-  if(sum(terra::res(current_predictions) == terra::res(new_predictions)) != 2){
-    stop("SpatRasters provided in 'current_predictions' and 'new_predictions' must have the same resolution")
+  if (!terra::compareGeom(current_predictions, new_predictions)) {
+    stop("SpatRasters provided in 'current_predictions' and 'new_predictions' must have the same geometries.")
   }
 
   # Check extent
-  if(terra::ext(current_predictions) != terra::ext(new_predictions)){
+  if(!compareGeom(current_predictions, new_predictions, crs = FALSE)){
     if(force_resample){
       new_predictions <- terra::resample(new_predictions,
                                          current_predictions,
                                          method = "average")
     } else {
-      stop("The SpatRaster in 'new_predictions' has a different extent than 'current_predictions'. ",
+      stop("The SpatRaster in 'new_predictions' has a different extent or resolution than 'current_predictions'. ",
            "Please check the raster extents or set 'force_resample = TRUE' to resample automatically.")
     }
   }
