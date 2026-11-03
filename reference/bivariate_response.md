@@ -1,14 +1,15 @@
 # Bivariate response plot for fitted models
 
-A plot of suitability prediction in a two-dimensional environmental
-space.
+A plot of suitability in a two-dimensional environmental space to show
+the prediction response based on two variables.
 
 ## Usage
 
 ``` r
-bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
-                   new_data = NULL, extrapolate = TRUE, add_bar = TRUE ,
-                   add_limits = TRUE, color_palette  = NULL,
+bivariate_response(models, variable1 , variable2, modelID = NULL,
+                   n = 500, new_data = NULL, extrapolate = TRUE,
+                   extrapolation_factor = 0.1, add_bar = TRUE ,
+                   add_limits = TRUE, colors = NULL, breaks = 10,
                    xlab = NULL, ylab = NULL, ...)
 ```
 
@@ -35,12 +36,12 @@ bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
 
 - n:
 
-  (numeric) the number of breaks for plotting grid. Default = 500
+  (numeric) the number of breaks for plotting grid. Default = 500.
 
 - new_data:
 
-  a `SpatRaster`, data.frame, or matrix of variables representing an
-  area of interest. Default = NULL.
+  a `SpatRaster`, data.frame, or matrix of variables representing
+  conditions of interest to check responses. Default = NULL.
 
 - extrapolate:
 
@@ -48,19 +49,31 @@ bivariate_response(models, variable1 , variable2, modelID = NULL, n = 500,
   response outside the calibration limits. Ignored if `new_data` is
   defined. Default = TRUE.
 
+- extrapolation_factor:
+
+  (numeric) a value used to calculate how much to expand the training
+  region for extrapolation. Larger values produce extrapolation farther
+  from training limits. Default = 0.1.
+
 - add_bar:
 
   (logical) whether to add bar legend. Default = TRUE.
 
 - add_limits:
 
-  (logical) whether to add calibration limits if `extrapolate = TRUE`.
-  Default = TRUE.
+  (logical) whether to add calibration limits if `extrapolate = TRUE` or
+  `new_data` is defined. Default = TRUE.
 
-- color_palette:
+- colors:
 
-  (function) a color palette function to be used to assign colors in the
-  plot. The default, NULL uses `rev(hcl.colors(n, "terrain"))`.
+  a set of colors for values of suitability above the threshold from
+  omission error. The default, NULL uses
+  `hcl.colors(breaks, "Blue-Yellow")`.
+
+- breaks:
+
+  (numeric) integer number to define number of color breaks to use, if
+  `colors` is not defined. Default = 10.
 
 - xlab:
 
