@@ -7,6 +7,7 @@
 * Add legend_bar_spacing argument to `plot_explore_partition()` to control spacing between the color bar and its numeric labels.
 * Fix error in event names in `binarize_changes()`.
 * Fix bug in `independent_evaluation()`, so evaluation works when there are no replicates in the fitted model.
+* Increased functionality of bivariate_response(), now it: uses breaks to define the number of color levels when using default colors, allows the direct use of sets of colors for suitability, permits controlling extrapolation factor, uses a relevant omission error informed threshold to define limits of suitability.  
 
 # kuenm2 0.1.3
 
