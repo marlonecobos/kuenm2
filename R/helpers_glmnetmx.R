@@ -8,6 +8,7 @@ hinge <- function(x, nknots=50) {
   k <- seq(min, max, length=nknots)
   lh <- outer(x, utils::head(k,-1), function(w,h) hingeval(w, h, max))
   rh <- outer(x, k[-1], function(w,h) hingeval(w, min, h))
+  colnames(lh) <- paste("", utils::head(k, -1), max, sep = ":") #Fix issue #118
   colnames(rh) <- paste("", min, k[-1], sep=":")
   cbind(lh, rh)
 }
@@ -129,4 +130,23 @@ predict_glm_mx <- function(model, newdata, type = "response"){
     return(stats::predict.glm(model, newdata, type = "link"))
   }
 
+}
+
+# Extract variable names from coefs
+extract_var_names <- function(terms) {
+  # Remove hinge/threshold numeric suffixes (e.g., :13.14:22.53)
+  clean_terms <- gsub("(:[0-9.-]+)+$", "", terms)
+
+  # Extract content inside function parentheses: func(content)
+  # This matches "hinge(bio_1)", "thresholds(bio_2)", "categorical(soil)", "I(bio_1^2)"
+  clean_terms <- gsub("^(hinge|thresholds|categorical|I)\\(([^\\)]+)\\)(.*)$", "\\2", clean_terms)
+
+  # Aggressively remove the ^2 suffix if it wasn't caught by the step above
+  clean_terms <- gsub("\\^2$", "", clean_terms)
+
+  # Split by ':' (for product interactions like bio_1:bio_7)
+  vars <- unlist(strsplit(clean_terms, ":"))
+
+  # Return unique clean variable names
+  return(unique(trimws(vars)))
 }

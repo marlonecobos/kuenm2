@@ -295,16 +295,29 @@ all_response_curves <- function(models,
   # plot arrangement
   ## true variables for plot
   if (is.null(modelID)) {
+    # Em R/response_curves.R
     coefss <- lapply(models$Models, function(x) {
-      unique(unlist(strsplit(
-        gsub(pattern, "",
-             unname(if (inherits(x[[full]], "glmnet")) {
-               names(x[[full]]$betas)
-             } else if (inherits(x[[full]], "glm")) {
-               names(coef(x[[full]])[-1])
-             })),
-        ":"
-      )))
+      mod <- x[["Full_model"]]
+      coefs <- if (inherits(mod, "glmnet")) {
+        names(mod$betas)
+      } else if (inherits(mod, "glm")) {
+        names(coef(mod)[-1])
+      }
+
+      # Clean numeric terms from hinge
+      clean_terms <- gsub("(:[0-9.-]+)+$", "", coefs)
+
+      # Remove feature terms
+      clean_terms <- gsub("^(hinge|thresholds|categorical|I)\\(([^\\)]+)\\)(.*)$", "\\2", clean_terms)
+
+      # Remove quadratic terms
+      clean_terms <- gsub("\\^2", "", clean_terms)
+
+      # Get interactions
+      vars <- unlist(strsplit(clean_terms, ":"))
+
+      # Get only unique terms
+      unique(trimws(vars))
     })
   } else {
     if (!modelID %in% names(models[["Models"]])) {
@@ -312,19 +325,20 @@ all_response_curves <- function(models,
            paste(names(models[["Models"]]), collapse = ", "))
     }
 
-    coefss <- lapply(models$Models[[modelID]][-full], function(x) {
-      sort(unique(unlist(strsplit(
-        gsub(pattern, "",
-             unname(
-               coefs <- if (inherits(x, "glmnet")) {
-                 names(x$betas)
-               } else if (inherits(x, "glm")) {
-                 names(coef(x)[-1])
-               }
-             )),
-        ":"
-      ))))
+    # Extract variable names for the specific modelID
+    coefss <- lapply(models$Models[[modelID]], function(x) {
+      # Safety check: ensure the element is a model and not the Full_model slot
+      if (inherits(x, "glmnet") || inherits(x, "glm")) {
+        coefs <- if (inherits(x, "glmnet")) {
+          names(x$betas)
+        } else {
+          names(coef(x)[-1])
+        }
+        return(extract_var_names(coefs))
+      }
     })
+    # Remove null elements (e.g., the Full_model slot if present in the modelID sublist)
+    coefss <- coefss[!sapply(coefss, is.null)]
   }
   vars <- sort(unique(unlist((coefss))))
 
