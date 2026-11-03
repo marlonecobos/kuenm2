@@ -106,7 +106,7 @@
 #' @export
 #'
 #' @importFrom
-#' terra rast res ext resample writeRaster unique nlyr mean app
+#' terra rast resample writeRaster unique nlyr mean app compareGeom
 #'
 #' @seealso
 #' [organize_future_worldclim()], [prepare_projection()], [project_selected()]
@@ -313,8 +313,7 @@
 
     #Force resample if necessary
     if (force_resample) {
-      if (any(terra::res(r) != (terra::res(r_change)) | terra::ext(r) !=
-              terra::ext(r_change))) {
+      if (!terra::compareGeom(r_change, r_bin)){
         r_change <- terra::resample(r_change, r_bin, method = "average")
       }
     }
