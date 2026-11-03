@@ -2,6 +2,8 @@
 
 ## kuenm2 0.1.4
 
+- Fix issue [\#118](https://github.com/marlonecobos/kuenm2/issues/118)
+  with hinge feature treatment in calibration() and response_curves
 - New function:
   [`replace_partition()`](https://marlonecobos.github.io/kuenm2/reference/replace_partition.md)
   replaces test partitions in a prepared_data object with spatial
