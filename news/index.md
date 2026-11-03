@@ -2,6 +2,9 @@
 
 ## kuenm2 0.1.4
 
+- In prediction_changes() and projection_changes(), use
+  terra::compareGeom instead of terra::res() and terra::ext() to compare
+  bounding boxes and resolution.
 - Fix issue [\#118](https://github.com/marlonecobos/kuenm2/issues/118)
   with hinge feature treatment in calibration() and response_curves
 - New function:
