@@ -75,9 +75,6 @@ Useful links:
 
 Authors:
 
-- Weverton C. F. Trindade <wevertonf1993@gmail.com>
-  ([ORCID](https://orcid.org/0000-0003-2045-4555))
-
 - Luis F. Arias-Giraldo <lfarias.giraldo@gmail.com>
   ([ORCID](https://orcid.org/0000-0003-4861-8064))
 
