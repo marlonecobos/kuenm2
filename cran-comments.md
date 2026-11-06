@@ -1,3 +1,17 @@
+## Resubmission kuenm2 0.1.4
+
+This is a resubmission. The issue raised by the reviewer has been addressed.
+
+>    Found the following (possibly) invalid URLs:
+     URL: https://www.degruyter.com/princetonup/view/title/506966
+       From: DESCRIPTION
+       Status: 503
+       Message: Service Unavailable
+       and still 2 days later confirmed manually.
+       Please fix and resubmit.
+
+* The invalid URL in the DESCRIPTION file has been replaced with a valid one. 
+
 ## Submission kuenm2 0.1.4
 This is the first submission of version 0.1.4.
 
