@@ -2,6 +2,8 @@
 
 ## kuenm2 0.1.4
 
+CRAN release: 2026-11-06
+
 - In
   [`prediction_changes()`](https://marlonecobos.github.io/kuenm2/reference/prediction_changes.md)
   and
