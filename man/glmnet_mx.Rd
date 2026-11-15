@@ -5,7 +5,8 @@
 \title{Maxent-like glmnet models}
 \usage{
 glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
-          addsamplestobackground = TRUE, weights = NULL, ...)
+          addsamplestobackground = TRUE, weights = NULL, only_fit = FALSE,
+          precomp = NULL, ...)
 }
 \arguments{
 \item{p}{A vector of binary presence-background labels, where 1 indicates
@@ -29,6 +30,15 @@ the background to the background data. Default is \code{TRUE}.}
 Default is \code{NULL}, which sets weights to 1 for presence points
 and 100 for background points.}
 
+\item{only_fit}{(logical) Whether to skip computing auxiliary metadata
+(\code{entropy}, \code{featuremins}, \code{featuremaxs}, \code{varmin}, \code{varmax}, \code{samplemeans},
+\code{levels}) that are not required during cross-validation fold evaluation.
+Default is \code{FALSE}.}
+
+\item{precomp}{(list) Optional precomputed design list returned by
+\code{prep_design()}, avoiding redundant \code{model.matrix()} and regularization
+calculations across multiple regularization multipliers. Default is \code{NULL}.}
+
 \item{...}{Additional arguments to pass to \code{\link[glmnet]{glmnet}}.}
 }
 \value{
@@ -44,6 +54,5 @@ for presence-background data.
 This function is modified from the package maxnet and fits a Maxent-like
 model using regularization to avoid over-fitting. Regularization weights
 are computed using a provided function (which can be changed) and can be
-multiplied by a regularization multiplier (\code{regmult}). The function also
-includes an option to calculate AIC.
+multiplied by a regularization multiplier (\code{regmult}).
 }

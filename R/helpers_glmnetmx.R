@@ -1,123 +1,109 @@
-####Helpers glm.net####
-#From maxnet ‘0.1.4’
+#### Helpers glm.net ####
+# From maxnet '0.1.4'
 
-####Functions to fit hinge features####
-hinge <- function(x, nknots=50) {
+#### Functions to fit hinge features ####
+hinge <- function(x, nknots = 50) {
   min <- min(x)
   max <- max(x)
-  k <- seq(min, max, length=nknots)
-  lh <- outer(x, utils::head(k,-1), function(w,h) hingeval(w, h, max))
-  rh <- outer(x, k[-1], function(w,h) hingeval(w, min, h))
-  colnames(lh) <- paste("", utils::head(k, -1), max, sep = ":") #Fix issue #118
-  colnames(rh) <- paste("", min, k[-1], sep=":")
+  k <- seq(min, max, length = nknots)
+  lh <- outer(x, utils::head(k, -1), function(w, h) hingeval(w, h, max))
+  rh <- outer(x, k[-1], function(w, h) hingeval(w, min, h))
+  colnames(lh) <- paste("", utils::head(k, -1), max, sep = ":")
+  colnames(rh) <- paste("", min, k[-1], sep = ":")
   cbind(lh, rh)
 }
 
-hingeval <- function (x, min, max) {
-  pmin(1, pmax(0, (x - min)/(max - min)))
+hingeval <- function(x, min, max) {
+  pmin(1, pmax(0, (x - min) / (max - min)))
 }
 
-####Functions to fit thresholds features####
-thresholds <- function (x, nknots = 50) {
+#### Functions to fit thresholds features ####
+thresholds <- function(x, nknots = 50) {
   min <- min(x)
   max <- max(x)
   k <- seq(min, max, length = nknots + 2)[2:nknots + 1]
-  f <- outer(x, k, function(w, t) ifelse(w >= t, 1, 0))
+  f <- +(outer(x, k, ">="))
   colnames(f) <- paste("", k, sep = ":")
   f
 }
 
-thresholdval <- function (x, knot) {
-  ifelse(x >= knot, 1, 0)
+thresholdval <- function(x, knot) {
+  +(x >= knot)
 }
 
-####Functions to fit categorical features####
-categorical <- function (x) {
-  f <- outer(x, levels(x), function(w, f) ifelse(w == f, 1,
-                                                 0))
-  colnames(f) <- paste("", levels(x), sep = ":")
+#### Functions to fit categorical features ####
+categorical <- function(x) {
+  levs <- levels(x)
+  f <- +(outer(x, levs, "=="))
+  colnames(f) <- paste("", levs, sep = ":")
   f
 }
-categoricalval <- function (x, category) {
-  ifelse(x == category, 1, 0)
+
+categoricalval <- function(x, category) {
+  +(x == category)
 }
 
 #### maxnet default regularization ####
-maxnet.default.regularization <- function (p, m) {
-  isproduct <- function(x) {grepl(":", x) & !grepl("\\(", x)}
-  isquadratic <- function(x) {grepl("^I\\(.*\\^2\\)", x)}
-  ishinge <- function(x) {grepl("^hinge\\(", x)}
-  isthreshold <- function(x) {grepl("^thresholds\\(", x)}
-  iscategorical <- function(x) {grepl("^categorical\\(", x)}
-
-  regtable <- function(name, default) {
-    if (ishinge(name)) {
-      return(list(c(0, 1), c(0.5, 0.5)))
-    }
-    if (iscategorical(name)) {
-      return(list(c(0, 10, 17), c(0.65, 0.5, 0.25)))
-    }
-    if (isthreshold(name)) {
-      return(list(c(0, 100), c(2, 1)))
-    }
-    default
-  }
-
-  lregtable <- list(c(0, 10, 30, 100), c(1, 1, 0.2, 0.05))
-  qregtable <- list(c(0, 10, 17, 30, 100), c(1.3, 0.8, 0.5, 0.25, 0.05))
-  pregtable <- list(c(0, 10, 17, 30, 100), c(2.6, 1.6, 0.9, 0.55, 0.05))
+maxnet.default.regularization <- function(p, m) {
+  cnames <- colnames(m)
+  isproduct <- grepl(":", cnames, fixed = TRUE) & !grepl("(", cnames, fixed = TRUE)
+  isquadratic <- grepl("^I\\(.*\\^2\\)", cnames)
+  ishinge <- grepl("^hinge\\(", cnames)
+  isthreshold <- grepl("^thresholds\\(", cnames)
+  iscategorical <- grepl("^categorical\\(", cnames)
 
   mm <- m[p == 1, , drop = FALSE]
   np <- nrow(mm)
-  lqpreg <- lregtable
 
-  if (sum(isquadratic(colnames(mm)))) {
-    lqpreg <- qregtable
-  }
-  if (sum(isproduct(colnames(mm)))) {
-    lqpreg <- pregtable
+  if (any(isproduct)) {
+    lqpreg <- list(c(0, 10, 17, 30, 100), c(2.6, 1.6, 0.9, 0.55, 0.05))
+  } else if (any(isquadratic)) {
+    lqpreg <- list(c(0, 10, 17, 30, 100), c(1.3, 0.8, 0.5, 0.25, 0.05))
+  } else {
+    lqpreg <- list(c(0, 10, 30, 100), c(1, 1, 0.2, 0.05))
   }
 
-  classregularization <- sapply(colnames(mm), function(n) {
-    t <- regtable(n, lqpreg)
-    approx(t[[1]], t[[2]], np, rule = 2)$y
-  })
+  default_reg <- stats::approx(lqpreg[[1]], lqpreg[[2]], np, rule = 2)$y
+  hinge_reg <- stats::approx(c(0, 1), c(0.5, 0.5), np, rule = 2)$y
+  cat_reg <- stats::approx(c(0, 10, 17), c(0.65, 0.5, 0.25), np, rule = 2)$y
+  thr_reg <- stats::approx(c(0, 100), c(2, 1), np, rule = 2)$y
+
+  classregularization <- rep(default_reg, length(cnames))
+  classregularization[ishinge] <- hinge_reg
+  classregularization[iscategorical] <- cat_reg
+  classregularization[isthreshold] <- thr_reg
   classregularization <- classregularization / sqrt(np)
 
+  if (np > 1L) {
+    mm_means <- colMeans(mm)
+    mm_vars <- (colSums(mm^2) - np * (mm_means^2)) / (np - 1L)
+    mm_sds <- sqrt(pmax(0, mm_vars))
+  } else {
+    mm_sds <- rep(0, ncol(mm))
+  }
 
-  ishinge <- grepl("^hinge\\(", colnames(mm))
+  hmindev <- ifelse(ishinge, pmax(mm_sds, 1 / sqrt(np)) * 0.5 / sqrt(np), 0)
+  col_sums_mm <- colSums(mm)
+  tmindev <- ifelse(isthreshold & (col_sums_mm == 0 | col_sums_mm == np), 1, 0)
 
-  hmindev <- sapply(1:ncol(mm), function(i) {
-    if (!ishinge[i]) {
-      return(0)
-    }
-    avg <- mean(mm[, i])
-    std <- max(sd(mm[, i]), 1 / sqrt(np))
-    std * 0.5 / sqrt(np)
-  })
+  m_min <- apply(m, 2L, min)
+  m_max <- apply(m, 2L, max)
 
-  tmindev <- sapply(1:ncol(mm), function(i) {
-    ifelse(isthreshold(colnames(mm)[i]) && (sum(mm[, i]) ==
-                                              0 || sum(mm[, i]) == nrow(mm)), 1, 0)
-  })
-
-  pmax(0.001 * (apply(m, 2, max) - apply(m, 2, min)), hmindev,
-       tmindev, apply(as.matrix(mm), 2, sd) * classregularization)
+  pmax(0.001 * (m_max - m_min), hmindev, tmindev, mm_sds * classregularization)
 }
 
 # Helper to predict glms
-predict_glm_mx <- function(model, newdata, type = "response"){
-
-  if(type == "response"){
+predict_glm_mx <- function(model, newdata, type = "response") {
+  if (type == "response") {
     return(stats::predict.glm(model, newdata, type))
   }
 
-  if(type == "cloglog"){
+  if (type == "cloglog") {
     exp_p <- stats::predict.glm(model, newdata, type = "link")
     return(1 - exp(-exp(exp_p)))
   }
 
-  if(type == "raw"){
+  if (type == "raw") {
     return(exp(stats::predict.glm(model, newdata, type = "link")))
   }
 
@@ -126,28 +112,17 @@ predict_glm_mx <- function(model, newdata, type = "response"){
       exp(stats::predict.glm(model, newdata, type = "link"))))
   }
 
-  if(type == "link"){
+  if (type == "link") {
     return(stats::predict.glm(model, newdata, type = "link"))
   }
-
 }
 
 # Extract variable names from coefs
 extract_var_names <- function(terms) {
-  # Remove hinge/threshold numeric suffixes (e.g., :13.14:22.53)
   clean_terms <- gsub("(:[0-9.-]+)+$", "", terms)
-
-  # Extract content inside function parentheses: func(content)
-  # This matches "hinge(bio_1)", "thresholds(bio_2)", "categorical(soil)", "I(bio_1^2)"
   clean_terms <- gsub("^(hinge|thresholds|categorical|I)\\(([^\\)]+)\\)(.*)$", "\\2", clean_terms)
-
-  # Aggressively remove the ^2 suffix if it wasn't caught by the step above
   clean_terms <- gsub("\\^2$", "", clean_terms)
-
-  # Split by ':' (for product interactions like bio_1:bio_7)
   vars <- unlist(strsplit(clean_terms, ":"))
-
-  # Return unique clean variable names
   return(unique(trimws(vars)))
 }
 
