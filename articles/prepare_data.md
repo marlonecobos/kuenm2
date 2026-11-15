@@ -535,20 +535,20 @@ record; the columns are:
 
 # Check some of the results
 head(mop_partition$Mop_results)
-#>      Partition pr_bg         x         y mop_distance inside_range n_var_out
-#> 1  Partition_1     1 -51.29778 -29.02639     3.813469         TRUE         0
-#> 3  Partition_1     1 -49.32222 -27.81167     3.671747         TRUE         0
-#> 17 Partition_1     1 -51.03556 -28.58194     5.315553         TRUE         0
-#> 18 Partition_1     1 -50.57972 -27.29056     3.240024         TRUE         0
-#> 19 Partition_1     1 -49.82139 -27.40639     4.342539         TRUE         0
-#> 26 Partition_1     1 -49.27361 -25.38528     4.623356         TRUE         0
-#>    towards_low towards_high SoilType
-#> 1         <NA>         <NA>     <NA>
-#> 3         <NA>         <NA>     <NA>
-#> 17        <NA>         <NA>     <NA>
-#> 18        <NA>         <NA>     <NA>
-#> 19        <NA>         <NA>     <NA>
-#> 26        <NA>         <NA>     <NA>
+#>     Partition pr_bg         x         y mop_distance inside_range n_var_out
+#> 1 Partition_1     1 -51.29778 -29.02639     3.813469         TRUE         0
+#> 2 Partition_1     1 -49.32222 -27.81167     3.671747         TRUE         0
+#> 3 Partition_1     1 -51.03556 -28.58194     5.315553         TRUE         0
+#> 4 Partition_1     1 -50.57972 -27.29056     3.240024         TRUE         0
+#> 5 Partition_1     1 -49.82139 -27.40639     4.342539         TRUE         0
+#> 6 Partition_1     1 -49.27361 -25.38528     4.623356         TRUE         0
+#>   towards_low towards_high SoilType
+#> 1        <NA>         <NA>     <NA>
+#> 2        <NA>         <NA>     <NA>
+#> 3        <NA>         <NA>     <NA>
+#> 4        <NA>         <NA>     <NA>
+#> 5        <NA>         <NA>     <NA>
+#> 6        <NA>         <NA>     <NA>
 
 # Number of testing records with values outside training ranges
 nrow(mop_partition$Mop_results[mop_partition$Mop_results$n_var_out > 1, ])
@@ -1175,19 +1175,19 @@ mop_blocks <- explore_partition_extrapolation(data = d_spatial_block,
 # Check some testing records with values outside training ranges
 head(mop_blocks$Mop_results[mop_blocks$Mop_results$n_var_out > 1, ])
 #>       Partition pr_bg         x         y mop_distance inside_range n_var_out
-#> 87  Partition_1     0 -50.75000 -30.75000     12.57765        FALSE         2
-#> 129 Partition_1     0 -51.75000 -29.91667     10.91112        FALSE         2
-#> 193 Partition_1     0 -53.41667 -27.08333     43.59743        FALSE         2
-#> 199 Partition_1     0 -52.41667 -26.75000    171.15194        FALSE         2
-#> 252 Partition_1     0 -51.58333 -30.75000     15.76803        FALSE         2
-#> 261 Partition_1     0 -53.25000 -27.08333     43.59052        FALSE         2
+#> 46  Partition_1     0 -50.75000 -30.75000     12.57765        FALSE         2
+#> 64  Partition_1     0 -51.75000 -29.91667     10.91112        FALSE         2
+#> 92  Partition_1     0 -53.41667 -27.08333     43.59743        FALSE         2
+#> 95  Partition_1     0 -52.41667 -26.75000    171.15194        FALSE         2
+#> 118 Partition_1     0 -51.58333 -30.75000     15.76803        FALSE         2
+#> 120 Partition_1     0 -53.25000 -27.08333     43.59052        FALSE         2
 #>     towards_low towards_high SoilType
-#> 87       bio_15         <NA>       21
-#> 129      bio_15         <NA>       21
-#> 193      bio_15        bio_7     <NA>
-#> 199      bio_15       bio_12     <NA>
-#> 252      bio_15         <NA>       21
-#> 261      bio_15        bio_7     <NA>
+#> 46       bio_15         <NA>       21
+#> 64       bio_15         <NA>       21
+#> 92       bio_15        bio_7     <NA>
+#> 95       bio_15       bio_12     <NA>
+#> 118      bio_15         <NA>       21
+#> 120      bio_15        bio_7     <NA>
 
 # Check simple extrapolation in geographic space
 plot_explore_partition(explore_partition = mop_blocks, space = "G", 

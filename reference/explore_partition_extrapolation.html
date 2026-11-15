@@ -68,7 +68,8 @@ for each partition, using the MOP (Mobility-Oriented Parity) metric.</p>
 <span>                                       mop_type <span class="op">=</span> <span class="st">"detailed"</span>,</span>
 <span>                                       calculate_distance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                                       where_distance <span class="op">=</span> <span class="st">"all"</span>,</span>
-<span>                                       progress_bar <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span>                                       progress_bar <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                                       progress_type <span class="op">=</span> <span class="st">"timer"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -101,8 +102,8 @@ calculation. Default is NULL, meaning all variables in <code>data</code> will be
 
 <dt id="arg-mop-type">mop_type<a class="anchor" aria-label="anchor" href="#arg-mop-type"></a></dt>
 <dd><p>(character) type of MOP analysis to be performed. Options
-available are "basic", "simple" and "detailed". Default is 'simples'. See
-<code><a href="projection_mop.html">projection_mop</a></code>() for more details.</p></dd>
+available are <code>"basic"</code>, <code>"simple"</code>, and <code>"detailed"</code>. Default is
+<code>"detailed"</code>. See <code><a href="projection_mop.html">projection_mop</a></code>() for more details.</p></dd>
 
 
 <dt id="arg-calculate-distance">calculate_distance<a class="anchor" aria-label="anchor" href="#arg-calculate-distance"></a></dt>
@@ -112,14 +113,20 @@ available are "basic", "simple" and "detailed". Default is 'simples'. See
 
 <dt id="arg-where-distance">where_distance<a class="anchor" aria-label="anchor" href="#arg-where-distance"></a></dt>
 <dd><p>(character) specifies which values in train data should
-be used to calculate distances. Options are: "in_range" (only conditions
-within the train range), "out_range" (only conditions outside the
-train range), and "all" (all conditions). Default is "all".</p></dd>
+be used to calculate distances. Options are: <code>"in_range"</code> (only conditions
+within the train range), <code>"out_range"</code> (only conditions outside the
+train range), and <code>"all"</code> (all conditions). Default is <code>"all"</code>.</p></dd>
 
 
 <dt id="arg-progress-bar">progress_bar<a class="anchor" aria-label="anchor" href="#arg-progress-bar"></a></dt>
 <dd><p>(logical) whether to display a progress bar during
 processing. Default is FALSE.</p></dd>
+
+
+<dt id="arg-progress-type">progress_type<a class="anchor" aria-label="anchor" href="#arg-progress-type"></a></dt>
+<dd><p>(character) type of the progress bar. See
+<code><a href="https://peter.solymos.org/pbapply/reference/pboptions.html" class="external-link">pbapply::pbtypes()</a></code> for available progress bar types depending on operating
+system. Default is <code>"timer"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -128,19 +135,20 @@ processing. Default is FALSE.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>data.frame</code> containing:</p><ul><li><p>MOP distances (if <code>calculate_distance = TRUE</code>);</p></li>
-<li><p>an indicator of whether environmental conditions at each test record fall
-within the training range;</p></li>
-<li><p>the number of variables outside the training range;</p></li>
-<li><p>the names of variables with values lower or higher than the training range;</p></li>
-<li><p>if the <code>prepared_data</code> object includes categorical variables, it will also
-contain columns indicating which values in the testing data were not present
-in the training data.</p></li>
+    <p>An object of class <code>explore_partition</code> containing:</p><ul><li><p><code>Mop_results</code>: a <code>data.frame</code> with MOP distances (if
+<code>calculate_distance = TRUE</code>), indicators of non-analogous conditions,
+number and names of variables outside the training range, and novel
+categories (if categorical variables are present) for each partition;</p></li>
+<li><p><code>calibration_data</code>: a <code>data.frame</code> with the calibration data ordered by
+partition;</p></li>
+<li><p><code>categorical_variables</code>: character vector with categorical variable names
+(if present);</p></li>
+<li><p><code>pca</code>: PCA object (if <code>do_pca = TRUE</code> was used in <code><a href="prepare_data.html">prepare_data()</a></code>).</p></li>
 </ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">#Prepare data</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Prepare data</span></span></span>
 <span class="r-in"><span><span class="co"># Import occurrences</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">occ_data</span>, package <span class="op">=</span> <span class="st">"kuenm2"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

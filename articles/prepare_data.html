@@ -578,20 +578,20 @@ data.</li>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Check some of the results</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mop_partition</span><span class="op">$</span><span class="va">Mop_results</span><span class="op">)</span></span>
-<span><span class="co">#&gt;      Partition pr_bg         x         y mop_distance inside_range n_var_out</span></span>
-<span><span class="co">#&gt; 1  Partition_1     1 -51.29778 -29.02639     3.813469         TRUE         0</span></span>
-<span><span class="co">#&gt; 3  Partition_1     1 -49.32222 -27.81167     3.671747         TRUE         0</span></span>
-<span><span class="co">#&gt; 17 Partition_1     1 -51.03556 -28.58194     5.315553         TRUE         0</span></span>
-<span><span class="co">#&gt; 18 Partition_1     1 -50.57972 -27.29056     3.240024         TRUE         0</span></span>
-<span><span class="co">#&gt; 19 Partition_1     1 -49.82139 -27.40639     4.342539         TRUE         0</span></span>
-<span><span class="co">#&gt; 26 Partition_1     1 -49.27361 -25.38528     4.623356         TRUE         0</span></span>
-<span><span class="co">#&gt;    towards_low towards_high SoilType</span></span>
-<span><span class="co">#&gt; 1         &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 3         &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 17        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 18        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 19        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 26        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt;     Partition pr_bg         x         y mop_distance inside_range n_var_out</span></span>
+<span><span class="co">#&gt; 1 Partition_1     1 -51.29778 -29.02639     3.813469         TRUE         0</span></span>
+<span><span class="co">#&gt; 2 Partition_1     1 -49.32222 -27.81167     3.671747         TRUE         0</span></span>
+<span><span class="co">#&gt; 3 Partition_1     1 -51.03556 -28.58194     5.315553         TRUE         0</span></span>
+<span><span class="co">#&gt; 4 Partition_1     1 -50.57972 -27.29056     3.240024         TRUE         0</span></span>
+<span><span class="co">#&gt; 5 Partition_1     1 -49.82139 -27.40639     4.342539         TRUE         0</span></span>
+<span><span class="co">#&gt; 6 Partition_1     1 -49.27361 -25.38528     4.623356         TRUE         0</span></span>
+<span><span class="co">#&gt;   towards_low towards_high SoilType</span></span>
+<span><span class="co">#&gt; 1        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 4        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 5        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 6        &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;</span></span>
 <span></span>
 <span><span class="co"># Number of testing records with values outside training ranges</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/dimensions.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">mop_partition</span><span class="op">$</span><span class="va">Mop_results</span><span class="op">[</span><span class="va">mop_partition</span><span class="op">$</span><span class="va">Mop_results</span><span class="op">$</span><span class="va">n_var_out</span> <span class="op">&gt;</span> <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span></span>
@@ -1117,19 +1117,19 @@ spatial blocks.</p>
 <span><span class="co"># Check some testing records with values outside training ranges</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">mop_blocks</span><span class="op">$</span><span class="va">Mop_results</span><span class="op">[</span><span class="va">mop_blocks</span><span class="op">$</span><span class="va">Mop_results</span><span class="op">$</span><span class="va">n_var_out</span> <span class="op">&gt;</span> <span class="fl">1</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;       Partition pr_bg         x         y mop_distance inside_range n_var_out</span></span>
-<span><span class="co">#&gt; 87  Partition_1     0 -50.75000 -30.75000     12.57765        FALSE         2</span></span>
-<span><span class="co">#&gt; 129 Partition_1     0 -51.75000 -29.91667     10.91112        FALSE         2</span></span>
-<span><span class="co">#&gt; 193 Partition_1     0 -53.41667 -27.08333     43.59743        FALSE         2</span></span>
-<span><span class="co">#&gt; 199 Partition_1     0 -52.41667 -26.75000    171.15194        FALSE         2</span></span>
-<span><span class="co">#&gt; 252 Partition_1     0 -51.58333 -30.75000     15.76803        FALSE         2</span></span>
-<span><span class="co">#&gt; 261 Partition_1     0 -53.25000 -27.08333     43.59052        FALSE         2</span></span>
+<span><span class="co">#&gt; 46  Partition_1     0 -50.75000 -30.75000     12.57765        FALSE         2</span></span>
+<span><span class="co">#&gt; 64  Partition_1     0 -51.75000 -29.91667     10.91112        FALSE         2</span></span>
+<span><span class="co">#&gt; 92  Partition_1     0 -53.41667 -27.08333     43.59743        FALSE         2</span></span>
+<span><span class="co">#&gt; 95  Partition_1     0 -52.41667 -26.75000    171.15194        FALSE         2</span></span>
+<span><span class="co">#&gt; 118 Partition_1     0 -51.58333 -30.75000     15.76803        FALSE         2</span></span>
+<span><span class="co">#&gt; 120 Partition_1     0 -53.25000 -27.08333     43.59052        FALSE         2</span></span>
 <span><span class="co">#&gt;     towards_low towards_high SoilType</span></span>
-<span><span class="co">#&gt; 87       bio_15         &lt;NA&gt;       21</span></span>
-<span><span class="co">#&gt; 129      bio_15         &lt;NA&gt;       21</span></span>
-<span><span class="co">#&gt; 193      bio_15        bio_7     &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 199      bio_15       bio_12     &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 252      bio_15         &lt;NA&gt;       21</span></span>
-<span><span class="co">#&gt; 261      bio_15        bio_7     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 46       bio_15         &lt;NA&gt;       21</span></span>
+<span><span class="co">#&gt; 64       bio_15         &lt;NA&gt;       21</span></span>
+<span><span class="co">#&gt; 92       bio_15        bio_7     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 95       bio_15       bio_12     &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 118      bio_15         &lt;NA&gt;       21</span></span>
+<span><span class="co">#&gt; 120      bio_15        bio_7     &lt;NA&gt;</span></span>
 <span></span>
 <span><span class="co"># Check simple extrapolation in geographic space</span></span>
 <span><span class="fu"><a href="../reference/plot_explore_partition.html">plot_explore_partition</a></span><span class="op">(</span>explore_partition <span class="op">=</span> <span class="va">mop_blocks</span>, space <span class="op">=</span> <span class="st">"G"</span>, </span>

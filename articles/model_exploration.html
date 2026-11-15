@@ -699,7 +699,11 @@ models.</p>
 mind that the last three records are fake):</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Evaluate models with independent data</span></span>
-<span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_evaluation.html">independent_evaluation</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fm</span>, new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">res_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/independent_evaluation.html">independent_evaluation</a></span><span class="op">(</span>fitted_models <span class="op">=</span> <span class="va">fm</span>, new_data <span class="op">=</span> <span class="va">new_data</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in predict_selected(models = fitted_models, new_variables = new_data[,</span></span>
+<span><span class="co">#&gt; : Layer SoilType not found in 'new_variables'.</span></span>
+<span><span class="co">#&gt; Warning in predict_selected(models = fitted_models, new_variables = bg_data[, :</span></span>
+<span><span class="co">#&gt; Layer SoilType not found in 'new_variables'.</span></span></code></pre></div>
 <p><br></p>
 <p>The output is a list with three elements:</p>
 <ol style="list-style-type: decimal">
@@ -720,10 +724,10 @@ included for all the records.</li>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_ind</span><span class="op">$</span><span class="va">evaluation</span></span>
 <span><span class="co">#&gt;               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC</span></span>
-<span><span class="co">#&gt; 1         Model_192      mean           0.3647059       1.167024         0</span></span>
-<span><span class="co">#&gt; 2         Model_192    median           0.3764706       1.175520         0</span></span>
-<span><span class="co">#&gt; 3         Model_219      mean           0.3882353       1.144704         0</span></span>
-<span><span class="co">#&gt; 4         Model_219    median           0.3764706       1.145789         0</span></span>
+<span><span class="co">#&gt; 1         Model_192    median           0.3764706       1.171702         0</span></span>
+<span><span class="co">#&gt; 2         Model_192      mean           0.3647059       1.170694         0</span></span>
+<span><span class="co">#&gt; 3         Model_219    median           0.3764706       1.143630         0</span></span>
+<span><span class="co">#&gt; 4         Model_219      mean           0.3882353       1.146110         0</span></span>
 <span><span class="co">#&gt; 5 General_consensus    median           0.3882353       1.163761         0</span></span>
 <span><span class="co">#&gt; 6 General_consensus      mean           0.3764706       1.157164         0</span></span></code></pre></div>
 <p><br></p>
@@ -778,12 +782,12 @@ the general consensus:</p>
 <code class="sourceCode R"><span><span class="co"># Show the continuous predictions for the last 5 independent records</span></span>
 <span><span class="co"># Round to two decimal places</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/math-generics.html" class="external-link">round</a></span><span class="op">(</span><span class="va">res_ind</span><span class="op">$</span><span class="va">predictions</span><span class="op">$</span><span class="va">continuous</span><span class="op">[</span><span class="fl">81</span><span class="op">:</span><span class="fl">85</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Model_192.mean Model_192.median Model_219.mean Model_219.median</span></span>
-<span><span class="co">#&gt; 81           0.49             0.48           0.52             0.51</span></span>
-<span><span class="co">#&gt; 82           0.44             0.44           0.45             0.42</span></span>
-<span><span class="co">#&gt; 83           0.00             0.00           0.00             0.00</span></span>
-<span><span class="co">#&gt; 84           0.95             0.96           0.76             0.78</span></span>
-<span><span class="co">#&gt; 85           0.00             0.00           0.00             0.00</span></span>
+<span><span class="co">#&gt;    Model_192.median Model_192.mean Model_219.median Model_219.mean</span></span>
+<span><span class="co">#&gt; 81             0.48           0.49             0.51           0.52</span></span>
+<span><span class="co">#&gt; 82             0.44           0.44             0.42           0.45</span></span>
+<span><span class="co">#&gt; 83             0.00           0.00             0.00           0.00</span></span>
+<span><span class="co">#&gt; 84             0.96           0.95             0.78           0.76</span></span>
+<span><span class="co">#&gt; 85             0.00           0.00             0.00           0.00</span></span>
 <span><span class="co">#&gt;    General_consensus.median General_consensus.mean</span></span>
 <span><span class="co">#&gt; 81                     0.50                   0.50</span></span>
 <span><span class="co">#&gt; 82                     0.44                   0.44</span></span>

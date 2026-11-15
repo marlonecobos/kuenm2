@@ -15,7 +15,8 @@ for modeling projections.
 organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
                           variables = NULL, static_variables = NULL,
                           check_extent = TRUE, mask = NULL,
-                          progress_bar = TRUE, overwrite = FALSE)
+                          progress_bar = TRUE, progress_type = "timer",
+                          overwrite = FALSE)
 ```
 
 ## Arguments
@@ -31,9 +32,9 @@ organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
 
 - name_format:
 
-  (character) the format for renaming variable. Options are "bio\_",
-  "Bio\_", "bio_0", and "Bio_0". See details for more information.
-  Default is "bio\_".
+  (character) the format for renaming variables. Options are `"bio_"`,
+  `"Bio_"`, `"bio_0"`, `"Bio_0"`, `"bio"`, and `"Bio"`. See details for
+  more information. Default is `"bio_"`.
 
 - variables:
 
@@ -62,15 +63,22 @@ organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
   (logical) whether to display a progress bar during processing. Default
   is TRUE.
 
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is `"timer"`.
+
 - overwrite:
 
-  whether to overwrite existing files in the output directory. Default
-  is FALSE.
+  (logical) whether to overwrite existing files in the output directory.
+  Default is FALSE.
 
 ## Value
 
-A list of paths to the folders where the organized climate data has been
-saved.
+Invisibly returns a character vector of paths to the folders where the
+organized climate data has been saved.
 
 ## Details
 
@@ -78,16 +86,16 @@ The raw variables downloaded from WorldClim are named as "Bio01",
 "Bio02", "Bio03", "Bio10", etc. The `name_format` parameter controls how
 these variables will be renamed:
 
-- "bio\_": the variables will be renamed to bio_1, bio_2, bio_3, bio_10,
-  etc.
+- `"bio_"`: the variables will be renamed to bio_1, bio_2, bio_3,
+  bio_10, etc.
 
-- "bio_0": the variables will be renamed to bio_01, bio_02, bio_03,
-  bio_10, etc
+- `"bio_0"`: the variables will be renamed to bio_01, bio_02, bio_03,
+  bio_10, etc.
 
-- "Bio\_": the variables will be renamed to Bio_1, Bio_2, Bio_3, Bio_10,
-  etc.
+- `"Bio_"`: the variables will be renamed to Bio_1, Bio_2, Bio_3,
+  Bio_10, etc.
 
-- "Bio_0": the variables will be renamed to Bio_01, Bio_02, Bio_03,
+- `"Bio_0"`: the variables will be renamed to Bio_01, Bio_02, Bio_03,
   Bio_10, etc.
 
 ## See also
@@ -118,27 +126,18 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir,
                           name_format = "bio_",
                           static_variables = var$SoilType)
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGMb8Se/Future_raw
+#> /tmp/RtmpgAgbVb/Future_raw
 
 # Check files organized
 dir(out_dir, recursive = TRUE)

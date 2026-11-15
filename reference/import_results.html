@@ -197,27 +197,18 @@ containing the computed variability.</p></li>
 <span class="r-in"><span><span class="fu"><a href="organize_future_worldclim.html">organize_future_worldclim</a></span><span class="op">(</span>input_dir <span class="op">=</span> <span class="va">in_dir</span>, output_dir <span class="op">=</span> <span class="va">out_dir_future</span>,</span></span>
 <span class="r-in"><span>                          name_format <span class="op">=</span> <span class="st">"bio_"</span>, static_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpGMb8Se/Future_raw2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpgAgbVb/Future_raw2</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 3: Prepare data to run multiple projections</span></span></span>
 <span class="r-in"><span><span class="co">## An example with maxnet models</span></span></span>
@@ -245,9 +236,9 @@ containing the computed variability.</p></li>
   |                                                  | 0 % ~calculating  
   |++++++++++                                        | 20% ~01s          
   |++++++++++++++++++++                              | 40% ~01s          
-  |++++++++++++++++++++++++++++++                    | 60% ~01s          
+  |++++++++++++++++++++++++++++++                    | 60% ~00s          
   |++++++++++++++++++++++++++++++++++++++++          | 80% ~00s          
-  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=02s  </span>
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Use import_results to import results:</span></span></span>
 <span class="r-in"><span><span class="va">raster_p</span> <span class="op">&lt;-</span> <span class="fu">import_results</span><span class="op">(</span>projection <span class="op">=</span> <span class="va">p</span>, consensus <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></span>

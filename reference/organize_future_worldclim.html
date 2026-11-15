@@ -74,7 +74,8 @@ properly structured for modeling projections.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">organize_future_worldclim</span><span class="op">(</span><span class="va">input_dir</span>, <span class="va">output_dir</span>, name_format <span class="op">=</span> <span class="st">"bio_"</span>,</span>
 <span>                          variables <span class="op">=</span> <span class="cn">NULL</span>, static_variables <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                          check_extent <span class="op">=</span> <span class="cn">TRUE</span>, mask <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>                          progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span>                          progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, progress_type <span class="op">=</span> <span class="st">"timer"</span>,</span>
+<span>                          overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -92,9 +93,9 @@ will be saved.</p></dd>
 
 
 <dt id="arg-name-format">name_format<a class="anchor" aria-label="anchor" href="#arg-name-format"></a></dt>
-<dd><p>(character) the format for renaming variable. Options are
-"bio_", "Bio_", "bio_0", and "Bio_0". See details for more information.
-Default is "bio_".</p></dd>
+<dd><p>(character) the format for renaming variables. Options are
+<code>"bio_"</code>, <code>"Bio_"</code>, <code>"bio_0"</code>, <code>"Bio_0"</code>, <code>"bio"</code>, and <code>"Bio"</code>. See details
+for more information. Default is <code>"bio_"</code>.</p></dd>
 
 
 <dt id="arg-variables">variables<a class="anchor" aria-label="anchor" href="#arg-variables"></a></dt>
@@ -124,24 +125,30 @@ mask the variables (optional). Default is NULL.</p></dd>
 processing. Default is TRUE.</p></dd>
 
 
+<dt id="arg-progress-type">progress_type<a class="anchor" aria-label="anchor" href="#arg-progress-type"></a></dt>
+<dd><p>(character) type of the progress bar. See
+<code><a href="https://peter.solymos.org/pbapply/reference/pboptions.html" class="external-link">pbapply::pbtypes()</a></code> for available progress bar types depending on operating
+system. Default is <code>"timer"</code>.</p></dd>
+
+
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
-<dd><p>whether to overwrite existing files in the output directory.
-Default is FALSE.</p></dd>
+<dd><p>(logical) whether to overwrite existing files in the output
+directory. Default is FALSE.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list of paths to the folders where the organized climate data has been
-saved.</p>
+    <p>Invisibly returns a character vector of paths to the folders where the
+organized climate data has been saved.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The raw variables downloaded from WorldClim are named as "Bio01", "Bio02",
 "Bio03", "Bio10", etc. The <code>name_format</code> parameter controls how these
-variables will be renamed:</p><ul><li><p>"bio_": the variables will be renamed to bio_1, bio_2, bio_3, bio_10, etc.</p></li>
-<li><p>"bio_0": the variables will be renamed to bio_01, bio_02, bio_03, bio_10, etc</p></li>
-<li><p>"Bio_": the variables will be renamed to Bio_1, Bio_2, Bio_3, Bio_10, etc.</p></li>
-<li><p>"Bio_0": the variables will be renamed to Bio_01, Bio_02, Bio_03, Bio_10, etc.</p></li>
+variables will be renamed:</p><ul><li><p><code>"bio_"</code>: the variables will be renamed to bio_1, bio_2, bio_3, bio_10, etc.</p></li>
+<li><p><code>"bio_0"</code>: the variables will be renamed to bio_01, bio_02, bio_03, bio_10, etc.</p></li>
+<li><p><code>"Bio_"</code>: the variables will be renamed to Bio_1, Bio_2, Bio_3, Bio_10, etc.</p></li>
+<li><p><code>"Bio_0"</code>: the variables will be renamed to Bio_01, Bio_02, Bio_03, Bio_10, etc.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -171,27 +178,18 @@ variables will be renamed:</p><ul><li><p>"bio_": the variables will be renamed t
 <span class="r-in"><span>                          name_format <span class="op">=</span> <span class="st">"bio_"</span>,</span></span>
 <span class="r-in"><span>                          static_variables <span class="op">=</span> <span class="va">var</span><span class="op">$</span><span class="va">SoilType</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpGMb8Se/Future_raw</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpgAgbVb/Future_raw</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check files organized</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir</a></span><span class="op">(</span><span class="va">out_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

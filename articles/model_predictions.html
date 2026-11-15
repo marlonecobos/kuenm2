@@ -309,7 +309,7 @@ predict our Maxnet models to this <code>data.frame</code>:</p>
 <code class="sourceCode R"><span><span class="co"># Results by replicate of the model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Replicates</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   Replicate_1  Replicate_2  Replicate_3  Replicate_4</span></span>
-<span><span class="co">#&gt; 1 0.006521501 0.0006209852 0.0005883615 9.831561e-05</span></span>
+<span><span class="co">#&gt; 1          NA           NA           NA           NA</span></span>
 <span><span class="co">#&gt; 2 0.006446437 0.0005356316 0.0005713501 9.009486e-05</span></span>
 <span><span class="co">#&gt; 3 0.006233583 0.0003396879 0.0004975279 6.967025e-05</span></span>
 <span><span class="co">#&gt; 4 0.005797668 0.0001458500 0.0003605775 4.303576e-05</span></span>
@@ -318,23 +318,23 @@ predict our Maxnet models to this <code>data.frame</code>:</p>
 <span></span>
 <span><span class="co"># Consensus across replicates of the model 192</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">Model_192</span><span class="op">$</span><span class="va">Model_consensus</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         median       range        mean       stdev</span></span>
-<span><span class="co">#&gt; 1 0.0006046734 0.006423186 0.001957291 0.003052184</span></span>
-<span><span class="co">#&gt; 2 0.0005534909 0.006356342 0.001910878 0.003031621</span></span>
-<span><span class="co">#&gt; 3 0.0004186079 0.006163912 0.001785117 0.002970901</span></span>
-<span><span class="co">#&gt; 4 0.0002532137 0.005754632 0.001586783 0.002810372</span></span>
-<span><span class="co">#&gt; 5 0.0004283544 0.008428219 0.002363880 0.004107054</span></span>
-<span><span class="co">#&gt; 6 0.0004269022 0.009150029 0.002546134 0.004470371</span></span>
+<span><span class="co">#&gt;         median        mean       stdev       range</span></span>
+<span><span class="co">#&gt; 1           NA          NA          NA          NA</span></span>
+<span><span class="co">#&gt; 2 0.0005534909 0.001910878 0.003031621 0.006356342</span></span>
+<span><span class="co">#&gt; 3 0.0004186079 0.001785117 0.002970901 0.006163912</span></span>
+<span><span class="co">#&gt; 4 0.0002532137 0.001586783 0.002810372 0.005754632</span></span>
+<span><span class="co">#&gt; 5 0.0004283544 0.002363880 0.004107054 0.008428219</span></span>
+<span><span class="co">#&gt; 6 0.0004269022 0.002546134 0.004470371 0.009150029</span></span>
 <span></span>
 <span><span class="co"># General consensus across all models</span></span>
 <span><span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="va">p_df</span><span class="op">$</span><span class="va">General_consensus</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         median       range        mean       stdev</span></span>
-<span><span class="co">#&gt; 1 0.0006049792 0.006423186 0.001882943 0.002691096</span></span>
-<span><span class="co">#&gt; 2 0.0005534909 0.006356342 0.001847258 0.002690840</span></span>
-<span><span class="co">#&gt; 3 0.0004186079 0.006163912 0.001737935 0.002664381</span></span>
-<span><span class="co">#&gt; 4 0.0002532730 0.005757458 0.001562733 0.002558575</span></span>
-<span><span class="co">#&gt; 5 0.0004283544 0.008435158 0.002337815 0.003756587</span></span>
-<span><span class="co">#&gt; 6 0.0004274250 0.009165160 0.002539356 0.004130584</span></span></code></pre></div>
+<span><span class="co">#&gt;         median        mean       stdev       range</span></span>
+<span><span class="co">#&gt; 1           NA          NA          NA          NA</span></span>
+<span><span class="co">#&gt; 2 0.0005534909 0.001847258 0.002690840 0.006356342</span></span>
+<span><span class="co">#&gt; 3 0.0004186079 0.001737935 0.002664381 0.006163912</span></span>
+<span><span class="co">#&gt; 4 0.0002532730 0.001562733 0.002558575 0.005757458</span></span>
+<span><span class="co">#&gt; 5 0.0004283544 0.002337815 0.003756587 0.008435158</span></span>
+<span><span class="co">#&gt; 6 0.0004274250 0.002539356 0.004130584 0.009165160</span></span></code></pre></div>
 <p><br></p>
 </div>
 </div>

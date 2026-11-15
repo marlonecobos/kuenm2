@@ -14,7 +14,7 @@ projection_mop(data, projection_data, out_dir,
                scale = FALSE, center = FALSE, fix_NA = TRUE, percentage = 1,
                comp_each = 2000, tol = NULL, rescale_distance = FALSE,
                parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-               overwrite = FALSE)
+               progress_type = "timer", overwrite = FALSE)
 ```
 
 ## Arguments
@@ -30,9 +30,9 @@ projection_mop(data, projection_data, out_dir,
 - projection_data:
 
   an object of class `projection_data` returned by the
-  [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)function.
-  This file contains the paths to the rasters representing each
-  scenario.
+  [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)
+  function. This object contains the paths to the rasters representing
+  each scenario.
 
 - out_dir:
 
@@ -43,7 +43,7 @@ projection_mop(data, projection_data, out_dir,
 
   (logical) whether to include in the analysis only the variables
   present in the selected models. Only applicable if `data` is a
-  `fitted_models` object. Default is FALSE
+  `fitted_models` object. Default is FALSE.
 
 - mask:
 
@@ -53,8 +53,8 @@ projection_mop(data, projection_data, out_dir,
 - type:
 
   (character) type of MOP analysis to be performed. Options available
-  are "basic", "simple" and "detailed". See Details for further
-  information.
+  are `"basic"`, `"simple"`, and `"detailed"`. See Details for further
+  information. Default is `"basic"`.
 
 - na_in_range:
 
@@ -62,7 +62,7 @@ projection_mop(data, projection_data, out_dir,
   area (G) where environmental conditions fall within the range of the
   calibration data (M). If `TRUE` (default), these regions are assigned
   `NA`. If `FALSE`, they are assigned `0` in the simple and basic MOP
-  outputs, and `"within ranges"` in the detailed MOP output.
+  outputs, and `"Within ranges"` in the detailed MOP output.
 
 - calculate_distance:
 
@@ -74,13 +74,14 @@ projection_mop(data, projection_data, out_dir,
 
   (character) where to calculate distances, considering how conditions
   in g are positioned in comparison to the range of conditions in m.
-  Options available are "in_range", "out_range" and "all". Default is
-  "in_range".
+  Options available are `"in_range"`, `"out_range"`, and `"all"`.
+  Default is `"in_range"`.
 
 - distance:
 
-  (character) which distances are calculated, euclidean or mahalanobis.
-  Only applicable if calculate_distance = TRUE.
+  (character) which distances are calculated, `"euclidean"` or
+  `"mahalanobis"`. Only applicable if `calculate_distance = TRUE`.
+  Default is `"euclidean"`.
 
 - scale:
 
@@ -102,11 +103,13 @@ projection_mop(data, projection_data, out_dir,
 
   (numeric) percentage of `m` closest conditions used to derive mean
   environmental distances to each combination of conditions in `g`.
+  Default is 1.
 
 - comp_each:
 
   (numeric) number of combinations in `g` to be used for distance
-  calculations at a time. Increasing this number requires more RAM
+  calculations at a time. Increasing this number requires more RAM.
+  Default is 2000.
 
 - tol:
 
@@ -117,11 +120,12 @@ projection_mop(data, projection_data, out_dir,
 
   (logical) whether to re-scale distances 0-1. Re-scaling prevents
   comparisons of dissimilarity values obtained from runs with different
-  values of `percentage`.
+  values of `percentage`. Default is FALSE.
 
 - parallel:
 
-  (logical) whether to fit the candidate models in parallel. Default is
+  (logical) whether to run distance calculations in parallel within
+  [`mop::mop()`](https://rdrr.io/pkg/mop/man/mop.html). Default is
   FALSE.
 
 - ncores:
@@ -135,91 +139,23 @@ projection_mop(data, projection_data, out_dir,
   (logical) whether to display a progress bar during processing. Default
   is TRUE.
 
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is `"timer"`.
+
 - overwrite:
 
-  (logical) whether to overwrite SpatRaster if they already exists. Only
-  applicable if `write_files` is set to TRUE. Default is FALSE.
+  (logical) whether to overwrite SpatRaster files if they already exist.
+  Default is FALSE.
 
 ## Value
 
 An object of class `mop_projections`, with the root directory and the
-dataframe containing the file paths where the results were stored for
-each scenario. The paths contain the following files:
-
-- **summary** - a data.frame with details of the data used in the
-  analysis:
-
-  - *variables* - names of variables considered.
-
-  - *type* - type of MOP analysis performed.
-
-  - *scale* - value according to the argument `scale`.
-
-  - *center* - value according to the argument `center`.
-
-  - *calculate_distance* - value according to the argument
-    `calculate_distance`.
-
-  - *distance* - option regarding distance used.
-
-  - *percentage* - percentage of `m` used as reference for distance
-    calculation.
-
-  - *rescale_distance* - value according to the argument
-    `rescale_distance`.
-
-  - *fix_NA* - value according to the argument `fix_NA`.
-
-  - *N_m* - total number of elements (cells with values or valid rows)
-    in `m`.
-
-  - *N_g* - total number of elements (cells with values or valid rows)
-    in `g`.
-
-  - *m_ranges* - the range (minimum and maximum values) of the variable
-    in reference conditions (`m`)
-
-- **mop_distances** - if `calculate_distance` = TRUE, a SpatRaster or
-  vector with distance values for the set of interest (`g`). Higher
-  values represent greater dissimilarity compared to the set of
-  reference (`m`).
-
-- **mop_basic** - a SpatRaster or vector, for the set of interest,
-  representing conditions in which at least one of the variables is
-  non-analogous to the set of reference. Values should be: 1 for
-  non-analogous conditions, and NA for conditions inside the ranges of
-  the reference set.
-
-- **mop_simple** - a SpatRaster or vector, for the set of interest,
-  representing how many variables in the set of interest are
-  non-analogous to those in the reference set. NA is used for conditions
-  inside the ranges of the reference set.
-
-- **mop_detailed** - a list containing:
-
-  - *interpretation_combined* - a data.frame to help identify
-    combinations of variables in *towards_low_combined* and
-    *towards_high_combined* that are non-analogous to `m`.
-
-  - *towards_low_end* - a SpatRaster or matrix for all variables
-    representing where non-analogous conditions were found towards low
-    values of each variable.
-
-  - *towards_high_end* - a SpatRaster or matrix for all variables
-    representing where non-analogous conditions were found towards high
-    values of each variable.
-
-  - *towards_low_combined* - a SpatRaster or vector with values
-    representing the identity of the variables found to have
-    non-analogous conditions towards low values. If vector,
-    interpretation requires the use of the data.frame
-    *interpretation_combined*.
-
-  - *towards_high_combined* - a SpatRaster or vector with values
-    representing the identity of the variables found to have
-    non-analogous conditions towards high values. If vector,
-    interpretation requires the use of the data.frame
-    *interpretation_combined*.
+data.frame containing the file paths where the results were stored for
+each scenario.
 
 ## Details
 
@@ -236,7 +172,7 @@ non-analogous conditions are identified.
   `mop_detailed` under `Value` below for full details.
 
 `where_distance` options determine what values should be used to
-calculate dissimilarity
+calculate dissimilarity:
 
 - **in_range** - only conditions inside `m` ranges
 
@@ -268,7 +204,6 @@ dir.create(out_dir_current, recursive = TRUE)
 ## Save current variables in temporary directory
 terra::writeRaster(var, file.path(out_dir_current, "Variables.tif"))
 
-
 # Step 2: Organize future climate variables (example with WorldClim)
 ## Directory containing the downloaded future climate variables (example)
 in_dir <- system.file("extdata", package = "kuenm2")
@@ -281,27 +216,18 @@ out_dir_future <- file.path(tempdir(), "Future_raw4")
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
                           name_format = "bio_", static_variables = var$SoilType)
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGMb8Se/Future_raw4
+#> /tmp/RtmpgAgbVb/Future_raw4
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
@@ -326,24 +252,14 @@ dir.create(out_dir, recursive = TRUE)
 kmop <- projection_mop(data = fitted_model_maxnet, projection_data = pr,
                        out_dir = out_dir, type = "detailed")
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |========                                                              |  11%
-  |                                                                            
-  |================                                                      |  22%
-  |                                                                            
-  |=======================                                               |  33%
-  |                                                                            
-  |===============================                                       |  44%
-  |                                                                            
-  |=======================================                               |  56%
-  |                                                                            
-  |===============================================                       |  67%
-  |                                                                            
-  |======================================================                |  78%
-  |                                                                            
-  |==============================================================        |  89%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |++++++                                            | 11% ~01s          
+  |++++++++++++                                      | 22% ~01s          
+  |+++++++++++++++++                                 | 33% ~01s          
+  |+++++++++++++++++++++++                           | 44% ~01s          
+  |++++++++++++++++++++++++++++                      | 56% ~01s          
+  |++++++++++++++++++++++++++++++++++                | 67% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++           | 78% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++++++++     | 89% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  
 ```

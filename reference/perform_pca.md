@@ -8,7 +8,9 @@ raster variables.
 ``` r
 perform_pca(raster_variables, exclude_from_pca = NULL, project = FALSE,
             projection_data = NULL, out_dir = NULL, overwrite = FALSE,
-            progress_bar = FALSE, center = TRUE, scale = FALSE,
+            progress_bar = FALSE, progress_type = "timer",
+            parallel = FALSE, ncores = NULL, use_lb = FALSE,
+            center = TRUE, scale = FALSE,
             variance_explained = 95, min_explained = 5)
 ```
 
@@ -32,32 +34,55 @@ perform_pca(raster_variables, exclude_from_pca = NULL, project = FALSE,
 
   (logical) whether the function should project new data from different
   scenarios (e.g. future variables) onto the PCA coordinates generated
-  by the initial analysis. If TRUE, the argument projection_data needs
+  by the initial analysis. If TRUE, the argument `projection_data` needs
   to be defined. Default is FALSE.
 
 - projection_data:
 
-  an object of class `prepared_projection` returned by the
+  an object of class `projection_data` returned by the
   [`prepare_projection()`](https://marlonecobos.github.io/kuenm2/reference/prepare_projection.md)
-  function. This file contains the paths to the raster files
+  function. This object contains the paths to the raster files
   representing each scenario. Only applicable if `project = TRUE`.
   Default is NULL.
 
 - out_dir:
 
   (character) a path to a root directory for saving the raster files of
-  each projection. Default = NULL.
+  each projection. Default is NULL.
 
 - overwrite:
 
-  (logical) whether to overwrite SpatRaster if they already exists when
-  projecting. Only applicable if `write_files` is set to TRUE. Default
-  is FALSE.
+  (logical) whether to overwrite SpatRaster files if they already exist
+  when projecting. Only applicable if `project = TRUE`. Default is
+  FALSE.
 
 - progress_bar:
 
   (logical) whether to display a progress bar during processing
-  projections. Only applicable if `project = TRUE`. Default is FALSE
+  projections. Only applicable if `project = TRUE`. Default is FALSE.
+
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is `"timer"`.
+
+- parallel:
+
+  (logical) whether to project scenarios in parallel when
+  `project = TRUE`. Default is FALSE.
+
+- ncores:
+
+  (numeric) number of cores to use for parallel processing. Default is
+  NULL and uses available cores - 1. Only applicable if
+  `parallel = TRUE` and `project = TRUE`.
+
+- use_lb:
+
+  (logical) whether to use load balancing when running in parallel.
+  Default is FALSE.
 
 - center:
 
@@ -83,19 +108,19 @@ perform_pca(raster_variables, exclude_from_pca = NULL, project = FALSE,
 
 A list containing the following elements:
 
-- env: A SpatRaster object that contains the orthogonal components
+- `env`: A SpatRaster object that contains the orthogonal components
   derived from the PCA. PCs correspond to the variables used to perform
   the analysis.
 
-- pca: an object of class prcomp, containing the details of the PCA
+- `pca`: an object of class `prcomp`, containing the details of the PCA
   analysis. See [`prcomp`](https://rdrr.io/r/stats/prcomp.html)().
 
-- variance_explained_cum_sum: The cumulative percentage of total
+- `variance_explained_cumsum`: The cumulative percentage of total
   variance explained by each of the selected principal components. This
   value indicates how much of the data's original variability is
   captured by the PCA transformation.
 
-- projection_directory: the root directory where projection files were
+- `projection_directory`: the root directory where projection files were
   saved. Not NULL only if `project` was set to TRUE. This directory
   contains the projected raster files for each scenario.
 
@@ -160,27 +185,18 @@ out_dir_future <- file.path(tempdir(), "Future_raw1")
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
                           name_format = "bio_", static_variables = var$SoilType)
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGMb8Se/Future_raw1
+#> /tmp/RtmpgAgbVb/Future_raw1
 
 # Prepare projections
 pr <- prepare_projection(variable_names = c("bio_1", "bio_7", "bio_12",
@@ -201,5 +217,5 @@ proj_pca <- perform_pca(raster_variables = var, exclude_from_pca = "SoilType",
                         out_dir = out_dir, center = TRUE, scale = TRUE)
 
 proj_pca$projection_directory  # Directory with projected PCA-variables
-#> [1] "/tmp/RtmpGMb8Se/PCA_projections"
+#> [1] "/tmp/RtmpgAgbVb/PCA_projections"
 ```

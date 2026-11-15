@@ -764,6 +764,10 @@ that the last three records are fake):
 
 # Evaluate models with independent data
 res_ind <- independent_evaluation(fitted_models = fm, new_data = new_data)
+#> Warning in predict_selected(models = fitted_models, new_variables = new_data[,
+#> : Layer SoilType not found in 'new_variables'.
+#> Warning in predict_selected(models = fitted_models, new_variables = bg_data[, :
+#> Layer SoilType not found in 'new_variables'.
 ```
 
   
@@ -784,10 +788,10 @@ The output is a list with three elements:
 
 res_ind$evaluation
 #>               Model consensus Omission_rate_at_10 Mean_AUC_ratio pval_pROC
-#> 1         Model_192      mean           0.3647059       1.167024         0
-#> 2         Model_192    median           0.3764706       1.175520         0
-#> 3         Model_219      mean           0.3882353       1.144704         0
-#> 4         Model_219    median           0.3764706       1.145789         0
+#> 1         Model_192    median           0.3764706       1.171702         0
+#> 2         Model_192      mean           0.3647059       1.170694         0
+#> 3         Model_219    median           0.3764706       1.143630         0
+#> 4         Model_219      mean           0.3882353       1.146110         0
 #> 5 General_consensus    median           0.3882353       1.163761         0
 #> 6 General_consensus      mean           0.3764706       1.157164         0
 ```
@@ -847,12 +851,12 @@ consensus:
 # Show the continuous predictions for the last 5 independent records
 # Round to two decimal places
 round(res_ind$predictions$continuous[81:85, 1:6], 2)
-#>    Model_192.mean Model_192.median Model_219.mean Model_219.median
-#> 81           0.49             0.48           0.52             0.51
-#> 82           0.44             0.44           0.45             0.42
-#> 83           0.00             0.00           0.00             0.00
-#> 84           0.95             0.96           0.76             0.78
-#> 85           0.00             0.00           0.00             0.00
+#>    Model_192.median Model_192.mean Model_219.median Model_219.mean
+#> 81             0.48           0.49             0.51           0.52
+#> 82             0.44           0.44             0.42           0.45
+#> 83             0.00           0.00             0.00           0.00
+#> 84             0.96           0.95             0.78           0.76
+#> 85             0.00           0.00             0.00           0.00
 #>    General_consensus.median General_consensus.mean
 #> 81                     0.50                   0.50
 #> 82                     0.44                   0.44

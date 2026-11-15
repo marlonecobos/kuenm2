@@ -11,8 +11,9 @@ projection_variability(model_projections, from_replicates = TRUE,
                        from_parameters = TRUE, from_gcms = TRUE,
                        consensus = "median", write_files = FALSE,
                        output_dir = NULL, return_rasters = TRUE,
-                       progress_bar = FALSE, verbose = TRUE,
-                       overwrite = FALSE)
+                       parallel = FALSE, ncores = NULL,
+                       progress_bar = FALSE, progress_type = "timer",
+                       use_lb = FALSE, verbose = TRUE, overwrite = FALSE)
 ```
 
 ## Arguments
@@ -27,44 +28,67 @@ projection_variability(model_projections, from_replicates = TRUE,
 - from_replicates:
 
   (logical) whether to compute the variance originating from replicates.
+  Default is TRUE.
 
 - from_parameters:
 
   (logical) whether to compute the variance originating from model
-  parameterizations.
+  parameterizations. Default is TRUE.
 
 - from_gcms:
 
   (logical) whether to compute the variance originating from general
-  circulation models (GCMs)
+  circulation models (GCMs). Default is TRUE.
 
 - consensus:
 
-  (character) (character) the consensus measure to use for calculating
-  changes. Available options are 'mean', 'median', 'range', and 'stdev'
-  (standard deviation). Default is 'median'.
+  (character) the consensus measure to use for calculating variability
+  across models and GCMs. Available options are `'median'` and `'mean'`.
+  Default is `'median'`.
 
 - write_files:
 
   (logical) whether to write the raster files containing the computed
-  variance to the disk. Default is FALSE.
+  variance to disk. Default is FALSE.
 
 - output_dir:
 
   (character) the directory path where the resulting raster files
-  containing the computed changes will be saved. Only relevant if
-  `write_results = TRUE`.
+  containing the computed variance will be saved. Only relevant if
+  `write_files = TRUE`. Default is NULL.
 
 - return_rasters:
 
   (logical) whether to return a list containing all the SpatRasters with
-  the computed changes. Default is TRUE. Setting this argument to FALSE
-  returns a NULL object.
+  the computed variance. Default is TRUE.
+
+- parallel:
+
+  (logical) whether to compute variability across scenarios in parallel.
+  Default is FALSE.
+
+- ncores:
+
+  (numeric) number of cores to use for parallel processing. Default is
+  NULL and uses available cores - 1. Only applicable if
+  `parallel = TRUE`.
 
 - progress_bar:
 
   (logical) whether to display a progress bar during processing. Default
-  is TRUE.
+  is FALSE.
+
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is `"timer"`.
+
+- use_lb:
+
+  (logical) whether to use load balancing when running in parallel.
+  Default is FALSE.
 
 - verbose:
 
@@ -73,20 +97,17 @@ projection_variability(model_projections, from_replicates = TRUE,
 
 - overwrite:
 
-  whether to overwrite SpatRaster if they already exists. Only
-  applicable if `write_files` is set to TRUE. Default is FALSE.
+  (logical) whether to overwrite SpatRaster files if they already exist.
+  Only applicable if `write_files = TRUE`. Default is FALSE.
 
 ## Value
 
 An object of class `variability_projections`. If
 `return_rasters = TRUE`, the function returns a list containing the
 SpatRasters with the computed variances, categorized by replicate,
-model, and GCMs. If `write_files = TRUE`, it also returns the directory
-path where the computed rasters were saved to disk, and the object can
-then be used to import these files later with the
-[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md)
-function. If both `return_rasters = FALSE` and `write_files = FALSE`,
-the function returns `NULL`
+model, and GCMs, along with `root_directory`. If `write_files = TRUE`,
+the object can be used to import these files later with
+[`import_results()`](https://marlonecobos.github.io/kuenm2/reference/import_results.md).
 
 ## See also
 
@@ -110,7 +131,6 @@ dir.create(out_dir_current, recursive = TRUE)
 ## Save current variables in temporary directory
 terra::writeRaster(var, file.path(out_dir_current, "Variables.tif"))
 
-
 # Step 2: Organize future climate variables (example with WorldClim)
 ## Directory containing the downloaded future climate variables (example)
 in_dir <- system.file("extdata", package = "kuenm2")
@@ -123,27 +143,18 @@ out_dir_future <- file.path(tempdir(), "Future_raw5")
 organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
                           name_format = "bio_", static_variables = var$SoilType)
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpGMb8Se/Future_raw5
+#> /tmp/RtmpgAgbVb/Future_raw5
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
@@ -179,10 +190,8 @@ v <- projection_variability(model_projections = p, from_replicates = FALSE)
 #> Calculating variability from distinct models: scenario 2 of 2
 #> Calculating variability from distinct GCMs: scenario 2 of 2
 
-#terra::plot(v$Present$from_replicates)  # Variance from replicates, present projection
 terra::plot(v$Present$from_parameters)  # From models with distinct parameters
 
-#terra::plot(v$`Future_2041-2060_ssp126`$from_replicates)  # From replicates in future projection
 terra::plot(v$`Future_2041-2060_ssp126`$from_parameters)  # From models
 
 terra::plot(v$`Future_2041-2060_ssp126`$from_gcms)  # From GCMs

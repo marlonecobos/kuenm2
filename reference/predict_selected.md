@@ -1,7 +1,7 @@
 # Predict selected models for a single scenario
 
 This function predicts selected models for a single set of new data
-using either `maxnet` or `glm` It provides options to save the output
+using either `maxnet` or `glm`. It provides options to save the output
 and compute consensus results (mean, median, etc.) across replicates and
 models.
 
@@ -13,7 +13,8 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
                  extrapolation_type = "E", var_to_restrict = NULL,
-                 type = "cloglog", overwrite = FALSE, progress_bar = TRUE)
+                 type = "cloglog", overwrite = FALSE, progress_bar = TRUE,
+                 progress_type = "timer")
 ```
 
 ## Arguments
@@ -44,7 +45,7 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
 
 - write_replicates:
 
-  (logical) whether to save the predictions for each replicates to disk.
+  (logical) whether to save the predictions for each replicate to disk.
   Only applicable if `write_files` is TRUE. Default is FALSE.
 
 - out_dir:
@@ -89,7 +90,7 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
   valid options are `"raw"`, `"cumulative"`, `"logistic"`, and
   `"cloglog"`. For `glm` models, valid options are `"cloglog"`,
   `"response"`, `"raw"`, `"cumulative"` and `"link"`. Default is
-  "cloglog.
+  `"cloglog"`.
 
 - overwrite:
 
@@ -101,10 +102,17 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
   (logical) whether to display a progress bar during processing. Default
   is TRUE.
 
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is "timer".
+
 ## Value
 
 A list containing SpatRaster or data.frames predictions for each
-replicate, long with the consensus results for each model and the
+replicate, along with the consensus results for each model and the
 overall general consensus.
 
 ## Details
@@ -133,12 +141,9 @@ data("fitted_model_maxnet", package = "kuenm2")
 # Predict to single scenario
 p <- predict_selected(models = fitted_model_maxnet, new_variables = var)
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 
 # Example with GLMs
 # Import example of fitted_models (output of fit_selected()) without replicates
@@ -147,10 +152,8 @@ data("fitted_model_glm", package = "kuenm2")
 # Predict to single scenario
 p_glm <- predict_selected(models = fitted_model_glm, new_variables = var)
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 
 # Plot predictions
 terra::plot(c(p$General_consensus$median, p_glm$General_consensus),

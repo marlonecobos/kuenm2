@@ -163,4 +163,6 @@ new_data <- rbind(new_data, fake_data)
 # Evaluate models with independent data
 res_ind <- independent_evaluation(fitted_models = fitted_model_maxnet,
                                   new_data = new_data)
+#> Warning: Layer SoilType not found in 'new_variables'.
+#> Warning: Layer SoilType not found in 'new_variables'.
 ```

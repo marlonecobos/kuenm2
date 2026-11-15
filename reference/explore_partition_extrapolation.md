@@ -14,7 +14,8 @@ explore_partition_extrapolation(data, include_train_background = TRUE,
                                        mop_type = "detailed",
                                        calculate_distance = TRUE,
                                        where_distance = "all",
-                                       progress_bar = FALSE, ...)
+                                       progress_bar = FALSE,
+                                       progress_type = "timer", ...)
 ```
 
 ## Arguments
@@ -47,7 +48,8 @@ explore_partition_extrapolation(data, include_train_background = TRUE,
 - mop_type:
 
   (character) type of MOP analysis to be performed. Options available
-  are "basic", "simple" and "detailed". Default is 'simples'. See
+  are `"basic"`, `"simple"`, and `"detailed"`. Default is `"detailed"`.
+  See
   [`projection_mop`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md)()
   for more details.
 
@@ -59,14 +61,21 @@ explore_partition_extrapolation(data, include_train_background = TRUE,
 - where_distance:
 
   (character) specifies which values in train data should be used to
-  calculate distances. Options are: "in_range" (only conditions within
-  the train range), "out_range" (only conditions outside the train
-  range), and "all" (all conditions). Default is "all".
+  calculate distances. Options are: `"in_range"` (only conditions within
+  the train range), `"out_range"` (only conditions outside the train
+  range), and `"all"` (all conditions). Default is `"all"`.
 
 - progress_bar:
 
   (logical) whether to display a progress bar during processing. Default
   is FALSE.
+
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is `"timer"`.
 
 - ...:
 
@@ -75,26 +84,26 @@ explore_partition_extrapolation(data, include_train_background = TRUE,
 
 ## Value
 
-A `data.frame` containing:
+An object of class `explore_partition` containing:
 
-- MOP distances (if `calculate_distance = TRUE`);
+- `Mop_results`: a `data.frame` with MOP distances (if
+  `calculate_distance = TRUE`), indicators of non-analogous conditions,
+  number and names of variables outside the training range, and novel
+  categories (if categorical variables are present) for each partition;
 
-- an indicator of whether environmental conditions at each test record
-  fall within the training range;
+- `calibration_data`: a `data.frame` with the calibration data ordered
+  by partition;
 
-- the number of variables outside the training range;
+- `categorical_variables`: character vector with categorical variable
+  names (if present);
 
-- the names of variables with values lower or higher than the training
-  range;
-
-- if the `prepared_data` object includes categorical variables, it will
-  also contain columns indicating which values in the testing data were
-  not present in the training data.
+- `pca`: PCA object (if `do_pca = TRUE` was used in
+  [`prepare_data()`](https://marlonecobos.github.io/kuenm2/reference/prepare_data.md)).
 
 ## Examples
 
 ``` r
-#Prepare data
+# Prepare data
 # Import occurrences
 data(occ_data, package = "kuenm2")
 

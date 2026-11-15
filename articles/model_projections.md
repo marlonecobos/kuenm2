@@ -303,10 +303,9 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
                           output_dir = out_dir_future, 
                           name_format = "bio_",  # Name format
                           static_variables = var$SoilType)  # Static variables
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=========                                                             |  12%  |                                                                              |==================                                                    |  25%  |                                                                              |==========================                                            |  38%  |                                                                              |===================================                                   |  50%  |                                                                              |============================================                          |  62%  |                                                                              |====================================================                  |  75%  |                                                                              |=============================================================         |  88%  |                                                                              |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpxrrWmf/Future_raw
+#> /tmp/RtmpkfcOUu/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -446,7 +445,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpxrrWmf
+#> /tmp/RtmpkfcOUu
 ```
 
   
@@ -509,7 +508,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpxrrWmf/Projection_results/maxnet
+#>  /tmp/RtmpkfcOUu/Projection_results/maxnet
 ```
 
   

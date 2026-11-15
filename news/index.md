@@ -11,6 +11,18 @@
   [`select_models()`](https://marlonecobos.github.io/kuenm2/reference/select_models.md),
   and
   [`partition_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/partition_response_curves.md)).
+- Replaced
+  [`utils::txtProgressBar()`](https://rdrr.io/r/utils/txtProgressBar.html)
+  with pbapply across functions
+  ([`predict_selected()`](https://marlonecobos.github.io/kuenm2/reference/predict_selected.md),
+  [`organize_future_worldclim()`](https://marlonecobos.github.io/kuenm2/reference/organize_future_worldclim.md),
+  [`perform_pca()`](https://marlonecobos.github.io/kuenm2/reference/perform_pca.md),
+  [`projection_variability()`](https://marlonecobos.github.io/kuenm2/reference/projection_variability.md),
+  [`projection_mop()`](https://marlonecobos.github.io/kuenm2/reference/projection_mop.md),
+  and
+  [`explore_partition_extrapolation()`](https://marlonecobos.github.io/kuenm2/reference/explore_partition_extrapolation.md)).
+- Improving execution speed and bug handling with large rasters in
+  [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md).
 
 ## kuenm2 0.1.4
 
