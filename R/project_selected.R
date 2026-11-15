@@ -65,7 +65,7 @@
 #'
 #' @export
 #'
-#' @importFrom parallel makeCluster stopCluster detectCores
+#' @importFrom parallel makeCluster stopCluster detectCores clusterCall
 #' @importFrom terra crop wrap unwrap
 #' @importFrom pbapply pboptions pblapply
 #'
@@ -218,8 +218,21 @@ project_selected <- function(models,
       type <- "link"
   }
 
-  #Save parameters in a list to send to nodes#
-  par_list <- list(models = models,
+  # Determine exact variables needed from scenario rasters
+  if (!is.null(models$pca)) {
+    vars_needed <- unique(c(models$pca$vars_in, models$pca$vars_out))
+  } else {
+    vars_needed <- setdiff(names(models[["Models"]][[1]][[1]]$samplemeans),
+                           c("pr_bg", "fold"))
+  }
+
+  # Create lightweight copy of models for workers (drops heavy calibration_data)
+  models_light <- models
+  models_light$calibration_data <- NULL
+
+  # Save parameters in a list to send to nodes
+  par_list <- list(models = models_light,
+                   vars_needed = vars_needed,
                    mask = mask,
                    projection_data = projection_data,
                    consensus_per_model = consensus_per_model,
@@ -231,26 +244,19 @@ project_selected <- function(models,
                    type = type,
                    overwrite = overwrite)
 
-  ####PREPARE DATAFRAME TO PREDICT####
-  #Extract variables from best models
-  vars <- names(models[["Models"]][[1]][[1]]$samplemeans)
-  vars <- setdiff(vars, c("pr_bg", "fold"))
-
-  if (!file.exists(out_dir)) {
-    dir.create(out_dir, showWarnings = FALSE)  # We should show these warnings
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   }
-  #Normalize path
   out_dir <- normalizePath(out_dir)
 
-  #Check scenarios for predicting
+  # Check scenarios for predicting
   res_path <- check_pred_scenarios(projection_data = projection_data,
                                    out_dir = out_dir)
   raster_pattern <- projection_data$raster_pattern
 
-
-  ####Configure parallelization####
+  # Configure parallelization
   n_models <- nrow(res_path)
-  if (n_models == 1 & parallel) {
+  if (n_models == 1L && parallel) {
     parallel <- FALSE
   }
 
@@ -259,7 +265,6 @@ project_selected <- function(models,
     par_list$mask <- terra::wrap(par_list$mask)
   }
 
-  #Run predictions
   # Store and set progress bar options safely for CRAN
   old_pbopt <- pbapply::pboptions(
     type = if (progress_bar) progress_type else "none",
@@ -268,21 +273,23 @@ project_selected <- function(models,
   on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
 
   if (parallel) {
-    # Check number of models
-    if (n_models < ncores) {
-      ncores <- n_models
-    }
-    # Parallelization setup
     if (is.null(ncores)) {
-      ncores <- max(1L, parallel::detectCores() - 1L)
-      # Check if function is running in CRAN...
+      ncores <- max(1L, parallel::detectCores() - 1L, na.rm = TRUE)
       chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
       if (nzchar(chk) && chk == "TRUE") {
         ncores <- min(ncores, 2L)
       }
     }
+    if (n_models < ncores) {
+      ncores <- n_models
+    }
+
     cl <- parallel::makeCluster(ncores)
     on.exit(parallel::stopCluster(cl), add = TRUE)
+
+    # Limit per-worker terra memory fraction to prevent RAM thrashing on large rasters
+    mem_worker <- max(0.1, round(0.6 / ncores, 2))
+    parallel::clusterCall(cl, terra::terraOptions, memfrac = mem_worker)
   } else {
     cl <- NULL
   }

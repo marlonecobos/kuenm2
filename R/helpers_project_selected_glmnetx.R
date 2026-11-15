@@ -1,22 +1,23 @@
 #Predict to several scenarion
 multiple_projections <- function(i, res_path, raster_pattern, par_list) {
-  res_i <- res_path[i,]
+  res_i <- res_path[i, ]
   input_i <- res_i$input_path
   output_i <- res_i$output_path
-  #Import rasters
+
+  # Import rasters and subset only needed variables BEFORE cropping
   r_i <- terra::rast(list.files(input_i, full.names = TRUE,
                                 pattern = raster_pattern))
+  r_i <- r_i[[par_list$vars_needed]]
 
   # Mask?
   if (!is.null(par_list$mask)) {
-    # If in parallel, unwrap mask
     if (inherits(par_list$mask, c("PackedSpatVector", "PackedSpatRaster"))) {
       par_list$mask <- terra::unwrap(par_list$mask)
     }
     r_i <- terra::crop(x = r_i, y = par_list$mask, mask = TRUE)
   }
 
-  #Predict
+  # Predict
   invisible(
     predict_selected(models = par_list$models,
                      new_variables = r_i,
@@ -24,7 +25,7 @@ multiple_projections <- function(i, res_path, raster_pattern, par_list) {
                      out_dir = output_i,
                      consensus_per_model = par_list$consensus_per_model,
                      consensus_general = par_list$consensus_general,
-                     consensus = par_list$consensus,  # weighted mean
+                     consensus = par_list$consensus,
                      extrapolation_type = par_list$extrapolation_type,
                      var_to_restrict = par_list$var_to_restrict,
                      type = par_list$type,
