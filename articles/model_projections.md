@@ -305,7 +305,7 @@ organize_future_worldclim(input_dir = in_dir,  # Path to variables from WorldCli
                           static_variables = var$SoilType)  # Static variables
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/RtmpkfcOUu/Future_raw
+#> /tmp/RtmpFt6DWK/Future_raw
 
 # Check files organized
 dir(out_dir_future, recursive = TRUE)
@@ -445,7 +445,7 @@ pr
 #>   - Scenarios: ssp126 | ssp585 
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All variables are located in the following root directory:
-#> /tmp/RtmpkfcOUu
+#> /tmp/RtmpFt6DWK
 ```
 
   
@@ -508,7 +508,7 @@ print(p)
 #>   - Scenarios:  
 #>   - GCMs: ACCESS-CM2 | MIROC6 
 #> All raster files containing the projection results are located in the following root directory:
-#>  /tmp/RtmpkfcOUu/Projection_results/maxnet
+#>  /tmp/RtmpFt6DWK/Projection_results/maxnet
 ```
 
   

@@ -2,6 +2,19 @@
 
 ## kuenm2 0.1.5 (in development)
 
+- Significantly reduced model calibration runtime through four internal
+  optimizations (with no changes to numerical outputs). (1) Formula
+  grouping: Models sharing the same formula now compute design matrices
+  and regularization penalties only once, reusing them across all
+  regularization multipliers. (2) Direct coefficient extraction:
+  Extracted final-lambda coefficients directly from glmnet objects
+  instead of constructing full 200-lambda sparse matrices.(3)
+  Matrix-based fold predictions: Computed cross-validation predictions
+  via direct matrix multiplication rather than rebuilding feature
+  matrices for each fold.(4) Lightweight fold fitting: Added
+  `only_fit = TRUE` to skip computing auxiliary (and non-essential)
+  model metadata (e.g., variable ranges, sample means, entropy) during
+  cross-validation folds.
 - Replaced doSNOW and foreach with pbapply across all parallelized
   functions
   ([`calibration()`](https://marlonecobos.github.io/kuenm2/reference/calibration.md),

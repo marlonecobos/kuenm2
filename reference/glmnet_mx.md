@@ -7,7 +7,8 @@ designed for presence-background data.
 
 ``` r
 glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
-          addsamplestobackground = TRUE, weights = NULL, ...)
+          addsamplestobackground = TRUE, weights = NULL, only_fit = FALSE,
+          precomp = NULL, ...)
 ```
 
 ## Arguments
@@ -47,6 +48,21 @@ glmnet_mx(p, data, f, regmult = 1.0, regfun = maxnet.default.regularization,
   `NULL`, which sets weights to 1 for presence points and 100 for
   background points.
 
+- only_fit:
+
+  (logical) Whether to skip computing auxiliary metadata (`entropy`,
+  `featuremins`, `featuremaxs`, `varmin`, `varmax`, `samplemeans`,
+  `levels`) that are not required during cross-validation fold
+  evaluation. Default is `FALSE`.
+
+- precomp:
+
+  (list) Optional precomputed design list returned by `prep_design()`,
+  avoiding redundant
+  [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html) and
+  regularization calculations across multiple regularization
+  multipliers. Default is `NULL`.
+
 - ...:
 
   Additional arguments to pass to
@@ -63,5 +79,4 @@ feature mins and maxes, sample means, and entropy.
 This function is modified from the package maxnet and fits a Maxent-like
 model using regularization to avoid over-fitting. Regularization weights
 are computed using a provided function (which can be changed) and can be
-multiplied by a regularization multiplier (`regmult`). The function also
-includes an option to calculate AIC.
+multiplied by a regularization multiplier (`regmult`).
