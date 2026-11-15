@@ -12,7 +12,8 @@
 #'               remove_concave = FALSE, omission_rate = NULL,
 #'               allow_tolerance = TRUE, tolerance = 0.01,
 #'               significance = 0.05, delta_aic = 2, parallel = FALSE,
-#'               ncores = NULL, progress_bar = FALSE,verbose = TRUE)
+#'               ncores = NULL, progress_bar = FALSE, progress_type = "timer",
+#'               use_lb = FALSE, verbose = TRUE)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the [calibration()] function. Default is NULL.
@@ -61,6 +62,11 @@
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer".
+#' @param use_lb (logical) whether to use load balancing when running in
+#' parallel. Default is FALSE.
 #' @param verbose (logical) whether to display messages during processing.
 #' Default is TRUE.
 #'
@@ -112,6 +118,8 @@ select_models <- function(calibration_results = NULL,
                           parallel = FALSE,
                           ncores = NULL,
                           progress_bar = FALSE,
+                          progress_type = "timer",
+                          use_lb = FALSE,
                           verbose = TRUE) {
   #Check data
   if (is.null(calibration_results) & is.null(candidate_models)) {
@@ -184,7 +192,8 @@ select_models <- function(calibration_results = NULL,
     }
 
     any_bad <- TRUE  # To initiate looping
-    id_to_remove <- 0
+    id_to_remove <- integer(0)
+    insig_proc <- integer(0)
 
     while(any_bad) {
       #Remove bad models
@@ -301,16 +310,9 @@ select_models <- function(calibration_results = NULL,
                                    algorithm = algorithm,
                                    parallel = parallel,
                                    ncores = ncores,
-                                   progress_bar = progress_bar)
-
-        # formula_grid = cand_final; data = data;
-        # omission_rate = omission_rate;
-        # addsamplestobackground = addsamplestobackground;
-        # weights = weights;
-        # algorithm = algorithm;
-        # parallel = parallel;
-        # ncores = ncores;
-        # progress_bar = progress_bar
+                                   progress_bar = progress_bar,
+                                   progress_type = progress_type,
+                                   use_lb = use_lb)
 
         # Create a copy of cand_final to keep the original data unchanged
         cand_final_updated <- cand_final
@@ -347,12 +349,11 @@ select_models <- function(calibration_results = NULL,
         }
 
         #Update candidate_models with proc values calculated
-        candidate_models[proc_values$ID, colnames(proc_values[, -ncpr])] <-
+        insig_proc <- c(insig_proc, id_to_remove)
+        idx_cand <- match(proc_values$ID, candidate_models$ID)
+        candidate_models[idx_cand, colnames(proc_values[, -ncpr])] <-
           proc_values[, -ncpr]
         #if there are not non-significant models...
-      } else {
-        #cand_final <- cand_final_updated
-        insig_proc <- NULL
       }
     } #End of anybad
   } #End of calculate proc

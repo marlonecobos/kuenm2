@@ -7,7 +7,8 @@
 #' partial_roc(formula_grid, data, omission_rate = 10,
 #'             addsamplestobackground = TRUE, weights = NULL,
 #'             algorithm = "maxnet", parallel = FALSE, ncores = NULL,
-#'             progress_bar = TRUE)
+#'             progress_bar = TRUE, progress_type = "timer",
+#'             use_lb = FALSE)
 #'
 #' @param formula_grid a data.frame with the grid of formulas defining the
 #' candidate models to test.
@@ -31,18 +32,21 @@
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer".
+#' @param use_lb (logical) whether to use load balancing when running in
+#' parallel. Default is FALSE.
 #'
 #' @return
 #' A data frame with summary statistics of the and AUC ratios and significance
 #' calculated from the replicates of each candidate model. Specifically, it
 #' includes the mean and standard deviation of these metrics for each model.
 #'
-#' @importFrom parallel makeCluster
-#' @importFrom utils setTxtProgressBar txtProgressBar
-#' @importFrom doSNOW registerDoSNOW
-#' @importFrom foreach foreach `%dopar%`
+#' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom enmpa predict_glm
 #' @importFrom fpROC auc_metrics
+#' @importFrom pbapply pboptions pblapply
 #'
 #' @export
 #'
@@ -62,7 +66,8 @@
 partial_roc <- function(formula_grid, data, omission_rate = 10,
                         addsamplestobackground = TRUE, weights = NULL,
                         algorithm = "maxnet", parallel = FALSE, ncores = NULL,
-                        progress_bar = TRUE) {
+                        progress_bar = TRUE, progress_type = "timer",
+                        use_lb = FALSE) {
 
   # error check
   if (missing(formula_grid)) {
@@ -84,56 +89,41 @@ partial_roc <- function(formula_grid, data, omission_rate = 10,
     parallel <- FALSE
   }
 
+  # Store and set progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none",
+    use_lb = use_lb
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
+
   if (parallel) {
+    # Parallelization setup
     if (is.null(ncores)) {
-      ncores <- max(1, parallel::detectCores() - 1)
+      ncores <- max(1L, parallel::detectCores() - 1L)
+      # Check if function is running in CRAN...
+      chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+      if (nzchar(chk) && chk == "TRUE") {
+        ncores <- min(ncores, 2L)
+      }
     }
-    if (ncores > n_tot) {
-      ncores <- n_tot
-    }
-
     cl <- parallel::makeCluster(ncores)
-  }
-
-  #Progress bar setup
-
-  if (progress_bar) {
-    pb <- utils::txtProgressBar(min = 0, max = n_tot, style = 3)
-    progress <- function(n) utils::setTxtProgressBar(pb, n)
-    opts <- list(progress = progress)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
   } else {
-    opts <- NULL
+    cl <- NULL
   }
 
-  # Execute in parallel or sequentially
-  if (parallel) {
-    doSNOW::registerDoSNOW(cl)
+  # Run
+  res_proc <- pbapply::pblapply(
+    X = seq_len(n_tot),
+    FUN = proc,
+    formula_grid = formula_grid,
+    data = data,
+    error_considered = omission_rate,
+    addsamplestobackground = addsamplestobackground,
+    weights = weights,
+    algorithm = algorithm,
+    cl = cl)
 
-    res_proc <- foreach::foreach(
-      x = 1:n_tot, .packages = c("glmnet", "enmpa", "fpROC"),
-      .options.snow = opts) %dopar% {
-        proc(x, formula_grid, data, omission_rate, addsamplestobackground,
-             weights, algorithm)
-      }
-  } else {
-    res_proc <- vector("list", length = n_tot)
-    for (x in 1:n_tot) {
-      res_proc[[x]] <- proc(x = x, formula_grid = formula_grid,
-                            data = data, error_considered = omission_rate,
-                            addsamplestobackground = addsamplestobackground,
-                            weights = weights, algorithm = algorithm)
-
-      # x = x; formula_grid = formula_grid;
-      # data = data; error_considered = omission_rate;
-      # addsamplestobackground = addsamplestobackground;
-      # weights = weights; algorithm = algorithm
-
-      # Sets the progress bar to the current state
-      if (progress_bar) {
-        setTxtProgressBar(pb, x)
-      }
-    }
-  }
   #Bind results
   return(do.call("rbind", res_proc))
 }

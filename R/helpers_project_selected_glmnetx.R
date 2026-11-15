@@ -4,13 +4,13 @@ multiple_projections <- function(i, res_path, raster_pattern, par_list) {
   input_i <- res_i$input_path
   output_i <- res_i$output_path
   #Import rasters
-  r_i <- terra::rast(list.files(input_i, full.names = T,
+  r_i <- terra::rast(list.files(input_i, full.names = TRUE,
                                 pattern = raster_pattern))
 
-  #Mask?
+  # Mask?
   if (!is.null(par_list$mask)) {
-    #If in parallel, unwrap mask
-    if (inherits(par_list$mask, "PackedSpatVector")) {
+    # If in parallel, unwrap mask
+    if (inherits(par_list$mask, c("PackedSpatVector", "PackedSpatRaster"))) {
       par_list$mask <- terra::unwrap(par_list$mask)
     }
     r_i <- terra::crop(x = r_i, y = par_list$mask, mask = TRUE)
@@ -121,7 +121,7 @@ check_pred_scenarios <- function(projection_data, out_dir) {
   sc <- names(projection_data[sapply(projection_data, function(x) !is.null(x))])
 
   #Get raster pattern to read
-  raster_pattern <- projection_data$Raster_pattern
+  raster_pattern <- projection_data$raster_pattern
 
   #Get dataframe with path to predictions
   #Present

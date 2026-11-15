@@ -6,16 +6,6 @@
 #' algorithms `glm` and `maxnet`. The function then selects the best models
 #' based on unimodality (optional), partial ROC, omission rate, and AIC values.
 #'
-#' @usage
-#' calibration(data, error_considered, remove_concave = FALSE,
-#'             proc_for_all = FALSE, omission_rate = NULL, delta_aic = 2,
-#'             allow_tolerance = TRUE, tolerance = 0.01,
-#'             addsamplestobackground = TRUE, use_weights = NULL,
-#'             write_summary = FALSE, output_directory = NULL,
-#'             skip_existing_models = FALSE, return_all_results = TRUE,
-#'             parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-#'             verbose = TRUE)
-#'
 #' @param data an object of class `prepared_data` returned by the
 #' [prepare_data()] function. It contains the calibration data,
 #' formulas grid, kfolds, and model type.
@@ -30,13 +20,6 @@
 #' data. The default, NULL, uses weights provided in `data`. If they are not
 #' present in `data`, NULL weights are 1 for presences and 100 for background.
 #' If turned to FALSE, it uses NULL weights even if present in `data`.
-#' @param parallel (logical) whether to fit the candidate models in parallel.
-#' Default is FALSE.
-#' @param ncores (numeric) number of cores to use for parallel processing.
-#' Default is NULL and uses available cores - 1. This is only applicable if
-#' `parallel = TRUE`.
-#' @param progress_bar (logical) whether to display a progress bar during
-#' processing. Default is TRUE.
 #' @param write_summary (logical) whether to save the evaluation results for
 #' each candidate model to disk. Default is FALSE.
 #' @param output_directory (character) the file name, with or without a path, for saving
@@ -53,7 +36,7 @@
 #' This value is used to calculate omission rates and partial ROC. See details.
 #' @param omission_rate (numeric) values from 0 - 100, the maximum omission rate
 #' a candidate model can have to be considered as a potentially selected model.
-#' The default, NULL, uses the value in `error_considered`. If more that one
+#' The default, NULL, uses the value in `error_considered`. If more than one
 #' value is used in `error_considered`, `omission_rate` must be defined.
 #' @param delta_aic (numeric) the value of delta AIC used as a threshold to
 #' select models. Default is 2.
@@ -65,17 +48,28 @@
 #' exceeds the `omission_rate`. If `allow_tolerance = TRUE`, selected models
 #' will have an omission rate equal to or less than the minimum rate plus this
 #' tolerance. Default is 0.01.
+#' @param parallel (logical) whether to fit the candidate models in parallel.
+#' Default is FALSE.
+#' @param ncores (numeric) number of cores to use for parallel processing.
+#' Default is NULL and uses available cores - 1. This is only applicable if
+#' `parallel = TRUE`.
+#' @param progress_bar (logical) whether to display a progress bar during
+#' processing. Default is TRUE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer".
+#' @param use_lb (logical) whether to use load balancing when running in
+#' parallel. Default is FALSE.
 #' @param verbose (logical) whether to display messages during processing.
 #' Default is TRUE.
 #'
-#' @importFrom parallel makeCluster stopCluster
-#' @importFrom doSNOW registerDoSNOW
-#' @importFrom foreach foreach `%dopar%`
-#' @importFrom utils txtProgressBar setTxtProgressBar read.csv head write.csv
+#' @importFrom parallel makeCluster stopCluster detectCores
+#' @importFrom utils read.csv head write.csv
 #' @importFrom stats aggregate glm as.formula
 #' @importFrom glmnet glmnet.control glmnet
 #' @importFrom enmpa predict_glm
 #' @importFrom fpROC auc_metrics
+#' @importFrom pbapply pboptions pblapply
 #'
 #' @export
 #'
@@ -180,6 +174,8 @@ calibration <- function(data,
                         parallel = FALSE,
                         ncores = NULL,
                         progress_bar = TRUE,
+                        progress_type = "timer",
+                        use_lb = FALSE,
                         verbose = TRUE) {
 
   #Check data
@@ -197,7 +193,7 @@ calibration <- function(data,
   }
   if (!is.null(omission_rate)) {
     if (length(omission_rate) > 1) {
-      stop("Argument 'omission_rate' must be defined of leght 1.")
+      stop("Argument 'omission_rate' must be defined of length 1.")
     }
     if (!omission_rate %in% error_considered) {
       stop("None of the values in 'error_considered' matches 'omission_rate'.")
@@ -261,114 +257,92 @@ calibration <- function(data,
     }
   }
 
-  # Parallelization setup
+  # Store and set progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none",
+    use_lb = use_lb
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
+
+  # Setup parallel cluster once for Tasks 1 and 2
   if (parallel) {
     if (is.null(ncores)) {
-      ncores <- max(1, parallel::detectCores() - 1)
+      ncores <- max(1L, parallel::detectCores() - 1L)
+      # Get 2 cores
+      chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+      if (nzchar(chk) && chk == "TRUE") {
+        ncores <- min(ncores, 2L)
+      }
     }
     cl <- parallel::makeCluster(ncores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+  } else {
+    cl <- NULL
   }
+
+  # Initialize objects for concave results
+  d_concave_rep <- NULL
+  d_concave_sum <- NULL
+  n_tot_concave <- 0
 
   # Task 1: Checking concave curves in quadratic models_________________________
   # ____________________________________________________________________________
-
   if (remove_concave) {
     if (verbose) {
       message("Task 1/2: checking for concave responses in models:")
     }
 
-    #Get maximum reg multipliers (if algorithm is maxnet)
-    if(algorithm == "maxnet"){
-    max_reg <- max(formula_grid$R_multiplier)
-    q_grids <- formula_grid[grepl("q", formula_grid$Features) &
-                              formula_grid$R_multiplier == max_reg, ]
+    # Get maximum reg multipliers (if algorithm is maxnet)
+    if (algorithm == "maxnet") {
+      max_reg <- max(formula_grid$R_multiplier)
+      q_grids <- formula_grid[grepl("q", formula_grid$Features) &
+                                formula_grid$R_multiplier == max_reg, ]
     } else {
       q_grids <- formula_grid[grepl("q", formula_grid$Features), ]
     }
-    #Get total number of models to test
-    n_tot <- nrow(q_grids)
 
-    if (n_tot == 0) {
-      message("None of the models include quadratic terms.")
+    n_tot_concave <- nrow(q_grids)
+
+    if (n_tot_concave == 0) {
+      if (verbose) message("None of the models include quadratic terms.")
     } else {
-      if (progress_bar) {
-        pb <- txtProgressBar(min = 0, max = n_tot, style = 3)
-        progress <- function(n) {
-          setTxtProgressBar(pb, n)
-        }
-        opts <- list(progress = progress)
-      } else {
-        opts <- NULL
-      }
+      results_concave <- pbapply::pblapply(
+        X = seq_len(n_tot_concave),
+        FUN = fit_eval_concave,
+        q_grids = q_grids,
+        data = data,
+        formula_grid = formula_grid,
+        error_considered = error_considered,
+        omission_rate = omission_rate,
+        write_summary = write_summary,
+        addsamplestobackground = addsamplestobackground,
+        weights = weights,
+        return_all_results = return_all_results,
+        algorithm = algorithm,
+        proc_for_all = proc_for_all,
+        out_dir = output_directory,
+        cl = cl
+      )
 
-
-      # Execute fit_eval_concave in parallel or sequentially
-      if (parallel) {
-        doSNOW::registerDoSNOW(cl)
-
-        results_concave <- foreach::foreach(
-          x = 1:n_tot,
-          .packages = c("glmnet", "enmpa"),
-          .options.snow = opts) %dopar% {
-            fit_eval_concave(x = x, q_grids = q_grids, data = data,
-                             formula_grid = formula_grid,
-                             error_considered = error_considered,
-                             omission_rate = omission_rate,
-                             write_summary = write_summary,
-                             addsamplestobackground = addsamplestobackground,
-                             weights = weights,
-                             return_all_results = return_all_results,
-                             algorithm = algorithm,
-                             proc_for_all = proc_for_all,
-                             out_dir = output_directory)
-          }
-      } else {
-        results_concave <- vector("list", length = n_tot)
-        for (x in 1:n_tot) {
-          results_concave[[x]] <-
-            fit_eval_concave(x = x, q_grids = q_grids, data = data,
-                             formula_grid = formula_grid,
-                             error_considered = error_considered,
-                             omission_rate = omission_rate,
-                             write_summary = write_summary,
-                             addsamplestobackground = addsamplestobackground,
-                             weights = weights,
-                             return_all_results = return_all_results,
-                             algorithm = algorithm,
-                             proc_for_all = proc_for_all,
-                             out_dir = output_directory)
-          # Sets the progress bar to the current state
-          if (progress_bar) setTxtProgressBar(pb, x)
-        }
-      }
-    } # End of if (n > 0)
-  } # End of If remove_concave = TRUE
-
-  # Update formula grid after concave test
-  if (!remove_concave) {
-    n_tot <- 0
-  }
-
-  if (remove_concave & n_tot > 0) {
-
-    # Convert results to dataframe
-    d_concave_rep <- do.call("rbind", lapply(results_concave,
-                                             function(x) x$Partition))
-    row.names(d_concave_rep) <- NULL
-    d_concave_sum <- do.call("rbind", lapply(results_concave,
-                                             function(x) x$Summary))
-    formula_grid <- formula_grid[!(formula_grid$ID %in% d_concave_sum$ID), ]
+      # Convert results to dataframe
+      d_concave_rep <- do.call("rbind", lapply(results_concave,
+                                               function(x) x$Partition))
+      row.names(d_concave_rep) <- NULL
+      d_concave_sum <- do.call("rbind", lapply(results_concave,
+                                               function(x) x$Summary))
+      formula_grid <- formula_grid[!(formula_grid$ID %in% d_concave_sum$ID), ]
+    }
   }
 
   # Task 2: Fitting remaining models ___________________________________________
   # ____________________________________________________________________________
-
   n_tot <- nrow(formula_grid)
 
   if (n_tot == 0) {
-    message("All candidate models have been tested in task 1.")
+    if (verbose) message("All candidate models have been tested in task 1.")
+    res_final <- list(All_results = d_concave_rep,
+                      Summary = d_concave_sum)
   } else {
-
     if (verbose) {
       if (remove_concave) {
         message("\n\nTask 2/2: fitting and evaluating models with no concave responses:")
@@ -377,79 +351,32 @@ calibration <- function(data,
       }
     }
 
-    if (progress_bar) {
-      pb <- txtProgressBar(0, n_tot, style = 3)
-      progress <- function(n) {
-        setTxtProgressBar(pb, n)
-      }
-      opts <- list(progress = progress)
-    } else {
-      opts <- NULL
-    }
-
-    if (parallel) {
-      doSNOW::registerDoSNOW(cl)
-
-      results <- foreach(
-        x = 1:n_tot,
-        .packages = c("glmnet", "enmpa"),
-        .options.snow = opts
-      ) %dopar% {
-          fit_eval_models(x = x, formula_grid = formula_grid, data = data,
-                          error_considered = error_considered,
-                          omission_rate = omission_rate,
-                          write_summary = write_summary,
-                          addsamplestobackground = addsamplestobackground,
-                          weights = weights,
-                          return_all_results = return_all_results,
-                          algorithm = algorithm,
-                          proc_for_all = proc_for_all,
-                          out_dir = output_directory)
-        }
-    } else {
-      results <- vector("list", length = n_tot)
-      for (x in 1:n_tot) {
-        results[[x]] <-
-          fit_eval_models(x = x, formula_grid = formula_grid, data = data,
-                          error_considered = error_considered,
-                          omission_rate = omission_rate,
-                          write_summary = write_summary,
-                          addsamplestobackground =  addsamplestobackground,
-                          weights = weights,
-                          return_all_results = return_all_results,
-                          algorithm = algorithm,
-                          proc_for_all = proc_for_all,
-                          out_dir = output_directory)
-
-        if (progress_bar) {
-          setTxtProgressBar(pb, x)
-        }
-      }
-    }
-
-    # Stop cluster
-    if (parallel) {
-      parallel::stopCluster(cl)
-    }
+    results <- pbapply::pblapply(
+      X = seq_len(n_tot),
+      FUN = fit_eval_models,
+      formula_grid = formula_grid,
+      data = data,
+      error_considered = error_considered,
+      omission_rate = omission_rate,
+      write_summary = write_summary,
+      addsamplestobackground = addsamplestobackground,
+      weights = weights,
+      return_all_results = return_all_results,
+      algorithm = algorithm,
+      proc_for_all = proc_for_all,
+      out_dir = output_directory,
+      cl = cl
+    )
 
     d_res_rep <- do.call("rbind", lapply(results, function(x) x$All_results))
     row.names(d_res_rep) <- NULL
     d_res_sum <- do.call("rbind", lapply(results, function(x) x$Summary))
 
     # Join results with results concave, if it exists
-    if (remove_concave) {
-      replicates_final <- rbind(d_concave_rep, d_res_rep)
-      summary_final <- rbind(d_concave_sum, d_res_sum)
-      res_final <- list(All_results = replicates_final,
-                        Summary = summary_final)
-    } else {
-      res_final <- list(All_results =  d_res_rep, Summary = d_res_sum)
-    }
-  } # End of if (n == 0)
-
-  if (n_tot == 0) {
-    res_final <- list(All_results = d_concave_rep,
-                      Summary = d_concave_sum)
+    replicates_final <- rbind(d_concave_rep, d_res_rep)
+    summary_final <- rbind(d_concave_sum, d_res_sum)
+    res_final <- list(All_results = replicates_final,
+                      Summary = summary_final)
   }
 
   # Select the best models
@@ -472,25 +399,10 @@ calibration <- function(data,
                       parallel = parallel,
                       ncores = ncores,
                       progress_bar = progress_bar,
+                      progress_type = progress_type,
+                      use_lb = use_lb,
                       verbose = verbose)
 
-  # candidate_models = res_final$Summary;
-  # data = data;
-  # algorithm = algorithm;
-  # compute_proc = !proc_for_all;
-  # addsamplestobackground = addsamplestobackground;
-  # weights = weights;
-  # remove_concave = remove_concave;
-  # omission_rate = omission_rate;
-  # allow_tolerance = allow_tolerance;
-  # tolerance = tolerance;
-  # significance = 0.05;
-  # delta_aic = delta_aic;
-  # parallel = parallel;
-  # ncores = ncores;
-  # progress_bar = progress_bar;
-  # verbose = verbose
-  # calibration_results = NULL
 
   # Concatenate final results
   fm <- new_calibration_results(

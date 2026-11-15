@@ -3,7 +3,8 @@
 #' @usage
 #' variable_importance(models, modelID = NULL, by_terms = FALSE,
 #'                     parallel = FALSE, ncores = NULL,
-#'                     progress_bar = TRUE, verbose = TRUE)
+#'                     progress_bar = TRUE, progress_type = "timer",
+#'                     use_lb = FALSE, verbose = TRUE)
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
@@ -18,6 +19,11 @@
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during processing.
 #' Default is TRUE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer".
+#' @param use_lb (logical) whether to use load balancing when running in
+#' parallel. Default is FALSE.
 #' @param verbose (logical) whether to display detailed messages during processing.
 #' Default is TRUE.
 #'
@@ -29,10 +35,8 @@
 #' @export
 #'
 #' @importFrom stats update as.formula deviance coef glm
-#' @importFrom parallel makeCluster stopCluster
-#' @importFrom doSNOW registerDoSNOW
-#' @importFrom utils txtProgressBar setTxtProgressBar
-#' @importFrom foreach foreach `%dopar%`
+#' @importFrom parallel makeCluster stopCluster detectCores
+#' @importFrom pbapply pboptions pbsapply
 #'
 #' @seealso
 #' [plot_importance()]
@@ -63,6 +67,8 @@ variable_importance <- function(models, modelID = NULL,
                                 parallel = FALSE,
                                 ncores = NULL,
                                 progress_bar = TRUE,
+                                progress_type = "timer",
+                                use_lb = FALSE,
                                 verbose = TRUE) {
   # initial tests
   if (missing(models)) {
@@ -76,12 +82,6 @@ variable_importance <- function(models, modelID = NULL,
         paste(names(models[["Models"]]), collapse = ", ")),
         "]"
       )
-    }
-  }
-
-  if (parallel) {
-    if (is.null(ncores)) {
-      ncores <- max(1, parallel::detectCores() - 1)
     }
   }
 
@@ -101,13 +101,15 @@ variable_importance <- function(models, modelID = NULL,
         model = list_models[[y]][["Full_model"]],
         p = data$pr_bg,
         data = data,
-        f = model_info[model_info$ID == gsub("Model_", "", models[y]), "Formulas"],
+        form = model_info[model_info$ID == gsub("Model_", "", models[y]), "Formulas"],
         rm = model_info[model_info$ID == gsub("Model_", "", models[y]), "R_multiplier"],
         algorithm = algorithm,
         by_terms = by_terms,
         parallel = parallel,
         ncores = ncores,
         progress_bar = progress_bar,
+        progress_type = progress_type,
+        use_lb = use_lb,
         verbose = verbose
       )
     })
@@ -121,13 +123,15 @@ variable_importance <- function(models, modelID = NULL,
       model = list_models[[modelID]][["Full_model"]],
       p = data$pr_bg,
       data = data,
-      f = model_info[model_info$ID == gsub("Model_", "", modelID), "Formulas"],
+      form = model_info[model_info$ID == gsub("Model_", "", modelID), "Formulas"],
       rm = model_info[model_info$ID == gsub("Model_", "", modelID), "R_multiplier"],
       algorithm = algorithm,
       by_terms = by_terms,
       parallel = parallel,
       ncores = ncores,
       progress_bar = progress_bar,
+      progress_type = progress_type,
+      use_lb = use_lb,
       verbose = verbose
     )
   }
@@ -141,11 +145,13 @@ variable_importance <- function(models, modelID = NULL,
 #
 
 # get variable contribution for an individual model
-var_importance_indmx <- function(model, p, data, f, rm, algorithm,
+var_importance_indmx <- function(model, p, data, form, rm, algorithm,
                                  by_terms,
                                  parallel,
                                  ncores,
                                  progress_bar,
+                                 progress_type = "timer",
+                                 use_lb = FALSE,
                                  verbose) {
 
   # initial tests
@@ -193,59 +199,49 @@ var_importance_indmx <- function(model, p, data, f, rm, algorithm,
 
   n_items <- length(items_to_eval)
 
-  # Progress bar setup
-  if (progress_bar) {
-    pb <- utils::txtProgressBar(0, n_items, style = 3)
-    progress <- function(n) utils::setTxtProgressBar(pb, n)
+  if (n_items == 1 && parallel) {
+    parallel <- FALSE}
+
+  # Store and set progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none",
+    use_lb = use_lb
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
+
+  if (parallel) {
+    # Parallelization setup
+    if (is.null(ncores)) {
+      ncores <- max(1L, parallel::detectCores() - 1L)
+      # Check if function is running in CRAN...
+      chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+      if (nzchar(chk) && chk == "TRUE") {
+        ncores <- min(ncores, 2L)
+      }
+    }
+    cl <- parallel::makeCluster(ncores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+  } else {
+    cl <- NULL
   }
 
-  # Parallelization
-  if (n_items == 1 && parallel) {
-    parallel <- FALSE
-  }
 
   # Fit the reduced models (either in parallel or sequentially)
-  if (parallel) {
-    if (n_items < ncores) {
-      ncores <- n_items
-    }
-
-    cl <- parallel::makeCluster(ncores)
-    doSNOW::registerDoSNOW(cl)
-
-    opts <- if (progress_bar) {
-      list(progress = progress)
-    } else {
-      NULL
-    }
-
-    dev_reduction <- foreach::foreach(x = seq_along(items_to_eval),
-                                      .options.snow = opts,
-                                      .combine = 'c'
-    ) %dopar% {
-      # Pass all terms for this variable/term to get_red_devmx
-      dev_full - get_red_devmx(items_to_eval[[x]], p, data, f, rm, algorithm)
-    }
-  } else {
-    dev_reduction <- c()
-    for (x in seq_along(items_to_eval)) {
-      # Pass all terms for this variable/term to get_red_devmx
-      dev_reduction[x] <- dev_full - get_red_devmx(items_to_eval[[x]], p, data,
-                                                   f, rm, algorithm)
-      if (progress_bar) utils::setTxtProgressBar(pb, x)
-    }
-  }
+  dev_reduction <- pbapply::pbsapply(
+    X = items_to_eval,
+    FUN = function(item, dev_full, p, data, form, rm, algorithm) {
+      dev_full - get_red_devmx(item, p, data, form, rm, algorithm)
+    },
+    dev_full = dev_full,
+    p = p,
+    data = data,
+    form = form,
+    rm = rm,
+    algorithm = algorithm,
+    cl = cl
+  )
   names(dev_reduction) <- names(items_to_eval)
 
-  # Stop the cluster
-  if (parallel) {
-    parallel::stopCluster(cl)
-  }
-
-  # Close progress bar
-  if (progress_bar && !parallel) {
-    close(pb)
-  }
 
   deviance_importance <- dev_reduction / sum(dev_reduction)
 

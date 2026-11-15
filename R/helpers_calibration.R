@@ -670,14 +670,7 @@ fit_eval_models <- function(x, formula_grid, data, error_considered, omission_ra
                                paste0("pval_pROC_at_", omr))
           return(proc_omr)
         })
-        # proc_i <- lapply(omission_rate, function(omr) {
-        #   proc_omr <- enmpa::proc_enm(test_prediction = suit_val_eval,
-        #                               prediction = pred_i,
-        #                               threshold = omr)$pROC_summary
-        #   names(proc_omr) <- c(paste0("Mean_AUC_ratio_at_", omr),
-        #                        paste0("pval_pROC_at_", omr))
-        #   return(proc_omr)
-        # })
+
         proc_i <- unlist(proc_i)} else {
           #Or fill PROC with NA
           proc_i <- rep(NA, length(error_considered) * 2)

@@ -10,7 +10,8 @@ select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
               remove_concave = FALSE, omission_rate = NULL,
               allow_tolerance = TRUE, tolerance = 0.01,
               significance = 0.05, delta_aic = 2, parallel = FALSE,
-              ncores = NULL, progress_bar = FALSE,verbose = TRUE)
+              ncores = NULL, progress_bar = FALSE, progress_type = "timer",
+              use_lb = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
@@ -75,6 +76,13 @@ Default is NULL and uses available cores - 1. This is only applicable if
 
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is TRUE.}
+
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is "timer".}
+
+\item{use_lb}{(logical) whether to use load balancing when running in
+parallel. Default is FALSE.}
 
 \item{verbose}{(logical) whether to display messages during processing.
 Default is TRUE.}

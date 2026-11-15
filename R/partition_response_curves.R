@@ -8,7 +8,9 @@
 #' partition_response_curves(calibration_results, modelID, n = 100,
 #'                           averages_from = "pr_bg", col = "darkblue",
 #'                           ylim = NULL, las = 1, parallel = FALSE,
-#'                           ncores = NULL, ...)
+#'                           ncores = NULL, progress_bar = FALSE,
+#'                           progress_type = "timer",
+#'                           use_lb = FALSE, ...)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the [calibration()] function.
@@ -29,12 +31,18 @@
 #' @param ncores (numeric) number of cores to use for parallel processing.
 #' Default is NULL and uses available cores - 1. This is only applicable if
 #' `parallel = TRUE`.
+#' @param progress_bar (logical) whether to display a progress bar during processing.
+#' Default is FALSE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer". Only applicable if `progress_bar` is `TRUE`.
+#' @param use_lb (logical) whether to use load balancing when running in
+#' parallel. Default is FALSE.
 #' @param ... additional arguments passed to \code{\link[graphics]{plot}}.
 #'
 #' @importFrom graphics par points plot.new title
 #' @importFrom parallel detectCores makeCluster stopCluster
-#' @importFrom doSNOW registerDoSNOW
-#' @importFrom foreach foreach
+#' @importFrom pbapply pboptions pblapply
 #'
 #' @details
 #' Response curves are generated using training portions of the data and points
@@ -81,6 +89,9 @@ partition_response_curves <- function(calibration_results,
                                       las = 1,
                                       parallel = FALSE,
                                       ncores = NULL,
+                                      progress_bar = FALSE,
+                                      progress_type = "timer",
+                                      use_lb = FALSE,
                                       ...) {
 
   if (missing(calibration_results)) {
@@ -109,42 +120,39 @@ partition_response_curves <- function(calibration_results,
     parallel <- FALSE
   }
 
-  # set up parallel processing
+  # Store and set progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none",
+    use_lb = use_lb
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
+
   if (parallel) {
+    # Parallelization setup
     if (is.null(ncores)) {
-      ncores <- max(1, parallel::detectCores() - 1)
+      ncores <- max(1L, parallel::detectCores() - 1L)
+      # Check if function is running in CRAN...
+      chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+      if (nzchar(chk) && chk == "TRUE") {
+        ncores <- min(ncores, 2L)
+      }
     }
-    if (n_tot < ncores) {
-      ncores <- n_tot
-    }
-
     cl <- parallel::makeCluster(ncores)
-    doSNOW::registerDoSNOW(cl)
-  }
-
-  # fit selected models
-  if (parallel) {
-    best_models <- foreach::foreach(x = 1:n_tot,
-                                    .packages = c("glmnet", "enmpa")
-    ) %dopar% {
-      fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
-                     n_replicates = tparts,
-                     rep_data = calibration_results$part_data,
-                     algorithm = algorithm)
-    }
+    on.exit(parallel::stopCluster(cl), add = TRUE)
   } else {
-    best_models <- vector("list", length = n_tot)
-    for (x in 1:n_tot) {
-      best_models[[x]] <- fit_best_model(
-        x = x, dfgrid = dfgrid, cal_res = calibration_results,
-        n_replicates = tparts, rep_data = calibration_results$part_data,
-        algorithm = algorithm
-      )
-    }
+    cl <- NULL
   }
 
-  # Stop the cluster
-  if (parallel) parallel::stopCluster(cl)
+  # Fit models
+  best_models <- pbapply::pblapply(
+    X = seq_len(n_tot),
+    FUN = fit_best_model,
+    dfgrid = dfgrid,
+    cal_res = calibration_results,
+    n_replicates = tparts,
+    rep_data = calibration_results$part_data,
+    algorithm = algorithm,
+    cl = cl)
 
   # get all variables to plot
   ## patterns to remove

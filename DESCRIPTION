@@ -33,19 +33,18 @@ Description: A new set of tools to help with the development of detailed ecologi
     Arias-Giraldo and Cobos (2024) <doi:10.17161/bi.v18i.21742>,
     Cobos et al. (2024) <doi:10.17161/bi.v18i.21742>.
 Imports:
-    doSNOW, 
-    enmpa (>= 0.2.1),
-    foreach (>= 1.5),
+    enmpa (>= 0.2.6),
     fpROC (>= 0.1.0),
     glmnet (>= 4.1),
     grDevices,
     graphics,
     mgcv (>= 1.9),
-    mop (>= 0.1.3),
+    mop (>= 0.1.5),
     parallel,
     stats,
     terra (>= 1.6),
-    utils
+    utils,
+    pbapply
 SystemRequirements: GDAL (>= 2.2.3), GEOS (>= 3.4.0), PROJ (>= 4.9.3)
 Depends: 
     R (>= 3.5)

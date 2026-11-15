@@ -7,7 +7,8 @@
 partial_roc(formula_grid, data, omission_rate = 10,
             addsamplestobackground = TRUE, weights = NULL,
             algorithm = "maxnet", parallel = FALSE, ncores = NULL,
-            progress_bar = TRUE)
+            progress_bar = TRUE, progress_type = "timer",
+            use_lb = FALSE)
 }
 \arguments{
 \item{formula_grid}{a data.frame with the grid of formulas defining the
@@ -40,6 +41,13 @@ Default is NULL and uses available cores - 1. This is only applicable if
 
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is TRUE.}
+
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is "timer".}
+
+\item{use_lb}{(logical) whether to use load balancing when running in
+parallel. Default is FALSE.}
 }
 \value{
 A data frame with summary statistics of the and AUC ratios and significance

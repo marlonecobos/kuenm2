@@ -14,7 +14,8 @@
 #'                  write_replicates = FALSE, extrapolation_type = "E",
 #'                  var_to_restrict = NULL, type = NULL, overwrite = FALSE,
 #'                  parallel = FALSE, ncores = NULL,
-#'                  progress_bar = TRUE, verbose = TRUE)
+#'                  progress_bar = TRUE, progress_type = "timer",
+#'                  use_lb = FALSE, verbose = TRUE)
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' [fit_selected()] function.
@@ -54,15 +55,19 @@
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer".
+#' @param use_lb (logical) whether to use load balancing when running in
+#' parallel. Default is FALSE.
 #' @param verbose (logical) whether to display messages during processing.
 #' Default is TRUE.
 #'
 #' @export
 #'
-#' @importFrom parallel makeCluster stopCluster
-#' @importFrom doSNOW registerDoSNOW
-#' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom terra crop wrap unwrap
+#' @importFrom pbapply pboptions pblapply
 #'
 #' @return
 #' A `model_projections` object that provides the paths to the raster
@@ -136,6 +141,8 @@ project_selected <- function(models,
                              parallel = FALSE,
                              ncores = NULL,
                              progress_bar = TRUE,
+                             progress_type = "timer",
+                             use_lb = FALSE,
                              verbose = TRUE) {
   #Check data
   if (missing(models)) {
@@ -211,7 +218,7 @@ project_selected <- function(models,
       type <- "link"
   }
 
-  #Save parameters in a list to send to foreach nodes#
+  #Save parameters in a list to send to nodes#
   par_list <- list(models = models,
                    mask = mask,
                    projection_data = projection_data,
@@ -243,68 +250,52 @@ project_selected <- function(models,
 
   ####Configure parallelization####
   n_models <- nrow(res_path)
-  if (n_models == 1 & isTRUE(parallel)) {
+  if (n_models == 1 & parallel) {
     parallel <- FALSE
   }
 
-  #Show progress bar?
-  if (progress_bar) {
-    pb <- utils::txtProgressBar(0, n_models, style = 3)
-    progress <- function(n) utils::setTxtProgressBar(pb, n)
-  }
-
-
-  ###################################
-
-  #If parallel and mask, wrap variables
-  if (!is.null(mask) & parallel) {
+  # If parallel and mask is SpatVector or SpatRaster, wrap it
+  if (!is.null(mask) && parallel && inherits(mask, c("SpatVector", "SpatRaster"))) {
     par_list$mask <- terra::wrap(par_list$mask)
   }
 
   #Run predictions
+  # Store and set progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none",
+    use_lb = use_lb
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
+
   if (parallel) {
-    if (is.null(ncores)) {
-      ncores <- max(1, parallel::detectCores() - 1)
-    }
+    # Check number of models
     if (n_models < ncores) {
       ncores <- n_models
     }
-
-    #Make cluster
-    cl <- parallel::makeCluster(ncores)
-
-    doSNOW::registerDoSNOW(cl)
-    if (progress_bar) {
-      opts <- list(progress = progress)
-    } else {
-      opts <- NULL
-    }
-
-    foreach(
-      x = 1:n_models, .options.snow = opts,
-      .export = c("predict_selected", "multiple_projections")
-    ) %dopar% {
-      multiple_projections(i = x, res_path, raster_pattern, par_list)
-    }
-  } else { #Not in parallel (using %do%)
-    # Loop for com barra de progresso manual
-    for (x in 1:n_models) {
-      # Execute a função fit_eval_models
-      multiple_projections(i = x, res_path = res_path,
-                           raster_pattern = raster_pattern,
-                           par_list = par_list)
-
-      # Sets the progress bar to the current state
-      if (progress_bar) {
-        utils::setTxtProgressBar(pb, x)
+    # Parallelization setup
+    if (is.null(ncores)) {
+      ncores <- max(1L, parallel::detectCores() - 1L)
+      # Check if function is running in CRAN...
+      chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+      if (nzchar(chk) && chk == "TRUE") {
+        ncores <- min(ncores, 2L)
       }
     }
+    cl <- parallel::makeCluster(ncores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+  } else {
+    cl <- NULL
   }
 
-  #Stop cluster
-  if (parallel) {
-    parallel::stopCluster(cl)
-  }
+  # Run
+  pbapply::pblapply(
+    X = seq_len(n_models),
+    FUN = multiple_projections,
+    res_path = res_path,
+    raster_pattern = raster_pattern,
+    par_list = par_list,
+    cl = cl
+  )
 
   #Append threshold to final results
   res_final <- new_model_projections(paths = res_path,
