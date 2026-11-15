@@ -10,7 +10,8 @@ fit_selected(calibration_results, replicate_method = "kfolds",
              n_replicates = 1, sample_proportion = 0.7, type = "cloglog",
              write_models = FALSE,
              file_name = NULL, parallel = FALSE, ncores = NULL,
-             progress_bar = TRUE, verbose = TRUE, seed = 1)
+             progress_bar = TRUE, progress_type = "timer",
+             use_lb = FALSE, verbose = TRUE, seed = 1)
 ```
 
 ## Arguments
@@ -73,6 +74,18 @@ fit_selected(calibration_results, replicate_method = "kfolds",
 
   (logical) whether to display a progress bar during processing. Default
   is TRUE.
+
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is "timer".
+
+- use_lb:
+
+  (logical) whether to use load balancing when running in parallel.
+  Default is FALSE.
 
 - verbose:
 
@@ -152,33 +165,21 @@ fm <- fit_selected(calibration_results = calib_results_maxnet,
                    n_replicates = 4)
 #> Fitting replicates...
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> Fitting full models...
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 
 # Output the fitted models
 fm
@@ -198,25 +199,17 @@ fm_glm <- fit_selected(calibration_results = calib_results_glm,
                        n_replicates = 5)
 #> Fitting replicates...
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |==============                                                        |  20%
-  |                                                                            
-  |============================                                          |  40%
-  |                                                                            
-  |==========================================                            |  60%
-  |                                                                            
-  |========================================================              |  80%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |++++++++++                                        | 20% ~00s          
+  |++++++++++++++++++++                              | 40% ~00s          
+  |++++++++++++++++++++++++++++++                    | 60% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++          | 80% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> Fitting full models...
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 
 # Output the fitted models
 fm_glm

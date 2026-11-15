@@ -46,7 +46,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Fit models selected after calibration</h1>
-      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/v0.1.4/R/fit_selected.R" class="external-link"><code>R/fit_selected.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/R/fit_selected.R" class="external-link"><code>R/fit_selected.R</code></a></small>
       <div class="d-none name"><code>fit_selected.Rd</code></div>
     </div>
 
@@ -60,7 +60,8 @@
 <span>             n_replicates <span class="op">=</span> <span class="fl">1</span>, sample_proportion <span class="op">=</span> <span class="fl">0.7</span>, type <span class="op">=</span> <span class="st">"cloglog"</span>,</span>
 <span>             write_models <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>             file_name <span class="op">=</span> <span class="cn">NULL</span>, parallel <span class="op">=</span> <span class="cn">FALSE</span>, ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>             progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span>             progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, progress_type <span class="op">=</span> <span class="st">"timer"</span>,</span>
+<span>             use_lb <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -122,6 +123,17 @@ Default is NULL and uses available cores - 1. This is only applicable if
 <dt id="arg-progress-bar">progress_bar<a class="anchor" aria-label="anchor" href="#arg-progress-bar"></a></dt>
 <dd><p>(logical) whether to display a progress bar during processing.
 Default is TRUE.</p></dd>
+
+
+<dt id="arg-progress-type">progress_type<a class="anchor" aria-label="anchor" href="#arg-progress-type"></a></dt>
+<dd><p>(character) type of the progress bar. See
+<code><a href="https://peter.solymos.org/pbapply/reference/pboptions.html" class="external-link">pbapply::pbtypes()</a></code> for available progress bar types depending on operating
+system. Default is "timer".</p></dd>
+
+
+<dt id="arg-use-lb">use_lb<a class="anchor" aria-label="anchor" href="#arg-use-lb"></a></dt>
+<dd><p>(logical) whether to use load balancing when running in
+parallel. Default is FALSE.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -191,33 +203,21 @@ calibration to select models.</p>
 <span class="r-in"><span>                   n_replicates <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting replicates...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=========                                                             |  12%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |==========================                                            |  38%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |============================================                          |  62%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |=============================================================         |  88%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++                                           | 12% ~00s          
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++                               | 38% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 62% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 88% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting full models...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Output the fitted models</span></span></span>
 <span class="r-in"><span><span class="va">fm</span></span></span>
@@ -237,25 +237,17 @@ calibration to select models.</p>
 <span class="r-in"><span>                       n_replicates <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting replicates...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |==============                                                        |  20%
-  |                                                                            
-  |============================                                          |  40%
-  |                                                                            
-  |==========================================                            |  60%
-  |                                                                            
-  |========================================================              |  80%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |++++++++++                                        | 20% ~00s          
+  |++++++++++++++++++++                              | 40% ~00s          
+  |++++++++++++++++++++++++++++++                    | 60% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++          | 80% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Fitting full models...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Output the fitted models</span></span></span>
 <span class="r-in"><span><span class="va">fm_glm</span></span></span>

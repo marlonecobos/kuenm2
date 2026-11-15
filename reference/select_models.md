@@ -13,7 +13,8 @@ select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
               remove_concave = FALSE, omission_rate = NULL,
               allow_tolerance = TRUE, tolerance = 0.01,
               significance = 0.05, delta_aic = 2, parallel = FALSE,
-              ncores = NULL, progress_bar = FALSE,verbose = TRUE)
+              ncores = NULL, progress_bar = FALSE, progress_type = "timer",
+              use_lb = FALSE, verbose = TRUE)
 ```
 
 ## Arguments
@@ -116,6 +117,18 @@ select_models(calibration_results = NULL, candidate_models = NULL, data = NULL,
 
   (logical) whether to display a progress bar during processing. Default
   is TRUE.
+
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is "timer".
+
+- use_lb:
+
+  (logical) whether to use load balancing when running in parallel.
+  Default is FALSE.
 
 - verbose:
 

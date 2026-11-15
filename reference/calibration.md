@@ -10,14 +10,28 @@ omission rate, and AIC values.
 ## Usage
 
 ``` r
-calibration(data, error_considered, remove_concave = FALSE,
-            proc_for_all = FALSE, omission_rate = NULL, delta_aic = 2,
-            allow_tolerance = TRUE, tolerance = 0.01,
-            addsamplestobackground = TRUE, use_weights = NULL,
-            write_summary = FALSE, output_directory = NULL,
-            skip_existing_models = FALSE, return_all_results = TRUE,
-            parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-            verbose = TRUE)
+calibration(
+  data,
+  error_considered,
+  remove_concave = FALSE,
+  proc_for_all = FALSE,
+  omission_rate = NULL,
+  delta_aic = 2,
+  allow_tolerance = TRUE,
+  tolerance = 0.01,
+  addsamplestobackground = TRUE,
+  use_weights = NULL,
+  write_summary = FALSE,
+  output_directory = NULL,
+  skip_existing_models = FALSE,
+  return_all_results = TRUE,
+  parallel = FALSE,
+  ncores = NULL,
+  progress_bar = TRUE,
+  progress_type = "timer",
+  use_lb = FALSE,
+  verbose = TRUE
+)
 ```
 
 ## Arguments
@@ -51,7 +65,7 @@ calibration(data, error_considered, remove_concave = FALSE,
 
   (numeric) values from 0 - 100, the maximum omission rate a candidate
   model can have to be considered as a potentially selected model. The
-  default, NULL, uses the value in `error_considered`. If more that one
+  default, NULL, uses the value in `error_considered`. If more than one
   value is used in `error_considered`, `omission_rate` must be defined.
 
 - delta_aic:
@@ -124,6 +138,18 @@ calibration(data, error_considered, remove_concave = FALSE,
 
   (logical) whether to display a progress bar during processing. Default
   is TRUE.
+
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is "timer".
+
+- use_lb:
+
+  (logical) whether to use load balancing when running in parallel.
+  Default is FALSE.
 
 - verbose:
 
@@ -226,52 +252,29 @@ sp_swd <- prepare_data(algorithm = "maxnet", occ = occ_data,
 m <- calibration(data = sp_swd, error_considered = 10)
 #> Task 1/1: fitting and evaluating models:
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===                                                                   |   5%
-  |                                                                            
-  |======                                                                |   9%
-  |                                                                            
-  |==========                                                            |  14%
-  |                                                                            
-  |=============                                                         |  18%
-  |                                                                            
-  |================                                                      |  23%
-  |                                                                            
-  |===================                                                   |  27%
-  |                                                                            
-  |======================                                                |  32%
-  |                                                                            
-  |=========================                                             |  36%
-  |                                                                            
-  |=============================                                         |  41%
-  |                                                                            
-  |================================                                      |  45%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================                                |  55%
-  |                                                                            
-  |=========================================                             |  59%
-  |                                                                            
-  |=============================================                         |  64%
-  |                                                                            
-  |================================================                      |  68%
-  |                                                                            
-  |===================================================                   |  73%
-  |                                                                            
-  |======================================================                |  77%
-  |                                                                            
-  |=========================================================             |  82%
-  |                                                                            
-  |============================================================          |  86%
-  |                                                                            
-  |================================================================      |  91%
-  |                                                                            
-  |===================================================================   |  95%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++                                               | 5 % ~01s          
+  |+++++                                             | 9 % ~00s          
+  |+++++++                                           | 14% ~00s          
+  |++++++++++                                        | 18% ~00s          
+  |++++++++++++                                      | 23% ~00s          
+  |++++++++++++++                                    | 27% ~00s          
+  |++++++++++++++++                                  | 32% ~00s          
+  |+++++++++++++++++++                               | 36% ~00s          
+  |+++++++++++++++++++++                             | 41% ~00s          
+  |+++++++++++++++++++++++                           | 45% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++                      | 55% ~00s          
+  |++++++++++++++++++++++++++++++                    | 59% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 64% ~00s          
+  |+++++++++++++++++++++++++++++++++++               | 68% ~00s          
+  |+++++++++++++++++++++++++++++++++++++             | 73% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++           | 77% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++++         | 82% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 86% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++    | 91% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++  | 95% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  
 #> 
 #> 
 #> Model selection step:
@@ -284,10 +287,8 @@ m <- calibration(data = sp_swd, error_considered = 10)
 #> Selecting 1 final model(s) with delta AIC <2.
 #> Validating pROC of selected models...
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> All selected models have significant pROC values.
 m
@@ -319,52 +320,29 @@ sp_swd_glm <- prepare_data(algorithm = "glm", occ = occ_data,
 m_glm <- calibration(data = sp_swd_glm, error_considered = 10)
 #> Task 1/1: fitting and evaluating models:
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===                                                                   |   5%
-  |                                                                            
-  |======                                                                |   9%
-  |                                                                            
-  |==========                                                            |  14%
-  |                                                                            
-  |=============                                                         |  18%
-  |                                                                            
-  |================                                                      |  23%
-  |                                                                            
-  |===================                                                   |  27%
-  |                                                                            
-  |======================                                                |  32%
-  |                                                                            
-  |=========================                                             |  36%
-  |                                                                            
-  |=============================                                         |  41%
-  |                                                                            
-  |================================                                      |  45%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================                                |  55%
-  |                                                                            
-  |=========================================                             |  59%
-  |                                                                            
-  |=============================================                         |  64%
-  |                                                                            
-  |================================================                      |  68%
-  |                                                                            
-  |===================================================                   |  73%
-  |                                                                            
-  |======================================================                |  77%
-  |                                                                            
-  |=========================================================             |  82%
-  |                                                                            
-  |============================================================          |  86%
-  |                                                                            
-  |================================================================      |  91%
-  |                                                                            
-  |===================================================================   |  95%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++                                               | 5 % ~00s          
+  |+++++                                             | 9 % ~00s          
+  |+++++++                                           | 14% ~00s          
+  |++++++++++                                        | 18% ~00s          
+  |++++++++++++                                      | 23% ~00s          
+  |++++++++++++++                                    | 27% ~00s          
+  |++++++++++++++++                                  | 32% ~00s          
+  |+++++++++++++++++++                               | 36% ~00s          
+  |+++++++++++++++++++++                             | 41% ~00s          
+  |+++++++++++++++++++++++                           | 45% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++                      | 55% ~00s          
+  |++++++++++++++++++++++++++++++                    | 59% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 64% ~00s          
+  |+++++++++++++++++++++++++++++++++++               | 68% ~00s          
+  |+++++++++++++++++++++++++++++++++++++             | 73% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++           | 77% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++++         | 82% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 86% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++    | 91% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++  | 95% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> 
 #> Model selection step:
@@ -377,12 +355,9 @@ m_glm <- calibration(data = sp_swd_glm, error_considered = 10)
 #> Selecting 2 final model(s) with delta AIC <2.
 #> Validating pROC of selected models...
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 #> 
 #> All selected models have significant pROC values.
 m_glm

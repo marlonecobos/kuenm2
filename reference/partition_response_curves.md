@@ -10,7 +10,9 @@ records.
 partition_response_curves(calibration_results, modelID, n = 100,
                           averages_from = "pr_bg", col = "darkblue",
                           ylim = NULL, las = 1, parallel = FALSE,
-                          ncores = NULL, ...)
+                          ncores = NULL, progress_bar = FALSE,
+                          progress_type = "timer",
+                          use_lb = FALSE, ...)
 ```
 
 ## Arguments
@@ -60,6 +62,23 @@ partition_response_curves(calibration_results, modelID, n = 100,
   (numeric) number of cores to use for parallel processing. Default is
   NULL and uses available cores - 1. This is only applicable if
   `parallel = TRUE`.
+
+- progress_bar:
+
+  (logical) whether to display a progress bar during processing. Default
+  is FALSE.
+
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is "timer". Only applicable if `progress_bar` is `TRUE`.
+
+- use_lb:
+
+  (logical) whether to use load balancing when running in parallel.
+  Default is FALSE.
 
 - ...:
 

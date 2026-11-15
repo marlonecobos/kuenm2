@@ -1,5 +1,17 @@
 # Changelog
 
+## kuenm2 0.1.5 (in development)
+
+- Replaced doSNOW and foreach with pbapply across all parallelized
+  functions
+  ([`calibration()`](https://marlonecobos.github.io/kuenm2/reference/calibration.md),
+  [`partial_roc()`](https://marlonecobos.github.io/kuenm2/reference/partial_roc.md),
+  [`variable_importance()`](https://marlonecobos.github.io/kuenm2/reference/variable_importance.md),
+  [`project_selected()`](https://marlonecobos.github.io/kuenm2/reference/project_selected.md),
+  [`select_models()`](https://marlonecobos.github.io/kuenm2/reference/select_models.md),
+  and
+  [`partition_response_curves()`](https://marlonecobos.github.io/kuenm2/reference/partition_response_curves.md)).
+
 ## kuenm2 0.1.4
 
 CRAN release: 2026-11-06

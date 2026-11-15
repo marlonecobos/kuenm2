@@ -46,7 +46,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Variable importance</h1>
-      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/v0.1.4/R/variable_importance.R" class="external-link"><code>R/variable_importance.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/R/variable_importance.R" class="external-link"><code>R/variable_importance.R</code></a></small>
       <div class="d-none name"><code>variable_importance.Rd</code></div>
     </div>
 
@@ -58,7 +58,8 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">variable_importance</span><span class="op">(</span><span class="va">models</span>, modelID <span class="op">=</span> <span class="cn">NULL</span>, by_terms <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                    parallel <span class="op">=</span> <span class="cn">FALSE</span>, ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>                    progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>                    progress_bar <span class="op">=</span> <span class="cn">TRUE</span>, progress_type <span class="op">=</span> <span class="st">"timer"</span>,</span>
+<span>                    use_lb <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -96,6 +97,17 @@ Default is NULL and uses available cores - 1. This is only applicable if
 Default is TRUE.</p></dd>
 
 
+<dt id="arg-progress-type">progress_type<a class="anchor" aria-label="anchor" href="#arg-progress-type"></a></dt>
+<dd><p>(character) type of the progress bar. See
+<code><a href="https://peter.solymos.org/pbapply/reference/pboptions.html" class="external-link">pbapply::pbtypes()</a></code> for available progress bar types depending on operating
+system. Default is "timer".</p></dd>
+
+
+<dt id="arg-use-lb">use_lb<a class="anchor" aria-label="anchor" href="#arg-use-lb"></a></dt>
+<dd><p>(logical) whether to use load balancing when running in
+parallel. Default is FALSE.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>(logical) whether to display detailed messages during processing.
 Default is TRUE.</p></dd>
@@ -123,27 +135,18 @@ if <code>by_terms = TRUE</code>). An identification for distinct models is added
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating variable contribution for model 1 of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=======================                                               |  33%
-  |                                                                            
-  |===============================================                       |  67%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++                                 | 33% ~00s          
+  |++++++++++++++++++++++++++++++++++                | 67% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating variable contribution for model 2 of 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |==================                                                    |  25%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |====================================================                  |  75%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++                                     | 25% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++++++++            | 75% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_maxnet</span><span class="op">)</span></span></span>
@@ -158,14 +161,10 @@ if <code>by_terms = TRUE</code>). An identification for distinct models is added
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating variable contribution for model 1 of 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=======================                                               |  33%
-  |                                                                            
-  |===============================================                       |  67%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++                                 | 33% ~00s          
+  |++++++++++++++++++++++++++++++++++                | 67% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="plot_importance.html">plot_importance</a></span><span class="op">(</span><span class="va">imp_glm</span><span class="op">)</span></span></span>

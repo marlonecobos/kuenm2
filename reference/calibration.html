@@ -52,7 +52,7 @@ based on unimodality (optional), partial ROC, omission rate, and AIC values."></
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Fitting and evaluation of models, and selection of the best ones</h1>
-      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/v0.1.4/R/calibration.R" class="external-link"><code>R/calibration.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/R/calibration.R" class="external-link"><code>R/calibration.R</code></a></small>
       <div class="d-none name"><code>calibration.Rd</code></div>
     </div>
 
@@ -65,14 +65,28 @@ based on unimodality (optional), partial ROC, omission rate, and AIC values.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calibration</span><span class="op">(</span><span class="va">data</span>, <span class="va">error_considered</span>, remove_concave <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>            proc_for_all <span class="op">=</span> <span class="cn">FALSE</span>, omission_rate <span class="op">=</span> <span class="cn">NULL</span>, delta_aic <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>            allow_tolerance <span class="op">=</span> <span class="cn">TRUE</span>, tolerance <span class="op">=</span> <span class="fl">0.01</span>,</span>
-<span>            addsamplestobackground <span class="op">=</span> <span class="cn">TRUE</span>, use_weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>            write_summary <span class="op">=</span> <span class="cn">FALSE</span>, output_directory <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>            skip_existing_models <span class="op">=</span> <span class="cn">FALSE</span>, return_all_results <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>            parallel <span class="op">=</span> <span class="cn">FALSE</span>, ncores <span class="op">=</span> <span class="cn">NULL</span>, progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>            verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">calibration</span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  <span class="va">error_considered</span>,</span>
+<span>  remove_concave <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  proc_for_all <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  omission_rate <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  delta_aic <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  allow_tolerance <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  tolerance <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  addsamplestobackground <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  use_weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  write_summary <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  output_directory <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  skip_existing_models <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  return_all_results <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  parallel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  ncores <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  progress_bar <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  progress_type <span class="op">=</span> <span class="st">"timer"</span>,</span>
+<span>  use_lb <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -105,7 +119,7 @@ that tests are applied only to the selected models.</p></dd>
 <dt id="arg-omission-rate">omission_rate<a class="anchor" aria-label="anchor" href="#arg-omission-rate"></a></dt>
 <dd><p>(numeric) values from 0 - 100, the maximum omission rate
 a candidate model can have to be considered as a potentially selected model.
-The default, NULL, uses the value in <code>error_considered</code>. If more that one
+The default, NULL, uses the value in <code>error_considered</code>. If more than one
 value is used in <code>error_considered</code>, <code>omission_rate</code> must be defined.</p></dd>
 
 
@@ -177,6 +191,17 @@ Default is NULL and uses available cores - 1. This is only applicable if
 <dt id="arg-progress-bar">progress_bar<a class="anchor" aria-label="anchor" href="#arg-progress-bar"></a></dt>
 <dd><p>(logical) whether to display a progress bar during
 processing. Default is TRUE.</p></dd>
+
+
+<dt id="arg-progress-type">progress_type<a class="anchor" aria-label="anchor" href="#arg-progress-type"></a></dt>
+<dd><p>(character) type of the progress bar. See
+<code><a href="https://peter.solymos.org/pbapply/reference/pboptions.html" class="external-link">pbapply::pbtypes()</a></code> for available progress bar types depending on operating
+system. Default is "timer".</p></dd>
+
+
+<dt id="arg-use-lb">use_lb<a class="anchor" aria-label="anchor" href="#arg-use-lb"></a></dt>
+<dd><p>(logical) whether to use load balancing when running in
+parallel. Default is FALSE.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -258,52 +283,29 @@ criteria. Ecological applications, 21(2), 335-342.</p>
 <span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">calibration</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sp_swd</span>, error_considered <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Task 1/1: fitting and evaluating models:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===                                                                   |   5%
-  |                                                                            
-  |======                                                                |   9%
-  |                                                                            
-  |==========                                                            |  14%
-  |                                                                            
-  |=============                                                         |  18%
-  |                                                                            
-  |================                                                      |  23%
-  |                                                                            
-  |===================                                                   |  27%
-  |                                                                            
-  |======================                                                |  32%
-  |                                                                            
-  |=========================                                             |  36%
-  |                                                                            
-  |=============================                                         |  41%
-  |                                                                            
-  |================================                                      |  45%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================                                |  55%
-  |                                                                            
-  |=========================================                             |  59%
-  |                                                                            
-  |=============================================                         |  64%
-  |                                                                            
-  |================================================                      |  68%
-  |                                                                            
-  |===================================================                   |  73%
-  |                                                                            
-  |======================================================                |  77%
-  |                                                                            
-  |=========================================================             |  82%
-  |                                                                            
-  |============================================================          |  86%
-  |                                                                            
-  |================================================================      |  91%
-  |                                                                            
-  |===================================================================   |  95%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++                                               | 5 % ~01s          
+  |+++++                                             | 9 % ~00s          
+  |+++++++                                           | 14% ~00s          
+  |++++++++++                                        | 18% ~00s          
+  |++++++++++++                                      | 23% ~00s          
+  |++++++++++++++                                    | 27% ~00s          
+  |++++++++++++++++                                  | 32% ~00s          
+  |+++++++++++++++++++                               | 36% ~00s          
+  |+++++++++++++++++++++                             | 41% ~00s          
+  |+++++++++++++++++++++++                           | 45% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++                      | 55% ~00s          
+  |++++++++++++++++++++++++++++++                    | 59% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 64% ~00s          
+  |+++++++++++++++++++++++++++++++++++               | 68% ~00s          
+  |+++++++++++++++++++++++++++++++++++++             | 73% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++           | 77% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++++         | 82% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 86% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++    | 91% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++  | 95% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Model selection step:</span>
@@ -316,10 +318,8 @@ criteria. Ecological applications, 21(2), 335-342.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Selecting 1 final model(s) with delta AIC &lt;2.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Validating pROC of selected models...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> All selected models have significant pROC values.</span>
 <span class="r-in"><span><span class="va">m</span></span></span>
@@ -351,52 +351,29 @@ criteria. Ecological applications, 21(2), 335-342.</p>
 <span class="r-in"><span><span class="va">m_glm</span> <span class="op">&lt;-</span> <span class="fu">calibration</span><span class="op">(</span>data <span class="op">=</span> <span class="va">sp_swd_glm</span>, error_considered <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Task 1/1: fitting and evaluating models:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===                                                                   |   5%
-  |                                                                            
-  |======                                                                |   9%
-  |                                                                            
-  |==========                                                            |  14%
-  |                                                                            
-  |=============                                                         |  18%
-  |                                                                            
-  |================                                                      |  23%
-  |                                                                            
-  |===================                                                   |  27%
-  |                                                                            
-  |======================                                                |  32%
-  |                                                                            
-  |=========================                                             |  36%
-  |                                                                            
-  |=============================                                         |  41%
-  |                                                                            
-  |================================                                      |  45%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================                                |  55%
-  |                                                                            
-  |=========================================                             |  59%
-  |                                                                            
-  |=============================================                         |  64%
-  |                                                                            
-  |================================================                      |  68%
-  |                                                                            
-  |===================================================                   |  73%
-  |                                                                            
-  |======================================================                |  77%
-  |                                                                            
-  |=========================================================             |  82%
-  |                                                                            
-  |============================================================          |  86%
-  |                                                                            
-  |================================================================      |  91%
-  |                                                                            
-  |===================================================================   |  95%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++                                               | 5 % ~00s          
+  |+++++                                             | 9 % ~00s          
+  |+++++++                                           | 14% ~00s          
+  |++++++++++                                        | 18% ~00s          
+  |++++++++++++                                      | 23% ~00s          
+  |++++++++++++++                                    | 27% ~00s          
+  |++++++++++++++++                                  | 32% ~00s          
+  |+++++++++++++++++++                               | 36% ~00s          
+  |+++++++++++++++++++++                             | 41% ~00s          
+  |+++++++++++++++++++++++                           | 45% ~00s          
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++                      | 55% ~00s          
+  |++++++++++++++++++++++++++++++                    | 59% ~00s          
+  |++++++++++++++++++++++++++++++++                  | 64% ~00s          
+  |+++++++++++++++++++++++++++++++++++               | 68% ~00s          
+  |+++++++++++++++++++++++++++++++++++++             | 73% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++           | 77% ~00s          
+  |+++++++++++++++++++++++++++++++++++++++++         | 82% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++      | 86% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++    | 91% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++  | 95% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Model selection step:</span>
@@ -409,12 +386,9 @@ criteria. Ecological applications, 21(2), 335-342.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Selecting 2 final model(s) with delta AIC &lt;2.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Validating pROC of selected models...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> All selected models have significant pROC values.</span>
 <span class="r-in"><span><span class="va">m_glm</span></span></span>

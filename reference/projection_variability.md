@@ -143,7 +143,7 @@ organize_future_worldclim(input_dir = in_dir, output_dir = out_dir_future,
   |======================================================================| 100%
 #> 
 #> Variables successfully organized in directory:
-#> /tmp/Rtmp3jmnNx/Future_raw5
+#> /tmp/RtmpGMb8Se/Future_raw5
 
 # Step 3: Prepare data to run multiple projections
 ## An example with maxnet models
@@ -168,14 +168,10 @@ dir.create(out_dir, recursive = TRUE)
 p <- project_selected(models = fitted_model_maxnet, projection_data = pr,
                       out_dir = out_dir)
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |=======================                                               |  33%
-  |                                                                            
-  |===============================================                       |  67%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++                                 | 33% ~01s          
+  |++++++++++++++++++++++++++++++++++                | 67% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  
 
 # Step 5: Compute variance from distinct sources
 v <- projection_variability(model_projections = p, from_replicates = FALSE)

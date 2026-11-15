@@ -48,7 +48,7 @@ resulting from projection_changes(). Color tables are used to associate specific
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Set Colors for Change Maps</h1>
-      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/v0.1.4/R/colors_for_changes.R" class="external-link"><code>R/colors_for_changes.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/marlonecobos/kuenm2/blob/main/R/colors_for_changes.R" class="external-link"><code>R/colors_for_changes.R</code></a></small>
       <div class="d-none name"><code>colors_for_changes.Rd</code></div>
     </div>
 
@@ -166,7 +166,7 @@ visualizing the data with <code><a href="https://rdrr.io/r/graphics/plot.default
   |======================================================================| 100%</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Variables successfully organized in directory:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/Rtmp3jmnNx/Future_raw_color_example</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> /tmp/RtmpGMb8Se/Future_raw_color_example</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 3: Prepare data to run multiple projections</span></span></span>
 <span class="r-in"><span><span class="co">## An example with maxnet models</span></span></span>
@@ -191,18 +191,12 @@ visualizing the data with <code><a href="https://rdrr.io/r/graphics/plot.default
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="project_selected.html">project_selected</a></span><span class="op">(</span>models <span class="op">=</span> <span class="va">fitted_model_maxnet</span>, projection_data <span class="op">=</span> <span class="va">pr</span>,</span></span>
 <span class="r-in"><span>                      out_dir <span class="op">=</span> <span class="va">out_dir</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |==============                                                        |  20%
-  |                                                                            
-  |============================                                          |  40%
-  |                                                                            
-  |==========================================                            |  60%
-  |                                                                            
-  |========================================================              |  80%
-  |                                                                            
-  |======================================================================| 100%</span>
+  |                                                  | 0 % ~calculating  
+  |++++++++++                                        | 20% ~01s          
+  |++++++++++++++++++++                              | 40% ~01s          
+  |++++++++++++++++++++++++++++++                    | 60% ~01s          
+  |++++++++++++++++++++++++++++++++++++++++          | 80% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Step 5: Identify areas of change in projections</span></span></span>
 <span class="r-in"><span><span class="co">## Contraction, expansion and stability</span></span></span>

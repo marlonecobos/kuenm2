@@ -8,7 +8,8 @@ Computes partial ROC tests for multiple candidate models.
 partial_roc(formula_grid, data, omission_rate = 10,
             addsamplestobackground = TRUE, weights = NULL,
             algorithm = "maxnet", parallel = FALSE, ncores = NULL,
-            progress_bar = TRUE)
+            progress_bar = TRUE, progress_type = "timer",
+            use_lb = FALSE)
 ```
 
 ## Arguments
@@ -63,6 +64,18 @@ partial_roc(formula_grid, data, omission_rate = 10,
   (logical) whether to display a progress bar during processing. Default
   is TRUE.
 
+- progress_type:
+
+  (character) type of the progress bar. See
+  [`pbapply::pbtypes()`](https://peter.solymos.org/pbapply/reference/pboptions.html)
+  for available progress bar types depending on operating system.
+  Default is "timer".
+
+- use_lb:
+
+  (logical) whether to use load balancing when running in parallel.
+  Default is FALSE.
+
 ## Value
 
 A data frame with summary statistics of the and AUC ratios and
@@ -86,10 +99,7 @@ res_proc <- partial_roc(formula_grid = sp_swd$formula_grid[1:2,],
                         data = sp_swd, omission_rate = 10,
                         algorithm = "maxnet")
 #> 
-  |                                                                            
-  |                                                                      |   0%
-  |                                                                            
-  |===================================                                   |  50%
-  |                                                                            
-  |======================================================================| 100%
+  |                                                  | 0 % ~calculating  
+  |+++++++++++++++++++++++++                         | 50% ~00s          
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=00s  
 ```
