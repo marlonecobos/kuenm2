@@ -1,5 +1,7 @@
 # kuenm2 0.1.5 (in development)
 * Replaced doSNOW and foreach with pbapply across all parallelized functions (`calibration()`, `partial_roc()`, `variable_importance()`, `project_selected()`, `select_models()`, and `partition_response_curves()`).
+* Replaced `utils::txtProgressBar()` with pbapply across functions (`predict_selected()`, `organize_future_worldclim()`, `perform_pca()`, `projection_variability()`, `projection_mop()`, and `explore_partition_extrapolation()`).
+* Improving execution speed and bug handling with large rasters in `project_selected()`.
 
 # kuenm2 0.1.4
 * In `prediction_changes()` and `projection_changes()`, use `terra::compareGeom()` instead of `terra::res()` and `terra::ext()` to compare bounding boxes and resolution.
