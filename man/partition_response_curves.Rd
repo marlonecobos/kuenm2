@@ -7,7 +7,9 @@
 partition_response_curves(calibration_results, modelID, n = 100,
                           averages_from = "pr_bg", col = "darkblue",
                           ylim = NULL, las = 1, parallel = FALSE,
-                          ncores = NULL, ...)
+                          ncores = NULL, progress_bar = FALSE,
+                          progress_type = "timer",
+                          use_lb = FALSE, ...)
 }
 \arguments{
 \item{calibration_results}{an object of class \code{calibration_results} returned
@@ -37,6 +39,16 @@ is FALSE.}
 \item{ncores}{(numeric) number of cores to use for parallel processing.
 Default is NULL and uses available cores - 1. This is only applicable if
 \code{parallel = TRUE}.}
+
+\item{progress_bar}{(logical) whether to display a progress bar during processing.
+Default is FALSE.}
+
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is "timer". Only applicable if \code{progress_bar} is \code{TRUE}.}
+
+\item{use_lb}{(logical) whether to use load balancing when running in
+parallel. Default is FALSE.}
 
 \item{...}{additional arguments passed to \code{\link[graphics]{plot}}.}
 }

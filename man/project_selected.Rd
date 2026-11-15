@@ -10,7 +10,8 @@ project_selected(models, projection_data, out_dir, mask = NULL,
                  write_replicates = FALSE, extrapolation_type = "E",
                  var_to_restrict = NULL, type = NULL, overwrite = FALSE,
                  parallel = FALSE, ncores = NULL,
-                 progress_bar = TRUE, verbose = TRUE)
+                 progress_bar = TRUE, progress_type = "timer",
+                 use_lb = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
@@ -65,6 +66,13 @@ Default is NULL and uses available cores - 1. This is only applicable if
 
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is TRUE.}
+
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is "timer".}
+
+\item{use_lb}{(logical) whether to use load balancing when running in
+parallel. Default is FALSE.}
 
 \item{verbose}{(logical) whether to display messages during processing.
 Default is TRUE.}

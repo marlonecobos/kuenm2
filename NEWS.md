@@ -1,3 +1,6 @@
+# kuenm2 0.1.5 (in development)
+* Replaced doSNOW and foreach with pbapply across all parallelized functions (`calibration()`, `partial_roc()`, `variable_importance()`, `project_selected()`, `select_models()`, and `partition_response_curves()`).
+
 # kuenm2 0.1.4
 * In `prediction_changes()` and `projection_changes()`, use `terra::compareGeom()` instead of `terra::res()` and `terra::ext()` to compare bounding boxes and resolution.
 * Fix issue #118 with hinge feature treatment in `calibration()` and response_curves

@@ -8,7 +8,8 @@
 #'              n_replicates = 1, sample_proportion = 0.7, type = "cloglog",
 #'              write_models = FALSE,
 #'              file_name = NULL, parallel = FALSE, ncores = NULL,
-#'              progress_bar = TRUE, verbose = TRUE, seed = 1)
+#'              progress_bar = TRUE, progress_type = "timer",
+#'              use_lb = FALSE, verbose = TRUE, seed = 1)
 #'
 #' @param calibration_results an object of class `calibration_results` returned
 #' by the [calibration()] function.
@@ -37,6 +38,11 @@
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during processing.
 #' Default is TRUE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer".
+#' @param use_lb (logical) whether to use load balancing when running in
+#' parallel. Default is FALSE.
 #' @param verbose (logical) whether to display detailed messages during processing.
 #' Default is TRUE.
 #' @param seed (numeric) integer value used to specify an initial seed to split
@@ -71,12 +77,10 @@
 #'
 #' @export
 #'
-#' @importFrom parallel makeCluster stopCluster
-#' @importFrom doSNOW registerDoSNOW
-#' @importFrom utils txtProgressBar setTxtProgressBar
-#' @importFrom foreach foreach `%dopar%`
+#' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom glmnet glmnet.control glmnet
 #' @importFrom enmpa predict_glm
+#' @importFrom pbapply pboptions pblapply
 #'
 #' @examples
 #' # An example with maxnet models
@@ -110,6 +114,8 @@ fit_selected <- function(calibration_results,
                          parallel = FALSE,
                          ncores = NULL,
                          progress_bar = TRUE,
+                         progress_type = "timer",
+                         use_lb = FALSE,
                          verbose = TRUE,
                          seed = 1) {
 
@@ -147,64 +153,44 @@ fit_selected <- function(calibration_results,
       rep_data <- NULL
     }
 
-
-    # Adjust parallelization based on number of tasks and cores
     if (n_tot == 1 & parallel) {
       parallel <- FALSE
     }
 
-    # Progress bar
-    if (isTRUE(progress_bar)) {
-      pb <- utils::txtProgressBar(0, n_tot, style = 3)
-      progress <- function(n) utils::setTxtProgressBar(pb, n)
-    }
+    # Store and set progress bar options safely for CRAN
+    old_pbopt <- pbapply::pboptions(
+      type = if (progress_bar) progress_type else "none",
+      use_lb = use_lb
+    )
+    on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
 
-
-    # Setup parallel cluster
     if (parallel) {
+      # Parallelization setup
       if (is.null(ncores)) {
-        ncores <- max(1, parallel::detectCores() - 1)
-      }
-      if (n_tot < ncores) {
-        ncores <- n_tot
-      }
-
-      cl <- parallel::makeCluster(ncores)
-      doSNOW::registerDoSNOW(cl)
-
-      opts <- if (progress_bar) {
-        list(progress = progress)
-      } else {
-        NULL
-      }
-    }
-
-    # Fit the best models (either in parallel or sequentially)
-    if (parallel) {
-      best_models <- foreach::foreach(x = 1:n_tot,
-                                      .packages = c("glmnet", "enmpa"),
-                                      .options.snow = opts
-      ) %dopar% {
-        fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
-                       n_replicates = n_replicates, rep_data = rep_data,
-                       algorithm = algorithm)
-      }
-    } else {
-      best_models <- vector("list", length = n_tot)
-      for (x in 1:n_tot) {
-        best_models[[x]] <- fit_best_model(
-          x = x, dfgrid = dfgrid, cal_res = calibration_results,
-          n_replicates = n_replicates, rep_data = rep_data,
-          algorithm = algorithm
-        )
-        if (progress_bar) {
-          utils::setTxtProgressBar(pb, x)
+        ncores <- max(1L, parallel::detectCores() - 1L)
+        # Check if function is running in CRAN...
+        chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+        if (nzchar(chk) && chk == "TRUE") {
+          ncores <- min(ncores, 2L)
         }
       }
+      cl <- parallel::makeCluster(ncores)
+      on.exit(parallel::stopCluster(cl), add = TRUE)
+    } else {
+      cl <- NULL
     }
 
-    # Stop the cluster
-    if (parallel) parallel::stopCluster(cl)
+
+    best_models <- pbapply::pblapply(
+      X = seq_len(n_tot),
+      FUN = fit_best_model,
+      dfgrid = dfgrid,
+      cal_res = calibration_results,
+      n_replicates = n_replicates,
+      rep_data = rep_data,
+      algorithm = algorithm,
+      cl = cl)
+
 
     # Split models by their respective IDs
     best_models <- split(best_models, dfgrid$models)
@@ -229,60 +215,41 @@ fit_selected <- function(calibration_results,
   n_models <- length(m_ids)
   dfgrid <- expand.grid(models = m_ids, replicates = 1)
 
-  # Adjust parallelization for full models
-  if (n_models == 1 & parallel) {
+  if (n_tot == 1 & parallel) {
     parallel <- FALSE
   }
 
-  # Progress bar setup for full models
-  if (progress_bar) {
-    pb <- utils::txtProgressBar(0, n_models, style = 3)
-    progress <- function(n) utils::setTxtProgressBar(pb, n)
-  }
+  # Store and set progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none",
+    use_lb = use_lb
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
 
-  # Parallel cluster setup for full models
   if (parallel) {
+    # Parallelization setup
     if (is.null(ncores)) {
-      ncores <- max(1, parallel::detectCores() - 1)
-    }
-    if (n_models < ncores & parallel) {
-      ncores <- n_models
+      ncores <- max(1L, parallel::detectCores() - 1L)
+      # Check if function is running in CRAN...
+      chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+      if (nzchar(chk) && chk == "TRUE") {
+        ncores <- min(ncores, 2L)
+      }
     }
     cl <- parallel::makeCluster(ncores)
-    doSNOW::registerDoSNOW(cl)
-
-    opts <- if (progress_bar) {
-      list(progress = progress)
-    } else {
-      NULL
-    }
-  }
-
-  # Fit the full models (either in parallel or sequentially)
-  if (parallel) {
-    full_models <- foreach::foreach(x = 1:n_models,
-                                    .packages = c("glmnet", "enmpa"),
-                                    .options.snow = opts
-    ) %dopar% {
-      fit_best_model(x = x, dfgrid = dfgrid, cal_res = calibration_results,
-                     n_replicates = 1, rep_data = rep_data,
-                     algorithm = algorithm)
-    }
+    on.exit(parallel::stopCluster(cl), add = TRUE)
   } else {
-    full_models <- vector("list", length = n_models)
-    for (x in 1:n_models) {
-      full_models[[x]] <- fit_best_model(
-        x = x, dfgrid = dfgrid, cal_res = calibration_results,
-        n_replicates = 1, rep_data = rep_data, algorithm = algorithm
-      )
-      if (progress_bar) utils::setTxtProgressBar(pb, x)
-    }
+    cl <- NULL
   }
 
-  # Stop the cluster for full models
-  if (parallel) {
-    parallel::stopCluster(cl)
-  }
+  # Fit the full models
+  full_models <- pbapply::pblapply(
+    X = seq_len(n_models),
+    FUN = fit_best_model,
+    dfgrid = dfgrid, cal_res = calibration_results,
+    n_replicates = 1, rep_data = rep_data,
+    algorithm = algorithm,
+    cl = cl)
 
   # Assign names to full models
   names(full_models) <- paste0("Model_", m_ids)

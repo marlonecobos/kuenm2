@@ -4,14 +4,28 @@
 \alias{calibration}
 \title{Fitting and evaluation of models, and selection of the best ones}
 \usage{
-calibration(data, error_considered, remove_concave = FALSE,
-            proc_for_all = FALSE, omission_rate = NULL, delta_aic = 2,
-            allow_tolerance = TRUE, tolerance = 0.01,
-            addsamplestobackground = TRUE, use_weights = NULL,
-            write_summary = FALSE, output_directory = NULL,
-            skip_existing_models = FALSE, return_all_results = TRUE,
-            parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-            verbose = TRUE)
+calibration(
+  data,
+  error_considered,
+  remove_concave = FALSE,
+  proc_for_all = FALSE,
+  omission_rate = NULL,
+  delta_aic = 2,
+  allow_tolerance = TRUE,
+  tolerance = 0.01,
+  addsamplestobackground = TRUE,
+  use_weights = NULL,
+  write_summary = FALSE,
+  output_directory = NULL,
+  skip_existing_models = FALSE,
+  return_all_results = TRUE,
+  parallel = FALSE,
+  ncores = NULL,
+  progress_bar = TRUE,
+  progress_type = "timer",
+  use_lb = FALSE,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{data}{an object of class \code{prepared_data} returned by the
@@ -31,7 +45,7 @@ that tests are applied only to the selected models.}
 
 \item{omission_rate}{(numeric) values from 0 - 100, the maximum omission rate
 a candidate model can have to be considered as a potentially selected model.
-The default, NULL, uses the value in \code{error_considered}. If more that one
+The default, NULL, uses the value in \code{error_considered}. If more than one
 value is used in \code{error_considered}, \code{omission_rate} must be defined.}
 
 \item{delta_aic}{(numeric) the value of delta AIC used as a threshold to
@@ -79,6 +93,13 @@ Default is NULL and uses available cores - 1. This is only applicable if
 
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is TRUE.}
+
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is "timer".}
+
+\item{use_lb}{(logical) whether to use load balancing when running in
+parallel. Default is FALSE.}
 
 \item{verbose}{(logical) whether to display messages during processing.
 Default is TRUE.}
