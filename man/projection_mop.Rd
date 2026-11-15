@@ -11,7 +11,7 @@ projection_mop(data, projection_data, out_dir,
                scale = FALSE, center = FALSE, fix_NA = TRUE, percentage = 1,
                comp_each = 2000, tol = NULL, rescale_distance = FALSE,
                parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-               overwrite = FALSE)
+               progress_type = "timer", overwrite = FALSE)
 }
 \arguments{
 \item{data}{an object of class \code{fitted_models} returned by the
@@ -19,7 +19,7 @@ projection_mop(data, projection_data, out_dir,
 the \code{\link[=prepare_data]{prepare_data()}} function.}
 
 \item{projection_data}{an object of class \code{projection_data} returned by the
-\code{\link[=prepare_projection]{prepare_projection()}}function. This file contains the paths to
+\code{\link[=prepare_projection]{prepare_projection()}} function. This object contains the paths to
 the rasters representing each scenario.}
 
 \item{out_dir}{(character) a path to a root directory for saving the raster
@@ -27,20 +27,20 @@ file of each projection.}
 
 \item{subset_variables}{(logical) whether to include in the analysis only the
 variables present in the selected models. Only applicable if \code{data} is a
-\code{fitted_models} object. Default is FALSE}
+\code{fitted_models} object. Default is FALSE.}
 
 \item{mask}{(SpatRaster, SpatVector, or SpatExtent) spatial object used to
 mask the variables (optional). Default is NULL.}
 
 \item{type}{(character) type of MOP analysis to be performed. Options
-available are "basic", "simple" and "detailed". See Details for further
-information.}
+available are \code{"basic"}, \code{"simple"}, and \code{"detailed"}. See Details for
+further information. Default is \code{"basic"}.}
 
 \item{na_in_range}{(logical) whether to assign \code{NA} to regions within the
 projected area (G) where environmental conditions fall within the range of
 the calibration data (M). If \code{TRUE} (default), these regions are assigned
 \code{NA}. If \code{FALSE}, they are assigned \code{0} in the simple and basic MOP outputs,
-and \code{"within ranges"} in the detailed MOP output.}
+and \code{"Within ranges"} in the detailed MOP output.}
 
 \item{calculate_distance}{(logical) whether to calculate distances
 (dissimilarities) between m and g. The default, FALSE, runs rapidly and does
@@ -48,11 +48,12 @@ not assess dissimilarity levels.}
 
 \item{where_distance}{(character) where to calculate distances, considering
 how conditions in g are positioned in comparison to the range of conditions
-in m. Options available are "in_range", "out_range" and "all". Default is
-"in_range".}
+in m. Options available are \code{"in_range"}, \code{"out_range"}, and \code{"all"}.
+Default is \code{"in_range"}.}
 
-\item{distance}{(character) which distances are calculated, euclidean or
-mahalanobis. Only applicable if calculate_distance = TRUE.}
+\item{distance}{(character) which distances are calculated, \code{"euclidean"} or
+\code{"mahalanobis"}. Only applicable if \code{calculate_distance = TRUE}. Default is
+\code{"euclidean"}.}
 
 \item{scale}{(logical or numeric) whether to scale as in
 \code{\link[base]{scale}}. Default is FALSE.}
@@ -66,20 +67,21 @@ big and have no NA matching problems. Default is TRUE.}
 
 \item{percentage}{(numeric) percentage of \code{m} closest conditions used
 to derive mean environmental distances to each combination of conditions in
-\code{g}.}
+\code{g}. Default is 1.}
 
 \item{comp_each}{(numeric) number of combinations in \code{g} to be used for
-distance calculations at a time. Increasing this number requires more RAM}
+distance calculations at a time. Increasing this number requires more RAM.
+Default is 2000.}
 
 \item{tol}{(numeric) tolerance to detect linear dependencies when calculating
 Mahalanobis distances. The default, NULL, uses \code{.Machine$double.eps}.}
 
 \item{rescale_distance}{(logical) whether to re-scale distances 0-1.
 Re-scaling prevents comparisons of dissimilarity values obtained from runs
-with different values of \code{percentage}.}
+with different values of \code{percentage}. Default is FALSE.}
 
-\item{parallel}{(logical) whether to fit the candidate models in parallel.
-Default is FALSE.}
+\item{parallel}{(logical) whether to run distance calculations in parallel
+within \code{mop::mop()}. Default is FALSE.}
 
 \item{ncores}{(numeric) number of cores to use for parallel processing.
 Default is NULL and uses available cores - 1. This is only applicable if
@@ -88,67 +90,16 @@ Default is NULL and uses available cores - 1. This is only applicable if
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is TRUE.}
 
-\item{overwrite}{(logical) whether to overwrite SpatRaster if they already
-exists. Only applicable if \code{write_files} is set to TRUE. Default is FALSE.}
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is \code{"timer"}.}
+
+\item{overwrite}{(logical) whether to overwrite SpatRaster files if they
+already exist. Default is FALSE.}
 }
 \value{
-An object of class \code{mop_projections}, with the root directory and the dataframe
+An object of class \code{mop_projections}, with the root directory and the data.frame
 containing the file paths where the results were stored for each scenario.
-The paths contain the following files:
-\itemize{
-\item \strong{summary} - a data.frame with details of the data used in the analysis:
-\itemize{
-\item \emph{variables} - names of variables considered.
-\item \emph{type} - type of MOP analysis performed.
-\item \emph{scale} - value according to the argument \code{scale}.
-\item \emph{center} - value according to the argument \code{center}.
-\item \emph{calculate_distance} - value according to the argument
-\code{calculate_distance}.
-\item \emph{distance} - option regarding distance used.
-\item \emph{percentage} - percentage of \code{m} used as reference for
-distance calculation.
-\item \emph{rescale_distance} - value according to the argument
-\code{rescale_distance}.
-\item \emph{fix_NA} - value according to the argument \code{fix_NA}.
-\item \emph{N_m} - total number of elements (cells with values or valid
-rows) in \code{m}.
-\item \emph{N_g} - total number of elements (cells with values or valid
-rows) in \code{g}.
-\item \emph{m_ranges} - the range (minimum and maximum values) of the variable in
-reference conditions (\code{m})
-}
-\item \strong{mop_distances} - if \code{calculate_distance} = TRUE, a SpatRaster or
-vector with distance values for the set of interest (\code{g}). Higher values
-represent greater dissimilarity compared to the set of reference (\code{m}).
-\item \strong{mop_basic} - a SpatRaster or vector, for the set of interest,
-representing conditions in which at least one of the variables is
-non-analogous to the set of reference. Values should be: 1 for non-analogous
-conditions, and NA for conditions inside the ranges of the reference set.
-\item \strong{mop_simple} - a SpatRaster or vector, for the set of interest,
-representing how many variables in the set of interest are non-analogous to
-those in the reference set. NA is used for conditions inside the ranges of
-the reference set.
-\item \strong{mop_detailed} - a list containing:
-\itemize{
-\item \emph{interpretation_combined} - a data.frame to help identify combinations
-of variables in \emph{towards_low_combined} and \emph{towards_high_combined} that
-are non-analogous to \code{m}.
-\item \emph{towards_low_end} - a SpatRaster or matrix for all variables
-representing where non-analogous conditions were found towards low values
-of each variable.
-\item \emph{towards_high_end} - a SpatRaster or matrix for all variables
-representing where non-analogous conditions were found towards high
-values of each variable.
-\item \emph{towards_low_combined} - a SpatRaster or vector with values
-representing the identity of the variables found to have non-analogous
-conditions towards low values. If vector, interpretation requires the use
-of the data.frame \emph{interpretation_combined}.
-\item \emph{towards_high_combined} - a SpatRaster or vector with values
-representing the identity of the variables found to have non-analogous
-conditions towards high values. If vector, interpretation requires the
-use of the data.frame \emph{interpretation_combined}.
-}
-}
 }
 \description{
 Calculates the mobility-oriented parity metric and other sub-products to
@@ -168,7 +119,7 @@ non-analogous to those in the reference set.
 }
 
 \code{where_distance} options determine what values should be used to calculate
-dissimilarity
+dissimilarity:
 \itemize{
 \item \strong{in_range} - only conditions inside \code{m} ranges
 \item \strong{out_range} - only conditions outside \code{m} ranges
@@ -191,7 +142,6 @@ dir.create(out_dir_current, recursive = TRUE)
 
 ## Save current variables in temporary directory
 terra::writeRaster(var, file.path(out_dir_current, "Variables.tif"))
-
 
 # Step 2: Organize future climate variables (example with WorldClim)
 ## Directory containing the downloaded future climate variables (example)

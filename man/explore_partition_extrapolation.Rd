@@ -10,11 +10,12 @@ explore_partition_extrapolation(data, include_train_background = TRUE,
                                        mop_type = "detailed",
                                        calculate_distance = TRUE,
                                        where_distance = "all",
-                                       progress_bar = FALSE, ...)
+                                       progress_bar = FALSE,
+                                       progress_type = "timer", ...)
 }
 \arguments{
 \item{data}{an object of class \code{prepared_data} returned by the
-\code{prepare_data()} function.}
+\code{\link[=prepare_data]{prepare_data()}} function.}
 
 \item{include_train_background}{(logical) whether to include the background
 points used in training to define the environmental range of the training
@@ -30,33 +31,38 @@ Default is FALSE, meaning MOP will be calculated only for the test presences.}
 calculation. Default is NULL, meaning all variables in \code{data} will be used.}
 
 \item{mop_type}{(character) type of MOP analysis to be performed. Options
-available are "basic", "simple" and "detailed". Default is 'simples'. See
-\code{\link{projection_mop}}() for more details.}
+available are \code{"basic"}, \code{"simple"}, and \code{"detailed"}. Default is
+\code{"detailed"}. See \code{\link{projection_mop}}() for more details.}
 
 \item{calculate_distance}{(logical) whether to calculate distances
 (dissimilarities) between train and test data. Default is TRUE.}
 
 \item{where_distance}{(character) specifies which values in train data should
-be used to calculate distances. Options are: "in_range" (only conditions
-within the train range), "out_range" (only conditions outside the
-train range), and "all" (all conditions). Default is "all".}
+be used to calculate distances. Options are: \code{"in_range"} (only conditions
+within the train range), \code{"out_range"} (only conditions outside the
+train range), and \code{"all"} (all conditions). Default is \code{"all"}.}
 
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is FALSE.}
 
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is \code{"timer"}.}
+
 \item{...}{additional arguments passed to \code{\link[mop]{mop}()}.}
 }
 \value{
-A \code{data.frame} containing:
+An object of class \code{explore_partition} containing:
 \itemize{
-\item MOP distances (if \code{calculate_distance = TRUE});
-\item an indicator of whether environmental conditions at each test record fall
-within the training range;
-\item the number of variables outside the training range;
-\item the names of variables with values lower or higher than the training range;
-\item if the \code{prepared_data} object includes categorical variables, it will also
-contain columns indicating which values in the testing data were not present
-in the training data.
+\item \code{Mop_results}: a \code{data.frame} with MOP distances (if
+\code{calculate_distance = TRUE}), indicators of non-analogous conditions,
+number and names of variables outside the training range, and novel
+categories (if categorical variables are present) for each partition;
+\item \code{calibration_data}: a \code{data.frame} with the calibration data ordered by
+partition;
+\item \code{categorical_variables}: character vector with categorical variable names
+(if present);
+\item \code{pca}: PCA object (if \code{do_pca = TRUE} was used in \code{prepare_data()}).
 }
 }
 \description{
@@ -65,7 +71,7 @@ non-analogous conditions by comparing the training data against the test data
 for each partition, using the MOP (Mobility-Oriented Parity) metric.
 }
 \examples{
-#Prepare data
+# Prepare data
 # Import occurrences
 data(occ_data, package = "kuenm2")
 

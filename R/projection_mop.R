@@ -13,38 +13,39 @@
 #'                scale = FALSE, center = FALSE, fix_NA = TRUE, percentage = 1,
 #'                comp_each = 2000, tol = NULL, rescale_distance = FALSE,
 #'                parallel = FALSE, ncores = NULL, progress_bar = TRUE,
-#'                overwrite = FALSE)
+#'                progress_type = "timer", overwrite = FALSE)
 #'
 #' @param data an object of class `fitted_models` returned by the
 #' [fit_selected()] function or an object of class `prepared_data` returned by
 #' the [prepare_data()] function.
 #' @param projection_data an object of class `projection_data` returned by the
-#' [prepare_projection()]function. This file contains the paths to
+#' [prepare_projection()] function. This object contains the paths to
 #' the rasters representing each scenario.
 #' @param out_dir (character) a path to a root directory for saving the raster
 #' file of each projection.
 #' @param subset_variables (logical) whether to include in the analysis only the
 #' variables present in the selected models. Only applicable if `data` is a
-#' `fitted_models` object. Default is FALSE
+#' `fitted_models` object. Default is FALSE.
 #' @param mask (SpatRaster, SpatVector, or SpatExtent) spatial object used to
 #' mask the variables (optional). Default is NULL.
 #' @param type (character) type of MOP analysis to be performed. Options
-#' available are "basic", "simple" and "detailed". See Details for further
-#' information.
+#' available are `"basic"`, `"simple"`, and `"detailed"`. See Details for
+#' further information. Default is `"basic"`.
 #' @param na_in_range (logical) whether to assign `NA` to regions within the
 #' projected area (G) where environmental conditions fall within the range of
 #' the calibration data (M). If `TRUE` (default), these regions are assigned
 #' `NA`. If `FALSE`, they are assigned `0` in the simple and basic MOP outputs,
-#' and `"within ranges"` in the detailed MOP output.
+#' and `"Within ranges"` in the detailed MOP output.
 #' @param calculate_distance (logical) whether to calculate distances
 #' (dissimilarities) between m and g. The default, FALSE, runs rapidly and does
 #' not assess dissimilarity levels.
 #' @param where_distance (character) where to calculate distances, considering
 #' how conditions in g are positioned in comparison to the range of conditions
-#' in m. Options available are "in_range", "out_range" and "all". Default is
-#' "in_range".
-#' @param distance (character) which distances are calculated, euclidean or
-#' mahalanobis. Only applicable if calculate_distance = TRUE.
+#' in m. Options available are `"in_range"`, `"out_range"`, and `"all"`.
+#' Default is `"in_range"`.
+#' @param distance (character) which distances are calculated, `"euclidean"` or
+#' `"mahalanobis"`. Only applicable if `calculate_distance = TRUE`. Default is
+#' `"euclidean"`.
 #' @param scale (logical or numeric) whether to scale as in
 #' \code{\link[base]{scale}}. Default is FALSE.
 #' @param center (logical or numeric) whether to center as in
@@ -54,23 +55,27 @@
 #' big and have no NA matching problems. Default is TRUE.
 #' @param percentage (numeric) percentage of \code{m} closest conditions used
 #' to derive mean environmental distances to each combination of conditions in
-#' \code{g}.
+#' \code{g}. Default is 1.
 #' @param comp_each (numeric) number of combinations in \code{g} to be used for
-#' distance calculations at a time. Increasing this number requires more RAM
+#' distance calculations at a time. Increasing this number requires more RAM.
+#' Default is 2000.
 #' @param tol (numeric) tolerance to detect linear dependencies when calculating
 #' Mahalanobis distances. The default, NULL, uses `.Machine$double.eps`.
 #' @param rescale_distance (logical) whether to re-scale distances 0-1.
 #' Re-scaling prevents comparisons of dissimilarity values obtained from runs
-#' with different values of \code{percentage}.
-#' @param parallel (logical) whether to fit the candidate models in parallel.
-#' Default is FALSE.
+#' with different values of \code{percentage}. Default is FALSE.
+#' @param parallel (logical) whether to run distance calculations in parallel
+#' within `mop::mop()`. Default is FALSE.
 #' @param ncores (numeric) number of cores to use for parallel processing.
 #' Default is NULL and uses available cores - 1. This is only applicable if
 #' `parallel = TRUE`.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
-#' @param overwrite (logical) whether to overwrite SpatRaster if they already
-#' exists. Only applicable if `write_files` is set to TRUE. Default is FALSE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is `"timer"`.
+#' @param overwrite (logical) whether to overwrite SpatRaster files if they
+#' already exist. Default is FALSE.
 #'
 #' @details
 #' `type` options return results that differ in the detail of how non-analogous
@@ -83,7 +88,7 @@
 #' `mop_detailed` under `Value` below for full details.
 #'
 #' `where_distance` options determine what values should be used to calculate
-#' dissimilarity
+#' dissimilarity:
 #' - **in_range** - only conditions inside `m` ranges
 #' - **out_range** - only conditions outside `m` ranges
 #' - **all** - all conditions
@@ -93,62 +98,16 @@
 #' distances are used.
 #'
 #' @return
-#' An object of class `mop_projections`, with the root directory and the dataframe
+#' An object of class `mop_projections`, with the root directory and the data.frame
 #' containing the file paths where the results were stored for each scenario.
-#' The paths contain the following files:
-#' - **summary** - a data.frame with details of the data used in the analysis:
-#'     - *variables* - names of variables considered.
-#'     - *type* - type of MOP analysis performed.
-#'     - *scale* - value according to the argument \code{scale}.
-#'     - *center* - value according to the argument \code{center}.
-#'     - *calculate_distance* - value according to the argument
-#'     \code{calculate_distance}.
-#'     - *distance* - option regarding distance used.
-#'     - *percentage* - percentage of \code{m} used as reference for
-#'     distance calculation.
-#'     - *rescale_distance* - value according to the argument
-#'     \code{rescale_distance}.
-#'     - *fix_NA* - value according to the argument \code{fix_NA}.
-#'     - *N_m* - total number of elements (cells with values or valid
-#'     rows) in \code{m}.
-#'     - *N_g* - total number of elements (cells with values or valid
-#'     rows) in \code{g}.
-#'     - *m_ranges* - the range (minimum and maximum values) of the variable in
-#'     reference conditions (\code{m})
-#' - **mop_distances** - if \code{calculate_distance} = TRUE, a SpatRaster or
-#' vector with distance values for the set of interest (\code{g}). Higher values
-#' represent greater dissimilarity compared to the set of reference (\code{m}).
-#' - **mop_basic** - a SpatRaster or vector, for the set of interest,
-#' representing conditions in which at least one of the variables is
-#' non-analogous to the set of reference. Values should be: 1 for non-analogous
-#' conditions, and NA for conditions inside the ranges of the reference set.
-#' - **mop_simple** - a SpatRaster or vector, for the set of interest,
-#' representing how many variables in the set of interest are non-analogous to
-#' those in the reference set. NA is used for conditions inside the ranges of
-#' the reference set.
-#' - **mop_detailed** - a list containing:
-#'     - *interpretation_combined* - a data.frame to help identify combinations
-#'     of variables in *towards_low_combined* and *towards_high_combined* that
-#'     are non-analogous to \code{m}.
-#'     - *towards_low_end* - a SpatRaster or matrix for all variables
-#'     representing where non-analogous conditions were found towards low values
-#'     of each variable.
-#'     - *towards_high_end* - a SpatRaster or matrix for all variables
-#'     representing where non-analogous conditions were found towards high
-#'     values of each variable.
-#'     - *towards_low_combined* - a SpatRaster or vector with values
-#'     representing the identity of the variables found to have non-analogous
-#'     conditions towards low values. If vector, interpretation requires the use
-#'     of the data.frame *interpretation_combined*.
-#'     - *towards_high_combined* - a SpatRaster or vector with values
-#'     representing the identity of the variables found to have non-analogous
-#'     conditions towards high values. If vector, interpretation requires the
-#'     use of the data.frame *interpretation_combined*.
 #'
 #' @export
 #'
-#' @importFrom utils txtProgressBar setTxtProgressBar
-#' @importFrom terra rast predict writeRaster mask
+#' @importFrom utils write.csv
+#' @importFrom stats coef
+#' @importFrom terra rast predict writeRaster mask crop minmax is.factor
+#' @importFrom parallel detectCores
+#' @importFrom pbapply pboptions pblapply
 #' @importFrom mop mop
 #'
 #' @seealso
@@ -166,7 +125,6 @@
 #'
 #' ## Save current variables in temporary directory
 #' terra::writeRaster(var, file.path(out_dir_current, "Variables.tif"))
-#'
 #'
 #' # Step 2: Organize future climate variables (example with WorldClim)
 #' ## Directory containing the downloaded future climate variables (example)
@@ -223,8 +181,9 @@ projection_mop <- function(data,
                            parallel = FALSE,
                            ncores = NULL,
                            progress_bar = TRUE,
+                           progress_type = "timer",
                            overwrite = FALSE) {
-  #Check data
+  # Check data
   if (missing(data)) {
     stop("Argument 'data' must be defined.")
   }
@@ -245,41 +204,34 @@ projection_mop <- function(data,
     stop("Argument 'out_dir' must be a 'character'.")
   }
 
-  if (subset_variables & !inherits(data, "fitted_models")) {
-    stop("If 'subset_variables' = TRUE, 'data' must be 'fitted_models' object.")
+  if (subset_variables && !inherits(data, "fitted_models")) {
+    stop("If 'subset_variables' = TRUE, 'data' must be a 'fitted_models' object.")
   }
-  if (!is.null(mask) & !inherits(mask, c("SpatVector", "SpatVector", "SpatExtent"))) {
-    stop("Argument 'mask' must be a 'SpatVector', 'SpatVector', or 'SpatExtent'.")
-  }
-
-  if (!inherits(type, "character")) {
-    stop("Argument 'type' must be a 'character'.")
+  if (!is.null(mask) && !inherits(mask, c("SpatRaster", "SpatVector", "SpatExtent"))) {
+    stop("Argument 'mask' must be a 'SpatRaster', 'SpatVector', or 'SpatExtent'.")
   }
 
-  type_out <- setdiff(type, c("basic", "simple", "detailed"))
-  if (length(type_out) > 0) {
-    stop("Invalid 'type' provided.",
-         "\nAvailable options are: 'basic', 'simple', or 'detailed'.")
+  if (!inherits(type, "character") || length(type) != 1L) {
+    stop("Argument 'type' must be a single 'character'.")
+  }
+  if (!type %in% c("basic", "simple", "detailed")) {
+    stop("Invalid 'type' provided. Available options are: 'basic', 'simple', or 'detailed'.")
   }
 
-  if (!inherits(where_distance, "character")) {
-    stop("Argument 'where_distance' must be a 'character'.")
+  if (!inherits(where_distance, "character") || length(where_distance) != 1L) {
+    stop("Argument 'where_distance' must be a single 'character'.")
+  }
+  if (!where_distance %in% c("in_range", "out_range", "all")) {
+    stop("Invalid 'where_distance' provided. Available options are: 'in_range', 'out_range', or 'all'.")
   }
 
-  where_distance_out <- setdiff(where_distance, c("in_range", "out_range", "all"))
-  if (length(where_distance_out) > 0) {
-    stop("Invalid 'where_distance' provided.",
-         "\nThe available options are: 'in_range', 'out_range', or 'all'.")
+  if (!inherits(distance, "character") || length(distance) != 1L) {
+    stop("Argument 'distance' must be a single 'character'.")
   }
-  if (!inherits(distance, "character")) {
-    stop("Argument 'distance' must be a 'character'.")
+  if (!distance %in% c("euclidean", "mahalanobis")) {
+    stop("Invalid 'distance' provided. Available options are: 'euclidean' or 'mahalanobis'.")
   }
 
-  distance_out <- setdiff(distance, c("euclidean", "mahalanobis"))
-  if (length(distance_out) > 0) {
-    stop("Invalid distance provided.",
-         "\nThe available options are: 'euclidean' or 'mahalanobis'")
-  }
   if (!inherits(scale, c("logical", "numeric"))) {
     stop("Argument 'scale' must be 'logical' or 'numeric'.")
   }
@@ -289,216 +241,230 @@ projection_mop <- function(data,
   if (!inherits(percentage, "numeric")) {
     stop("Argument 'percentage' must be 'numeric'.")
   }
-
-  if(!inherits(calculate_distance, "logical")){
+  if (!inherits(calculate_distance, "logical")) {
     stop("Argument 'calculate_distance' must be 'logical'.")
   }
-
-  if(!inherits(fix_NA, "logical")){
+  if (!inherits(fix_NA, "logical")) {
     stop("Argument 'fix_NA' must be 'logical'.")
   }
 
-  #Get calibration data
-  m <-  data$calibration_data[, -1]
+  # Get calibration data
+  m <- data$calibration_data[, -1, drop = FALSE]
 
-  # exclude categorical variables from M
+  # Exclude categorical variables from M
   if (!is.null(data$categorical_variables)) {
-    m <- m[, !colnames(m) %in% data$categorical_variables]
+    m <- m[, !colnames(m) %in% data$categorical_variables, drop = FALSE]
   }
 
-  #Check scenarios to predict
-  sc <- setdiff(names(projection_data), c("raster_pattern", "pca"))
-  sc <- names(projection_data[sc][sapply(projection_data[sc],
-                                       function(x) !is.null(x))])
+  # Subset variables once before looping (supports both maxnet and glm)
+  selected_vars <- NULL
+  if (subset_variables) {
+    coefs <- unique(unlist(lapply(data$Models, function(x) {
+      fm <- x$Full_model
+      if (inherits(fm, "glmnet")) {
+        names(fm$betas)
+      } else if (inherits(fm, "glm")) {
+        names(stats::coef(fm)[-1L])
+      } else {
+        character(0)
+      }
+    }), use.names = FALSE))
 
-  #Get raster pattern to read
+    coefs <- ifelse(
+      grepl("^(thresholds|hinge|categorical)\\(", coefs),
+      sub(":.*$", "", coefs),
+      coefs
+    )
+    coefs <- coefs[!grepl("^categorical\\(", coefs)]
+    selected_vars <- unique(unlist(extract_variable_name(unique(coefs)), use.names = FALSE))
+
+    if (!is.null(data$categorical_variables)) {
+      selected_vars <- setdiff(selected_vars, data$categorical_variables)
+    }
+    m <- m[, selected_vars, drop = FALSE]
+  }
+
+  # Configure cores safely for CRAN (used inside mop::mop)
+  if (parallel && is.null(ncores)) {
+    ncores <- max(1L, parallel::detectCores() - 1L, na.rm = TRUE)
+    chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
+    if (nzchar(chk) && chk == "TRUE") {
+      ncores <- min(ncores, 2L)
+    }
+  }
+
+  # Get raster pattern and scenario paths
   raster_pattern <- projection_data$raster_pattern
-
-  #Check scenarios for predicting
   res_path <- check_pred_scenarios(projection_data = projection_data,
                                    out_dir = out_dir)
+  n_scen <- nrow(res_path)
 
-  #Show progress bar?
-  if (progress_bar) {
-    pb <- utils::txtProgressBar(0, nrow(res_path), style = 3)
-    progress <- function(n) utils::setTxtProgressBar(pb, n)
-  }
+  # Setup progress bar safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none"
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
 
-  #Looping in projection file
-  for(i in 1:nrow(res_path)) {
-    #Read rasters
-    r <- terra::rast(
-      list.files(path = res_path$input_path[i], pattern = raster_pattern,
-                 full.names = TRUE))
+  # Loop over projection scenarios using pblapply
+  pbapply::pblapply(
+    X = seq_len(n_scen),
+    FUN = function(i) {
+      # Read rasters
+      r <- terra::rast(
+        list.files(path = res_path$input_path[i], pattern = raster_pattern,
+                   full.names = TRUE)
+      )
 
-    if (!is.null(mask)) {
-      r <- terra::crop(x = r, y = mask, mask = TRUE)
-    }
+      if (!is.null(mask)) {
+        r <- terra::crop(x = r, y = mask, mask = TRUE)
+      }
 
-    # exclude categorical variables from G
-    if (!is.null(data$categorical_variables)) {
-      nc <- setdiff(names(r), data$categorical_variables)
-      r <- r[[nc]]
-    }
-
-    #Do PCA?
-    if (!is.null(data$pca)) {
-      r <- terra::predict(r[[data$pca$vars_in]], data$pca)
-    }
-
-    #Subset variables?
-    if (subset_variables) {
-      v <- unique(unlist(sapply(data$Models, function(x)
-        names(x$Full_model$betas),
-                  simplify = F)))
-      v <- gsub("I\\((.*?)\\^2\\)", "\\1", v) #Remove quadratic pattern
-      v <- v[!grepl("categorical", v)] #Remove categorical pattern
-      v <- unique(unlist(strsplit(v, ":"))) #Remove product pattern
-
-      # remove categorical variables again just in case
+      # Exclude categorical variables from G
       if (!is.null(data$categorical_variables)) {
-        v <- setdiff(v, data$categorical_variables)
+        nc <- setdiff(names(r), data$categorical_variables)
+        r <- r[[nc]]
       }
 
-      r <- r[[v]]
-      m <- m[, v, drop = FALSE]
-    }
-
-   #See if there are variables in G absent in M
-    g_out_m <- setdiff(names(r), names(m))
-    if(length(g_out_m) > 0) {
-      r <- r[[names(m)]]
-      warning(length(g_out_m), " variable(s) in 'G' were removed because they are not present in 'M'.")
-    }
-
-    #MOP
-    if (parallel) {
-      if (is.null(ncores)) {
-        ncores <- max(1, parallel::detectCores() - 1)
+      # Do PCA if present
+      if (!is.null(data$pca)) {
+        if (!("vars_out" %in% names(data$pca))) {
+          r <- terra::predict(r[[data$pca$vars_in]], data$pca)
+        } else {
+          r <- c(terra::predict(r[[data$pca$vars_in]], data$pca),
+                 r[[data$pca$vars_out]])
+        }
       }
-    }
 
-    mop_i <- mop::mop(m = m, g = r, type = type,
-                      calculate_distance = calculate_distance,
-                      where_distance = where_distance, distance = distance,
-                      scale = scale, center = center, fix_NA = fix_NA,
-                      percentage = percentage, comp_each = comp_each,
-                      tol = tol, rescale_distance = rescale_distance,
-                      parallel = parallel, n_cores = ncores,
-                      progress_bar = FALSE)
-    #Save results
-    dir.create(dirname(res_path$output_path[i]), recursive = TRUE,
-               showWarnings = FALSE)
-    #Get summary
-    s <- data.frame(variables = paste(mop_i$summary$variables, collapse = ", "),
-                    type, scale, center, calculate_distance, distance,
-                    percentage,
-                    rescale_distance, fix_NA, N_m = mop_i$summary$N_m,
-                    N_g = mop_i$summary$N_g,
-                    m_min = paste(round(mop_i$summary$m_ranges[1, ], 1),
-                                  collapse = ", "),
-                    m_max = paste(round(mop_i$summary$m_ranges[2, ], 1),
-                                  collapse = ", "))
+      # Subset variables if requested
+      if (!is.null(selected_vars)) {
+        r <- r[[selected_vars]]
+      }
 
-    write.csv(s, paste0(res_path$output_path[i], "summary.csv"))
+      # Check if there are variables in G absent in M
+      g_out_m <- setdiff(names(r), names(m))
+      if (length(g_out_m) > 0L) {
+        r <- r[[names(m)]]
+        warning(length(g_out_m),
+                " variable(s) in 'G' were removed because they are not present in 'M'.")
+      }
 
-    if (!is.null(mop_i$mop_distances)) {
-      if (all(!is.na(terra::minmax(mop_i$mop_distances)))) {
-        if(!na_in_range){
-          #Mask mop_distance
+      # Run MOP
+      mop_i <- mop::mop(m = m, g = r, type = type,
+                        calculate_distance = calculate_distance,
+                        where_distance = where_distance, distance = distance,
+                        scale = scale, center = center, fix_NA = fix_NA,
+                        percentage = percentage, comp_each = comp_each,
+                        tol = tol, rescale_distance = rescale_distance,
+                        parallel = parallel, n_cores = ncores,
+                        progress_bar = FALSE)
+
+      # Save results
+      out_base <- res_path$output_path[i]
+      if (!dir.exists(dirname(out_base))) {
+        dir.create(dirname(out_base), recursive = TRUE, showWarnings = FALSE)
+      }
+
+      s <- data.frame(
+        variables = paste(mop_i$summary$variables, collapse = ", "),
+        type = type, scale = scale, center = center,
+        calculate_distance = calculate_distance, distance = distance,
+        percentage = percentage, rescale_distance = rescale_distance,
+        fix_NA = fix_NA, N_m = mop_i$summary$N_m, N_g = mop_i$summary$N_g,
+        m_min = paste(round(mop_i$summary$m_ranges[1, ], 1), collapse = ", "),
+        m_max = paste(round(mop_i$summary$m_ranges[2, ], 1), collapse = ", "),
+        stringsAsFactors = FALSE
+      )
+      utils::write.csv(s, paste0(out_base, "_summary.csv"), row.names = FALSE)
+
+      if (!is.null(mop_i$mop_distances) &&
+          all(!is.na(terra::minmax(mop_i$mop_distances)))) {
+        if (!na_in_range) {
           mop_i$mop_distances[is.na(mop_i$mop_distances)] <- 0
-          mop_i$mop_distances <- terra::mask(mop_i$mop_distances, r[[1]])}
-        #Write
+          mop_i$mop_distances <- terra::mask(mop_i$mop_distances, r[[1]])
+        }
         terra::writeRaster(mop_i$mop_distances,
-                           paste0(res_path$output_path[i], "_mop_distances.tif"),
+                           paste0(out_base, "_mop_distances.tif"),
                            overwrite = overwrite)
       }
-    }
 
-    if (!is.null(mop_i$mop_basic)) {
-      if (all(!is.na(terra::minmax(mop_i$mop_basic)))) {
-        if(!na_in_range){
-          #Mask mop_basic
+      if (!is.null(mop_i$mop_basic) &&
+          all(!is.na(terra::minmax(mop_i$mop_basic)))) {
+        if (!na_in_range) {
           mop_i$mop_basic[is.na(mop_i$mop_basic)] <- 0
-          mop_i$mop_basic <- terra::mask(mop_i$mop_basic, r[[1]])}
-        #Save
+          mop_i$mop_basic <- terra::mask(mop_i$mop_basic, r[[1]])
+        }
         terra::writeRaster(mop_i$mop_basic,
-                           paste0(res_path$output_path[i], "_mopbasic.tif"),
+                           paste0(out_base, "_mopbasic.tif"),
                            overwrite = overwrite)
       }
-    }
 
-    if (!is.null(mop_i$mop_simple)) {
-      if (all(!is.na(terra::minmax(mop_i$mop_basic)))) {
-        if(!na_in_range){
-          #Mask mop_simple
+      if (!is.null(mop_i$mop_simple) &&
+          all(!is.na(terra::minmax(mop_i$mop_simple)))) {
+        if (!na_in_range) {
           mop_i$mop_simple[is.na(mop_i$mop_simple)] <- 0
           mop_i$mop_simple <- terra::mask(mop_i$mop_simple, r[[1]])
-          levels(mop_i$mop_simple) <- NULL}
-
+          levels(mop_i$mop_simple) <- NULL
+        }
         terra::writeRaster(mop_i$mop_simple,
-                           paste0(res_path$output_path[i], "_mopsimple.tif"),
+                           paste0(out_base, "_mopsimple.tif"),
                            overwrite = overwrite)
       }
-    }
 
-    if (!is.null(mop_i$mop_detailed[[1]])) {
-      #Set levels
-      lapply(names(mop_i$mop_detailed)[-1], function(x) {
-        res_x <- mop_i$mop_detailed[[x]]
-        #Remove variables with all values in range
-        all_in_range <- sapply(res_x, function(z){
-          !any(is.na(minmax(z)))
-        })
-        if(sum(all_in_range) > 0){
-          res_x <- res_x[[all_in_range]]
+      if (!is.null(mop_i$mop_detailed[[1]])) {
+        lapply(names(mop_i$mop_detailed)[-1L], function(x) {
+          res_x <- mop_i$mop_detailed[[x]]
+          all_in_range <- sapply(res_x, function(z) {
+            !any(is.na(terra::minmax(z)))
+          })
 
-          if(!na_in_range){
-            #Mask mop_detailed
-            res_x <- mop_i$mop_detailed[[x]]
-            res_x[is.na(res_x)] <- 0
-            res_x <- terra::mask(res_x, r[[1]], )
+          if (sum(all_in_range) > 0L) {
+            res_x <- res_x[[all_in_range]]
 
-            if(all(terra::is.factor(res_x))){
-            #Add level no risk
-            levels(res_x) <- rbind(data.frame(id = 0, category = "Within ranges"),
-                                   levels(res_x)[[1]])}
+            if (!na_in_range) {
+              res_x[is.na(res_x)] <- 0
+              res_x <- terra::mask(res_x, r[[1]])
+
+              if (all(terra::is.factor(res_x))) {
+                levels(res_x) <- rbind(
+                  data.frame(id = 0, category = "Within ranges"),
+                  levels(res_x)[[1]]
+                )
+              }
+            }
+
+            terra::writeRaster(res_x,
+                               paste0(out_base, "_mop_", x, ".tif"),
+                               overwrite = overwrite)
           }
-          terra::writeRaster(res_x,
-                             paste0(res_path$output_path[i], "_mop_", x, ".tif"),
-                             overwrite = overwrite)
-        }
-      })
+        })
 
-      #Save interpretation_combined
-      if(!na_in_range){
-        interpretation_combined <- rbind(
-          data.frame(values = 0, extrapolation_variables = "Within ranges"),
-          mop_i$mop_detailed$interpretation_combined)
-        write.csv(interpretation_combined,
-                  paste0(res_path$output_path[i],
-                         "_interpretation_combined.csv"))
+        # Save interpretation_combined
+        if (!na_in_range) {
+          interpretation_combined <- rbind(
+            data.frame(values = 0, extrapolation_variables = "Within ranges"),
+            mop_i$mop_detailed$interpretation_combined
+          )
         } else {
-          write.csv(mop_i$mop_detailed$interpretation_combined,
-                    paste0(res_path$output_path[i],
-                           "_interpretation_combined.csv"))
+          interpretation_combined <- mop_i$mop_detailed$interpretation_combined
         }
+        utils::write.csv(interpretation_combined,
+                         paste0(out_base, "_interpretation_combined.csv"),
+                         row.names = FALSE)
+      }
 
-    }
-    if (progress_bar) {
-      utils::setTxtProgressBar(pb, i)
-    }
-  }
+      return(invisible(NULL))
+    },
+    cl = NULL
+  )
 
-  #Return root directory and output path
+  # Return root directory and output path
   res_path$output_path <- dirname(res_path$output_path)
   res_final <- list("paths" = unique(res_path),
                     "root_directory" = out_dir)
   class(res_final) <- "mop_projections"
 
-  #Save mop_projections object
-  saveRDS(res_final, paste0(out_dir, "/mop_projections.rds"))
+  # Save mop_projections object
+  saveRDS(res_final, file.path(out_dir, "mop_projections.rds"))
 
   return(res_final)
 }
-
