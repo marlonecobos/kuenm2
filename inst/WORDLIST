@@ -10,6 +10,7 @@ CHELSA
 CMD
 CNRM
 CSM
+ChatGPT
 Cloglog
 Colormaps
 ENM
@@ -88,7 +89,6 @@ bimodality
 binarization
 binarize
 binarized
-binarizes
 binarizing
 bioclimatic
 biogeografia
@@ -103,11 +103,12 @@ data's
 ddi
 de
 diversidade
+doSNOW
 doi
-env
 envolvendo
 et
 flexsdm
+foreach
 gcm
 geodata
 georeferenced
@@ -142,6 +143,7 @@ os
 pROC
 paleoclimate
 parallelization
+pbapply
 pca
 pecon
 peerj
@@ -165,4 +167,3 @@ watlington
 www
 xy
 ºC
-ChatGPT

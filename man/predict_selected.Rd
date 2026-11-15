@@ -9,7 +9,8 @@ predict_selected(models, new_variables, mask = NULL, write_files = FALSE,
                  consensus_per_model = TRUE, consensus_general = TRUE,
                  consensus = c("median", "range", "mean", "stdev"),
                  extrapolation_type = "E", var_to_restrict = NULL,
-                 type = "cloglog", overwrite = FALSE, progress_bar = TRUE)
+                 type = "cloglog", overwrite = FALSE, progress_bar = TRUE,
+                 progress_type = "timer")
 }
 \arguments{
 \item{models}{an object of class \code{fitted_models} returned by the
@@ -27,7 +28,7 @@ mask the variables before predict. Default is NULL.}
 data.frame) to disk. Default is FALSE.}
 
 \item{write_replicates}{(logical) whether to save the predictions for each
-replicates to disk. Only applicable if \code{write_files} is TRUE. Default is
+replicate to disk. Only applicable if \code{write_files} is TRUE. Default is
 FALSE.}
 
 \item{out_dir}{(character) directory path where predictions will be saved.
@@ -55,21 +56,25 @@ Default is \code{NULL}, clamping and no extrapolation will be done for all varia
 \item{type}{(character) the format of prediction values. For \code{maxnet} models,
 valid options are \code{"raw"}, \code{"cumulative"}, \code{"logistic"}, and \code{"cloglog"}.
 For \code{glm} models, valid options are \code{"cloglog"}, \code{"response"}, \code{"raw"},
-\code{"cumulative"} and \code{"link"}. Default is "cloglog.}
+\code{"cumulative"} and \code{"link"}. Default is \code{"cloglog"}.}
 
 \item{overwrite}{(logical) whether to overwrite SpatRasters if they already
 exist. Only applicable if \code{write_files = TRUE}. Default is FALSE.}
 
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is TRUE.}
+
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is "timer".}
 }
 \value{
 A list containing SpatRaster or data.frames predictions for each replicate,
-long with the consensus results for each model and the overall general consensus.
+along with the consensus results for each model and the overall general consensus.
 }
 \description{
 This function predicts selected models for a single set of new data
-using either \code{maxnet} or \code{glm} It provides options to save the
+using either \code{maxnet} or \code{glm}. It provides options to save the
 output and compute consensus results (mean, median, etc.) across
 replicates and models.
 }

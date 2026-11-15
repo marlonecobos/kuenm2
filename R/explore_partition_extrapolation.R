@@ -11,10 +11,11 @@
 #'                                        mop_type = "detailed",
 #'                                        calculate_distance = TRUE,
 #'                                        where_distance = "all",
-#'                                        progress_bar = FALSE, ...)
+#'                                        progress_bar = FALSE,
+#'                                        progress_type = "timer", ...)
 #'
 #' @param data an object of class `prepared_data` returned by the
-#' `prepare_data()` function.
+#' [prepare_data()] function.
 #' @param include_train_background (logical) whether to include the background
 #' points used in training to define the environmental range of the training
 #' data. If set to FALSE, only the environmental conditions of the training
@@ -26,35 +27,38 @@
 #' @param variables (character) names of the variables to be used in the MOP
 #' calculation. Default is NULL, meaning all variables in `data` will be used.
 #' @param mop_type (character) type of MOP analysis to be performed. Options
-#' available are "basic", "simple" and "detailed". Default is 'simples'. See
-#' \code{\link{projection_mop}}() for more details.
+#' available are `"basic"`, `"simple"`, and `"detailed"`. Default is
+#' `"detailed"`. See \code{\link{projection_mop}}() for more details.
 #' @param calculate_distance (logical) whether to calculate distances
 #' (dissimilarities) between train and test data. Default is TRUE.
 #' @param where_distance (character) specifies which values in train data should
-#' be used to calculate distances. Options are: "in_range" (only conditions
-#' within the train range), "out_range" (only conditions outside the
-#' train range), and "all" (all conditions). Default is "all".
+#' be used to calculate distances. Options are: `"in_range"` (only conditions
+#' within the train range), `"out_range"` (only conditions outside the
+#' train range), and `"all"` (all conditions). Default is `"all"`.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is FALSE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is `"timer"`.
 #' @param ... additional arguments passed to \code{\link[mop]{mop}()}.
 #'
 #' @return
-#' A `data.frame` containing:
-#' - MOP distances (if `calculate_distance = TRUE`);
-#' - an indicator of whether environmental conditions at each test record fall
-#' within the training range;
-#' - the number of variables outside the training range;
-#' - the names of variables with values lower or higher than the training range;
-#' - if the `prepared_data` object includes categorical variables, it will also
-#' contain columns indicating which values in the testing data were not present
-#' in the training data.
+#' An object of class `explore_partition` containing:
+#' - `Mop_results`: a `data.frame` with MOP distances (if
+#'   `calculate_distance = TRUE`), indicators of non-analogous conditions,
+#'   number and names of variables outside the training range, and novel
+#'   categories (if categorical variables are present) for each partition;
+#' - `calibration_data`: a `data.frame` with the calibration data ordered by
+#'   partition;
+#' - `categorical_variables`: character vector with categorical variable names
+#'   (if present);
+#' - `pca`: PCA object (if `do_pca = TRUE` was used in `prepare_data()`).
 #'
 #' @export
-#' @importFrom terra vect rasterize mask coltab
 #' @importFrom mop mop
-#' @importFrom stats setNames
+#' @importFrom pbapply pboptions pblapply
 #' @examples
-#' #Prepare data
+#' # Prepare data
 #' # Import occurrences
 #' data(occ_data, package = "kuenm2")
 #'
@@ -83,164 +87,141 @@ explore_partition_extrapolation <- function(data,
                                             mop_type = "detailed",
                                             calculate_distance = TRUE,
                                             where_distance = "all",
-                                            progress_bar = FALSE, ...){
-  #Check data
+                                            progress_bar = FALSE,
+                                            progress_type = "timer", ...) {
+  # Check data
   if (missing(data)) {
     stop("Argument 'data' must be defined.")
   }
   if (!inherits(data, "prepared_data")) {
     stop("'data' must be a 'prepared_data' object.")
   }
-  if (!inherits(include_train_background, "logical")) {
-    stop("'include_train_background' must be 'logical'.")
+  if (!inherits(include_train_background, "logical") ||
+      length(include_train_background) != 1L) {
+    stop("'include_train_background' must be a single 'logical'.")
   }
-  if (!inherits(include_test_background, "logical")) {
-    stop("'include_test_background' must be 'logical'.")
+  if (!inherits(include_test_background, "logical") ||
+      length(include_test_background) != 1L) {
+    stop("'include_test_background' must be a single 'logical'.")
   }
   if (!is.null(variables)) {
-    if(!inherits(variables, "logical")) {
-    stop("'variables' must be 'character' or NULL.")}
+    if (!inherits(variables, "character")) {
+      stop("'variables' must be 'character' or NULL.")
+    }
     var_out <- setdiff(variables, colnames(data$calibration_data))
-    if(length(var_out) > 0){
-      stop("Some 'variables' provided are absent from data")
+    if (length(var_out) > 0L) {
+      stop("Some 'variables' provided are absent from 'data': ",
+           paste(var_out, collapse = ", "))
     }
   }
 
-  mop_type_out <- setdiff(mop_type, c("basic", "simple", "detailed"))
-  if (length(mop_type_out) > 0) {
-    stop("Invalid 'mop_type' provided.",
-         "\nAvailable options are: 'basic', 'simple', or 'detailed'.")
+  if (!inherits(mop_type, "character") || length(mop_type) != 1L ||
+      !(mop_type %in% c("basic", "simple", "detailed"))) {
+    stop("Invalid 'mop_type' provided. Available options are: 'basic', 'simple', or 'detailed'.")
+  }
+  if (!inherits(calculate_distance, "logical") ||
+      length(calculate_distance) != 1L) {
+    stop("Argument 'calculate_distance' must be a single 'logical'.")
+  }
+  if (!inherits(where_distance, "character") || length(where_distance) != 1L ||
+      !(where_distance %in% c("in_range", "out_range", "all"))) {
+    stop("Invalid 'where_distance' provided. Available options are: 'in_range', 'out_range', and 'all'.")
+  }
+  if (!inherits(progress_bar, "logical") || length(progress_bar) != 1L) {
+    stop("Argument 'progress_bar' must be a single 'logical'.")
   }
 
-  if(!inherits(calculate_distance, "logical")){
-    stop("Argument 'calculate_distance' must be 'logical'.")
-  }
+  # Always exclude 'pr_bg' and categorical variables from continuous MOP variables
+  v <- setdiff(colnames(data$calibration_data),
+               c("pr_bg", data$categorical_variables))
 
-  distance_out <- setdiff(where_distance, c("in_range", "out_range", "all"))
-  if (length(distance_out) > 0) {
-    stop("Invalid 'where_distance' provided.",
-         "\nAvailable options are: 'in_range', 'out_range', and 'all'.")
-  }
-
-
-  if(!inherits(progress_bar, "logical")){
-    stop("Argument 'progress_bar' must be 'logical'.")
-  }
-
-  #Remove categorical if necessary
-  if(!is.null(data$categorical_variables)){
-    v <- setdiff(colnames(data$calibration_data), c("pr_bg",
-                                                    data$categorical_variables))
-  } else {
-    v <- setdiff(colnames(data$calibration_data),
-                 data$categorical_variables)
-  }
-
-  #Remove variables, if necessary
-  if(!is.null(variables)){
+  # Subset variables if requested
+  if (!is.null(variables)) {
     v <- intersect(variables, v)
   }
 
-  #Create list to save partition results
-  res <- list()
-
-  #Get number of partitions
-  n_partitions <- length(data$part_data)
-
-  if (progress_bar) {
-    pb <- txtProgressBar(min = 0, max = n_partitions, style = 3)
-    progress <- function(n) {
-      setTxtProgressBar(pb, n)
-    }
-    opts <- list(progress = progress)
-  } else {
-    opts <- NULL
+  if (length(v) == 0L) {
+    stop("No continuous variables available to perform MOP analysis.")
   }
 
-  for(i in 1:n_partitions){
-    #Get partition name
-    i_name <- names(data$part_data[i])
+  part_names <- names(data$part_data)
+  if (is.null(part_names)) {
+    part_names <- as.character(seq_along(data$part_data))
+  }
 
-    #Get test and train
-    partition_i <- data$part_data[[i_name]]
-    test_i <- data$calibration_data[partition_i, ]
-    train_i <- data$calibration_data[-partition_i, ]
+  has_xy <- !is.null(data$data_xy)
+  xy_cols <- if (has_xy) colnames(data$data_xy) else NULL
+  cat_vars <- data$categorical_variables
+  calib_df <- data$calibration_data
 
-    #Exclude background, if necessary
-    if(!include_train_background){
-      train_i <- train_i[train_i$pr_bg == 1, ]
-    }
-    if(!include_test_background){
-      test_i <- test_i[test_i$pr_bg == 1, ]
-    }
+  # Setup progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none"
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
 
-    #Run analysis
-    res_i <- mop_with_records(train_data = train_i, test_data = test_i,
-                              variables = v,
-                              categorical_variables = data$categorical_variables,
-                              mop_type = mop_type,
-                              calculate_distance = calculate_distance,
-                              where_distance = where_distance,
-                              progress_bar = FALSE, ...)
+  # Evaluate partitions with pblapply
+  all_res_list <- pbapply::pblapply(
+    X = seq_along(data$part_data),
+    FUN = function(i) {
+      i_name <- part_names[i]
+      partition_i <- data$part_data[[i]]
 
-    res[[i_name]][["test_data"]] <- res_i$mop_records
-    #Append pr_bg information
-    if(include_test_background){
-      res[[i_name]][["test_data"]]$pr_bg <- data$calibration_data[partition_i,
-                                                                  "pr_bg"]
-    } else {
-      res[[i_name]][["test_data"]]$pr_bg <- 1
-    }
+      test_i <- calib_df[partition_i, , drop = FALSE]
+      train_i <- calib_df[-partition_i, , drop = FALSE]
 
-
-    #Append xy information
-    if(!is.null(data$data_xy)){
-      if(!include_test_background){
-        xy <- cbind(data$data_xy[partition_i, ],
-                    "pr_bg" = data$calibration_data[partition_i, "pr_bg"])
-        xy <- xy[xy$pr_bg == 1, c("x", "y")]
+      if (!include_train_background) {
+        train_i <- train_i[train_i$pr_bg == 1, , drop = FALSE]
+      }
+      if (!include_test_background) {
+        test_keep <- which(test_i$pr_bg == 1)
+        test_i <- test_i[test_keep, , drop = FALSE]
       } else {
-        xy <- data$data_xy[partition_i, ]
+        test_keep <- seq_len(nrow(test_i))
       }
 
-    res[[i_name]][["test_data"]]<- cbind(xy,
-                                         res[[i_name]][["test_data"]])}
+      # Run MOP analysis
+      res_i <- mop_with_records(train_data = train_i,
+                                test_data = test_i,
+                                variables = v,
+                                categorical_variables = cat_vars,
+                                mop_type = mop_type,
+                                calculate_distance = calculate_distance,
+                                where_distance = where_distance,
+                                progress_bar = FALSE, ...)
 
-    # #Append index, for test
-    # res[[i_name]][["test_data"]]$index <- partition_i
+      df_out <- res_i$mop_records
+      df_out$pr_bg <- test_i$pr_bg
 
-    # Sets the progress bar to the current state
-    if (progress_bar) setTxtProgressBar(pb, i)
+      # Append coordinates if available
+      if (has_xy) {
+        xy <- data$data_xy[partition_i[test_keep], xy_cols, drop = FALSE]
+        df_out <- cbind(xy, df_out)
+      }
 
-  } #End of for i
+      df_out$Partition <- i_name
+      return(df_out)
+    },
+    cl = NULL
+  )
 
-  #Summarize data
-  all_res <- lapply(names(res), function(i) {
-    cbind("Partition" = i, res[[i]]$test_data)
-  })
-  all_res <- do.call("rbind", all_res)
+  all_res <- do.call("rbind", all_res_list)
+  rownames(all_res) <- NULL
 
-  #Organize columns
-  c_order <- intersect(c("Partition", "pr_bg", "x", "y"), colnames(all_res))
-  c_order <- c(c_order, setdiff(colnames(all_res), c_order))
-  all_res <- all_res[, c_order]
+  # Organize columns cleanly
+  first_cols <- intersect(c("Partition", "pr_bg", xy_cols), colnames(all_res))
+  other_cols <- setdiff(colnames(all_res), first_cols)
+  all_res <- all_res[, c(first_cols, other_cols), drop = FALSE]
 
-  #Reorganize calibration data
-  partition_order <- unlist(data$part_data)
+  # Reorganize calibration data by partition order
+  partition_order <- unlist(data$part_data, use.names = FALSE)
+  calib_data <- calib_df[partition_order, , drop = FALSE]
 
-  calib_data <- data$calibration_data[partition_order, ]
-
-
-  #Return final results
+  # Return final results
   res_final <- list("Mop_results" = all_res,
                     "calibration_data" = calib_data,
-                    "categorical_variables" = data$categorical_variables,
+                    "categorical_variables" = cat_vars,
                     "pca" = data$pca)
   class(res_final) <- "explore_partition"
   return(res_final)
-  } #End of function
-
-
-
-
-
+}

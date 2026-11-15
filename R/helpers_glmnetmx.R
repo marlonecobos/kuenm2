@@ -150,3 +150,71 @@ extract_var_names <- function(terms) {
   # Return unique clean variable names
   return(unique(trimws(vars)))
 }
+
+# Helper for fast row-wise consensus on numeric matrices
+calc_mat_consensus <- function(mat, cons_types) {
+  out <- list()
+  if ("median" %in% cons_types) {
+    out$median <- if (ncol(mat) == 1L) mat[, 1L] else apply(mat, 1L, stats::median)
+  }
+  if ("mean" %in% cons_types) {
+    out$mean <- rowMeans(mat)
+  }
+  if ("stdev" %in% cons_types) {
+    out$stdev <- if (ncol(mat) == 1L) {
+      rep(0, nrow(mat))
+    } else {
+      m <- rowMeans(mat)
+      sqrt(rowSums((mat - m)^2) / (ncol(mat) - 1L))
+    }
+  }
+  if ("range" %in% cons_types) {
+    out$range <- if (ncol(mat) == 1L) {
+      rep(0, nrow(mat))
+    } else {
+      do.call(pmax, as.data.frame(mat)) - do.call(pmin, as.data.frame(mat))
+    }
+  }
+  return(out)
+}
+
+# Helper to map numeric vector back to SpatRaster or full vector
+vec_to_output <- function(v, is_raster, valid_cells, template_rast = NULL,
+                          n_cells = NULL, n_rows = NULL) {
+  if (is_raster) {
+    r_out <- terra::rast(template_rast)
+    full_v <- rep(NA_real_, n_cells)
+    full_v[valid_cells] <- v
+    terra::values(r_out) <- full_v
+    return(r_out)
+  } else {
+    full_v <- rep(NA_real_, n_rows)
+    full_v[valid_cells] <- v
+    return(full_v)
+  }
+}
+
+# Helper to stack a named list of vectors into SpatRaster or data.frame
+list_to_container <- function(v_list, is_raster, valid_cells,
+                              template_rast = NULL, n_cells = NULL,
+                              n_rows = NULL) {
+  mapped <- lapply(
+    X = v_list,
+    FUN = vec_to_output,
+    is_raster = is_raster,
+    valid_cells = valid_cells,
+    template_rast = template_rast,
+    n_cells = n_cells,
+    n_rows = n_rows
+  )
+
+  if (is_raster) {
+    r_stack <- terra::rast(mapped)
+    names(r_stack) <- names(v_list)
+    return(r_stack)
+  } else {
+    df_out <- as.data.frame(mapped)
+    colnames(df_out) <- names(v_list)
+    return(df_out)
+  }
+}

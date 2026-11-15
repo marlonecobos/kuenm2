@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function predicts selected models for a single set of new data
-#' using either `maxnet` or `glm` It provides options to save the
+#' using either `maxnet` or `glm`. It provides options to save the
 #' output and compute consensus results (mean, median, etc.) across
 #' replicates and models.
 #'
@@ -12,7 +12,8 @@
 #'                  consensus_per_model = TRUE, consensus_general = TRUE,
 #'                  consensus = c("median", "range", "mean", "stdev"),
 #'                  extrapolation_type = "E", var_to_restrict = NULL,
-#'                  type = "cloglog", overwrite = FALSE, progress_bar = TRUE)
+#'                  type = "cloglog", overwrite = FALSE, progress_bar = TRUE,
+#'                  progress_type = "timer")
 #'
 #' @param models an object of class `fitted_models` returned by the
 #' \code{\link{fit_selected}}() function.
@@ -25,7 +26,7 @@
 #' @param write_files (logical) whether to save the predictions (SpatRasters or
 #' data.frame) to disk. Default is FALSE.
 #' @param write_replicates (logical) whether to save the predictions for each
-#' replicates to disk. Only applicable if `write_files` is TRUE. Default is
+#' replicate to disk. Only applicable if `write_files` is TRUE. Default is
 #' FALSE.
 #' @param out_dir (character) directory path where predictions will be saved.
 #' Only relevant if `write_files = TRUE`.
@@ -46,11 +47,14 @@
 #' @param type (character) the format of prediction values. For `maxnet` models,
 #' valid options are `"raw"`, `"cumulative"`, `"logistic"`, and `"cloglog"`.
 #' For `glm` models, valid options are `"cloglog"`, `"response"`, `"raw"`,
-#' `"cumulative"` and `"link"`. Default is "cloglog.
+#' `"cumulative"` and `"link"`. Default is `"cloglog"`.
 #' @param overwrite (logical) whether to overwrite SpatRasters if they already
 #' exist. Only applicable if `write_files = TRUE`. Default is FALSE.
 #' @param progress_bar (logical) whether to display a progress bar during
 #' processing. Default is TRUE.
+#' @param progress_type (character) type of the progress bar. See
+#' `pbapply::pbtypes()` for available progress bar types depending on operating
+#' system. Default is "timer".
 #'
 #' @details
 #' When predicting to areas where the variables are beyond the lower or upper
@@ -65,11 +69,12 @@
 #'
 #' @return
 #' A list containing SpatRaster or data.frames predictions for each replicate,
-#' long with the consensus results for each model and the overall general consensus.
+#' along with the consensus results for each model and the overall general consensus.
 #'
-#' @importFrom terra rast clamp predict median mean stdev diff writeRaster cells
-#' @importFrom utils txtProgressBar setTxtProgressBar write.csv
-#' @importFrom stats glm predict median sd
+#' @importFrom terra rast clamp predict median mean stdev writeRaster cells values ncell mask
+#' @importFrom utils write.csv
+#' @importFrom stats glm predict median sd complete.cases
+#' @importFrom pbapply pboptions pblapply
 #'
 #' @export
 #'
@@ -110,9 +115,10 @@ predict_selected <- function(models,
                              var_to_restrict = NULL,
                              type = "cloglog",
                              overwrite = FALSE,
-                             progress_bar = TRUE) {
+                             progress_bar = TRUE,
+                             progress_type = "timer") {
 
-  #Check data
+  # Check data
   if (missing(models)) {
     stop("Argument 'models' must be defined.")
   }
@@ -123,18 +129,18 @@ predict_selected <- function(models,
     stop("Argument 'models' must be a 'fitted_models' object.")
   }
   if (!inherits(new_variables, c("SpatRaster", "data.frame"))) {
-    stop("Argument 'new_variables' must be a 'SpatRaster' o 'data.frame")
+    stop("Argument 'new_variables' must be a 'SpatRaster' or 'data.frame'.")
   }
 
-  if (!is.null(mask) & !inherits(mask, c("SpatRaster", "SpatVector",
-                                         "SpatExtent"))) {
+  if (!is.null(mask) && !inherits(mask, c("SpatRaster", "SpatVector",
+                                          "SpatExtent"))) {
     stop("Argument 'mask' must be a 'SpatVector', 'SpatExtent' or 'SpatRaster'.")
   }
 
-  if (write_files & is.null(out_dir)) {
-    stop("If write_files = TRUE, out_dir must be specified")
+  if (write_files && is.null(out_dir)) {
+    stop("If write_files = TRUE, out_dir must be specified.")
   }
-  if (write_files & !inherits(out_dir, "character")) {
+  if (write_files && !inherits(out_dir, "character")) {
     stop("Argument 'out_dir' must be a 'character'.")
   }
   if (!inherits(consensus, "character")) {
@@ -146,70 +152,69 @@ predict_selected <- function(models,
          "\nAvailable options are: 'median', 'range', 'mean' and 'stdev'.")
   }
 
-  if(length(extrapolation_type) > 1){
-    stop("Extrapolation type accepts only one of these values: 'E', 'EC', or
-         'NE'")
+  if (length(extrapolation_type) > 1) {
+    stop("Extrapolation type accepts only one of these values: 'E', 'EC', or 'NE'.")
   }
 
   extrapolation_out <- setdiff(extrapolation_type, c("E", "EC", "NE"))
   if (length(extrapolation_out) > 0) {
-    stop("Invalid 'extrapolation type' provided.",
+    stop("Invalid 'extrapolation_type' provided.",
          "\nAvailable options are: 'E', 'EC', and 'NE'.")
   }
 
-  if (extrapolation_type %in% c("E", "EC") & !is.null(var_to_restrict) &
+  if (extrapolation_type %in% c("E", "EC", "NE") && !is.null(var_to_restrict) &&
       !inherits(var_to_restrict, "character")) {
     stop("Argument 'var_to_restrict' must be NULL or 'character'.")
   }
 
-
-  if(!inherits(type, "character")){
-    stop("Argument 'type' must be NULL or 'character'.")
+  if (!inherits(type, "character")) {
+    stop("Argument 'type' must be 'character'.")
   }
 
-  if(models$algorithm == "maxnet"){
+  if (models$algorithm == "maxnet") {
     if (!any(c("raw", "cumulative", "logistic", "cloglog") %in% type)) {
       stop("Invalid 'type' provided.",
-           "\nAvailable options for maxnet models are: 'raw', 'cumulative',
-           'logistic', or 'cloglog'.")
+           "\nAvailable options for maxnet models are: 'raw', 'cumulative', 'logistic', or 'cloglog'.")
     }
-    if(type == "raw")
-      type <-  "exponential"
+    if (type == "raw") {
+      type <- "exponential"
+    }
   }
 
-  if(models$algorithm == "glm"){
+  if (models$algorithm == "glm") {
     if (!any(c("response", "cloglog", "cumulative", "link", "raw") %in% type)) {
       stop("Invalid 'type' provided.",
-           "\nAvailable options for glm models are 'response', or 'cloglog', or 'cumulative', or 'link', or 'raw'.")
+           "\nAvailable options for glm models are 'response', 'cloglog', 'cumulative', 'link', or 'raw'.")
     }
-    }
+  }
 
   # Analyses start here
-  if (!is.null(mask) & inherits(new_variables, "SpatRaster")) {
+  is_raster <- inherits(new_variables, "SpatRaster")
+
+  if (!is.null(mask) && is_raster) {
     new_variables <- terra::crop(new_variables, mask, mask = TRUE)
   }
 
   if (!is.null(models$pca)) {
-    if(inherits(new_variables, "SpatRaster")){
+    if (is_raster) {
       if (!("vars_out" %in% names(models$pca))) {
-      new_variables <- terra::predict(new_variables[[models$pca$vars_in]],
-                                         models$pca)
-    } else {
-      new_variables <- c(terra::predict(new_variables[[models$pca$vars_in]],
-                                           models$pca),
-                            new_variables[[models$pca$vars_out]])
-    }
-    }
-
-    if(inherits(new_variables, "data.frame")){
-      if (!("vars_out" %in% names(models$pca))) {
-        new_variables <- stats::predict(new_variables[[models$pca$vars_in]],
-                                     models$pca)
+        new_variables <- terra::predict(new_variables[[models$pca$vars_in]],
+                                        models$pca)
       } else {
-        new_variables <- c(stats::predict(new_variables[[models$pca$vars_in]],
-                                             models$pca),
-                              new_variables[[models$pca$vars_out]])
+        new_variables <- c(terra::predict(new_variables[[models$pca$vars_in]],
+                                          models$pca),
+                           new_variables[[models$pca$vars_out]])
       }
+    } else {
+      if (!("vars_out" %in% names(models$pca))) {
+        new_variables <- stats::predict(new_variables[, models$pca$vars_in, drop = FALSE],
+                                        models$pca)
+      } else {
+        new_variables <- cbind(stats::predict(new_variables[, models$pca$vars_in, drop = FALSE],
+                                              models$pca),
+                               new_variables[, models$pca$vars_out, drop = FALSE])
+      }
+      new_variables <- as.data.frame(new_variables)
     }
   }
 
@@ -220,341 +225,176 @@ predict_selected <- function(models,
   nrep <- length(models[[1]])
 
   # Get names of the models (replicates or full model)
-  names_models <- unlist(unique(sapply(nm, function(i) {
-    names(models[[i]])
-  }, USE.NAMES = FALSE, simplify = FALSE)))
+  names_models <- unique(unlist(lapply(models, names), use.names = FALSE))
 
   # If there are replicates, remove the full model from the dataset
   if (any(grepl("Replicate", names_models))) {
-    models <- lapply(nm, function(i) {
-      models[[i]][["Full_model"]] <- NULL
-      return(models[[i]])
+    models <- lapply(models, function(m) {
+      m[["Full_model"]] <- NULL
+      return(m)
     })
     names(models) <- nm
-    names_models <- unlist(unique(sapply(nm, function(i) {
-      names(models[[i]])
-    }, USE.NAMES = FALSE, simplify = FALSE)))
+    nrep <- length(models[[1]])
   }
 
-
-  # Clamp variables if required
-  # To do:
-  #  - Add a warning if the variable is not in the calibration data
-
-  if (extrapolation_type == "EC") {
-    varmin <- models[[1]][[1]]$varmin[-1]  # Get var min
-    varmax <- models[[1]][[1]]$varmax[-1]  # Get var max
-    if (is.null(var_to_restrict)) {
-      var_to_restrict <- setdiff(names(varmin), c("pr_bg", "fold"))
-    }
-
-    if(inherits(new_variables, "SpatRaster")){
-      clamped_variables <- terra::rast(lapply(var_to_restrict, function(i) {
-        terra::clamp(new_variables[[i]], lower = varmin[i],
-                     upper = varmax[i], values = TRUE)
-    }))
-    new_variables[[names(clamped_variables)]] <- clamped_variables
-    } else if (inherits(new_variables, "data.frame")){
-      # Apply clamp for each column
-      for (col_name in var_to_restrict) {
-        # Clampar lower values
-        new_variables[[col_name]][new_variables[[col_name]] < varmin[col_name]] <- varmin[col_name]
-        # Clamp higher values
-        new_variables[[col_name]][new_variables[[col_name]] > varmax[col_name]] <- varmax[col_name]
+  # Convert categorical layers to factors before extracting values
+  if (!is.null(categorical_layers) && length(categorical_layers) > 0) {
+    for (layer in categorical_layers) {
+      if (layer %in% names(new_variables)) {
+        new_variables[[layer]] <- if (is_raster) {
+          terra::as.factor(new_variables[[layer]])
+        } else {
+          as.factor(new_variables[[layer]])
+        }
+      } else {
+        warning(paste("Layer", layer, "not found in 'new_variables'."))
       }
-    } #End of if new_variables is data.frame
-  } #End of if extrapolation_type == "EC"
+    }
+  }
 
-  if(extrapolation_type == "NE"){
-    varmin <- models[[1]][[1]]$varmin[-1]  # Get var min
-    varmax <- models[[1]][[1]]$varmax[-1]  # Get var max
+
+  # Prepare tabular newdata once (avoids repeated terra::predict overhead)
+  template_rast <- NULL
+  n_cells <- NULL
+  n_rows <- NULL
+
+  if (is_raster) {
+    template_rast <- new_variables[[1]]
+    n_cells <- terra::ncell(template_rast)
+    vals_df <- terra::as.data.frame(new_variables, cells = TRUE, na.rm = TRUE)
+    valid_cells <- vals_df$cell
+    newdata_df <- vals_df[, -1, drop = FALSE]
+  } else {
+    valid_cells <- which(stats::complete.cases(new_variables))
+    newdata_df <- new_variables[valid_cells, , drop = FALSE]
+    n_rows <- nrow(new_variables)
+  }
+
+  # Handle clamping ("EC") or no-extrapolation ("NE") on tabular data
+  if (extrapolation_type %in% c("EC", "NE")) {
+    varmin <- models[[1]][[1]]$varmin[-1]
+    varmax <- models[[1]][[1]]$varmax[-1]
     if (is.null(var_to_restrict)) {
       var_to_restrict <- setdiff(names(varmin), c("pr_bg", "fold"))
     }
 
-    if(inherits(new_variables, "SpatRaster")){
-      #Idenfity cells to not extrapolate
-      no_extrapolate <- lapply(var_to_restrict, function(i){
-        i_min <- terra::cells(x = (new_variables[[i]] < varmin[i]) * 1, y = 1)
-        i_max <- terra::cells(x = (new_variables[[i]] > varmax[i]) * 1, y = 1)
-        return(unique(i_min, i_max))
-      })
-
-      } else if(inherits(new_variables, "data.frame")){
-        no_extrapolate <- lapply(var_to_restrict, function(i){
-          i_min <- which(new_variables[,i] < varmin[i])
-          i_max <- which(new_variables[,i] > varmax[i])
-          return(unique(i_min, i_max))
-        })
-    } #End of if new_variables is data.frame
-
-    #Get unique cells to no extrapolate
-    no_extrapolate <- unique(unlist(no_extrapolate))
+    if (extrapolation_type == "EC") {
+      for (col_name in var_to_restrict) {
+        if (is.numeric(newdata_df[[col_name]])) {
+          newdata_df[[col_name]][newdata_df[[col_name]] < varmin[col_name]] <- varmin[col_name]
+          newdata_df[[col_name]][newdata_df[[col_name]] > varmax[col_name]] <- varmax[col_name]
+        }
+      }
+    } else if (extrapolation_type == "NE") {
+      no_extrapolate <- unique(unlist(lapply(var_to_restrict, function(i) {
+        if (is.numeric(newdata_df[[i]])) {
+          which(newdata_df[[i]] < varmin[i] | newdata_df[[i]] > varmax[i])
+        } else {
+          integer(0)
+        }
+      }), use.names = FALSE))
+    }
   }
 
-  # Prepare progress bar
-  n_models <- length(models)
-  if (progress_bar) {
-    pb <- utils::txtProgressBar(0, n_models, style = 3)
-  }
+  # Setup progress bar options safely for CRAN
+  old_pbopt <- pbapply::pboptions(
+    type = if (progress_bar) progress_type else "none"
+  )
+  on.exit(pbapply::pboptions(old_pbopt), add = TRUE)
 
-  #Create empty list
-  p_models <- list()
+  # Fill the list with predictions (fast vectorized prediction)
+  p_vecs <- pbapply::pblapply(
+    X = models,
+    FUN = function(model_reps) {
+      lapply(model_reps, function(x) {
+        if (inherits(x, "glmnet")) {
+          pred <- as.numeric(predict.glmnet_mx(x, newdata = newdata_df,
+                                               type = type))
+        } else if (inherits(x, "glm")) {
+          pred <- as.numeric(predict_glm_mx(x, newdata = newdata_df,
+                                            type = type))
+        }
 
-  # Fill the list with predictions
-  for (i in seq_along(models)) {
-    inner_list <- list()
-
-    for (x in models[[i]]) {
-
-      if (inherits(new_variables, "SpatRaster")) {
-
-        #  Convert Layers to Factors in SpatRaster
-        if (!is.null(categorical_layers) && length(categorical_layers) > 0) {
-          for (layer in categorical_layers) {
-            if (layer %in% names(new_variables)) {  # Check if the layer exists
-              new_variables[[layer]] <- terra::as.factor(new_variables[[layer]])
-            } else {
-              warning(paste("Layer", layer, "not found in the SpatRaster."))
-            }
+        # If no extrapolate, set rows beyond limits to 0
+        if (extrapolation_type == "NE" && length(no_extrapolate) > 0) {
+          pred[no_extrapolate] <- 0
+          if (type == "cumulative") {
+            pred <- cumulative_predictions(pred)
           }
         }
-
-        if (inherits(x, "glmnet")) {
-          prediction <- terra::predict(new_variables, x, na.rm = TRUE,
-                                       type = type, fun = predict.glmnet_mx)
-        } else if (inherits(x, "glm")) {
-          prediction <- terra::predict(new_variables, x, na.rm = TRUE,
-                                       type = type, fun = predict_glm_mx)
-        }
-      } else if (inherits(new_variables, "data.frame")) {
-        if (inherits(x, "glmnet")) {
-          prediction <- as.numeric(predict.glmnet_mx(x, newdata = new_variables,
-                                                     type = type))
-        } else if (inherits(x, "glm")) {
-          prediction <- as.numeric(predict_glm_mx(x, newdata = new_variables,
-                                   type = type))
-        }
-      }
-
-      #If no extrapolate, set cells beyond limits to 0
-      if(extrapolation_type == "NE"){
-        if(length(no_extrapolate) > 0){
-          prediction[no_extrapolate] <- 0
-          if(type == "cumulative") { #Recalculate cumulative values
-            #For spatraster
-            if(inherits(new_variables, "SpatRaster")){
-              numeric_predictions <- terra::values(prediction, na.rm = TRUE)
-              prediction[!is.na(prediction)] <- cumulative_predictions(numeric_predictions) }
-            #For data.frame
-            if(inherits(new_variables, "data.frame")){
-              prediction <- cumulative_predictions(prediction)
-            }
-          } #End of type = cumulative
-        } #End of length(extrapolate) > 0
-        } #End of extrapolation_type == "NE"
-
-      #Save in list
-      inner_list[[length(inner_list) + 1]] <- prediction
+        return(pred)
+      })
     }
+  )
 
-    if (inherits(new_variables, "SpatRaster")) {
-      p_models[[length(p_models) + 1]] <- terra::rast(inner_list)
-    } else if (inherits(new_variables, "data.frame")) {
-      p_models[[length(p_models) + 1]] <- inner_list
-    }
+  # Build per-model results
+  res <- lapply(seq_along(nm), function(idx) {
+    mod_reps <- p_vecs[[idx]]
+    names(mod_reps) <- names(models[[idx]])
+    mat_mod <- do.call(cbind, mod_reps)
 
-    # Update progress bar
-    if (progress_bar) {
-      utils::setTxtProgressBar(pb, i)
-    }
-  }
-
-  # Rename models and replicates
-  names(p_models) <- nm
-  for (i in nm) {
-    names(p_models[[i]]) <- names(models[[i]])
-  }
-
-  # Create an empty list to store results
-  res <- list()
-
-  #### Get consensus by model if new_variables is a SpatRaster ####
-  if (inherits(new_variables, "SpatRaster")) {
-    rep <- unlist(p_models)
-
-    if (nrep == 1) {
-      res$Consensus_per_model$Full_model <- lapply(p_models, function(x) {x})
+    if (nrep == 1L) {
+      mcs <- list_to_container(
+        v_list = list(Full_model = mat_mod[, 1L]),
+        is_raster = is_raster,
+        valid_cells = valid_cells,
+        template_rast = template_rast,
+        n_cells = n_cells,
+        n_rows = n_rows
+      )
+      return(list(Model_consensus = mcs))
     } else {
+      rep_out <- list_to_container(
+        v_list = mod_reps,
+        is_raster = is_raster,
+        valid_cells = valid_cells,
+        template_rast = template_rast,
+        n_cells = n_cells,
+        n_rows = n_rows
+      )
       if (consensus_per_model) {
-        if ("median" %in% consensus) {
-          res$Consensus_per_model$median <- terra::rast(lapply(p_models, terra::median))
-        }
-        if ("mean" %in% consensus) {
-          res$Consensus_per_model$mean <- terra::rast(lapply(p_models, terra::mean))
-        }
-        if ("range" %in% consensus) {
-          res$Consensus_per_model$range <- terra::rast(lapply(p_models, function(r) {
-            terra::diff(range(r))
-          }))
-        }
-        if ("stdev" %in% consensus) {
-          res$Consensus_per_model$stdev <- terra::rast(lapply(p_models, terra::stdev))
-        }
+        cons_list <- calc_mat_consensus(mat_mod, consensus)
+        mcs <- list_to_container(
+          v_list = cons_list,
+          is_raster = is_raster,
+          valid_cells = valid_cells,
+          template_rast = template_rast,
+          n_cells = n_cells,
+          n_rows = n_rows
+        )
+        return(list(Replicates = rep_out, Model_consensus = mcs))
+      } else {
+        return(list(Replicates = rep_out))
       }
     }
+  })
+  names(res) <- nm
 
-    gen_res <- list()
-    if (consensus_general && length(p_models) == 1 && consensus_per_model) {
-      if (nrep == 1) {
-        gen_res$Full_model <- res$Consensus_per_model$Full_model[[1]]
+  # Build general consensus if requested
+  if (consensus_general) {
+    if (nrep == 1L && length(nm) == 1L) {
+      if (is_raster) {
+        res <- c(res, General_consensus = res[[1L]]$Model_consensus)
       } else {
-        if ("median" %in% consensus) {
-          gen_res$median <- res$Consensus_per_model$median
-        }
-        if ("mean" %in% consensus) {
-          gen_res$mean <- res$Consensus_per_model$mean
-        }
-        if ("range" %in% consensus) {
-          gen_res$range <- res$Consensus_per_model$range
-        }
-        if ("stdev" %in% consensus) {
-          gen_res$stdev <- res$Consensus_per_model$stdev
-        }
+        res$General_consensus <- res[[1L]]$Model_consensus
       }
-
-    } else if (consensus_general && length(p_models) > 1) {
-      all_rep <- terra::rast(p_models)
-
-      if ("median" %in% consensus) {
-        gen_res$median <- terra::median(all_rep)
-      }
-      if ("mean" %in% consensus) {
-        gen_res$mean <- terra::mean(all_rep)
-      }
-      if ("range" %in% consensus) {
-        gen_res$range <- terra::diff(range(all_rep))
-      }
-      if ("stdev" %in% consensus) {
-        gen_res$stdev <- terra::stdev(all_rep)
-      }
-    }
-
-    res <- lapply(1:length(nm), function(x) {
-      if (nrep == 1) {
-        mcs <- lapply("Full_model", function(y) {
-          res$Consensus_per_model[[y]][[x]]
-        })
-        mcs <- terra::rast(mcs)
-        names(mcs) <- "Full_model"
-        list(Model_consensus = mcs)
-      } else {
-        mcs <- lapply(consensus, function(y) {
-          res$Consensus_per_model[[y]][[x]]
-        })
-        mcs <- terra::rast(mcs)
-        names(mcs) <- consensus
-        list(Replicates = rep[[x]], Model_consensus = mcs)
-      }
-    })
-
-    names(res) <- nm
-    if(nrep == 1 & length(p_models) == 1) {
-      res <- c(res, General_consensus = gen_res$Full_model)
     } else {
-    res <- c(res, General_consensus = terra::rast(gen_res))
-    }
-  }
-
-  #### Get consensus by model if new_variables is a data.frame ####
-  if (inherits(new_variables, "data.frame")) {
-    rep <- lapply(p_models, as.data.frame)
-
-    if (nrep == 1) {
-      res$Consensus_per_model$Full_model <- lapply(p_models, function(x) {x})
-    } else {
-      if (consensus_per_model) {
-        if ("median" %in% consensus) {
-          res$Consensus_per_model$median <- lapply(p_models, function(x){
-            apply(as.data.frame(x), 1, stats::median)
-          })
-        }
-        if ("mean" %in% consensus) {
-          res$Consensus_per_model$mean <- lapply(p_models, function(x){
-            apply(as.data.frame(x), 1, mean)})
-        }
-        if ("stdev" %in% consensus) {
-          res$Consensus_per_model$stdev <- lapply(p_models, function(x){
-            apply(as.data.frame(x), 1, stats::sd)})
-        }
-        if ("range" %in% consensus) {
-          res$Consensus_per_model$range <- lapply(p_models, function(x){
-            x_df <- as.data.frame(x)
-            min_x <- apply(x_df, 1, min, na.rm = TRUE)
-            max_x <- apply(x_df, 1, max, na.rm = TRUE)
-            return(max_x - min_x)
-            })
-        }
-      }
-    }
-
-    gen_res <- list()
-    if (consensus_general && length(p_models) == 1 && consensus_per_model) {
-      if (nrep == 1) {
-        gen_res$Full_model <- res$Consensus_per_model$Full_model
+      all_mat <- do.call(cbind, unlist(p_vecs, recursive = FALSE))
+      gen_list <- calc_mat_consensus(all_mat, consensus)
+      gen_out <- list_to_container(
+        v_list = gen_list,
+        is_raster = is_raster,
+        valid_cells = valid_cells,
+        template_rast = template_rast,
+        n_cells = n_cells,
+        n_rows = n_rows
+      )
+      if (is_raster) {
+        res <- c(res, General_consensus = gen_out)
       } else {
-        if ("median" %in% consensus) {
-          gen_res$median <- res$Consensus_per_model$median
-        }
-        if ("range" %in% consensus) {
-          gen_res$range <- res$Consensus_per_model$range
-        }
-        if ("mean" %in% consensus) {
-          gen_res$mean <- res$Consensus_per_model$mean
-        }
-        if ("stdev" %in% consensus) {
-          gen_res$stdev <- res$Consensus_per_model$stdev
-        }
-      }
-
-    } else if (consensus_general && length(p_models) > 1) {
-      all_rep <- as.data.frame(p_models)
-
-      if ("median" %in% consensus) {
-        gen_res$median <- apply(all_rep, 1, stats::median)
-      }
-      if ("range" %in% consensus) {
-        min_all_rep <- apply(all_rep, 1, min, na.rm = TRUE)
-        max_all_rep <- apply(all_rep, 1, max, na.rm = TRUE)
-        gen_res$range <- max_all_rep - min_all_rep
-      }
-      if ("mean" %in% consensus) {
-        gen_res$mean <- apply(all_rep, 1, mean)
-      }
-      if ("stdev" %in% consensus) {
-        gen_res$stdev <- apply(all_rep, 1, stats::sd)
+        res$General_consensus <- gen_out
       }
     }
-
-    res <- lapply(1:length(nm), function(x) {
-      if (nrep == 1) {
-        mcs <- lapply("Full_model", function(y) {
-          res$Consensus_per_model[[y]][[x]]
-        })
-        names(mcs) <- "Full_model"
-        list(Model_consensus = mcs)
-      } else {
-        mcs <- lapply(consensus, function(y) {
-          res$Consensus_per_model[[y]][[x]]
-        })
-        names(mcs) <- consensus
-        list(Replicates = rep[[x]], Model_consensus = as.data.frame(mcs))
-      }
-    })
-
-    names(res) <- nm
-    res$General_consensus <- as.data.frame(gen_res)
-    colnames(res$General_consensus) <- names(gen_res)
   }
 
   # Write results to disk if required
@@ -563,37 +403,44 @@ predict_selected <- function(models,
       dir.create(out_dir, recursive = TRUE)
     }
 
-    #Save if new_variables are spatraster
-    if(inherits(new_variables, "SpatRaster")){
-      sapply(nm, function(i) {
-        if (write_replicates & nrep > 1) {
+    if (is_raster) {
+      for (i in nm) {
+        if (write_replicates && nrep > 1L) {
           terra::writeRaster(res[[i]]$Replicates,
-                           file.path(out_dir, paste0(i, "_replicates.tif")),
-                           overwrite = overwrite)
-          }
-          terra::writeRaster(res[[i]]$Model_consensus,
-                         file.path(out_dir, paste0(i, "_consensus.tif")),
-                         overwrite = overwrite)
-          })
-      terra::writeRaster(res$General_consensus,
-                         file.path(out_dir, "General_consensus.tif"),
-                         overwrite = overwrite)
-    }
-
-    #Save if new_variables are data.frame
-    if(inherits(new_variables, "data.frame")){
-      sapply(nm, function(i) {
-        if (write_replicates & nrep > 1) {
-          utils::write.csv(res[[i]]$Replicates,
-                           file.path(out_dir, paste0(i, "_replicates.csv")))
+                             file.path(out_dir, paste0(i, "_replicates.tif")),
+                             overwrite = overwrite)
         }
-        utils::write.csv(res[[i]]$Model_consensus,
-                file.path(out_dir, paste0(i, "_consensus.csv")))
-      })
-      utils::write.csv(res$General_consensus,
-                       file.path(out_dir, "General_consensus.csv"))
+        if (!is.null(res[[i]]$Model_consensus)) {
+          terra::writeRaster(res[[i]]$Model_consensus,
+                             file.path(out_dir, paste0(i, "_consensus.tif")),
+                             overwrite = overwrite)
+        }
+      }
+      if (!is.null(res$General_consensus)) {
+        terra::writeRaster(res$General_consensus,
+                           file.path(out_dir, "General_consensus.tif"),
+                           overwrite = overwrite)
+      }
+    } else {
+      for (i in nm) {
+        if (write_replicates && nrep > 1L) {
+          utils::write.csv(res[[i]]$Replicates,
+                           file.path(out_dir, paste0(i, "_replicates.csv")),
+                           row.names = FALSE)
+        }
+        if (!is.null(res[[i]]$Model_consensus)) {
+          utils::write.csv(res[[i]]$Model_consensus,
+                           file.path(out_dir, paste0(i, "_consensus.csv")),
+                           row.names = FALSE)
+        }
+      }
+      if (!is.null(res$General_consensus)) {
+        utils::write.csv(res$General_consensus,
+                         file.path(out_dir, "General_consensus.csv"),
+                         row.names = FALSE)
+      }
     }
   }
 
   return(res)
-} # End of function
+}

@@ -7,7 +7,8 @@
 organize_future_worldclim(input_dir, output_dir, name_format = "bio_",
                           variables = NULL, static_variables = NULL,
                           check_extent = TRUE, mask = NULL,
-                          progress_bar = TRUE, overwrite = FALSE)
+                          progress_bar = TRUE, progress_type = "timer",
+                          overwrite = FALSE)
 }
 \arguments{
 \item{input_dir}{(character) path to the folder containing the future climate
@@ -16,9 +17,9 @@ variables downloaded from WorldClim.}
 \item{output_dir}{(character) path to the folder where the organized data
 will be saved.}
 
-\item{name_format}{(character) the format for renaming variable. Options are
-"bio_", "Bio_", "bio_0", and "Bio_0". See details for more information.
-Default is "bio_".}
+\item{name_format}{(character) the format for renaming variables. Options are
+\code{"bio_"}, \code{"Bio_"}, \code{"bio_0"}, \code{"Bio_0"}, \code{"bio"}, and \code{"Bio"}. See details
+for more information. Default is \code{"bio_"}.}
 
 \item{variables}{(character) the names of the variables to retain. Default
 is NULL, meaning all variables will be kept.}
@@ -37,12 +38,16 @@ mask the variables (optional). Default is NULL.}
 \item{progress_bar}{(logical) whether to display a progress bar during
 processing. Default is TRUE.}
 
-\item{overwrite}{whether to overwrite existing files in the output directory.
-Default is FALSE.}
+\item{progress_type}{(character) type of the progress bar. See
+\code{pbapply::pbtypes()} for available progress bar types depending on operating
+system. Default is \code{"timer"}.}
+
+\item{overwrite}{(logical) whether to overwrite existing files in the output
+directory. Default is FALSE.}
 }
 \value{
-A list of paths to the folders where the organized climate data has been
-saved.
+Invisibly returns a character vector of paths to the folders where the
+organized climate data has been saved.
 }
 \description{
 This function imports future climate variables downloaded from WorldClim,
@@ -57,10 +62,10 @@ The raw variables downloaded from WorldClim are named as "Bio01", "Bio02",
 "Bio03", "Bio10", etc. The \code{name_format} parameter controls how these
 variables will be renamed:
 \itemize{
-\item "bio_": the variables will be renamed to bio_1, bio_2, bio_3, bio_10, etc.
-\item "bio_0": the variables will be renamed to bio_01, bio_02, bio_03, bio_10, etc
-\item "Bio_": the variables will be renamed to Bio_1, Bio_2, Bio_3, Bio_10, etc.
-\item "Bio_0": the variables will be renamed to Bio_01, Bio_02, Bio_03, Bio_10, etc.
+\item \code{"bio_"}: the variables will be renamed to bio_1, bio_2, bio_3, bio_10, etc.
+\item \code{"bio_0"}: the variables will be renamed to bio_01, bio_02, bio_03, bio_10, etc.
+\item \code{"Bio_"}: the variables will be renamed to Bio_1, Bio_2, Bio_3, Bio_10, etc.
+\item \code{"Bio_0"}: the variables will be renamed to Bio_01, Bio_02, Bio_03, Bio_10, etc.
 }
 }
 \examples{
